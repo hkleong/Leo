@@ -1,0 +1,21 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: a clean-shaven, smooth youthful East Asian face with no beard or stubble, messy black hair with bangs covering his forehead, an oversized black leather jacket over a plain white T-shirt with a thin silver chain. He replaces the bearded man in the black tuxedo in <Video 1>.
+<Video 1> is the source video for the target video edit.
+<Audio 1> is the synchronized audio track of <Video 1> and is reused.
+
+summary:
+[video editing + reference generation + audio reuse] The target video is an edited version of <Video 1>. Replace the selected person in <Video 1>, the bearded man in the black tuxedo, with <Subject 1>. Keep the reference character's face, hair and clothing. Follow the source performance's pose, gaze, expression and movement exactly, at the same timing and speed. Preserve the scene, the camera and the other people.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1]): fully_preserved - his clean-shaven face, hair and leather-jacket outfit are kept throughout.
+<Video 1> (edit source): partially_preserved - everything is kept identical except that the bearded man is replaced by <Subject 1>.
+<Audio 1>: fully_copy - the original audio is reused 1:1.
+
+detailed_description:
+The target video keeps the warm live-broadcast look of <Video 1>. [Shot 1] Exactly as in <Video 1>, frame by frame, with the bearded man replaced by <Subject 1>, whose clean-shaven youthful face, messy black hair and black leather jacket appear wherever the original man appears, performing every movement at the same moment and speed.
+
+overall_soundscape:
+<Audio 1> is reused 1:1: loud applause and cheering in a large hall.
+
+non_diegetic_music:
+N/A

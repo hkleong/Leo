@@ -1,0 +1,20 @@
+subject_definitions:
+<Subject 1> is the adult woman in <Picture 1> and <Picture 2>: a small oval face, clear bright eyes with natural double eyelids, a small straight nose, full lips with a soft coral-pink tint, light eyeliner, clean, smooth, even skin with a soft matte finish and a healthy glow, long straight dark-brown hair with light see-through bangs and loose face-framing strands, small gold hoop earrings, a thin gold necklace. In this video she wears a cream knit cardigan over a light top.
+<Subject 2> is a cozy bedroom with warm beige walls, a few small framed pictures hanging behind her, and soft warm indoor light.
+
+summary:
+[reference generation] A single continuous handheld front-camera selfie of <Subject 1> in <Subject 2>: she plays with her hair, pushes the phone in to an extreme close-up of her lips, pulls back, brushes her hair, tilts her head and gazes softly into the lens.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1]): fully_preserved - her face, hair, earrings and necklace from <Picture 1> and <Picture 2> are kept in every frame, including the extreme close-ups.
+<Subject 2> (appears in [Shot 1]): fully_preserved - the beige walls, framed pictures and warm light stay consistent.
+
+detailed_description:
+The target video looks like a real smartphone front-camera selfie with a soft beauty filter, not a clean studio image: warm indoor light, the beauty filter giving her skin a smooth, clean, soft-focus matte look that is not oily or shiny, very light grain, motion blur and brief focus hunting whenever the phone moves, auto-exposure breathing and light compression. The phone is always held in her hand, never stabilized. Only <Subject 1> appears; no text, no watermark, no speech.
+[Shot 1] A handheld medium close-up selfie opens on <Subject 1> in <Subject 2>, framed from her chest up, her right hand raised and resting in her hair, smiling softly at the lens. The camera pushes in with large amplitude at fast speed as she brings the phone close, her face filling the frame while she glances to the side with a small smile. At about 00:01.500 the phone pushes in further to an extreme close-up of her nose and lips; by 00:02.000 her coral-pink lips fill the entire frame in a soft pout, slightly blurred by the motion. At about 00:03.000 the camera pulls out with small amplitude to the lower half of her face as she smiles, then she lifts her hand and brushes her hair, eyes lowered. At about 00:04.000 she briefly closes her eyes while running her fingers through her hair and tilts her head, then opens her eyes and looks into the lens, the framed pictures on the beige wall now visible behind her. From about 00:05.000 she touches her hair again, glances sideways and back, lips slightly parted, the camera shaking slightly with her hand. At about 00:06.500 she tilts her head and holds the lens with a calm, gentle half-smile. From about 00:08.000 the phone comes in close again as she tilts her head to one side, her eyes drifting sideways and back to the camera with a soft smile, holding this close framing until the final frame.
+
+overall_soundscape:
+Quiet indoor room tone, soft fabric rustle as she moves, her hair brushing, and a light breath near the phone microphone.
+
+non_diegetic_music:
+An original female-vocal R&B-pop track at about 104 BPM with a low bass and short electronic drum hits; the push-in to her lips and the return close-up land on drum hits.

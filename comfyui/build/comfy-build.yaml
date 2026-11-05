@@ -1,0 +1,90 @@
+schema: comfy-build/1
+id: e981cb77-d330-4d93-ac46-de4a7ebebad3
+name: h3-scail2-video-service
+description: MiniMax H3 Ref2VA image-to-video and SCAIL-2 Int8 character replacement workflows.
+syncedRevision: '2026-11-05T10:17:13.353799Z'
+definition:
+  schema: distribution-definition/0
+  baseComfyVersion: v0.43.2
+  baseImage: cuda130-py312
+  models:
+    - filename: sam3.1_multiplex_fp16.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/sam3.1/resolve/main/checkpoints/sam3.1_multiplex_fp16.safetensors
+      type: checkpoints
+    - filename: clip_vision_h.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/clip_vision/clip_vision_h.safetensors?download=true
+      type: clip_vision
+    - filename: minimax_h3_ref2va_pruned_int8_convrot.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors
+      type: diffusion_models
+    - filename: qwen_image_2.1_int8_convrot.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/diffusion_models/qwen_image_2.1_int8_convrot.safetensors
+      type: diffusion_models
+    - filename: wan2.1_14B_SCAIL_2_int8_convrot.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/SCAIL-2/resolve/main/diffusion_models/wan2.1_14B_SCAIL_2_int8_convrot.safetensors
+      type: diffusion_models
+    - filename: h3_character_swap_v1.5.safetensors
+      sha256: 8f2c3c3eba161df8d0c6099598b4730f641f5ce01e04cd16d2427cff8a35218f
+      sourceUri: https://huggingface.co/akatz-ai/MiniMax-H3-Character-Swap-LoRA/resolve/main/h3_character_swap_v1.5.safetensors
+      type: loras
+    - filename: lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors
+      sourceUri: https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Lightx2v/lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors?download=true
+      type: loras
+    - filename: minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors
+      sourceUri: https://huggingface.co/lightx2v/Minimax-h3-Turbo/resolve/main/minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors
+      type: loras
+    - filename: minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/loras/minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors
+      type: loras
+    - filename: minimax_h3_ref2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors
+      sha256: 6a56f41ab4229c9dd845b9501bbd475ee57e112d846cf2e819d534a1ae928c5a
+      sourceUri: https://huggingface.co/lightx2v/Minimax-h3-Turbo/resolve/main/minimax_h3_ref2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors
+      type: loras
+    - filename: p_q_image_2.1_8_steps_v0.1_comfyui_bf16.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/loras/p_q_image_2.1_8_steps_v0.1_comfyui_bf16.safetensors
+      type: loras
+    - filename: wan2.1_SCAIL_2_DPO_lora_bf16.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/SCAIL-2/resolve/main/loras/wan2.1_SCAIL_2_DPO_lora_bf16.safetensors
+      type: loras
+    - filename: qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors
+      type: text_encoders
+    - filename: qwen3vl_8b_int8_convrot.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/text_encoders/qwen3vl_8b_int8_convrot.safetensors
+      type: text_encoders
+    - filename: umt5_xxl_fp8_e4m3fn_scaled.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors?download=true
+      type: text_encoders
+    - filename: Wan2_1_VAE_bf16.safetensors
+      sourceUri: https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Wan2_1_VAE_bf16.safetensors?download=true
+      type: vae
+    - filename: minimax_h3_audio_vae_fp32.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors
+      type: vae
+    - filename: minimax_h3_video_vae_int8_convrot.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_int8_convrot.safetensors
+      type: vae
+    - filename: qwen_image_2.1_vae_bf16.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/vae/qwen_image_2.1_vae_bf16.safetensors
+      type: vae
+  customNodes:
+    - id: maskvidexperiments
+      name: MaskVidExperiments
+      registryVersion: 0.2.1
+  pipDependencies: |-
+  environment:
+    arch: x86_64
+    os: Linux
+    pythonVersion: 3.13.18
+    torch: null
+  customNodePolicy:
+    list: []
+    mode: blocklist
+  modelPolicy:
+    list: []
+    mode: blocklist
+  partnerNodePolicy:
+    list: []
+    mode: blocklist
+  uiBuilderIntent:
+    - serverless

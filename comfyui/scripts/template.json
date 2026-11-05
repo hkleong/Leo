@@ -1,0 +1,474 @@
+{
+ "115": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "Resolution Selector (Size)",
+   "ver": "0.33.0"
+  },
+  "class_type": "ResolutionSelector",
+  "inputs": {
+   "aspect_ratio": "16:9 (Widescreen)",
+   "megapixels": 0.7,
+   "multiple": 32
+  }
+ },
+ "119": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "加载VAE",
+   "ver": "0.33.0"
+  },
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_video_vae_int8_convrot.safetensors"
+  }
+ },
+ "120": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "加载VAE",
+   "ver": "0.33.0"
+  },
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "minimax_h3_audio_vae_fp32.safetensors"
+  }
+ },
+ "121": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "VAE解码（音频）",
+   "ver": "0.33.0"
+  },
+  "class_type": "VAEDecodeAudio",
+  "inputs": {
+   "samples": [
+    "125",
+    0
+   ],
+   "vae": [
+    "120",
+    0
+   ]
+  }
+ },
+ "122": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "VAE解码",
+   "ver": "0.33.0"
+  },
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "125",
+    0
+   ],
+   "vae": [
+    "119",
+    0
+   ]
+  }
+ },
+ "123": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "K采样器选择",
+   "ver": "0.33.0"
+  },
+  "class_type": "KSamplerSelect",
+  "inputs": {
+   "sampler_name": "res_multistep"
+  }
+ },
+ "124": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "基本调度器",
+   "ver": "0.33.0"
+  },
+  "class_type": "BasicScheduler",
+  "inputs": {
+   "denoise": 1,
+   "model": [
+    "127",
+    0
+   ],
+   "scheduler": "simple",
+   "steps": [
+    "142",
+    0
+   ]
+  }
+ },
+ "125": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "自定义采样器（高级）",
+   "ver": "0.33.0"
+  },
+  "class_type": "SamplerCustomAdvanced",
+  "inputs": {
+   "guider": [
+    "126",
+    0
+   ],
+   "latent_image": [
+    "136",
+    1
+   ],
+   "noise": [
+    "129",
+    0
+   ],
+   "sampler": [
+    "123",
+    0
+   ],
+   "sigmas": [
+    "124",
+    0
+   ]
+  }
+ },
+ "126": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "基本引导器",
+   "ver": "0.33.0"
+  },
+  "class_type": "BasicGuider",
+  "inputs": {
+   "conditioning": [
+    "136",
+    0
+   ],
+   "model": [
+    "141",
+    0
+   ]
+  }
+ },
+ "127": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "UNet加载器",
+   "ver": "0.33.0"
+  },
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "128": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "加载CLIP",
+   "ver": "0.33.0"
+  },
+  "class_type": "CLIPLoader",
+  "inputs": {
+   "clip_name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "device": "default",
+   "type": "minimax"
+  }
+ },
+ "129": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "随机噪波",
+   "ver": "0.33.0"
+  },
+  "class_type": "RandomNoise",
+  "inputs": {
+   "noise_seed": 241066989453530
+  }
+ },
+ "130": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "创建视频",
+   "ver": "0.33.0"
+  },
+  "class_type": "CreateVideo",
+  "inputs": {
+   "audio": [
+    "121",
+    0
+   ],
+   "bit_depth": 8,
+   "codec": "none",
+   "color_space": "sRGB",
+   "fps": 24,
+   "images": [
+    "122",
+    0
+   ]
+  }
+ },
+ "131": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "数学表达式",
+   "ver": "0.33.0"
+  },
+  "class_type": "ComfyMathExpression",
+  "inputs": {
+   "expression": "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17",
+   "values.a": [
+    "132",
+    0
+   ]
+  }
+ },
+ "132": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "Float (Duration)",
+   "ver": "0.33.0"
+  },
+  "class_type": "PrimitiveFloat",
+  "inputs": {
+   "value": 12
+  }
+ },
+ "136": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "MiniMax H3 参考转视频",
+   "ver": "0.33.0"
+  },
+  "class_type": "MiniMaxH3ReferenceToVideo",
+  "inputs": {
+   "audio_vae": [
+    "120",
+    0
+   ],
+   "clip": [
+    "128",
+    0
+   ],
+   "height": [
+    "115",
+    1
+   ],
+   "length": [
+    "131",
+    1
+   ],
+   "prompt": [
+    "138",
+    0
+   ],
+   "ref_image_size": "match",
+   "ref_images.ref_image_0": [
+    "137",
+    0
+   ],
+   "ref_images.ref_image_1": [
+    "139",
+    0
+   ],
+   "ref_images.ref_image_2": [
+    "149",
+    0
+   ],
+   "ref_video_audios.ref_video_audio_0": [
+    "148",
+    1
+   ],
+   "ref_videos.ref_video_0": [
+    "148",
+    0
+   ],
+   "vae": [
+    "119",
+    0
+   ],
+   "width": [
+    "115",
+    0
+   ]
+  }
+ },
+ "137": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "加载图像",
+   "ver": "0.33.0"
+  },
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "00bf57baef0c39db9b8a4436892e7c3e217eb9bc64b4509e0fe42925ee2c1aab.png"
+  }
+ },
+ "138": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "Input Text (Prompt)",
+   "ver": "0.33.0"
+  },
+  "class_type": "PrimitiveStringMultiline",
+  "inputs": {
+   "value": "subject_definitions:\n<Subject 1> is the young East Asian schoolboy whose appearance comes from <Picture 1> and whose position, selfie framing, and expressions come from the red mannequin in <Video 1>: slightly wavy, fluffy short black hair, a dark-grey school blazer, a white shirt, a navy-and-white diagonally striped tie, and a name badge.\n<Subject 2> is the young East Asian schoolgirl whose appearance comes from <Picture 2> and whose complete full-body choreography, footwork, and timing come from the white mannequin in <Video 1>: a low black ponytail with soft airy bangs, a white long-sleeved school blouse, a navy bow, a navy pleated skirt, white knee-high socks, and black loafers.\n<Subject 3> is the real East Asian residential street in <Picture 3>: a two-lane asphalt road on the left, a concrete sidewalk on the right, low houses, roll-up shutter storefronts, small trees, and parked cars under soft overcast daylight.\n<Video 1> is the whole-video reference for camera movement, subject placement, and the full-body dance choreography and its timing.\n<Audio 1> is the synchronized music track of <Video 1> and is reused as the background music.\n\nsummary:\n[reference generation + audio reuse] A single continuous handheld selfie shot on <Subject 3>: <Subject 1> films himself in the left foreground while <Subject 2> dance-walks forward behind his right shoulder as they both advance along the sidewalk, performing the white mannequin's complete full-body dance from <Video 1> with every arm, hip, knee, and foot movement while moving forward, to <Audio 1>.\n\nretention_analysis:\n<Subject 1> (appears in [Shot 1]): fully_preserved - face, hair, and full school uniform are kept unchanged.\n<Subject 2> (appears in [Shot 1]): fully_preserved - face, ponytail with bangs, and full school uniform are kept unchanged.\n<Subject 3> (appears in [Shot 1]): fully_preserved - the road, sidewalk, houses, shutters, trees, and overcast light are retained.\n<Video 1> (camera movement, placement, and choreography): partially_preserved - the selfie framing, the subject spacing, and the white mannequin's full-body dance moves and timing are copied exactly, while the mannequins, green screen, and grey floor are fully replaced by <Subject 1>, <Subject 2>, and <Subject 3>.\n<Audio 1>: fully_copy - the music is reused 1:1 as the soundtrack.\n\ndetailed_description:\nThe target video is live-action and photorealistic, with a natural Japanese-drama film look, soft overcast daylight, and realistic skin, hair, and fabric texture.\n[Shot 1] A wide-angle, close-range smartphone selfie POV on <Subject 3>. <Subject 1> fills nearly the left half of the frame in the extreme foreground, one arm extended toward the lens, smiling into the camera with a relaxed, natural expression, gently swaying with the handheld camera. He walks forward along the sidewalk, and the camera travels forward with him, so the houses, shutters, and parked cars keep sliding backward past the frame. Right behind his right shoulder, only half a step away and close to the lens, <Subject 2> fills the center-right of the frame in a medium close-up framed from mid-thigh up to the top of her head; her lower legs and feet stay below the bottom edge of the frame. She advances along the sidewalk at the same pace, dancing all the way forward instead of simply walking: her body bounces down and up on every beat as her knees spring, her hips swing and pop from side to side with each dance step, her shoulders roll, her torso twists and turns, and she spins once while moving forward, while her arms swing, point, rest on her hip, and present a palm, copying the white mannequin's choreography in <Video 1> in the same order and timing, on the beat of <Audio 1>. The top of her pleated skirt sways and flares with her hips. She keeps smiling at the camera the whole time. The camera keeps the selfie framing with a natural handheld walking bob. One continuous take with no cuts, no sudden zoom, and no on-screen text, subtitles, logos, or watermarks.\n\noverall_soundscape:\nLight dance footsteps and loafer taps on the concrete, soft fabric rustle of the swinging skirt, quiet residential street ambience, and the girl's small giggles.\n\nnon_diegetic_music:\n<Audio 1> is reused 1:1 as the audience-only music bed, keeping its original melody, tempo, and timing.\n"
+  }
+ },
+ "139": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "加载图像",
+   "ver": "0.33.0"
+  },
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "70bc66a8e9f8d189f9efddd3e178351ebc367b54a47f55722c6fa232a0328dc3.png"
+  }
+ },
+ "141": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "If/Else Switch (model)",
+   "ver": "0.33.0"
+  },
+  "class_type": "ComfySwitchNode",
+  "inputs": {
+   "on_false": [
+    "127",
+    0
+   ],
+   "on_true": [
+    "145",
+    0
+   ],
+   "switch": [
+    "146",
+    0
+   ]
+  }
+ },
+ "142": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "If/Else Switch (Steps)",
+   "ver": "0.33.0"
+  },
+  "class_type": "ComfySwitchNode",
+  "inputs": {
+   "on_false": [
+    "143",
+    0
+   ],
+   "on_true": [
+    "144",
+    0
+   ],
+   "switch": [
+    "146",
+    0
+   ]
+  }
+ },
+ "143": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "Int (Full)",
+   "ver": "0.33.0"
+  },
+  "class_type": "PrimitiveInt",
+  "inputs": {
+   "value": 20
+  }
+ },
+ "144": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "Int (Lightning LoRA)",
+   "ver": "0.33.0"
+  },
+  "class_type": "PrimitiveInt",
+  "inputs": {
+   "value": 8
+  }
+ },
+ "145": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "LoRA加载器（仅模型）",
+   "ver": "0.33.0"
+  },
+  "class_type": "LoraLoaderModelOnly",
+  "inputs": {
+   "lora_name": "minimax_h3_ref2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+   "model": [
+    "127",
+    0
+   ],
+   "strength_model": 1
+  }
+ },
+ "146": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "Boolean (Enable Lightning LoRA)",
+   "ver": "0.33.0"
+  },
+  "class_type": "PrimitiveBoolean",
+  "inputs": {
+   "value": true
+  }
+ },
+ "147": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "加载视频",
+   "ver": "0.43.2"
+  },
+  "class_type": "LoadVideo",
+  "inputs": {
+   "file": "b1c9d5f010cbbcff915da90baecc6f92f12a57dbd0d359fcadf0fbb35eccf182.mp4",
+   "video-preview": ""
+  }
+ },
+ "148": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "获取视频元素",
+   "ver": "0.43.2"
+  },
+  "class_type": "GetVideoComponents",
+  "inputs": {
+   "video": [
+    "147",
+    0
+   ]
+  }
+ },
+ "149": {
+  "_meta": {
+   "title": "加载图像 (人行道+电线杆)"
+  },
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "347a4b0991971998a001c3caa2d5255e582068716c98d2fdf87dfc7bf3dcddfe.png"
+  }
+ },
+ "92": {
+  "_meta": {
+   "cnr_id": "comfy-core",
+   "title": "保存视频",
+   "ver": "0.33.0"
+  },
+  "class_type": "SaveVideo",
+  "inputs": {
+   "codec": "auto",
+   "filename_prefix": "video/v3_20s",
+   "format": "auto",
+   "format.codec": "auto",
+   "video": [
+    "130",
+    0
+   ]
+  }
+ }
+}

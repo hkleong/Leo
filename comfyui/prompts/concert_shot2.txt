@@ -1,0 +1,24 @@
+subject_definitions:
+<Subject 1> is the young East Asian man in <Picture 1>, seen only from behind: messy black hair and an oversized black leather jacket. He replaces the long-haired woman seen from behind in <Video 1>, at exactly her position and size.
+<Subject 2> is the young woman in <Picture 2>, appearing only as a tiny distant figure dancing on the bright stage far below, in a sparkly silver jacket and white trousers.
+<Subject 3> is the huge concert arena of <Video 1>: a sea of fans lit in deep blue, small warm lights scattered through the crowd, a bright stage far below, the metal railing in the foreground.
+<Video 1> is the source video for the target video edit, providing the exact camera movement, framing, composition and timing.
+
+summary:
+[video editing + reference generation] The target video is an edited version of <Video 1>: the over-the-shoulder shot is kept identical, except the woman seen from behind is replaced by <Subject 1> seen from behind, and the distant dancer is <Subject 2>.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1]): fully_preserved - his messy black hair and black leather jacket, seen from behind.
+<Subject 2> (appears in [Shot 1]): weak_reference - only her tiny silhouette and outfit colors on the distant stage.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the arena, crowd, lights and stage are retained.
+<Video 1> (edit source): fully_preserved - camera movement, framing and timing are kept exactly; only the people are replaced.
+
+detailed_description:
+The target video keeps the cinematic night-concert look of <Video 1>, vertical 9:16.
+[Shot 1] Exactly as in <Video 1>: the shot opens with the back of <Subject 1>'s head, his messy black hair filling most of the frame in dark silhouette against the blue-lit arena. The camera then slowly moves sideways past his head and shoulder, exactly as in <Video 1>, revealing the vast arena below: a sea of blue-lit fans with tiny warm lights, and far below on the bright stage the tiny figure of <Subject 2> dancing. His dark shoulder in the black leather jacket stays at the lower left edge of the frame, out of focus, as the camera holds on the stage view until the end.
+
+overall_soundscape:
+The roar and cheering of a huge concert crowd.
+
+non_diegetic_music:
+N/A
