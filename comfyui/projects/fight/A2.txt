@@ -1,0 +1,20 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Lin Xiao, a strikingly handsome East Asian student with slightly long tousled black hair with a faint dark navy sheen, deep-set calm eyes and a defined jawline, wearing the Tianheng Academy navy school blazer with a crossed hanfu-style collar edged in pale-grey piping and a small white sword emblem, a white mandarin-collar shirt, charcoal-grey trousers, an old bronze coin on a red cord at his neck, and a plain steel jian sword in a dark scabbard strapped diagonally on his back (no cloth bag, no backpack). Calm, quiet, unreadable.
+<Subject 2> is the man in <Picture 3> and <Picture 4>: Mo Hanyuan, a tall pale arrogant demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow eyes and a cruel smirk, wearing a long black high-collar coat with dark crimson cloud embroidery, black gloves, red beads on one wrist, holding a slim black jian sword with a crimson tassel.
+<Subject 3> is the location: the flat concrete rooftop of a modern high school at night, a chain-link fence and water tanks around the edge, the glittering skyline of a modern Asian city behind, a cold wind blowing.
+
+summary:
+[reference generation] A tense live-action night standoff on a school rooftop: <Subject 2> and <Subject 1> face each other and both power up their spiritual energy before a duel — <Subject 2> erupts in violent crimson demonic qi while <Subject 1> calmly releases a quiet but overwhelming pale-blue qi, the air shaking between them.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1] Wide low-angle shot across the large rooftop: the two men stand far apart, about twenty meters from each other at opposite ends of the rooftop, facing each other, coats and hair whipping in the wind, the city lights behind them. Slow push-in.
+[Shot 2] Extreme close-up of <Subject 2>'s face: his narrow eyes snap open glowing crimson, a cruel grin spreads, then dark red demonic qi bursts out around his body like smoke and flame, his long hair lifting upward, loose gravel floating into the air. Leave empty dark space in the lower right of the frame.
+[Shot 3] Close-up of <Subject 1>'s calm face: he slowly lifts his eyes and stares straight ahead; a thin ring of pale-blue light flows out from him, his navy-sheened hair and the red cord of the bronze coin rise gently. Leave empty dark space in the lower right of the frame.
+[Shot 4] Very wide shot from the side, the two still far apart at opposite ends of the rooftop: the crimson aura and the pale-blue aura expand across the distance and collide in the middle with a shockwave, rippling the air, the fence rattling.
+[Shot 5] Medium shot from the front of <Subject 1> alone: he calmly reaches up with his own right hand over his own right shoulder and grips the hilt of the sword in the scabbard on his own back, his eyes fixed forward. Then cut to a medium shot of <Subject 2> far away, raising his own black sword and pointing it toward the camera, crimson qi crackling along its blade. Hold for one beat of silence.
+
+overall_soundscape:
+No background music at all; only diegetic sound effects and ambience. Howling night wind, a deep rising rumble of energy, crackling and hissing of crimson qi, a pure resonant hum of blue qi, gravel rattling, a heavy bass shockwave boom when the auras collide, then sudden silence.
+
+non_diegetic_music:
+N/A

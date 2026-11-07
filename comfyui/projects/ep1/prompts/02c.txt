@@ -1,0 +1,22 @@
+subject_definitions:
+<Subject 1> is the young woman in <Picture 1> and <Picture 2>: Tang Xiaoling, a lively East Asian girl with shoulder-length dark brown hair, soft bangs and two small buns, a small bell bracelet on her wrist, wearing the Tianheng Academy uniform: a fitted navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar blouse, a knee-length charcoal-grey pleated skirt and dark navy knee socks, often holding a smartphone on a selfie stick.
+<Subject 2> is the location: the campus entrance shown in <Picture 3>, on a sunny morning. Fixed layout: in the far background, centered, a grey stone gateway with a dark tiled roof; a grey paved road comes from the gateway straight toward the camera and splits at a small round hedge island with a tall wooden signpost in the center of the frame; the LEFT branch curves away to screen-left, the RIGHT branch curves away to screen-right; tall green trees and lawns line both sides.
+
+summary:
+[reference generation] <Subject 1> walks down the road from the gateway of <Subject 2> toward the camera, livestreaming on her phone on a selfie stick.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): Default camera looks from the fork toward the gateway: the gateway is in the far center background, the signpost island in the middle, the LEFT branch goes off screen-left and the RIGHT branch goes off screen-right. <Subject 1> walks out of the gateway down the center of the road toward the camera, holding the selfie stick out in her right hand (screen-left) with the phone facing her; the signpost island is behind her right shoulder as she gets close.
+[Shot 1] A wide shot from the default camera position: <Subject 1> walks out of the gateway in the far center and down the road toward the camera, selfie stick held out, smiling at the phone.
+[Shot 2] At 00:02.000, the shot cuts to a medium close-up of <Subject 1> walking toward the camera, the gateway blurred in the center background, the phone on the stick at the left edge of the frame. The young woman with a bright, lively, sweet voice (S1, in a Taiwanese accent) says, cheerfully, chatting: <d>[Chinese] 哈啰大家早～今天是我们学校的灵测日喔！</d>
+[Shot 3] At 00:06.000, the shot cuts to a medium shot of <Subject 1> stopping in front of the signpost island, facing the camera, glancing at the phone screen, giggling softly at a comment and giving a small wave. The young woman with a bright, lively, sweet voice (S1, in a Taiwanese accent) says: <d>[Chinese] 礼物多一点，我等一下就冲给你们看～</d> The bell on her wrist jingles.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Morning birds, footsteps on pavement, a soft notification chime, the small jingle of a bell, crowd chatter.
+
+non_diegetic_music:
+N/A

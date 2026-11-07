@@ -1,0 +1,29 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1>: Qi Tiansuan, a laid-back East Asian student with bleached blond hair under a black bucket hat, holding a smartphone; at school he wears the Tianheng uniform (<Subject 3>) (exactly as in the picture).
+<Subject 2> is the young man in <Picture 2>: Jiang Yizhou, a vain handsome East Asian student with neat swept black hair and two swords crossed on his back; at school he wears the Tianheng uniform (<Subject 3>) (exactly as in the picture).
+<Subject 3> is the Tianheng Academy school uniform design shown in <Picture 3> (girls' version; the boys' version is the same navy crossed-collar blazer with thin pale-grey piping and the small white emblem, over a white mandarin-collar shirt, with charcoal-grey trousers). Every student in this video, including all background extras, wears exactly this uniform: a crossed hanfu-style wrap collar, no lapels, no neckties, no bow ties.
+<Subject 4> is the old man in <Picture 4>: Principal Yun Shouzhuo, a kind elderly East Asian man with long white hair in a small topknot with a wooden pin and a long white beard, wearing a long grey knitted robe over a white Chinese-collar shirt and dark wide trousers, holding a small teacup.
+<Subject 5> is the location: the stone test plaza shown in <Picture 5>, bright daylight. Fixed layout (as seen from the default camera position at the front of the plaza): in the center, the Tianheng Mirror, a tall round bronze mirror on a carved stone pedestal on a round three-step stone platform, its glowing face turned toward the default camera; behind it, the long red-pillared hall with a dark tiled roof and navy banners; on the far LEFT, a big golden ginkgo tree with a wooden armchair and small tea table under it; a red rope line on brass posts curves in front of the platform. The mirror never shows any text, numbers or reflected faces.
+
+summary:
+[reference generation] Waiting in the front row of the crowd at <Subject 5>, <Subject 1> casts a fortune on his phone app and announces a bad omen; <Subject 2>, standing on his right, brushes it off. All students wear <Subject 3>.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 4]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the uniform design stays identical on every student.
+<Subject 4> (appears in [Shot 1]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 5> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): Students in navy uniforms stand in rows behind the red rope line in front of the platform, facing the mirror, so the default camera sees their backs in the foreground. Teachers stand on the LEFT side of the platform between the mirror and the ginkgo tree; <Subject 4> sits in the armchair under the ginkgo tree on the far left. When a student is tested, they stand on the platform directly in front of the mirror, facing it; side shots of the test are always filmed from the RIGHT side, so the student is on screen-left facing screen-right and the mirror is on screen-right. <Subject 1> and <Subject 2> stand side by side in the front row just behind the rope line, facing the platform; in the reverse shots from the platform, <Subject 1> is on screen-left and <Subject 2> is on screen-right, the crowd behind them.
+[Shot 1] A medium two-shot from the platform side looking at the front row: <Subject 1>, under his bucket hat, on screen-left, frowns at the glowing trigram pattern on his phone; <Subject 2> stands on screen-right beside him; the red rope in the foreground and rows of uniformed students behind them.
+[Shot 2] At 00:02.500, the shot cuts to a close-up of <Subject 1> looking up from the phone, completely serious, the crowd blurred behind. The young man with a lazy, mumbling voice (S1, in a Taiwanese accent) says, flatly: <d>[Chinese] 我刚刚帮学校算了一卦……今天，大凶。</d>
+[Shot 3] At 00:06.000, the shot cuts to a medium close-up (not a wide shot) of <Subject 2> in his navy crossed-collar uniform with the two swords on his back, on screen-right, the crowd behind him, not even looking over, adjusting the swords on his back. The young man with a smug, slightly nasal voice (S2, in a Taiwanese accent) says: <d>[Chinese] 你算的喔？那就是大吉啦。</d> Students behind them chuckle quietly.
+[Shot 4] At 00:09.500, the shot cuts to a close-up of <Subject 1> looking back down at his phone, unconvinced, tilting his head slightly.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Crowd murmuring, a soft app chime, quiet chuckles.
+
+non_diegetic_music:
+N/A

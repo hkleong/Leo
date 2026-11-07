@@ -2,12 +2,21 @@ schema: comfy-build/1
 id: e981cb77-d330-4d93-ac46-de4a7ebebad3
 name: h3-scail2-video-service
 description: MiniMax H3 Ref2VA image-to-video and SCAIL-2 Int8 character replacement workflows.
-syncedRevision: '2026-11-05T10:17:13.353799Z'
+syncedRevision: '2026-11-07T00:23:31.009461Z'
 definition:
   schema: distribution-definition/0
   baseComfyVersion: v0.43.2
   baseImage: cuda130-py312
   models:
+    - filename: ema_vae_fp16.safetensors
+      sourceUri: https://huggingface.co/numz/SeedVR2_comfyUI/resolve/main/ema_vae_fp16.safetensors
+      type: SEEDVR2
+    - filename: seedvr2_ema_7b_fp8_e4m3fn_mixed_block35_fp16.safetensors
+      sourceUri: https://huggingface.co/AInVFX/SeedVR2_comfyUI/resolve/main/seedvr2_ema_7b_fp8_e4m3fn_mixed_block35_fp16.safetensors
+      type: SEEDVR2
+    - filename: ace_step_v1_3.5b.safetensors
+      sourceUri: https://huggingface.co/Comfy-Org/ACE-Step_ComfyUI_repackaged/resolve/main/all_in_one/ace_step_v1_3.5b.safetensors
+      type: checkpoints
     - filename: sam3.1_multiplex_fp16.safetensors
       sourceUri: https://huggingface.co/Comfy-Org/sam3.1/resolve/main/checkpoints/sam3.1_multiplex_fp16.safetensors
       type: checkpoints
@@ -68,6 +77,9 @@ definition:
       sourceUri: https://huggingface.co/Comfy-Org/Qwen-Image-2.1/resolve/main/vae/qwen_image_2.1_vae_bf16.safetensors
       type: vae
   customNodes:
+    - id: seedvr2_videoupscaler
+      name: ComfyUI-SeedVR2_VideoUpscaler
+      registryVersion: 2.5.24
     - id: maskvidexperiments
       name: MaskVidExperiments
       registryVersion: 0.2.1

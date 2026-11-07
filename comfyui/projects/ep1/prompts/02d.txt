@@ -1,0 +1,26 @@
+subject_definitions:
+<Subject 1> is the young woman in <Picture 1> and <Picture 2>: Shen Qingshuang, the student council president, a cool, beautiful East Asian girl with a long black high ponytail tied with a white silk ribbon, wearing the Tianheng Academy uniform: a fitted navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar blouse, a knee-length charcoal-grey pleated skirt and dark navy knee socks, with a slender silver jian sword with a jade tassel at her hip.
+<Subject 2> is the young man in <Picture 3> and <Picture 4>: Lin Xiao, a handsome, quiet East Asian student with slightly long tousled black hair with a faint dark navy sheen, calm deep-set eyes and a defined jawline, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, an old bronze coin on a red cord, and a cloth-wrapped sword slung on his back.
+<Subject 3> is the location: the campus entrance shown in <Picture 5>, on a sunny morning. Fixed layout: in the far background, centered, a grey stone gateway with a dark tiled roof; a grey paved road comes from the gateway straight toward the camera and splits at a small round hedge island with a tall wooden signpost in the center of the frame; the LEFT branch curves away to screen-left, the RIGHT branch curves away to screen-right; tall green trees and lawns line both sides.
+
+summary:
+[reference generation] <Subject 1> stops at the fork in <Subject 3>, studies a campus map and confidently heads down the LEFT branch; <Subject 2> comes from behind and calmly takes the RIGHT branch; she notices, turns around and follows him.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 3], [Shot 4]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 3], [Shot 4], [Shot 5]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): Default camera looks from the fork toward the gateway: the gateway is in the far center background, the signpost island in the middle, the LEFT branch goes off screen-left and the RIGHT branch goes off screen-right. <Subject 1> stands just in front of the signpost island, facing the camera, holding the map. <Subject 2> walks out of the gateway behind her and passes along the right side of the island. The LEFT branch is the wrong way; the RIGHT branch is the right way.
+[Shot 1] A wide shot from the default camera position: <Subject 1>, in her navy blazer with her sword sheathed at her hip, stands in front of the signpost island facing the camera, holding a folded paper campus map, glancing from the map toward the left branch.
+[Shot 2] At 00:02.500, the shot cuts to a medium close-up of <Subject 1>, facing the camera, the signpost blurred behind her: she looks at the map, then nods once. The young woman with a cool, clear, steady voice (S1, in a Taiwanese accent) says, quietly, to herself: <d>[Chinese] 应该是……这边吧。</d> She turns toward screen-left.
+[Shot 3] At 00:05.500, the shot cuts to a wide shot from the same default position: <Subject 1> walks a few steps down the LEFT branch toward screen-left; at the same time, in the center background, <Subject 2>, hands in his pockets and his cloth-wrapped sword on his back, walks out of the gateway, passes the right side of the signpost island and turns onto the RIGHT branch toward screen-right without looking at her.
+[Shot 4] At 00:08.500, the shot cuts to a medium shot of <Subject 1> on the left branch on screen-left, stopping, looking back over her shoulder toward screen-right where <Subject 2> is walking away; she glances at her map, folds it, turns around and follows him toward screen-right a few steps behind him.
+[Shot 5] At 00:11.000, the shot cuts to a medium close-up of <Subject 2> walking toward screen-right on the right branch, trees behind him, eyes forward; the corner of his mouth lifts very slightly.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Morning birds, leaves rustling, a paper map rustling, footsteps on pavement.
+
+non_diegetic_music:
+N/A

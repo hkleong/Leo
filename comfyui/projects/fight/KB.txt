@@ -1,0 +1,22 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Lin Xiao, a strikingly handsome East Asian student with slightly long tousled black hair with a faint dark navy sheen, deep-set calm eyes and a defined jawline, wearing the Tianheng Academy navy blazer with a crossed hanfu-style collar edged in pale-grey piping and a small white sword emblem, a white mandarin-collar shirt, charcoal-grey trousers and an old bronze coin on a red cord; he fights with his own plain steel jian sword glowing with pale-blue qi, with an empty dark scabbard on his back and no bag.
+<Subject 2> is the man in <Picture 3> and <Picture 4>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow crimson-glowing eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves and red beads on his wrist, fighting with a slim black jian sword trailing crimson demonic qi.
+<Subject 3> is the location: the flat wet concrete rooftop of a modern high school at night, with puddles, a chain-link fence, water tanks along the edge and a glittering city skyline beyond.
+
+summary:
+[reference generation] A single short medium shot filmed exactly from the side on <Subject 3>: the instant <Subject 2>'s diving strike crashes onto <Subject 1>'s raised block, <Subject 1> is violently knocked backward.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1]): fully_preserved - his face, navy-sheened hair, school uniform and steel sword stay identical; his eyes are natural dark brown and never glow.
+<Subject 2> (appears in [Shot 1]): fully_preserved - his high knot, black embroidered coat and black sword.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the wet night rooftop, fence and skyline.
+
+detailed_description:
+The target video uses a photorealistic live-action action-film style at night, with cold blue city light and crimson energy light, at real-time speed, with no sparks. <Subject 1>'s eyes are natural dark brown and never glow.
+[Shot 1] A medium shot filmed exactly from the side, at a straight side-on angle: <Subject 1> stands on the right side of the frame facing left, his steel sword raised horizontally above his head in a block. <Subject 2> crashes down from above on the left, his black sword slamming onto the raised blade with a burst of crimson energy. The force knocks <Subject 1> violently backward toward the right: his arms buckle, his body is thrown back off balance, his feet leave the ground for an instant and he is hurled backward through the air to the right with his blazer and hair whipping forward, sword still in his hands, a crimson shockwave rippling the haze; he is about to hit the ground as the shot ends. A heavy crash and a deep boom.
+
+overall_soundscape:
+No background music at all; only diegetic sound effects and ambience. Night wind, a heavy impact boom.
+
+non_diegetic_music:
+N/A

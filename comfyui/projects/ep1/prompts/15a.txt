@@ -1,0 +1,25 @@
+subject_definitions:
+<Subject 1> is the man in <Picture 1> and <Picture 2>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves, red beads on his wrist and a slim black jian sword.
+<Subject 2> is a mysterious man seated on a high throne, completely in shadow so that his face is never visible, only the outline of a black robe and one pale hand resting on the armrest.
+<Subject 3> is the location: the dark throne hall shown in <Picture 3>: two rows of black stone pillars hung with dim crimson lanterns, a long red carpet running from the camera straight to a few black steps and a high black throne in deep shadow at the far end.
+
+summary:
+[reference generation] In <Subject 3>, <Subject 1> walks down the red carpet and kneels before <Subject 2> on the throne, and reports.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 2]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a photorealistic live-action xianxia drama style at night, cold blue light, deep shadows and saturated crimson energy glows, with tense, controlled pacing. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): <Subject 1> walks away from the camera down the center of the red carpet and kneels at the foot of the steps facing the throne; <Subject 2> sits on the throne at the far end.
+[Shot 1] An extreme wide shot matching the location picture: <Subject 1>, his back to the camera, walks down the center of the long red carpet toward the dark throne and kneels on one knee at the foot of the steps, head bowed.
+[Shot 2] At 00:04.000, the shot cuts to a low-angle shot of <Subject 2> on the throne in deep shadow, face invisible, one pale finger tapping the armrest. The man with a deep, distant, echoing voice (S2, in a Taiwanese accent) says: <d>[Chinese] 找到了吗？</d>
+[Shot 3] At 00:07.000, the shot cuts to a close-up of <Subject 1> kneeling, seen from in front (from the throne side), a faint golden mark still around his neck, raising his head slowly. The young man with a smooth, cold, low voice (S1, in a Taiwanese accent) says: <d>[Chinese] 天衡学园里……有一个不该存在的人。</d>
+[Shot 4] At 00:11.000, the shot cuts to a close-up of the shadowed throne as the crimson lanterns flicker and dim.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. A cavernous echoing hall, slow footsteps on stone, lantern flames flickering, a finger tapping wood.
+
+non_diegetic_music:
+N/A

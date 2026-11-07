@@ -1,0 +1,28 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Lin Xiao, a strikingly handsome East Asian student with slightly long tousled black hair with a faint dark navy sheen, deep-set calm eyes and a defined jawline, wearing the Tianheng Academy navy blazer with a crossed hanfu-style collar edged in pale-grey piping and a small white sword emblem, a white mandarin-collar shirt, charcoal-grey trousers and an old bronze coin on a red cord; he fights with his own plain steel jian sword glowing with pale-blue qi, with an empty dark scabbard on his back and no bag.
+<Subject 2> is the man in <Picture 3> and <Picture 4>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow crimson-glowing eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves and red beads on his wrist, fighting with a slim black jian sword trailing crimson demonic qi.
+<Subject 3> is the location: the flat wet concrete rooftop of a modern high school at night, with puddles, a chain-link fence, water tanks along the edge and a glittering city skyline beyond.
+
+summary:
+[reference generation] The target video continues the rooftop fight on <Subject 3> right after <Subject 1> skidded to a stop on one knee: golden light leaks from under his palm on the ground, a golden formation array unfolds beneath him, a line of golden light races across the rooftop to <Subject 2>, a second array opens under <Subject 2>, and golden chains burst out and bind his waist, wrists, legs and neck. Shot like a high-end live-action action film. Screen direction stays fixed: <Subject 2> on the left, <Subject 1> on the right.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 3], [Shot 4]): fully_preserved - his face, navy-sheened hair, school uniform and steel sword stay identical; his eyes are natural dark brown and never glow; his head stays bowed.
+<Subject 2> (appears in [Shot 4], [Shot 5], [Shot 6], [Shot 7]): fully_preserved - his face, high knot and hairpin, black embroidered coat, gloves and black sword stay identical.
+<Subject 3> (appears in [Shot 1], [Shot 2], [Shot 3], [Shot 4], [Shot 5], [Shot 6], [Shot 7]): fully_preserved - the wet night rooftop, fence, water tanks and skyline.
+
+detailed_description:
+The target video uses a photorealistic live-action action-film style at night: cold blue city light, a thin haze of smoke drifting low over the wet concrete, and warm golden light as the only new light source, with anamorphic lens flares, shallow depth of field, hard cuts and real-time speed. <Subject 1>'s eyes are natural dark brown and never glow, and his head stays bowed the whole time.
+[Shot 1] A ground-level close shot of <Subject 1>'s left hand pressed flat on the wet concrete beside his knee, smoke curling around his fingers, his kneeling body and bowed head soft in the background. A thin, faint golden light begins to seep out from the narrow gap between his palm and the ground, glinting in the puddle. A low resonant hum begins.
+[Shot 2] At 00:01.600, the shot cuts to an extreme close-up of the hand from above: the golden light grows stronger and brighter, rays escaping between his fingers, fine glowing golden lines spreading outward through the water on the concrete like cracks of light, his fingers pressing down harder. The hum rises.
+[Shot 3] At 00:03.000, the shot cuts to a low-angle wide shot of <Subject 1> kneeling on one knee with his head bowed, one hand on the ground, sword lowered at his side: a large circular golden formation array unfolds across the rooftop beneath him, concentric rings of ancient runes and geometric seal patterns lighting up ring by ring and slowly rotating, golden light washing up over his body and the smoke. The camera orbits half a circle around him to show the whole glowing array. A deep chime and a swelling choral hum.
+[Shot 4] At 00:06.000, the shot cuts to a very low ground-level shot just in front of <Subject 1>'s hand: a straight beam of golden light bursts forward from the front of his palm and races along the wet concrete like a fuse, the camera speeding along right behind its tip, low over the ground, toward <Subject 2>, who stands far ahead on the left side of the rooftop with his black sword. A sharp rushing whoosh.
+[Shot 5] At 00:07.300, the shot cuts to a medium-wide shot of <Subject 2> standing on the rooftop: the golden beam reaches his feet and a second golden formation array snaps open on the ground beneath him, its rune rings flaring up; he looks down in shock and starts to step back. A sharp metallic ring.
+[Shot 6] At 00:08.500, a series of quick cuts: golden chains of light shoot up out of the array beneath <Subject 2>; a close-up of chains whipping around his waist and his wrists, yanking his arms down so the black sword clatters; a close-up of chains snapping tight around his legs; an extreme close-up of a glowing chain wrapping around his neck, his crimson eyes wide. Heavy clanking chains and sharp snaps synced to each cut.
+[Shot 7] At 00:10.800, the shot cuts to a wide shot: <Subject 2> stands bound in the center of the glowing array, golden chains stretched taut from the ground to his waist, wrists, legs and neck, straining and struggling but unable to move, the chains glowing brighter. In the far right background, <Subject 1> still kneels with his head bowed and his palm on the ground inside his own array. The chains groan under the strain.
+
+overall_soundscape:
+No background music at all; only diegetic sound effects and ambience. Night wind, drifting smoke, a resonant golden hum that grows throughout, metallic chimes and heavy clanking chains.
+
+non_diegetic_music:
+N/A

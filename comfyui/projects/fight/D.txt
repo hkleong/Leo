@@ -1,0 +1,27 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Lin Xiao, a strikingly handsome East Asian student with slightly long tousled black hair with a faint dark navy sheen, deep-set calm eyes and a defined jawline, wearing the Tianheng Academy navy blazer with a crossed hanfu-style collar edged in pale-grey piping and a small white sword emblem, a white mandarin-collar shirt, charcoal-grey trousers and an old bronze coin on a red cord; he fights with his own plain steel jian sword glowing with pale-blue qi, with an empty dark scabbard on his back and no bag.
+<Subject 2> is the man in <Picture 3> and <Picture 4>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow crimson-glowing eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves and red beads on his wrist, fighting with a slim black jian sword trailing crimson demonic qi.
+<Subject 3> is the location: the flat wet concrete rooftop of a modern high school at night, with puddles, a chain-link fence, water tanks along the edge and a glittering city skyline beyond.
+
+summary:
+[reference generation] The target video continues a live-action rooftop fight on <Subject 3>: from a sword lock, <Subject 1> breaks free with a charged palm strike that blasts <Subject 2> away; <Subject 2> recovers, glares into the camera, leaps high and dives down at <Subject 1>, whose block is met with a crushing impact that sends him skidding back on one knee. Screen direction stays fixed: <Subject 2> on the left, <Subject 1> on the right.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 5], [Shot 6]): fully_preserved - his face, navy-sheened hair, school uniform, bronze coin and steel sword stay identical; his eyes are always natural dark brown and never glow.
+<Subject 2> (appears in [Shot 1], [Shot 2], [Shot 3], [Shot 4], [Shot 5]): fully_preserved - his face, high knot and hairpin, black embroidered coat, gloves and black sword stay identical.
+<Subject 3> (appears in [Shot 1], [Shot 2], [Shot 3], [Shot 4], [Shot 5], [Shot 6]): fully_preserved - the wet night rooftop, fence, water tanks and skyline.
+
+detailed_description:
+The target video uses a photorealistic live-action wuxia style at night, with cold blue city light, saturated crimson and pale-blue energy glows, sharp sparks and fast, hard rhythmic cuts at real-time speed. Throughout the video <Subject 1>'s eyes are natural dark brown and never glow.
+[Shot 1] A side-on close-up at waist height, filmed exactly from the side: <Subject 1> on the right and <Subject 2> on the left are still locked blade against blade above the frame. <Subject 1>'s left hand, the one not holding the sword, is drawn back and cupped at his left hip, fingers curled; pale-blue spiritual energy swirls and condenses into his palm, crackling brighter and brighter. Then he drives the palm forward and slams it flat into <Subject 2>'s chest with a heavy open-hand strike, a burst of pale-blue light exploding on impact; the camera travels with his hand from his hip to the moment of contact. A rising hum, then a deep thudding blast.
+[Shot 2] At 00:01.600, the shot cuts to a medium side shot: <Subject 2> is blasted backward off his feet by the strike, flying horizontally to the left across the rooftop, coat and hair streaming, the black sword trailing in his hand; the camera whips left and tracks alongside him as he flies, until he crashes and tumbles across the wet concrete, spray bursting up. A rushing whoosh and a heavy crash.
+[Shot 3] At 00:03.000, the shot cuts to a medium shot of <Subject 2> lying on the wet concrete; he props himself up on one arm, his black sword still gripped, crimson qi flickering around him. The camera pushes in fast to an extreme close-up of his eyes as he lifts his gaze and stares straight into the camera, crimson eyes burning with fury. A low growl and crackling energy.
+[Shot 4] At 00:05.000, the shot cuts to a wide frontal shot of the rooftop: <Subject 2> springs up and leaps high into the night sky, raising the black sword overhead with both hands, crimson qi gathering into a huge blazing blade above the city lights. A powerful whoosh.
+[Shot 5] At 00:06.300, the shot cuts to a shot from behind and above <Subject 2> in mid-air: we see his back, coat flaring, as he dives down toward <Subject 1> standing on the rooftop far below, the crimson blade raised to strike. Below, <Subject 1> looks up and raises his own glowing steel sword horizontally above his head with both hands in a firm block, knees bent. The shot cuts at the exact instant the crimson blade touches his raised sword. A rising scream of energy.
+[Shot 6] At 00:07.600, the shot cuts to a medium-wide side shot of <Subject 1>: a huge crimson shockwave hurls him backward; he drops to one knee and slides backward across the wet concrete in that kneeling pose, his sword braced, one hand dragging along the ground, sparks and spray streaking behind him, until he finally comes to a stop and stays perfectly still. A heavy boom, a long grinding skid, then sudden silence.
+
+overall_soundscape:
+No background music at all; only diegetic sound effects and ambience. Night wind on the rooftop, crackling crimson energy and a pure humming pale-blue energy, heavy impacts and sparks hissing on wet concrete.
+
+non_diegetic_music:
+N/A

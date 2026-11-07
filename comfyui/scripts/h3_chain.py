@@ -10,7 +10,7 @@ p = argparse.ArgumentParser()
 p.add_argument("--video", required=True); p.add_argument("--prompt-file", required=True)
 p.add_argument("--pics", nargs="+", required=True); p.add_argument("--out", required=True)
 p.add_argument("--charswap", action="store_true"); p.add_argument("--aspect", default="16:9 (Widescreen)")
-p.add_argument("--final", action="store_true"); p.add_argument("--seed", type=int)
+p.add_argument("--final", action="store_true"); p.add_argument("--deflicker", action="store_true"); p.add_argument("--done", nargs="*", default=[], help="already generated piece outputs (resume)"); p.add_argument("--prompt-last", help="prompt file for the last piece"); p.add_argument("--seed", type=int)
 a = p.parse_args()
 work = os.path.splitext(a.out)[0] + "_chain"; os.makedirs(work, exist_ok=True)
 run = lambda *c: subprocess.run(list(c), check=True)
@@ -23,10 +23,12 @@ while starts[-1] + SEG < N:
 print(f"{N} frames @24fps -> pieces at {starts}", flush=True)
 outs = []
 for k, s in enumerate(starts):
+    if k < len(a.done):
+        outs.append(a.done[k]); print(f"piece {k+1} reused {a.done[k]}", flush=True); continue
     piece = os.path.join(work, f"src{k}.mp4")
     run("ffmpeg", "-v", "error", "-y", "-i", src, "-vf", f"select='between(n,{s},{s+SEG-1})',setpts=N/24/TB",
         "-af", f"atrim={s/24}:{(s+SEG)/24},asetpts=PTS-STARTPTS", "-c:v", "libx264", "-crf", "14", "-c:a", "aac", piece)
-    cmd = [sys.executable, "-u", os.path.join(HERE, "gen.py"), "--prompt-file", a.prompt_file, "--video", piece,
+    cmd = [sys.executable, "-u", os.path.join(HERE, "gen.py"), "--prompt-file", (a.prompt_last if a.prompt_last and k == len(starts) - 1 else a.prompt_file), "--video", piece,
            "--pics", *a.pics, "--duration", str(SEG / 24), "--aspect", a.aspect]
     if a.charswap: cmd.append("--charswap")
     if a.final: cmd.append("--final")
@@ -42,16 +44,16 @@ for k, s in enumerate(starts):
     got = [l.split(" ", 1)[1] for l in res.stdout.splitlines() if l.startswith("已下载")]
     if not got: sys.exit(f"piece {k+1} failed")
     outs.append(got[-1])
-# splice: piece k contributes from global max(starts[k], end of previous) to its end
-parts, fc, prev_end = [], [], 0
+# splice: cut each seam right after the pinned anchor frames of the next piece (continuity is guaranteed there)
+cuts = [0] + [st + A for st in starts[1:]] + [N]
+parts, fc = [], []
 for k, (s, f) in enumerate(zip(starts, outs)):
-    a0 = prev_end - s; b0 = min(SEG, N - s)
+    a0 = cuts[k] - s; b0 = min(cuts[k + 1] - s, SEG)
     parts += ["-i", f]
     fc.append(f"[{k}:v]fps=24,setsar=1,trim=start_frame={a0}:end_frame={b0},setpts=PTS-STARTPTS[v{k}]")
-    prev_end = s + b0
 W, H = subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v", "-show_entries", "stream=width,height", "-of", "csv=p=0", outs[0]]).decode().strip().split(",")
 fc = [f.replace("setsar=1", f"scale={W}:{H},setsar=1") for f in fc]
-fc.append("".join(f"[v{k}]" for k in range(len(outs))) + f"concat=n={len(outs)}:v=1:a=0[v]")
+fc.append("".join(f"[v{k}]" for k in range(len(outs))) + f"concat=n={len(outs)}:v=1:a=0" + (",deflicker=mode=pm:size=5" if a.deflicker else "") + "[v]")
 run("ffmpeg", "-v", "error", "-y", *parts, "-i", src, "-filter_complex", ";".join(fc), "-map", "[v]", "-map", f"{len(outs)}:a?",
     "-shortest", "-c:v", "libx264", "-crf", "17", "-c:a", "aac", a.out)
 print("完成", a.out, flush=True)

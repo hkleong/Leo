@@ -1,0 +1,26 @@
+subject_definitions:
+<Subject 1> is the man in <Picture 1>: Dean Yan Zhenggang, a stern middle-aged East Asian man with neat slicked-back dark hair, a navy suit, white shirt and dark red tie, a long black academic robe draped over his shoulders, carrying a black wooden disciplinary ruler.
+<Subject 2> is the young man in <Picture 2> and <Picture 3>: Lin Xiao, a handsome, quiet East Asian student with slightly long tousled black hair with a faint dark navy sheen, calm deep-set eyes and a defined jawline, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, an old bronze coin on a red cord, and a cloth-wrapped sword slung on his back.
+<Subject 3> is the location: the same stone test plaza shown in <Picture 4>, but at dusk with orange sunset light, long shadows and no crowd. Same fixed layout: the round bronze mirror on its stone platform in the center, the red-pillared hall behind it, the golden ginkgo tree with the armchair on the far left. The mirror never shows any text or numbers.
+
+summary:
+[reference generation] At the empty <Subject 3>, <Subject 1> makes <Subject 2> take a make-up test; the mirror's light surges for an instant then drops to a tiny glow, and <Subject 1> sighs and records it.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 4]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with warm orange sunset light, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): <Subject 1> stands on the platform LEFT of the mirror with a clipboard; <Subject 2> walks across the empty plaza from the front toward the platform and stands in front of the mirror, facing it. Side shots are filmed from the RIGHT: <Subject 2> on screen-left, mirror on screen-right.
+[Shot 1] A wide shot from the default camera position, matching the location picture but at sunset and empty: <Subject 1> stands on the platform left of the mirror; <Subject 2> walks across the plaza toward the platform, his long shadow stretching behind him.
+[Shot 2] At 00:03.000, the shot cuts to a medium shot of <Subject 1> left of the mirror, facing the camera, the hall behind him. The middle-aged man with a stern, firm, clipped voice (S1, in a Taiwanese accent) says: <d>[Chinese] 规矩就是规矩，补测。</d>
+[Shot 3] At 00:05.000, the shot cuts to a close-up in a side view from the right: <Subject 2>'s palm on screen-left touches the mirror on screen-right; the light inside surges up violently for a split second, then instantly drops back down to a tiny faint glow at the very bottom.
+[Shot 4] At 00:07.500, the shot cuts to a close-up of <Subject 1> squinting at the mirror toward screen-right, as if he saw something, then shaking his head and sighing.
+[Shot 5] At 00:10.000, the shot cuts to an insert of his pen writing on the clipboard paper. The middle-aged man with a stern, firm, clipped voice (S1, in a Taiwanese accent) says, muttering: <d>[Chinese] 林逍……八十七。</d>
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Evening wind, distant crows, a sudden rising hum that cuts off, a pen scratching on paper, a sigh.
+
+non_diegetic_music:
+N/A

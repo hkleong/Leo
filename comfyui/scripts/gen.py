@@ -5,7 +5,7 @@ import argparse, json, mimetypes, os, random, sys, time, uuid, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BASE = "https://dep-f307503a-180f-462c-b702-a0138fdaa503.run.comfy.app"
-KEY = os.environ.get("COMFY_API_KEY") or open(os.environ.get("COMFY_KEY_FILE", os.path.join(HERE, "..", ".comfy_key"))).read().strip()
+KEY = os.environ.get("COMFY_API_KEY") or open(os.path.join(HERE, "..", ".comfy_key")).read().strip()
 
 
 def req(method, path, body=None, headers=None):
@@ -33,7 +33,7 @@ def main():
     p.add_argument("--prompt-file", required=True); p.add_argument("--video", required=True)
     p.add_argument("--pics", nargs="+", required=True)
     p.add_argument("--duration", type=float, default=15); p.add_argument("--aspect")
-    p.add_argument("--seed", type=int); p.add_argument("--mp", type=float, default=0.4); p.add_argument("--final", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--no-ref-video", action="store_true"); p.add_argument("--charswap", action="store_true"); p.add_argument("--anchor", help="short clip whose frames are pinned at frame 0 (continuity)")
+    p.add_argument("--seed", type=int); p.add_argument("--mp", type=float, default=0.4); p.add_argument("--final", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--no-ref-video", action="store_true"); p.add_argument("--charswap", action="store_true"); p.add_argument("--steps40", action="store_true", help="480p-size but 40 full steps, no turbo LoRA"); p.add_argument("--anchor", help="short clip whose frames are pinned at frame 0 (continuity)")
     a = p.parse_args()
     w = json.load(open(os.path.join(HERE, "template.json")))
     w["138"]["inputs"]["value"] = open(a.prompt_file).read()
@@ -42,11 +42,15 @@ def main():
     w["129"]["inputs"]["noise_seed"] = a.seed if a.seed is not None else random.randint(0, 2**48)
     w["115"]["inputs"]["megapixels"] = 0.9 if a.final else a.mp
     w["146"]["inputs"]["value"] = not a.final
+    if a.steps40:
+        w["146"]["inputs"]["value"] = False; w["143"]["inputs"]["value"] = 40
     if a.charswap:
         w["145"]["inputs"]["lora_name"] = "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors"
         w["800"] = {"class_type": "LoraLoaderModelOnly", "inputs": {"model": ["145", 0], "lora_name": "h3_character_swap_v1.5.safetensors", "strength_model": 1.0}}
         w["141"]["inputs"]["on_true"] = ["800", 0]
         w["146"]["inputs"]["value"] = True
+        if a.final:   # 720p/40 steps: drop the 8-step turbo, swap LoRA directly on the base model
+            w["800"]["inputs"]["model"] = ["127", 0]; w.pop("145"); w["144"]["inputs"]["value"] = 40
         w["123"]["inputs"]["sampler_name"] = "er_sde"
         w["124"]["inputs"]["scheduler"] = "normal"
     n = w["136"]["inputs"]

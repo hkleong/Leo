@@ -1,0 +1,32 @@
+subject_definitions:
+<Subject 1> is the young woman in <Picture 1>: Tang Xiaoling, a lively East Asian girl with shoulder-length dark brown hair, soft bangs and two small buns, a small bell bracelet on her wrist, wearing the Tianheng Academy uniform: a fitted navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar blouse, a knee-length charcoal-grey pleated skirt and dark navy knee socks, often holding a smartphone on a selfie stick.
+<Subject 2> is the young man in <Picture 2>: Jin Duobao, a rich, easygoing East Asian student with ash-brown hair, thin gold-rimmed round glasses, a green jade pendant on a cord and a gold watch, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, a small bronze pill gourd at his belt.
+<Subject 3> is the young man in <Picture 3>: Shi Dazhuang, a huge, very muscular East Asian student with a buzz cut and a friendly broad face, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers stretched over his body, his forearms and fists wrapped in old cloth bandages with faint golden runes.
+<Subject 4> is the young woman in <Picture 4>: Shen Qingshuang, the student council president, a cool, beautiful East Asian girl with a long black high ponytail tied with a white silk ribbon, wearing the Tianheng Academy uniform: a fitted navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar blouse, a knee-length charcoal-grey pleated skirt and dark navy knee socks, with a slender silver jian sword with a jade tassel at her hip.
+<Subject 5> is the young man in <Picture 5>: Lin Xiao, a handsome, quiet East Asian student with slightly long tousled black hair with a faint dark navy sheen, calm deep-set eyes and a defined jawline, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, an old bronze coin on a red cord, and a cloth-wrapped sword slung on his back.
+<Subject 6> is the location: the school rooftop shown in <Picture 6>, at night. Fixed layout: flat wet concrete with puddles; across the back runs a low concrete parapet with a chain-link fence on top and the glittering city skyline beyond, with one tall lit skyscraper on the left; three small round metal water tanks stand against the parapet left of center.
+
+summary:
+[reference generation] That night the student council patrols <Subject 6>; <Subject 1>'s stream cuts out, <Subject 2>'s wristband goes dark, <Subject 3> senses something wrong, and a faint crimson barrier closes over the rooftop.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1], [Shot 4]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 4> (appears in [Shot 1]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 5> (appears in [Shot 1]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 6> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a photorealistic live-action xianxia drama style at night, cold blue light, deep shadows and saturated crimson energy glows, with tense, controlled pacing. In this video there is NO villain and no man in a black coat anywhere; only the five students are on the rooftop. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): The student council is alone on the rooftop. They walk in from screen-right toward the center in this order from left to right: <Subject 4> leading with a flashlight, then <Subject 3>, <Subject 2>, <Subject 1>, and <Subject 5> last on the far right.
+[Shot 1] A wide shot facing the parapet and skyline, matching the location picture: the student council walks in from screen-right toward the center across the wet concrete, <Subject 4> leading with a flashlight, then <Subject 3>, <Subject 2>, <Subject 1>, and <Subject 5> last; puddles reflect the city lights.
+[Shot 2] At 00:03.000, the shot cuts to a medium close-up of <Subject 1>, the skyline blurred behind her, frowning at her phone. The young woman with a bright, lively, sweet voice (S1, in a Taiwanese accent) says: <d>[Chinese] 欸……我直播断线了。</d>
+[Shot 3] At 00:05.500, the shot cuts to a close-up of <Subject 2> tapping his wristband, which has gone completely dark. The young man with a light, playful, slightly lazy voice (S2, in a Taiwanese accent) says: <d>[Chinese] 我的手环也没反应了。</d>
+[Shot 4] At 00:08.000, the shot cuts to a medium shot of <Subject 3> stopping and looking up, uneasy, the fence and skyline behind him. The big young man with a deep, warm, slightly loud voice (S3, in a Taiwanese accent) says: <d>[Chinese] 这里怪怪的……好像被什么东西罩住了。</d>
+[Shot 5] At 00:11.000, the shot cuts to a wide low-angle shot facing the parapet: a faint translucent dome of dark crimson light finishes closing over the whole rooftop, rippling once; the council stands on screen-right looking up.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Night wind, distant city traffic, footsteps splashing through puddles, a phone's disconnect beep, a low humming as the barrier closes.
+
+non_diegetic_music:
+N/A

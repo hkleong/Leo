@@ -1,0 +1,378 @@
+[
+ {
+  "id": "02a",
+  "dur": 11,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_gate.png"
+  ]
+ },
+ {
+  "id": "02b",
+  "dur": 11,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_gate.png"
+  ]
+ },
+ {
+  "id": "02c",
+  "dur": 11,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_gate.png"
+  ]
+ },
+ {
+  "id": "02d",
+  "dur": 13,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_gate.png"
+  ]
+ },
+ {
+  "id": "03a",
+  "dur": 14.5,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_office.png"
+  ]
+ },
+ {
+  "id": "03b",
+  "dur": 14,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_office.png"
+  ]
+ },
+ {
+  "id": "03c",
+  "dur": 12,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_office.png"
+  ]
+ },
+ {
+  "id": "04a",
+  "dur": 13,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_dean_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_homeroom_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "04b",
+  "dur": 14,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_dean_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "05a",
+  "dur": 11,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/cls/c08_0_uni_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/cls/c01_0_uni_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "05b",
+  "dur": 12,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/cls/c03_1_uni_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "05c",
+  "dur": 12,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/cls/c06_0_uni_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_pe_m_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "05d",
+  "dur": 11,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/cls/c01_0_uni_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "06a",
+  "dur": 11,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "06b",
+  "dur": 14,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_alchemy_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "06c",
+  "dur": 13,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_pe_m_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "06d",
+  "dur": 11,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "06e",
+  "dur": 10,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_dean_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "07a",
+  "dur": 12,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "07b",
+  "dur": 12,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_dean_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/cls/c01_0_uni_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/uni/uniform_f.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_homeroom_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_pe_m_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "08a",
+  "dur": 14,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_roof.png"
+  ]
+ },
+ {
+  "id": "08b",
+  "dur": 14,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/vface_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_roof.png"
+  ]
+ },
+ {
+  "id": "08c",
+  "dur": 12,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/vface_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/v_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_roof.png"
+  ]
+ },
+ {
+  "id": "09a",
+  "dur": 13,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/vface_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/tangxiaoling/tangxiaoling_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_roof.png"
+  ]
+ },
+ {
+  "id": "09b",
+  "dur": 14,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/vface_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/v_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_roof.png"
+  ]
+ },
+ {
+  "id": "09c",
+  "dur": 11,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/vface_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/v_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_roof.png"
+  ]
+ },
+ {
+  "id": "12a",
+  "dur": 14,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/vface_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/v_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_roof.png"
+  ]
+ },
+ {
+  "id": "12b",
+  "dur": 11,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/vface_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/v_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_roof.png"
+  ]
+ },
+ {
+  "id": "13a",
+  "dur": 12,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/cls/c05_0_uni_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_infirm.png"
+  ]
+ },
+ {
+  "id": "13b",
+  "dur": 14,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_infirm.png"
+  ]
+ },
+ {
+  "id": "13c",
+  "dur": 13,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shenqingshuang/shenqingshuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/shidazhuang/shidazhuang_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/jinduobao/jinduobao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_infirm.png"
+  ]
+ },
+ {
+  "id": "14a",
+  "dur": 14,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_dean_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_half.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/sheets/linxiao/linxiao_face.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_plaza.png"
+  ]
+ },
+ {
+  "id": "14b",
+  "dur": 10,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/out/t_principal_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_eaves.png"
+  ]
+ },
+ {
+  "id": "15a",
+  "dur": 13,
+  "pics": [
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/vface_0.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p8/v_1.png",
+   "/tmp/claude-0/-home-user-Leo/9becf98b-2acf-57f5-9b38-ec57e83a3f59/scratchpad/p6/ep1/sets/SET_hall.png"
+  ]
+ }
+]

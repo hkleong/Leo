@@ -1,0 +1,27 @@
+subject_definitions:
+<Subject 1> is the old man in <Picture 1>: Principal Yun Shouzhuo, a kind elderly East Asian man with long white hair in a small topknot with a wooden pin and a long white beard, wearing a long grey knitted robe over a white Chinese-collar shirt and dark wide trousers, holding a small teacup.
+<Subject 2> is the man in <Picture 2>: Dean Yan Zhenggang, a stern middle-aged East Asian man with neat slicked-back dark hair, a navy suit, white shirt and dark red tie, a long black academic robe draped over his shoulders, carrying a black wooden disciplinary ruler.
+<Subject 3> is the Tianheng Academy school uniform design shown in <Picture 3> (girls' version; the boys' version is the same navy crossed-collar blazer with thin pale-grey piping and the small white emblem, over a white mandarin-collar shirt, with charcoal-grey trousers). Every student in this video, including all background extras, wears exactly this uniform: a crossed hanfu-style wrap collar, no lapels, no neckties, no bow ties.
+<Subject 4> is the location: the stone test plaza shown in <Picture 4>, bright daylight. Fixed layout (as seen from the default camera position at the front of the plaza): in the center, the Tianheng Mirror, a tall round bronze mirror on a carved stone pedestal on a round three-step stone platform, its glowing face turned toward the default camera; behind it, the long red-pillared hall with a dark tiled roof and navy banners; on the far LEFT, a big golden ginkgo tree with a wooden armchair and small tea table under it; a red rope line on brass posts curves in front of the platform. The mirror never shows any text, numbers or reflected faces.
+
+summary:
+[reference generation] <Subject 1> sits drinking tea under the ginkgo tree at the left edge of <Subject 4> as a falling leaf freezes in midair; when the mirror's scanning light passes over him it glitches and goes dark, and <Subject 2> restarts it. All students wear <Subject 3>.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 4]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the uniform design stays identical on every student.
+<Subject 4> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): Students in navy uniforms stand in rows behind the red rope line in front of the platform, facing the mirror, so the default camera sees their backs in the foreground. Teachers stand on the LEFT side of the platform between the mirror and the ginkgo tree; <Subject 1> sits in the armchair under the ginkgo tree on the far left. When a student is tested, they stand on the platform directly in front of the mirror, facing it; side shots of the test are always filmed from the RIGHT side, so the student is on screen-left facing screen-right and the mirror is on screen-right. <Subject 2> stands on the platform just LEFT of the mirror.
+[Shot 1] A medium shot of <Subject 1> sitting in the wooden armchair under the golden ginkgo tree at the far left of the plaza, the hall's red pillars behind him, sipping tea calmly; a golden ginkgo leaf drifts down on screen-right of him and stops completely still in midair, hanging there.
+[Shot 2] At 00:03.500, the shot cuts to a wide shot from the default camera position: a soft beam of white light sweeps out from the mirror in the center across the rows of students toward screen-left; as it reaches <Subject 1> under the ginkgo tree on the far left, the mirror crackles, flickers and goes completely dark. The crowd falls silent.
+[Shot 3] At 00:07.000, the shot cuts to a close-up of <Subject 1> under the ginkgo tree, unhurried, taking another sip, then speaking mildly. The old man with a slow, gentle, slightly raspy voice (S1, in a Taiwanese accent) says: <d>[Chinese] 老毛病了，拍一拍就好。</d>
+[Shot 4] At 00:10.000, the shot cuts to a medium shot from the crowd's side facing the platform: <Subject 2>, slightly embarrassed, turns from his spot left of the mirror to the dark mirror on screen-right and gives its bronze frame two firm slaps with his open palm; the mirror lights back up with a soft hum. A few students in the foreground stifle laughs.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Wind in the ginkgo tree, a crackling electric buzz then silence, two hollow metal slaps, a soft hum, muffled giggles.
+
+non_diegetic_music:
+N/A

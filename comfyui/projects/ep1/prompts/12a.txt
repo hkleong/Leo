@@ -1,0 +1,25 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Lin Xiao, a handsome, quiet East Asian student with slightly long tousled black hair with a faint dark navy sheen, calm deep-set eyes and a defined jawline, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, an old bronze coin on a red cord, and a cloth-wrapped sword slung on his back.
+<Subject 2> is the man in <Picture 3> and <Picture 4>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves, red beads on his wrist and a slim black jian sword.
+<Subject 3> is the location: the school rooftop shown in <Picture 5>, at night. Fixed layout: flat wet concrete with puddles; across the back runs a low concrete parapet with a chain-link fence on top and the glittering city skyline beyond, with one tall lit skyscraper on the left; three small round metal water tanks stand against the parapet left of center.
+
+summary:
+[reference generation] After the fight, <Subject 1> on the right releases the golden chains; <Subject 2> drops on the left, asks why he is being let go, receives a message to take back, and vanishes in crimson mist.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1], [Shot 2], [Shot 4]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a photorealistic live-action xianxia drama style at night, cold blue light, deep shadows and saturated crimson energy glows, with tense, controlled pacing. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): The camera mostly faces the parapet and skyline. Fixed sides: <Subject 2> is always on the LEFT side of the rooftop (screen-left, near the water tanks) and the student council is always on the RIGHT side (screen-right). When the council faces <Subject 2> they face screen-left; <Subject 2> faces screen-right.
+[Shot 1] A wide shot facing the parapet: on the left, golden chains binding <Subject 2> in midair dissolve link by link into golden sparks; he drops and lands on one knee on the wet concrete, panting; <Subject 1> stands a few meters away on the right, facing screen-left.
+[Shot 2] At 00:03.500, the shot cuts to a close-up of <Subject 2> facing screen-right, a faint golden mark around his neck, looking up. The young man with a smooth, cold, low voice (S2, in a Taiwanese accent) says: <d>[Chinese] ……为什么放我走？</d>
+[Shot 3] At 00:06.000, the shot cuts to a close-up of <Subject 1> facing screen-left, calm, eyes natural dark brown. The young man with a low, calm, relaxed voice (S1, in a Taiwanese accent) says: <d>[Chinese] 回去跟派你来的人说，这里没有他要找的东西。</d>
+[Shot 4] At 00:10.000, the shot cuts to a medium shot of <Subject 2> on screen-left standing up, facing screen-right, a thin cold smile. The young man with a smooth, cold, low voice (S2, in a Taiwanese accent) says: <d>[Chinese] 你藏不了一辈子的。</d> His body dissolves into crimson mist that blows away to screen-left.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Chains dissolving with a delicate metallic shimmer, heavy breathing, night wind, mist whooshing away.
+
+non_diegetic_music:
+N/A

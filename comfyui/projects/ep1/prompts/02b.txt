@@ -1,0 +1,23 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Jin Duobao, a rich, easygoing East Asian student with ash-brown hair, thin gold-rimmed round glasses, a green jade pendant on a cord and a gold watch, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, a small bronze pill gourd at his belt.
+<Subject 2> is the location: the campus entrance shown in <Picture 3>, on a sunny morning. Fixed layout: in the far background, centered, a grey stone gateway with a dark tiled roof; a grey paved road comes from the gateway straight toward the camera and splits at a small round hedge island with a tall wooden signpost in the center of the frame; the LEFT branch curves away to screen-left, the RIGHT branch curves away to screen-right; tall green trees and lawns line both sides.
+
+summary:
+[reference generation] <Subject 1> steps out of a silver sports car parked on the right branch of <Subject 2>, swallows pills from his gourd, watches his wristband flicker, and walks off up the road toward the gateway.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 4]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): Default camera looks from the fork toward the gateway: the gateway is in the far center background, the signpost island in the middle, the LEFT branch goes off screen-left and the RIGHT branch goes off screen-right. A silver sports car is parked at the curb on the RIGHT branch, its nose pointing toward screen-left; <Subject 1> gets out of the driver's side facing the camera, stands beside the car on screen-right, then walks screen-left along the road and away toward the gateway.
+[Shot 1] A wide shot from the default camera position: a silver sports car parked on the right branch at the right side of the frame, the signpost island and gateway in the center background; the door opens and <Subject 1>, in his navy blazer and gold round glasses, steps out on the near side of the car, facing the camera, and adjusts his glasses.
+[Shot 2] At 00:03.000, the shot cuts to a medium close-up of <Subject 1> standing beside the car on screen-right, the gateway blurred behind on screen-left: he tips three small golden pills from his bronze gourd into his palm and tosses them into his mouth, chewing calmly.
+[Shot 3] At 00:05.000, the shot cuts to an insert close-up of the spirit-test wristband on his left wrist: its blue glow flares, flickers weakly, then flares again.
+[Shot 4] At 00:07.000, the shot cuts to a medium close-up of <Subject 1>, same position, frowning slightly at the wristband and tapping it twice. The young man with a light, playful, slightly lazy voice (S1, in a Taiwanese accent) says, flatly: <d>[Chinese] ……蛤？这批是不是过期了啊？</d> He shrugs, turns to screen-left and walks away up the road toward the gateway.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. A sports car engine idling and switching off, a car door, pills rattling in a gourd, a faint electronic flicker, morning crowd chatter.
+
+non_diegetic_music:
+N/A

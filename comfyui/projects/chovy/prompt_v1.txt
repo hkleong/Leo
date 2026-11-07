@@ -1,0 +1,27 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: a strikingly handsome East Asian face with a defined jawline, deep-set calm double-lidded eyes, thick straight eyebrows and a high nose bridge, slightly long tousled black hair with a faint dark navy sheen falling over his forehead. He wears the Tianheng Academy school uniform shown in <Picture 2>: a navy blazer with a crossed hanfu-style collar edged with thin pale-grey piping and a small white sword-and-cloud emblem on the left chest, over a white mandarin-collar shirt. He replaces the main young man in <Video 1> — the dark-haired player who drinks from a black cup with a straw and stares intensely.
+<Subject 2> is the young man in <Picture 3>: ash-brown fringe, thin gold-rimmed round glasses, cheerful face, wearing the same Tianheng Academy navy uniform. He replaces the young man with round glasses who talks in <Video 1>.
+<Subject 3> is the young man in <Picture 4>: buzz-cut hair, tanned skin, broad muscular build, friendly honest face, wearing the same Tianheng Academy navy uniform. He replaces the round-faced young man with a bowl haircut on the right side of the frame in <Video 1>.
+<Subject 4> is any other person partly visible at the edges of <Video 1>: ordinary East Asian high-school students with new faces, all wearing the same Tianheng Academy navy uniform.
+<Video 1> is the source video for the target video edit.
+<Audio 1> is the synchronized audio track of <Video 1> and is reused.
+
+summary:
+[video editing + reference generation + audio reuse] The target video is an edited version of <Video 1>. Replace the main young man with <Subject 1>, the young man with glasses with <Subject 2>, the round-faced young man on the right with <Subject 3>, and any other person with <Subject 4>; everyone wears the Tianheng Academy navy school uniform instead of the original team jackets. Reproduce every performance exactly: each eye movement, gaze direction, blink, squint, eyebrow movement, lip movement, micro-expression, head turn, sip from the straw and body movement, at the same timing and speed. Preserve the scene, the stage lighting, the black cup and the camera.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1]): fully_preserved - his face, hairstyle and school uniform are kept throughout.
+<Subject 2> (appears in [Shot 1]): fully_preserved - his face, glasses and school uniform.
+<Subject 3> (appears in [Shot 1]): fully_preserved - his face, buzz cut and school uniform.
+<Subject 4> (appears in [Shot 1]): partially_preserved - new ordinary faces, school uniform.
+<Video 1> (edit source): partially_preserved - the background, lighting, camera framing, poses, gazes, micro-expressions and timing are copied exactly; the people's faces and clothing are replaced.
+<Audio 1>: fully_copy - the original audio is reused 1:1.
+
+detailed_description:
+The target video keeps the exact look, warm stage lighting, soft bokeh background and color grading of <Video 1>. [Shot 1] Wherever the main young man appears, he is <Subject 1> in the Tianheng Academy uniform: his intense focused stare, the way his eyes shift and lock onto the camera, his subtle frowns, the slight narrowing of his eyes, his blinks and his calm cool expression are reproduced precisely frame by frame, as are his sips from the straw of the black cup and his head turns. The young man with glasses is <Subject 2>, talking with the same mouth movements. The round-faced young man on the right is <Subject 3>, glancing and moving exactly as in <Video 1>. Anyone else is <Subject 4> in the same uniform.
+
+overall_soundscape:
+<Audio 1> is reused 1:1.
+
+non_diegetic_music:
+N/A

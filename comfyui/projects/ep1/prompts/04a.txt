@@ -1,0 +1,29 @@
+subject_definitions:
+<Subject 1> is the man in <Picture 1>: Dean Yan Zhenggang, a stern middle-aged East Asian man with neat slicked-back dark hair, a navy suit, white shirt and dark red tie, a long black academic robe draped over his shoulders, carrying a black wooden disciplinary ruler.
+<Subject 2> is the woman in <Picture 2>: Wen Yining, the homeroom teacher, a gentle East Asian woman in her thirties with shoulder-length wavy brown hair and thin glasses, wearing a cream cardigan over a light blue shirt and a long beige pleated skirt, a staff ID on a lanyard.
+<Subject 3> is the Tianheng Academy school uniform design shown in <Picture 3> (girls' version; the boys' version is the same navy crossed-collar blazer with thin pale-grey piping and the small white emblem, over a white mandarin-collar shirt, with charcoal-grey trousers). Every student in this video, including all background extras, wears exactly this uniform: a crossed hanfu-style wrap collar, no lapels, no neckties, no bow ties.
+<Subject 4> is the old man in <Picture 4>: Principal Yun Shouzhuo, a kind elderly East Asian man with long white hair in a small topknot with a wooden pin and a long white beard, wearing a long grey knitted robe over a white Chinese-collar shirt and dark wide trousers, holding a small teacup.
+<Subject 5> is the location: the stone test plaza shown in <Picture 5>, bright daylight. Fixed layout (as seen from the default camera position at the front of the plaza): in the center, the Tianheng Mirror, a tall round bronze mirror on a carved stone pedestal on a round three-step stone platform, its glowing face turned toward the default camera; behind it, the long red-pillared hall with a dark tiled roof and navy banners; on the far LEFT, a big golden ginkgo tree with a wooden armchair and small tea table under it; a red rope line on brass posts curves in front of the platform. The mirror never shows any text, numbers or reflected faces.
+
+summary:
+[reference generation] The opening of Spirit Test Day at <Subject 5>: <Subject 1> addresses the whole school from the platform beside the mirror while <Subject 2> stands behind him. All students wear <Subject 3>.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 2]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the uniform design stays identical on every student.
+<Subject 4> (appears in [Shot 1]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 5> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): Students in navy uniforms stand in rows behind the red rope line in front of the platform, facing the mirror, so the default camera sees their backs in the foreground. Teachers stand on the LEFT side of the platform between the mirror and the ginkgo tree; <Subject 4> sits in the armchair under the ginkgo tree on the far left. When a student is tested, they stand on the platform directly in front of the mirror, facing it; side shots of the test are always filmed from the RIGHT side, so the student is on screen-left facing screen-right and the mirror is on screen-right. <Subject 1> stands on the platform just LEFT of the mirror facing the crowd (facing the camera); <Subject 2> stands one step behind him to his left with a clipboard.
+[Shot 1] An extreme wide high-angle shot from the default camera position behind the crowd, matching the location picture: hundreds of students in rows with their backs to the camera face the mirror; the mirror and platform in the center, the hall behind, the ginkgo tree on the far left; <Subject 1> stands on the platform left of the mirror.
+[Shot 2] At 00:02.500, the shot cuts to a medium shot from the crowd's side facing the platform: <Subject 1> stands left of the mirror facing the camera, holding the black wooden ruler behind his back, the glowing mirror on screen-right, <Subject 2> behind him on screen-left with a clipboard. The middle-aged man with a stern, firm, clipped voice (S1, in a Taiwanese accent) says: <d>[Chinese] 灵测结果会决定这学期的修炼资源分配。</d>
+[Shot 3] At 00:07.000, the shot cuts to a close-up of <Subject 1>, the mirror's bronze frame blurred on screen-right, the hall behind; he taps the ruler once in his palm. The middle-aged man with a stern, firm, clipped voice (S1, in a Taiwanese accent) says: <d>[Chinese] 每个人照顺序上来，不准插队，不准作弊，听到没有？</d>
+[Shot 4] At 00:11.000, the shot cuts to a reverse wide shot from the platform looking out over the crowd: the rows of students in navy uniforms facing the camera answer in unison, a little half-hearted. Students: <d>[Chinese] 听到了——</d>
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Large outdoor crowd murmuring, banners flapping, a ruler tapping a palm, a crowd answering in unison.
+
+non_diegetic_music:
+N/A

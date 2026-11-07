@@ -15,7 +15,7 @@ p.add_argument("--negative", default="")
 p.add_argument("--images", nargs="*", default=[])
 p.add_argument("--w", type=int, default=1024); p.add_argument("--h", type=int, default=1536)
 p.add_argument("--n", type=int, default=1); p.add_argument("--seed", type=int)
-p.add_argument("--full", action="store_true")
+p.add_argument("--full", action="store_true"); p.add_argument("--res", type=int, default=1024)
 a = p.parse_args()
 seed = a.seed if a.seed is not None else random.randint(0, 2**48)
 w = {
@@ -24,7 +24,7 @@ w = {
     "3": {"class_type": "VAELoader", "inputs": {"vae_name": "qwen_image_2.1_vae_bf16.safetensors"}},
     "4": {"class_type": "QwenImage21Cache", "inputs": {"model": ["1", 0], "device": "auto", "dtype": "default"}},
     "6": {"class_type": "TextEncodeQwenImage21", "inputs": {"clip": ["2", 0], "vae": ["3", 0], "prompt": open(a.prompt_file).read(),
-                                                          "negative_prompt": a.negative, "resolution": 1024}},
+                                                          "negative_prompt": a.negative, "resolution": a.res}},
     "9": {"class_type": "VAEDecode", "inputs": {"samples": ["8", 0], "vae": ["3", 0]}},
     "10": {"class_type": "SaveImage", "inputs": {"images": ["9", 0], "filename_prefix": "qwen21"}},
 }

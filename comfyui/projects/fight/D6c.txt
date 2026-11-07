@@ -1,0 +1,21 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Lin Xiao, a strikingly handsome East Asian student with slightly long tousled black hair with a faint dark navy sheen, deep-set calm eyes and a defined jawline, wearing the Tianheng Academy navy blazer with a crossed hanfu-style collar edged in pale-grey piping and a small white sword emblem, a white mandarin-collar shirt, charcoal-grey trousers and an old bronze coin on a red cord; he fights with his own plain steel jian sword glowing with pale-blue qi, with an empty dark scabbard on his back and no bag.
+<Subject 2> is the man in <Picture 3> and <Picture 4>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow crimson-glowing eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves and red beads on his wrist, fighting with a slim black jian sword trailing crimson demonic qi.
+<Subject 3> is the location: the flat wet concrete rooftop of a modern high school at night, with puddles, a chain-link fence, water tanks along the edge and a glittering city skyline beyond.
+
+summary:
+[reference generation] A single shot on <Subject 3>: the instant after <Subject 2>'s diving strike lands on his block, <Subject 1>, facing left, is driven backward and skids away on one knee, while the camera arcs from a side view to a frontal view of him until he stops.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1]): fully_preserved - his face, navy-sheened hair, school uniform, bronze coin and steel sword stay identical; his eyes are natural dark brown and never glow.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the wet night rooftop, fence, water tanks and skyline.
+
+detailed_description:
+The target video uses a photorealistic live-action wuxia style at night, with cold blue city light and crimson shockwave light, at real-time speed, with no sparks anywhere. <Subject 1>'s eyes are natural dark brown and never glow.
+[Shot 1] The shot opens as a medium side shot: <Subject 1> faces the left side of the frame, toward where his attacker came from, holding his steel sword raised horizontally in a block, his head already lowered. A huge crimson shockwave bursts from the left and drives him backward: he drops onto his right knee and slides backward, away from the left, toward the right of the frame and behind himself, still facing left the whole time, sword braced in front of him, his left hand dragging along the wet concrete, a trail of light grey smoke and dust rising from where his knee and hand scrape the ground, no sparks at all. As he slides, the camera travels with him and smoothly arcs around in front of him, so the view turns from his side profile into a straight frontal shot of his face and body, until he finally comes to a stop on one knee facing the camera. His head stays bowed low the entire time, chin down, face tilted toward the ground and partly shadowed by his hair; he never raises his head or looks up. He stays perfectly still in that bowed pose, breathing hard. A heavy boom, a long scraping skid, then sudden silence; a thin haze of smoke drifts around him.
+
+overall_soundscape:
+No background music at all; only diegetic sound effects and ambience. Night wind, a heavy impact boom, a grinding skid on wet concrete, then silence.
+
+non_diegetic_music:
+N/A

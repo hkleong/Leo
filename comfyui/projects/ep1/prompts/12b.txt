@@ -1,0 +1,27 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Lin Xiao, a handsome, quiet East Asian student with slightly long tousled black hair with a faint dark navy sheen, calm deep-set eyes and a defined jawline, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, an old bronze coin on a red cord, and a cloth-wrapped sword slung on his back.
+<Subject 2> is the young woman in <Picture 3> and <Picture 4>: Shen Qingshuang, the student council president, a cool, beautiful East Asian girl with a long black high ponytail tied with a white silk ribbon, wearing the Tianheng Academy uniform: a fitted navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar blouse, a knee-length charcoal-grey pleated skirt and dark navy knee socks, with a slender silver jian sword with a jade tassel at her hip.
+<Subject 3> is the man in <Picture 5> and <Picture 6>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves, red beads on his wrist and a slim black jian sword.
+<Subject 4> is the location: the school rooftop shown in <Picture 7>, at night. Fixed layout: flat wet concrete with puddles; across the back runs a low concrete parapet with a chain-link fence on top and the glittering city skyline beyond, with one tall lit skyscraper on the left; three small round metal water tanks stand against the parapet left of center.
+
+summary:
+[reference generation] <Subject 1> picks up <Subject 2>'s fallen sword on the right side of <Subject 4> and lays it beside her hand as she lies semi-conscious; she sees only his blurred figure before passing out.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 2], [Shot 3], [Shot 4]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 4> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a photorealistic live-action xianxia drama style at night, cold blue light, deep shadows and saturated crimson energy glows, with tense, controlled pacing. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): The camera mostly faces the parapet and skyline. Fixed sides: <Subject 3> is always on the LEFT side of the rooftop (screen-left, near the water tanks) and the student council is always on the RIGHT side (screen-right). When the council faces <Subject 3> they face screen-left; <Subject 3> faces screen-right. <Subject 2> lies on her side on the right side of the rooftop, her head toward screen-left; her sword lies in a puddle a few meters to screen-right of her.
+[Shot 1] A medium shot facing the parapet: the crimson barrier dome over the rooftop cracks and fades away; <Subject 1> walks toward screen-right and picks up the silver sword from a puddle.
+[Shot 2] At 00:03.500, the shot cuts to a close-up of <Subject 1> crouching beside <Subject 2> and gently laying the sword next to her hand on the wet concrete.
+[Shot 3] At 00:06.000, the shot cuts to a blurred point-of-view shot from <Subject 2>'s eyes looking up: the out-of-focus figure of <Subject 1> standing over her, backlit by the city lights; the image wavers and darkens.
+[Shot 4] At 00:08.500, the shot cuts to a close-up of <Subject 2>'s face on the wet concrete, her eyes slowly closing.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Night wind, a crackling barrier fading, distant running footsteps and teachers' voices, a soft metallic clink.
+
+non_diegetic_music:
+N/A

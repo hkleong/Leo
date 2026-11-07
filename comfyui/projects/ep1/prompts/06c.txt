@@ -1,0 +1,30 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1>: Shi Dazhuang, a huge, very muscular East Asian student with a buzz cut and a friendly broad face, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers stretched over his body, his forearms and fists wrapped in old cloth bandages with faint golden runes.
+<Subject 2> is the man in <Picture 2>: Guan Tieshan, the PE teacher, a bald, extremely muscular middle-aged East Asian man with a big grin, wearing a black tank top, a red jacket tied around his waist, black training pants, a whistle on a cord and red wristbands.
+<Subject 3> is the Tianheng Academy school uniform design shown in <Picture 3> (girls' version; the boys' version is the same navy crossed-collar blazer with thin pale-grey piping and the small white emblem, over a white mandarin-collar shirt, with charcoal-grey trousers). Every student in this video, including all background extras, wears exactly this uniform: a crossed hanfu-style wrap collar, no lapels, no neckties, no bow ties.
+<Subject 4> is the old man in <Picture 4>: Principal Yun Shouzhuo, a kind elderly East Asian man with long white hair in a small topknot with a wooden pin and a long white beard, wearing a long grey knitted robe over a white Chinese-collar shirt and dark wide trousers, holding a small teacup.
+<Subject 5> is the location: the stone test plaza shown in <Picture 5>, bright daylight. Fixed layout (as seen from the default camera position at the front of the plaza): in the center, the Tianheng Mirror, a tall round bronze mirror on a carved stone pedestal on a round three-step stone platform, its glowing face turned toward the default camera; behind it, the long red-pillared hall with a dark tiled roof and navy banners; on the far LEFT, a big golden ginkgo tree with a wooden armchair and small tea table under it; a red rope line on brass posts curves in front of the platform. The mirror never shows any text, numbers or reflected faces.
+
+summary:
+[reference generation] <Subject 1> tests at the mirror at <Subject 5> with everything he has; the light stalls just short of the top, he sinks to one knee disappointed, and <Subject 2> steps over from the left side of the platform to pull him up. All students wear <Subject 3>.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 3], [Shot 4], [Shot 5]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 5]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the uniform design stays identical on every student.
+<Subject 4> (appears in [Shot 1]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 5> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): Students in navy uniforms stand in rows behind the red rope line in front of the platform, facing the mirror, so the default camera sees their backs in the foreground. Teachers stand on the LEFT side of the platform between the mirror and the ginkgo tree; <Subject 4> sits in the armchair under the ginkgo tree on the far left. When a student is tested, they stand on the platform directly in front of the mirror, facing it; side shots of the test are always filmed from the RIGHT side, so the student is on screen-left facing screen-right and the mirror is on screen-right. <Subject 1> stands on the platform in front of the mirror facing it, his RIGHT palm on it; <Subject 2> comes from the teachers' spot on the LEFT side of the platform.
+[Shot 1] A wide shot from the default camera position behind the crowd: <Subject 1>, in his navy blazer, steps up onto the platform, rolls his shoulders and presses his right palm flat on the mirror. The crowd quiets.
+[Shot 2] At 00:02.500, the shot cuts to a close-up of <Subject 1>'s face in a side view from the right, facing screen-right, jaw set, breathing hard through his nose, a vein rising on his temple, a thin golden aura around his head; focused, not grimacing.
+[Shot 3] At 00:05.000, the shot cuts to a medium side shot from the right: <Subject 1> on screen-left, his palm stays pressed on the mirror on screen-right, the runes on his bandages glow, and a column of golden light rises inside the mirror, slows, trembles and stops just below the top rim.
+[Shot 4] At 00:08.000, the shot cuts to a medium shot from the crowd's side facing the platform: <Subject 1> lets go and slowly sinks down to one knee in front of the mirror, looking up at it, exhaling. The big young man with a deep, warm, slightly loud voice (S1, in a Taiwanese accent) says, quietly, disappointed: <d>[Chinese] ……差一点点欸。</d>
+[Shot 5] At 00:10.500, the shot cuts to the same angle: <Subject 2> walks in from screen-left, pulls <Subject 1> up by the arm with one hand and pats his back; <Subject 2> on screen-left, <Subject 1> on screen-right. The middle-aged man with a hearty, booming voice (S2, in a Taiwanese accent) says: <d>[Chinese] 没差啦！下次一定破四千。</d>
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Crowd murmuring then hushing, a deep rising hum that stalls and wobbles, a long exhale, a hearty back slap.
+
+non_diegetic_music:
+N/A

@@ -1,0 +1,23 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Shi Dazhuang, a huge, very muscular East Asian student with a buzz cut and a friendly broad face, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers stretched over his body, his forearms and fists wrapped in old cloth bandages with faint golden runes.
+<Subject 2> is the location: the campus entrance shown in <Picture 3>, on a sunny morning. Fixed layout: in the far background, centered, a grey stone gateway with a dark tiled roof; a grey paved road comes from the gateway straight toward the camera and splits at a small round hedge island with a tall wooden signpost in the center of the frame; the LEFT branch curves away to screen-left, the RIGHT branch curves away to screen-right; tall green trees and lawns line both sides.
+
+summary:
+[reference generation] <Subject 1> rides an electric scooter with a delivery box in through the gateway of <Subject 2>, stops by the signpost, checks the glowing wristband on his arm and calls to a classmate.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): Default camera looks from the fork toward the gateway: the gateway is in the far center background, the signpost island in the middle, the LEFT branch goes off screen-left and the RIGHT branch goes off screen-right. <Subject 1> rides in from the gateway in the center background straight toward the camera and stops just in front of the signpost island, slightly right of center, facing the camera; the square black delivery box is on the back of the scooter the whole time. Other students walk in the background along both branches.
+[Shot 1] A wide shot from the default camera position: the gateway in the far center background; <Subject 1>, in his navy blazer, rides a small white electric scooter with a square black delivery box on the back out of the gateway, straight down the road toward the camera, and brakes to a stop just right of the signpost island, facing the camera.
+[Shot 2] At 00:03.500, the shot cuts to an insert close-up of his bandaged left forearm on the handlebar, raised slightly: a thin metal spirit-test wristband glows soft blue; the road blurred behind.
+[Shot 3] At 00:05.000, the shot cuts to a medium close-up of <Subject 1> on the scooter, facing the camera, the signpost and gateway blurred behind his left shoulder, looking down at the wristband, then exhaling and nodding to himself. The big young man with a deep, warm, slightly loud voice (S1, in a Taiwanese accent) says, under his breath: <d>[Chinese] 还差五十……今天一定要破四千。</d>
+[Shot 4] At 00:08.800, the shot cuts to a medium shot from the default camera direction, the same stone gateway and the wooden signpost island visible behind him exactly as in the location picture (not a park path): still on the scooter in front of the signpost island, he twists around, lifts a takeout bag out of the black delivery box behind him and holds it out toward screen-left with a friendly grin. The big young man with a deep, warm, slightly loud voice (S1, in a Taiwanese accent) says: <d>[Chinese] 欸，你的早餐啦！</d>
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Morning birds, students chatting, the soft whir and brake squeak of the scooter, a plastic bag rustling.
+
+non_diegetic_music:
+N/A

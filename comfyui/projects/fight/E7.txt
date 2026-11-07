@@ -1,0 +1,22 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Lin Xiao, a strikingly handsome East Asian student with slightly long tousled black hair with a faint dark navy sheen, deep-set calm eyes and a defined jawline, wearing the Tianheng Academy navy blazer with a crossed hanfu-style collar edged in pale-grey piping and a small white sword emblem, a white mandarin-collar shirt, charcoal-grey trousers and an old bronze coin on a red cord; he fights with his own plain steel jian sword glowing with pale-blue qi, with an empty dark scabbard on his back and no bag.
+<Subject 2> is the man in <Picture 3> and <Picture 4>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow crimson-glowing eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves and red beads on his wrist, fighting with a slim black jian sword trailing crimson demonic qi.
+<Subject 3> is the location: the flat wet concrete rooftop of a modern high school at night, with puddles, a chain-link fence, water tanks along the edge and a glittering city skyline beyond.
+
+summary:
+[reference generation] A single wide shot on <Subject 3> filmed from behind <Subject 2>: he stands bound by golden chains in a glowing golden array, his back to the camera, facing <Subject 1>, who kneels in the distance inside his own golden array.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1]): fully_preserved - his navy school uniform and navy-sheened hair; he stays kneeling with his head bowed.
+<Subject 2> (appears in [Shot 1]): fully_preserved - his long black hair in a high knot with a black jade hairpin and his long black coat with dark crimson cloud embroidery, seen from behind.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the wet night rooftop, fence, water tanks and skyline.
+
+detailed_description:
+The target video uses a photorealistic live-action action-film style at night: cold blue city light, low drifting smoke and warm golden light from the arrays, anamorphic flares, real-time speed.
+[Shot 1] A wide shot filmed from directly behind <Subject 2>, slightly low: <Subject 2> stands in the foreground center with his back fully to the camera, his high hair knot, black jade hairpin and the back of his long black embroidered coat clearly visible, facing away from the camera toward <Subject 1>. He is bound in the center of a glowing golden formation array, golden chains stretched taut from the ground and wrapped around his waist, his wrists pulled down at his sides, his legs and his neck; he strains and struggles against them but cannot move, his shoulders twisting, the chains glowing brighter and groaning. Far ahead in the background, beyond him, <Subject 1> kneels on one knee facing toward <Subject 2> and the camera, head bowed, one palm pressed on the ground inside his own large golden array, smoke drifting around him. The camera slowly pushes in. Chains groaning and clanking, a resonant golden hum.
+
+overall_soundscape:
+No background music at all; only diegetic sound effects and ambience. Night wind, a resonant golden hum, heavy clanking chains.
+
+non_diegetic_music:
+N/A

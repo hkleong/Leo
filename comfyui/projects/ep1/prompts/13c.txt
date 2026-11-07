@@ -1,0 +1,29 @@
+subject_definitions:
+<Subject 1> is the young woman in <Picture 1>: Shen Qingshuang, the student council president, a cool, beautiful East Asian girl with a long black high ponytail tied with a white silk ribbon, wearing the Tianheng Academy uniform: a fitted navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar blouse, a knee-length charcoal-grey pleated skirt and dark navy knee socks, with a slender silver jian sword with a jade tassel at her hip.
+<Subject 2> is the young man in <Picture 2>: Lin Xiao, a handsome, quiet East Asian student with slightly long tousled black hair with a faint dark navy sheen, calm deep-set eyes and a defined jawline, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, an old bronze coin on a red cord, and a cloth-wrapped sword slung on his back.
+<Subject 3> is the young man in <Picture 3>: Shi Dazhuang, a huge, very muscular East Asian student with a buzz cut and a friendly broad face, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers stretched over his body, his forearms and fists wrapped in old cloth bandages with faint golden runes.
+<Subject 4> is the young man in <Picture 4>: Jin Duobao, a rich, easygoing East Asian student with ash-brown hair, thin gold-rimmed round glasses, a green jade pendant on a cord and a gold watch, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, a small bronze pill gourd at his belt.
+<Subject 5> is the location: the school infirmary shown in <Picture 5>, warm late-afternoon light. Fixed layout (from the default camera at the door): three white hospital beds in a row along the LEFT side, separated by white curtains, numbered from the camera: bed 1 nearest, bed 2 middle, bed 3 farthest by the window; a big window with sheer curtains on the far wall; a tall dark wooden herb cabinet with many small drawers on the RIGHT wall; a small wooden stool on the right side of bed 2.
+
+summary:
+[reference generation] <Subject 1>, sitting up in bed 2, quietly promises <Subject 2> she will become stronger to protect everyone including him; he hands her the apple.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 4> (appears in [Shot 1]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 5> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): <Subject 3> lies in bed 1 (nearest the camera), <Subject 1> lies in bed 2 (middle), <Subject 4> lies in bed 3 (farthest, by the window). <Subject 2> sits on the wooden stool on the RIGHT side of bed 2. From the default camera at the door, the beds are on screen-left with their heads against the left wall, and the herb cabinet is on screen-right. In the two-shot <Subject 1> in bed is on screen-left and <Subject 2> on the stool is on screen-right.
+[Shot 1] A medium two-shot: <Subject 1> sitting up in bed 2 on screen-left, <Subject 2> on the stool on screen-right facing her; she looks down at her hands, then at him.
+[Shot 2] At 00:02.500, the shot cuts to a close-up of <Subject 1> facing screen-right, serious and a little shy. The young woman with a cool, clear, steady voice (S1, in a Taiwanese accent) says: <d>[Chinese] 我会变更强的。强到可以保护大家……也包括你喔。</d>
+[Shot 3] At 00:07.500, the shot cuts to a close-up of <Subject 2> facing screen-left, looking at her for a moment, then a faint warm smile. The young man with a low, calm, relaxed voice (S2, in a Taiwanese accent) says: <d>[Chinese] 嗯，我知道啊。</d>
+[Shot 4] At 00:10.500, the shot cuts to the medium two-shot again: he hands her the peeled apple toward screen-left; she takes it, looking away slightly.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Quiet infirmary ambience, birds, sheets rustling.
+
+non_diegetic_music:
+N/A

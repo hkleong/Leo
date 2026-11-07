@@ -1,0 +1,22 @@
+subject_definitions:
+<Subject 1> is the old man in <Picture 1>: Principal Yun Shouzhuo, a kind elderly East Asian man with long white hair in a small topknot with a wooden pin and a long white beard, wearing a long grey knitted robe over a white Chinese-collar shirt and dark wide trousers, holding a small teacup.
+<Subject 2> is the location: the covered corridor shown in <Picture 2>, at sunset: red pillars, dark tiled eaves, a wooden bench under the eaves with a teapot, a small golden ginkgo tree beside it, and far away across the plaza the round bronze mirror on its pedestal.
+
+summary:
+[reference generation] Under the eaves at <Subject 2>, <Subject 1> watches the plaza from afar, a leaf frozen above his teacup, and murmurs a line.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with warm orange sunset light, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): <Subject 1> sits on the wooden bench under the eaves on the LEFT, facing screen-right toward the distant plaza and mirror.
+[Shot 1] A wide shot matching the location picture: <Subject 1> sits alone on the bench under the eaves on screen-left with a teacup, looking toward screen-right where small distant figures stand by the mirror across the plaza.
+[Shot 2] At 00:03.000, the shot cuts to a close-up: a golden ginkgo leaf falls and stops in midair just above his teacup, hanging still.
+[Shot 3] At 00:05.000, the shot cuts to a close-up of <Subject 1> facing screen-right, smiling faintly, eyes on the distance. The old man with a slow, gentle, slightly raspy voice (S1, in a Taiwanese accent) says, softly: <d>[Chinese] 都一年了，还是这么不老实啊。</d>
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Evening wind, ginkgo leaves rustling, distant crows.
+
+non_diegetic_music:
+N/A

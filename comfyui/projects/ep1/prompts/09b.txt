@@ -1,0 +1,26 @@
+subject_definitions:
+<Subject 1> is the young woman in <Picture 1> and <Picture 2>: Shen Qingshuang, the student council president, a cool, beautiful East Asian girl with a long black high ponytail tied with a white silk ribbon, wearing the Tianheng Academy uniform: a fitted navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar blouse, a knee-length charcoal-grey pleated skirt and dark navy knee socks, with a slender silver jian sword with a jade tassel at her hip.
+<Subject 2> is the man in <Picture 3> and <Picture 4>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves, red beads on his wrist and a slim black jian sword.
+<Subject 3> is the location: the school rooftop shown in <Picture 5>, at night. Fixed layout: flat wet concrete with puddles; across the back runs a low concrete parapet with a chain-link fence on top and the glittering city skyline beyond, with one tall lit skyscraper on the left; three small round metal water tanks stand against the parapet left of center.
+
+summary:
+[reference generation] <Subject 1> duels <Subject 2> alone on <Subject 3>; her sword is knocked away and she is forced to one knee, and <Subject 2> raises a burning palm over her until a hand grabs his wrist.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 2], [Shot 3]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 1], [Shot 2], [Shot 4], [Shot 5]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a photorealistic live-action xianxia drama style at night, cold blue light, deep shadows and saturated crimson energy glows, with tense, controlled pacing. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): The camera mostly faces the parapet and skyline. Fixed sides: <Subject 2> is always on the LEFT side of the rooftop (screen-left, near the water tanks) and the student council is always on the RIGHT side (screen-right). When the council faces <Subject 2> they face screen-left; <Subject 2> faces screen-right. <Subject 1> attacks from the right toward screen-left; after she falls she kneels on the right with <Subject 2> standing over her on the left.
+[Shot 1] A fast medium side shot facing the parapet: <Subject 1> on screen-right attacks <Subject 2> on screen-left with three quick sword strikes, frost trailing; <Subject 2> blocks each one with his black sword without moving his feet.
+[Shot 2] At 00:03.500, the shot cuts to a close-up: <Subject 2> twists his blade and the silver sword flies out of <Subject 1>'s hand toward screen-right, spinning away and clattering on the concrete.
+[Shot 3] At 00:05.000, the shot cuts to a medium shot: a wave of crimson pressure forces <Subject 1> down onto one knee on screen-right; she braces a hand on the wet ground, a thin trace of blood at the corner of her lips, still looking up toward screen-left at him.
+[Shot 4] At 00:08.500, the shot cuts to a low-angle medium shot of <Subject 2> on screen-left facing screen-right, raising his right palm, a crimson flame gathering in it. The young man with a smooth, cold, low voice (S2, in a Taiwanese accent) says: <d>[Chinese] 不说是吧？那我就一个一个问。</d>
+[Shot 5] At 00:12.000, the shot cuts to a close-up of <Subject 2>'s raised gloved wrist: a hand in a navy blazer sleeve reaches in from the right edge of the frame and grips it firmly.
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Rapid sword clashes, a sword clattering on concrete, a heavy pressure hum, a crackling flame, a firm grip.
+
+non_diegetic_music:
+N/A

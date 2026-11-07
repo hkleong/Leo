@@ -1,0 +1,30 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1>: Jin Duobao, a rich, easygoing East Asian student with ash-brown hair, thin gold-rimmed round glasses, a green jade pendant on a cord and a gold watch, wearing the Tianheng Academy uniform: a navy blazer with a crossed hanfu-style collar edged in thin pale-grey piping and a small white sword-and-cloud emblem, a white mandarin-collar shirt and charcoal-grey trousers, a small bronze pill gourd at his belt.
+<Subject 2> is the man in <Picture 2>: Hu Laifu, the alchemy teacher, a chubby cheerful middle-aged East Asian man with messy black hair and goggles pushed up on his forehead, wearing a scorched white lab coat over a mustard vest and checked shirt.
+<Subject 3> is the Tianheng Academy school uniform design shown in <Picture 3> (girls' version; the boys' version is the same navy crossed-collar blazer with thin pale-grey piping and the small white emblem, over a white mandarin-collar shirt, with charcoal-grey trousers). Every student in this video, including all background extras, wears exactly this uniform: a crossed hanfu-style wrap collar, no lapels, no neckties, no bow ties.
+<Subject 4> is the old man in <Picture 4>: Principal Yun Shouzhuo, a kind elderly East Asian man with long white hair in a small topknot with a wooden pin and a long white beard, wearing a long grey knitted robe over a white Chinese-collar shirt and dark wide trousers, holding a small teacup.
+<Subject 5> is the location: the stone test plaza shown in <Picture 5>, bright daylight. Fixed layout (as seen from the default camera position at the front of the plaza): in the center, the Tianheng Mirror, a tall round bronze mirror on a carved stone pedestal on a round three-step stone platform, its glowing face turned toward the default camera; behind it, the long red-pillared hall with a dark tiled roof and navy banners; on the far LEFT, a big golden ginkgo tree with a wooden armchair and small tea table under it; a red rope line on brass posts curves in front of the platform. The mirror never shows any text, numbers or reflected faces.
+
+summary:
+[reference generation] <Subject 1> swallows a pill and tests at the mirror at <Subject 5>; his glow surges then backfires in a puff of black smoke; <Subject 2>, standing with the teachers on the left side of the platform, praises it in his own way. All students wear <Subject 3>.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1], [Shot 3], [Shot 5]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 2> (appears in [Shot 4]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the uniform design stays identical on every student.
+<Subject 4> (appears in [Shot 1]): fully_preserved - face, hair, outfit and props stay identical to the reference.
+<Subject 5> (appears in [Shot 1]): fully_preserved - the same room/place, layout, props and lighting as the location picture in every shot.
+
+detailed_description:
+The target video uses a bright, warm, photorealistic live-action Taiwanese school drama style with natural daylight, natural colors and clean, unhurried cuts. Acting is natural and understated: subtle, realistic facial expressions and small natural gestures, no exaggerated mugging, no cartoonish reactions, no wide-open shouting mouths. All dialogue is spoken in Mandarin Chinese with a natural, casual Taiwanese accent, like a Taiwanese idol drama. Phone screens, wristbands and signs never show readable text. Blocking (fixed for the whole video; positions and facing never swap between shots): Students in navy uniforms stand in rows behind the red rope line in front of the platform, facing the mirror, so the default camera sees their backs in the foreground. Teachers stand on the LEFT side of the platform between the mirror and the ginkgo tree; <Subject 4> sits in the armchair under the ginkgo tree on the far left. When a student is tested, they stand on the platform directly in front of the mirror, facing it; side shots of the test are always filmed from the RIGHT side, so the student is on screen-left facing screen-right and the mirror is on screen-right. <Subject 1> stands on the platform in front of the mirror facing it; <Subject 2> stands with the teachers on the LEFT side of the platform.
+[Shot 1] A medium side shot from the right: <Subject 1> on screen-left pops a golden pill into his mouth and places his right palm on the mirror on screen-right; the light inside surges up fast.
+[Shot 2] At 00:03.000, the shot cuts to a close-up in the same side view: a small puff of black smoke bursts from his collar with a muffled pop, soot smudges his glasses, the mirror's light drops back down.
+[Shot 3] At 00:05.000, the shot cuts to a medium shot from the crowd's side facing the platform: <Subject 1> in front of the mirror, coughing lightly and waving the smoke away with a resigned look.
+[Shot 4] At 00:07.000, the shot cuts to a medium shot of <Subject 2> standing at the left side of the platform near the ginkgo tree, the hall behind him, clapping and beaming proudly toward screen-right. The middle-aged man with a cheerful, jolly voice (S2, in a Taiwanese accent) says: <d>[Chinese] 不错喔！这个炸法，有我当年的味道。</d>
+[Shot 5] At 00:10.500, the shot cuts to a close-up of <Subject 1>, the mirror behind him, wiping his glasses, deadpan, looking toward screen-left at the teacher. The young man with a light, playful, slightly lazy voice (S1, in a Taiwanese accent) says: <d>[Chinese] 老师……这应该不是在称赞吧？</d>
+
+overall_soundscape:
+No background music; only diegetic sound and dialogue. Crowd murmuring, a rising hum, a muffled pop, light coughing, clapping, a few laughs.
+
+non_diegetic_music:
+N/A

@@ -1,0 +1,22 @@
+subject_definitions:
+<Subject 1> is the young man in <Picture 1> and <Picture 2>: Lin Xiao, a strikingly handsome East Asian student with slightly long tousled black hair with a faint dark navy sheen, deep-set calm eyes and a defined jawline, wearing the Tianheng Academy navy blazer with a crossed hanfu-style collar edged in pale-grey piping and a small white sword emblem, a white mandarin-collar shirt, charcoal-grey trousers and an old bronze coin on a red cord; he fights with his own plain steel jian sword glowing with pale-blue qi, with an empty dark scabbard on his back and no bag.
+<Subject 2> is the man in <Picture 3> and <Picture 4>: Mo Hanyuan, a tall pale demonic cultivator with long black hair half tied in a high knot with a black jade hairpin, cold narrow crimson-glowing eyes, a long black high-collar coat with dark crimson cloud embroidery, black leather gloves and red beads on his wrist, fighting with a slim black jian sword trailing crimson demonic qi.
+<Subject 3> is the location: the flat wet concrete rooftop of a modern high school at night, with puddles, a chain-link fence, water tanks along the edge and a glittering city skyline beyond.
+
+summary:
+[reference generation] A single close-up insert shot on <Subject 3> that stays tight on <Subject 1>'s left hand during a straining sword lock with <Subject 2>: the hand leaves the sword hilt, charges pale-blue energy beside his hip and slams into <Subject 2>'s chest.
+
+retention_analysis:
+<Subject 1> (appears in [Shot 1]): fully_preserved - his navy school blazer, white shirt cuff and steel sword with its cloth-wrapped hilt stay identical.
+<Subject 2> (appears in [Shot 1]): fully_preserved - his black coat with dark crimson cloud embroidery and black gloves stay identical.
+<Subject 3> (appears in [Shot 1]): fully_preserved - the wet night rooftop, blurred far behind.
+
+detailed_description:
+The target video uses a photorealistic live-action action-film style at night with a long lens, very shallow depth of field, cold blue light and a pale-blue energy glow, at real-time speed.
+[Shot 1] A tight close-up, the camera low and just to the side, framed only on <Subject 1>'s hands and forearms; his body is mostly outside the frame. The two men are pushing against each other with all their strength in a sword lock: the whole frame is tilted with the force, his forearms angle steeply forward and down toward <Subject 2> on the left, both of his hands are clenched around the cloth-wrapped hilt of his sword just below the crossguard, knuckles white, tendons standing out, wrists trembling with strain, the crossed blades grinding at the top edge of the frame and dropping sparks, <Subject 2>'s black-gloved hands pressing back from the left. His left hand lets go of the hilt while his right hand alone keeps gripping it tightly and keeps pushing, so his sword stays locked against <Subject 2>'s black blade and stays visible in the upper part of the frame the whole time, the right forearm still straining and trembling. The camera tilts down a little to follow the left hand while keeping the locked swords and the gripping right hand in frame, as the left hand swings down and back to beside his hip, where it stops in mid-air with the palm turned up, fingers bent and tense like claws, not touching his body or clothes. The hand shakes with effort as pale-blue spiritual energy is pulled in from the air in thin spiraling threads and condenses into a crackling, brightening glow in the cupped palm, lighting the fingers and the white shirt cuff blue. Then the left hand drives forward hard while the right hand still holds the locked sword; the camera moves forward with it, still tight, as the open palm slams into the black embroidered coat at <Subject 2>'s chest and a burst of pale-blue light and a ring of shockwave explode from the impact. Grinding steel, a strained exhale, a crackling hum rising in pitch, then a deep thudding blast.
+
+overall_soundscape:
+No background music at all; only diegetic sound effects and ambience. Night wind, grinding steel and crackling pale-blue energy.
+
+non_diegetic_music:
+N/A
