@@ -356,7 +356,7 @@ function renderTicket(id, ev) {
   seats.append(el('span', 'stub-label', '已确认参加'), el('br'), el('b', null, String(c.yes)), document.createTextNode(cap > 0 ? ` / ${cap} 人` : ' 人'));
   if (cap > 0) { const bar = el('div', 'bar'), i = el('i'); i.style.width = Math.min(100, c.yes / cap * 100) + '%'; bar.append(i); seats.append(bar); }
   stub.append(seats);
-  if (ph === 'open' || ph === 'closed') { const ics = el('button', 'ics', '加入我的日历'); ics.type = 'button'; ics.onclick = () => saveIcs(id, ev); stub.append(ics); }
+  if ((ph === 'open' || ph === 'closed') && !window.__TX_PREVIEW__) { const ics = el('button', 'ics', '加入我的日历'); ics.type = 'button'; ics.onclick = () => saveIcs(id, ev); stub.append(ics); }
   tick();
 }
 function tick() {

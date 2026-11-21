@@ -1,0 +1,1267 @@
+<title>TX Game Club 预览</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Saira+Condensed:wght@500;700;800&family=ZCOOL+QingKe+HuangYou&display=swap">
+<style>
+/* Layout: standalone member site, hash-routed views. Home = full-bleed black/red bands (hero → about → next event → join); app = event list, event ticket + RSVP desk, and the host editor. Deliberately single-theme red on black. */
+:root{
+  --bg:#0a0a0b; --paper:#141416; --sunk:#1c1c1f; --ink:#f4f1f0; --muted:#a39d9c; --line:#2d2a2b;
+  --accent:#e3182a; --accent-hot:#ff3344; --accent-ink:#ffffff; --accent-soft:#3a0d12;
+  --good:#ff3344; --good-soft:#3a0d12; --maybe:#ece6e4; --maybe-soft:#2a2829; --no:#8a8485; --no-soft:#1f1e20;
+  --danger:#ff5a66;
+  --f-mark:"Anton","Impact","Arial Narrow Bold",sans-serif;
+  --f-display:"ZCOOL QingKe HuangYou","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-num:"Saira Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  --f-body:system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --r:18px;
+  --gut-l:max(16px,env(safe-area-inset-left,0px)); --gut-r:max(16px,env(safe-area-inset-right,0px));
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-hot);outline-offset:2px}
+.in{max-width:1080px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+
+/* ---------- home ---------- */
+.nav{position:absolute;top:0;left:0;right:0;z-index:5}
+.nav .in{display:flex;align-items:center;justify-content:space-between;padding-block:18px}
+.mark{font-family:var(--f-mark);font-size:22px;letter-spacing:.04em;line-height:1;text-decoration:none;display:flex;align-items:center;gap:8px}
+.mark i{display:inline-block;width:12px;height:22px;background:var(--accent);transform:skewX(-14deg)}
+.navlink{border:1px solid rgba(255,255,255,.28);background:transparent;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;letter-spacing:.08em}
+.host{border:none;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;letter-spacing:.06em;white-space:nowrap}
+.host::before{content:"主办方 · ";font-weight:600;opacity:.8}
+.topright{display:flex;align-items:center;gap:12px}
+@media (max-width:420px){.topright .mark{display:none}}
+.hero{position:relative;min-height:88svh;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;
+  background:radial-gradient(120% 80% at 85% 15%,#2a070c 0%,transparent 60%),var(--bg)}
+.hero::before{content:"";position:absolute;z-index:-1;right:-12%;top:-20%;width:62%;height:150%;background:linear-gradient(180deg,var(--accent-hot),var(--accent) 55%,#8e0d18);transform:skewX(-14deg)}
+@media (max-width:640px){.hero::before{width:44%;right:-20%}}
+.hero::after{content:"";position:absolute;z-index:-1;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);pointer-events:none}
+.hero .in{width:100%;padding-block:110px 40px;display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.32em;color:var(--muted)}
+.wordmark{margin:0;font-family:var(--f-mark);font-weight:400;font-size:clamp(68px,17vw,200px);line-height:.86;letter-spacing:.01em;text-transform:uppercase}
+.wordmark span{display:block}
+.wordmark .o{color:transparent;-webkit-text-stroke:2px var(--ink)}
+.headline{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(28px,5.4vw,46px);line-height:1.15;max-width:16ch;text-wrap:balance}
+.headline em{font-style:normal;color:var(--accent-hot);background:var(--bg);padding:0 .18em;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.lede{margin:0;max-width:34em;color:#d8d2d1;font-size:16px}
+.cue{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:13px;letter-spacing:.16em;color:var(--muted)}
+.cue b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent-hot);font-size:16px;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(5px)}}
+.band{padding-block:72px}
+.band h2{margin:0 0 18px;font-family:var(--f-display);font-weight:400;font-size:clamp(28px,4.6vw,40px);line-height:1.15}
+.band h2 small{display:block;font-family:var(--f-mark);font-size:14px;letter-spacing:.22em;color:var(--accent-hot);margin-bottom:6px}
+.about{border-top:1px solid var(--line)}
+.about-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:40px;align-items:start}
+@media (max-width:760px){.about-grid{grid-template-columns:minmax(0,1fr);gap:24px}}
+.about p{margin:0 0 12px;color:#d8d2d1;max-width:36em}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.steps li{display:grid;grid-template-columns:56px minmax(0,1fr);gap:14px;align-items:start;padding:16px;background:var(--paper);border-radius:14px;border-left:3px solid var(--accent)}
+.steps .n{font-family:var(--f-mark);font-size:30px;line-height:1;color:var(--accent-hot)}
+.steps b{display:block;font-size:16px}
+.steps span{font-size:14px;color:var(--muted)}
+.next{background:var(--paper)}
+.next-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding:22px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+@media (max-width:620px){.next-card{grid-template-columns:minmax(0,1fr)}}
+.next-card h3{margin:6px 0 4px;font-family:var(--f-display);font-weight:400;font-size:28px;line-height:1.2;overflow-wrap:anywhere}
+.next-card p{margin:0;color:var(--muted)}
+.next-num{display:flex;gap:16px;text-align:center}
+.next-num b{display:block;font-family:var(--f-num);font-weight:800;font-size:40px;line-height:1;color:var(--accent-hot);font-variant-numeric:tabular-nums}
+.next-num span{font-size:12px;color:var(--muted)}
+.join{position:relative;overflow:hidden;background:var(--accent);color:var(--accent-ink);isolation:isolate}
+.join::before{content:"TX";position:absolute;z-index:-1;right:-2%;bottom:-24%;font-family:var(--f-mark);font-size:clamp(200px,40vw,420px);line-height:1;color:rgba(0,0,0,.16)}
+.join h2 small{color:rgba(255,255,255,.75)}
+.join p{margin:0 0 26px;max-width:32em;font-size:16px}
+.enter{display:inline-flex;align-items:center;gap:14px;background:var(--bg);color:var(--ink);text-decoration:none;font-weight:800;font-size:18px;letter-spacing:.08em;padding:16px 26px;border-radius:999px;box-shadow:0 6px 0 rgba(0,0,0,.35);transition:transform .1s,box-shadow .1s}
+.enter:hover{transform:translateY(-2px)}
+.enter:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.enter i{font-style:normal;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff}
+.foot{padding-block:26px calc(26px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:12px;letter-spacing:.1em;border-top:1px solid var(--line)}
+
+/* ---------- sign-up view ---------- */
+.topbar{border-bottom:1px solid var(--line);background:var(--bg)}
+.topbar .in{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:14px;font-weight:700;color:var(--muted)}
+.back:hover{color:var(--ink)}
+#viewSignup{padding-bottom:48px}
+.wrap{max-width:1080px;margin:28px auto 0;padding-left:var(--gut-l);padding-right:var(--gut-r);display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+/* ticket */
+.ticket{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 190px;background:var(--paper);border-radius:var(--r);
+  box-shadow:0 0 0 1px var(--line),0 18px 40px -22px rgba(227,24,42,.45);overflow:hidden}
+@media (max-width:560px){.ticket{grid-template-columns:minmax(0,1fr)}}
+.t-main{padding:26px 26px 24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.t-stub{position:relative;padding:24px 20px;background:var(--accent);color:var(--accent-ink);display:flex;flex-direction:column;gap:14px;justify-content:space-between}
+.t-stub::before{content:"";position:absolute;left:-1px;top:14px;bottom:14px;border-left:2px dashed color-mix(in srgb,var(--accent-ink) 45%,transparent)}
+.ticket::before,.ticket::after{content:"";position:absolute;right:190px;width:22px;height:22px;border-radius:50%;background:var(--bg);transform:translateX(50%)}
+.ticket::before{top:-11px}.ticket::after{bottom:-11px}
+@media (max-width:560px){
+  .t-stub::before{left:14px;right:14px;top:-1px;bottom:auto;border-left:none;border-top:2px dashed color-mix(in srgb,var(--accent-ink) 45%,transparent)}
+  .ticket::before,.ticket::after{display:none}
+}
+.pill{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.14em;padding:4px 10px 4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.closed{background:var(--no-soft);color:var(--no)}
+.pill.live{background:var(--good-soft);color:var(--good)}
+h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(34px,6vw,54px);line-height:1.08;letter-spacing:.02em;text-wrap:balance;overflow-wrap:anywhere}
+.meta{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;margin:0}
+.meta dt{font-size:12px;letter-spacing:.14em;color:var(--muted);padding-top:2px;white-space:nowrap}
+.meta dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.meta dd small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.linkrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.linkrow a{color:var(--accent);word-break:break-all}
+.mini{border:1px solid var(--line);background:var(--sunk);border-radius:8px;padding:2px 8px;font-size:12px}
+.stub-label{font-size:12px;letter-spacing:.2em;opacity:.85}
+.count{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center}
+.count b{display:block;font-family:var(--f-num);font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.count span{font-size:11px;opacity:.85}
+.stub-big{font-family:var(--f-display);font-size:26px;line-height:1.2}
+.seats b{font-family:var(--f-num);font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+.seats{font-size:13px}
+.bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--accent-ink) 25%,transparent);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent-ink)}
+.ics{border:1.5px solid color-mix(in srgb,var(--accent-ink) 60%,transparent);background:transparent;color:var(--accent-ink);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700}
+
+/* panels */
+.panel{background:var(--paper);border-radius:var(--r);padding:22px;box-shadow:0 0 0 1px var(--line);display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel h2{margin:0;font-size:18px;display:flex;align-items:baseline;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.panel h2 .sub{font-size:13px;font-weight:400;color:var(--muted)}
+.desc{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:var(--ink)}
+.note{font-size:13.5px;color:var(--muted);margin:0}
+.note.warn{color:var(--danger)}
+
+/* rsvp */
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg button{border:1.5px solid var(--line);background:var(--sunk);border-radius:12px;padding:10px 6px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px}
+.seg button small{font-weight:400;font-size:11.5px;color:var(--muted)}
+.seg button[aria-pressed="true"][data-v="yes"]{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.seg button[aria-pressed="true"][data-v="maybe"]{border-color:var(--maybe);background:var(--maybe-soft);color:var(--maybe)}
+.seg button[aria-pressed="true"][data-v="no"]{border-color:var(--no);background:var(--no-soft);color:var(--ink)}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted);min-width:0}
+label.f input,label.f textarea{border:1.5px solid var(--line);background:var(--sunk);border-radius:10px;padding:10px 12px;color:var(--ink);font-size:15px;width:100%}
+label.f textarea{resize:vertical;min-height:84px}
+label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:none}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:999px;padding:11px 20px;background:var(--accent);color:var(--accent-ink);font-weight:800;letter-spacing:.06em}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.ghost{border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;background:transparent;font-weight:600}
+.danger{color:var(--danger)}
+.mine{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--sunk)}
+.status{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.status.yes{background:var(--good-soft);color:var(--good)}
+.status.maybe{background:var(--maybe-soft);color:var(--maybe)}
+.status.no{background:var(--no-soft);color:var(--no)}
+
+/* roster */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;font-size:13px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tabs b{font-family:var(--f-num);font-size:15px;margin-left:4px;font-variant-numeric:tabular-nums}
+.roster{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.roster li{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
+.roster li:first-child{border-top:none}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff;background:var(--accent)}
+.who{min-width:0}
+.who b{display:block;overflow-wrap:anywhere}
+.who span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.who p{margin:4px 0 0;font-size:13.5px;overflow-wrap:anywhere}
+.side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.empty{padding:18px;border:1.5px dashed var(--line);border-radius:12px;color:var(--muted);text-align:center;font-size:14px}
+.skel{height:14px;border-radius:7px;background:var(--sunk);animation:sk 1.2s ease-in-out infinite alternate}
+@keyframes sk{to{opacity:.4}}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+.owner-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+
+/* ---------- event list + editor ---------- */
+#viewApp{padding-bottom:56px}
+.page{max-width:1080px;margin:28px auto 0;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.page-head h1{font-size:clamp(30px,5vw,44px)}
+.page-head p{margin:6px 0 0;color:var(--muted)}
+.evlist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.evcard{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px;background:var(--paper);border-radius:16px;box-shadow:0 0 0 1px var(--line);text-decoration:none;transition:box-shadow .15s,transform .15s}
+.evcard:hover{box-shadow:0 0 0 1.5px var(--accent);transform:translateY(-1px)}
+.evdate{background:var(--accent);color:#fff;border-radius:12px;text-align:center;padding:10px 4px 8px;line-height:1}
+.evdate b{display:block;font-family:var(--f-num);font-weight:800;font-size:36px}
+.evdate span{display:block;font-size:12px;letter-spacing:.06em;margin-top:4px}
+.evinfo{min-width:0;display:flex;flex-direction:column;gap:4px}
+.evinfo h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:23px;line-height:1.2;overflow-wrap:anywhere}
+.evinfo p{margin:0;font-size:13.5px;color:var(--muted);overflow-wrap:anywhere}
+.evside{display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap}
+.evside b{font-family:var(--f-num);font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
+.go{color:var(--accent-hot);font-weight:800}
+.past .evcard{opacity:.78}
+.past .evdate{background:var(--sunk);color:var(--muted)}
+@media (max-width:540px){
+  .evcard{grid-template-columns:64px minmax(0,1fr)}
+  .evside{grid-column:2;flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px}
+  .evdate b{font-size:28px}
+}
+.list-sec{margin-top:32px}
+.list-sec > h2{font-size:13px;letter-spacing:.24em;color:var(--muted);margin:0 0 12px;font-weight:700}
+.editwrap{max-width:760px}
+.homeacts{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.morelink{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:2px}
+/* ---------- menu drawer ---------- */
+.navleft{display:flex;align-items:center;gap:12px;min-width:0}
+.menubtn{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(10,10,11,.55);display:grid;place-items:center;padding:0}
+.menubtn span{display:block;width:18px;height:2px;border-radius:1px;background:var(--ink);box-shadow:0 -6px 0 var(--ink),0 6px 0 var(--ink)}
+.menubtn:hover{border-color:var(--accent)}
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:41;top:0;bottom:0;left:0;width:min(86vw,max(33.333vw,300px));background:var(--paper);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;overflow-y:auto;transform:translateX(-102%);visibility:hidden;
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility 0s linear .3s;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px) max(18px,env(safe-area-inset-left,0px))}
+.drawer.open{transform:none;visibility:visible;transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility 0s}
+.drawer::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+.dhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dclose{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:transparent;font-size:20px;line-height:1;padding:0}
+.dlabel{margin:28px 0 8px;font-size:12px;letter-spacing:.24em;color:var(--muted);font-weight:700}
+.dnav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.dnav a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:12px;text-decoration:none}
+.dnav a b{display:block;font-size:17px}
+.dnav a small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.dnav a:hover{background:var(--sunk)}
+.dnav a[aria-current="page"]{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.dnav a[aria-current="page"] b{color:var(--accent-hot)}
+.dcount{flex:none;min-width:28px;height:28px;padding:0 8px;border-radius:999px;display:grid;place-items:center;font-family:var(--f-num);font-weight:800;font-size:16px;background:var(--sunk);color:var(--ink);font-variant-numeric:tabular-nums}
+.dfoot{margin-top:auto;padding-top:24px;font-family:var(--f-mark);letter-spacing:.08em;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){.drawer,.drawer.open,.scrim{transition:none}}
+.cardlink{display:inline-block;margin-top:12px;color:var(--accent-hot);font-weight:800;text-decoration:none}
+
+/* ---------- accounts ---------- */
+.host::before{content:"管理员 · "}
+.navright{display:flex;align-items:center;gap:14px}
+.authbox{display:flex;align-items:center;gap:14px}
+.btn-login{display:inline-flex;align-items:center;background:var(--accent);color:#fff;border-radius:999px;padding:8px 18px;font-weight:800;font-size:14px;text-decoration:none;letter-spacing:.08em;white-space:nowrap}
+.btn-login:hover{background:var(--accent-hot)}
+.lnk-reg{color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;white-space:nowrap}
+.lnk-reg:hover{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:5px}
+.userchip{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:14px;max-width:170px;min-width:0}
+.userchip .uname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av.sm{width:30px;height:30px;font-size:13px;flex:none}
+@media (max-width:600px){#toJoin{display:none}.host::before{content:none}.topbar .back{display:none}}
+.authwrap{max-width:480px;margin:36px auto 0;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.authwrap h1{font-size:clamp(30px,6vw,40px);margin-bottom:4px}
+.check{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink);cursor:pointer;width:fit-content}
+.check input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.switch{font-size:14px;color:var(--muted);margin:0}
+.switch a{color:var(--accent-hot);font-weight:700}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;margin:0;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;overflow-wrap:anywhere;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kv code{font-size:12.5px;background:var(--sunk);padding:2px 6px;border-radius:6px;word-break:break-all}
+label.f input[readonly]{opacity:.65}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.mtable{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+.mtable th,.mtable td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.mtable th{font-size:12px;letter-spacing:.12em;color:var(--muted);background:var(--sunk);font-weight:700}
+.mtable tr:last-child td{border-bottom:none}
+.mtable tr.self td:first-child::after{content:"（你）";color:var(--muted)}
+.lock{display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--accent-soft);color:var(--accent-hot);font-size:24px}
+
+/* preview badge */
+.pv{position:fixed;z-index:30;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 12px);max-width:calc(100% - 24px);
+  display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;padding:8px 10px 8px 12px;border-radius:12px;background:#1c1c1f;border:1px solid var(--accent);font-size:12px;color:var(--muted);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.pv b{color:var(--accent-hot);letter-spacing:.1em}
+.pv button{border:1px solid var(--line);background:transparent;border-radius:8px;padding:2px 8px;font-size:12px;color:var(--ink)}
+.pv.min span,.pv.min #pvReset{display:none}
+.toast{bottom:calc(env(safe-area-inset-bottom,0px) + 78px)}
+</style>
+
+<div id="viewHome">
+  <nav class="nav" aria-label="网站导航">
+    <div class="in">
+      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a></div>
+      <div class="navright"><button class="navlink" type="button" id="toJoin">报名入口 ↓</button><div class="authbox" data-auth></div></div>
+    </div>
+  </nav>
+  <header class="hero">
+    <div class="in">
+      <div class="eyebrow">TX GAME CLUB · 游戏俱乐部</div>
+      <h1 class="wordmark"><span>TX Game</span><span class="o">Club</span></h1>
+      <p class="headline">报名以参加<em>俱乐部活动</em></p>
+      <p class="lede">TX Game Club 的游戏活动都在这里发布。注册成为会员，看清时间和玩法，报个名，到点一起上线开玩。</p>
+      <div class="cue" aria-hidden="true"><b>↓</b>下拉找到报名入口</div>
+    </div>
+  </header>
+
+  <section class="band about">
+    <div class="in about-grid">
+      <div>
+        <h2><small>ABOUT</small>关于这个网站</h2>
+        <p>这是 TX Game Club 的活动公告板。每次俱乐部办活动，管理员会把时间、游戏、玩法和名额发布在这里。</p>
+        <p>注册会员后就能查看活动和报名。其他会员只看得到你的用户名；你的电话号码和游戏 ID 只有管理员看得到。</p>
+      </div>
+      <ol class="steps">
+        <li><span class="n">01</span><div><b>注册会员</b><span>填写用户名、电话号码、游戏 ID 和密码</span></div></li>
+        <li><span class="n">02</span><div><b>选择活动报名</b><span>选「参加」「可能来」或「来不了」，名单会实时更新</span></div></li>
+        <li><span class="n">03</span><div><b>准时上线</b><span>可以把活动加进日历，开始前 30 分钟提醒你</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band next" aria-labelledby="nextTitle">
+    <div class="in">
+      <h2 id="nextTitle"><small>NEXT EVENT</small>下一场活动</h2>
+      <div class="next-card" id="nextCard">
+        <div>
+          <span class="pill" id="nPill">读取中</span>
+          <h3 id="nName">正在读取…</h3>
+          <p id="nWhen"></p>
+          <a class="cardlink" id="nLink" href="#events" hidden>查看详情并报名 →</a>
+          <div class="actions" id="nAuth" style="margin-top:14px" hidden><a class="btn-login" href="#login">登入</a><a class="lnk-reg" href="#register">注册</a></div>
+        </div>
+        <div class="next-num" id="nNums" hidden>
+          <div><b id="nDays">--</b><span>天后开始</span></div>
+          <div><b id="nSeats">0</b><span id="nSeatsLabel">人已报名</span></div>
+        </div>
+      </div>
+      <div class="homeacts">
+        <a class="morelink" id="allLink" href="#events" hidden>全部活动 →</a>
+        <button class="host" type="button" id="homeAdd" hidden>+ 添加活动</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="band join" id="join" aria-labelledby="joinTitle">
+    <div class="in">
+      <h2 id="joinTitle"><small>SIGN UP</small>报名入口</h2>
+      <p>点下面的按钮进入报名页，选一场活动查看详情，并告诉大家你会不会来。还不是会员的话，先注册一下。</p>
+      <a class="enter" href="#events">进入报名页面 <i aria-hidden="true">→</i></a>
+    </div>
+  </section>
+  <footer class="foot"><div class="in">TX GAME CLUB</div></footer>
+</div>
+
+<div id="viewApp" hidden>
+  <header class="topbar">
+    <div class="in">
+      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="back" id="backLink" href="#home">← 返回首页</a></div>
+      <div class="topright"><button class="host" type="button" id="topHost" hidden>+ 添加活动</button><div class="authbox" data-auth></div></div>
+    </div>
+  </header>
+
+  <section id="secSetup" class="authwrap" hidden>
+    <div class="panel">
+      <div class="lock" aria-hidden="true">!</div>
+      <h2>网站还没连接数据库</h2>
+      <p class="note">管理员需要先按 README 里的步骤创建 Firebase 项目，并把配置填进 firebase-config.js。</p>
+    </div>
+  </section>
+
+  <section id="secGate" class="authwrap" hidden>
+    <div class="panel">
+      <div class="lock" aria-hidden="true">🔒</div>
+      <h2>会员才能查看</h2>
+      <p class="note">活动和报名只对 TX Game Club 会员开放。登入后会自动回到这个页面。</p>
+      <div class="actions"><a class="btn-login" href="#login">登入</a><a class="lnk-reg" href="#register">还没有账号？注册</a></div>
+    </div>
+  </section>
+
+  <section id="secLogin" class="authwrap" hidden>
+    <h1>登入</h1>
+    <p class="switch" style="margin-bottom:18px">还没有账号？<a href="#register">注册会员</a></p>
+    <form id="loginForm" class="panel" novalidate>
+      <label class="f">用户名<input id="lUser" autocomplete="username" maxlength="16" required></label>
+      <label class="f">密码<input id="lPass" type="password" autocomplete="current-password" required></label>
+      <label class="check"><input type="checkbox" id="lRemember"> 记住我（下次打开不用再登入）</label>
+      <div class="actions"><button class="btn" type="submit" id="lBtn">登入</button><span class="note warn" id="lMsg" role="alert"></span></div>
+    </form>
+    <div class="panel" id="loginDone" hidden>
+      <h2>你已经登入了</h2>
+      <p class="note">当前账号：<b id="loginDoneName"></b></p>
+      <div class="actions"><a class="btn" href="#events" style="text-decoration:none">去看活动</a><a class="ghost" href="#me" style="text-decoration:none">我的资料</a></div>
+    </div>
+  </section>
+
+  <section id="secRegister" class="authwrap" hidden>
+    <h1>注册会员</h1>
+    <p class="switch" style="margin-bottom:18px">已经有账号了？<a href="#login">直接登入</a></p>
+    <form id="regForm" class="panel" novalidate>
+      <label class="f">用户名（其他会员会看到）<input id="rUser" autocomplete="username" maxlength="16" placeholder="2–16 个字：中文、英文、数字或下划线" required></label>
+      <label class="f">电话号码<input id="rPhone" type="tel" autocomplete="tel" maxlength="20" placeholder="例如 +60 12-345 6789" required></label>
+      <label class="f">游戏 ID<input id="rGame" maxlength="40" placeholder="你在游戏里的 ID" required></label>
+      <div class="grid2">
+        <label class="f">密码<input id="rPass" type="password" autocomplete="new-password" placeholder="至少 6 位" required></label>
+        <label class="f">确认密码<input id="rPass2" type="password" autocomplete="new-password" required></label>
+      </div>
+      <p class="note">电话号码和游戏 ID 只有管理员看得到；其他会员只看得到你的用户名。</p>
+      <div class="actions"><button class="btn" type="submit" id="rBtn">注册</button><span class="note warn" id="rMsg" role="alert"></span></div>
+    </form>
+    <div class="panel" id="regDone" hidden>
+      <h2>你已经是会员了</h2>
+      <div class="actions"><a class="btn" href="#events" style="text-decoration:none">去看活动</a><a class="ghost" href="#me" style="text-decoration:none">我的资料</a></div>
+    </div>
+  </section>
+
+  <section id="secMe" class="authwrap" hidden>
+    <h1>我的资料</h1>
+    <p class="switch" id="meIntro" style="margin-bottom:18px"></p>
+    <form id="meForm" class="panel" novalidate>
+      <label class="f">用户名（注册后不能修改，用来登入）<input id="mUser" readonly></label>
+      <label class="f">电话号码<input id="mPhone" type="tel" autocomplete="tel" maxlength="20" required></label>
+      <label class="f">游戏 ID<input id="mGame" maxlength="40" required></label>
+      <div class="actions"><button class="btn" type="submit">保存资料</button><span class="note warn" id="mMsg" role="alert"></span></div>
+    </form>
+    <div class="panel" style="margin-top:16px">
+      <dl class="kv">
+        <dt>身份</dt><dd id="meRole"></dd>
+        <dt>会员编号</dt><dd><code id="meUid"></code><button class="mini" type="button" id="meCopyUid">复制</button></dd>
+      </dl>
+      <p class="note">设置管理员时需要用到会员编号（见 README）。</p>
+      <div class="actions"><button class="ghost danger" type="button" id="logout">退出登入</button></div>
+    </div>
+  </section>
+
+  <section id="secMembers" class="page" hidden>
+    <div class="page-head">
+      <div><h1>会员名单</h1><p id="membersCount">只有管理员能看到这个页面。</p></div>
+      <button class="mini" type="button" id="copyMembers">复制名单</button>
+    </div>
+    <div id="membersBody"></div>
+  </section>
+
+  <section id="secList" class="page" hidden>
+    <div class="page-head"><div><h1>选择活动报名</h1><p>点一场活动，查看详情并报名。</p></div></div>
+    <div id="listBody"></div>
+  </section>
+
+  <section id="secMine" class="page" hidden>
+    <div class="page-head"><div><h1>我的报名</h1><p>你回复过的活动都在这里，点进去可以修改或撤回。</p></div></div>
+    <div id="mineBody"></div>
+  </section>
+
+  <section id="secMissing" class="page" hidden>
+    <div class="panel"><h2 id="missTitle">找不到这个活动</h2><p class="note" id="missText"></p><div class="actions"><a class="btn" href="#events" style="text-decoration:none">查看全部活动</a></div></div>
+  </section>
+
+  <main id="secEvent" class="wrap" hidden>
+    <div class="col">
+      <article class="ticket">
+        <div class="t-main" id="tMain"></div>
+        <aside class="t-stub" id="tStub"></aside>
+      </article>
+      <section class="panel" id="descPanel" hidden>
+        <h2>活动介绍</h2>
+        <p class="desc" id="desc"></p>
+      </section>
+    </div>
+    <div class="col">
+      <section class="panel">
+        <h2>报名 <span class="sub" id="rsvpSub"></span></h2>
+        <div id="rsvpBody" class="col" style="gap:12px"></div>
+      </section>
+      <section class="panel">
+        <h2>谁会来 <span class="owner-bar" id="ownerBar" hidden><button class="mini" type="button" id="copyList">复制名单</button><button class="mini" type="button" id="editBtn">编辑活动</button></span></h2>
+        <div class="tabs" role="tablist" id="tabs">
+          <button role="tab" data-t="yes" aria-selected="true">参加<b id="nYes">0</b></button>
+          <button role="tab" data-t="maybe" aria-selected="false">可能来<b id="nMaybe">0</b></button>
+          <button role="tab" data-t="no" aria-selected="false">来不了<b id="nNo">0</b></button>
+        </div>
+        <ul class="roster" id="roster"></ul>
+        <div class="empty" id="rosterEmpty">正在读取报名名单…</div>
+      </section>
+    </div>
+  </main>
+
+  <section id="secEdit" class="page editwrap" hidden>
+    <div class="panel">
+      <h2><span id="editTitle">添加新活动</span> <span class="sub">只有管理员能看到这里</span></h2>
+      <form id="editForm" class="col" style="gap:12px">
+        <label class="f">活动名称<input id="fTitle" maxlength="60" required placeholder="例如：周六晚上 计时赛"></label>
+        <div class="grid2">
+          <label class="f">玩什么游戏<input id="fGame" maxlength="40" placeholder="例如：暮色公路"></label>
+          <label class="f">方式 / 地点<input id="fPlace" maxlength="60" placeholder="例如：线上，语音频道见"></label>
+        </div>
+        <div class="grid2">
+          <label class="f">开始时间<input id="fStart" type="datetime-local" required></label>
+          <label class="f">大约多久（分钟）<input id="fDur" type="number" min="10" max="1440" step="5" value="120"></label>
+        </div>
+        <div class="grid2">
+          <label class="f">报名截止（可不填）<input id="fDeadline" type="datetime-local"></label>
+          <label class="f">人数上限（0 表示不限）<input id="fCap" type="number" min="0" max="999" value="0"></label>
+        </div>
+        <label class="f">链接（可不填，比如游戏或语音房间的链接）<input id="fLink" type="url" maxlength="300" placeholder="https://"></label>
+        <label class="f">活动介绍<textarea id="fDesc" maxlength="2000" placeholder="规则、奖励、需要提前准备什么……"></textarea></label>
+        <div class="actions">
+          <button class="btn" type="submit" id="fSave">保存并公布</button>
+          <a class="ghost" id="fCancel" href="#events" style="text-decoration:none">取消</a>
+          <button class="ghost danger" type="button" id="fDelete" hidden>删除这个活动</button>
+          <span class="note" id="fMsg"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="drawer" aria-label="网站菜单" aria-hidden="true">
+  <div class="dhead">
+    <a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a>
+    <button class="dclose" type="button" id="dClose" aria-label="关闭菜单">×</button>
+  </div>
+  <div class="dlabel">MENU</div>
+  <ul class="dnav">
+    <li><a href="#home" data-nav="home"><span><b>首页</b><small>俱乐部介绍和下一场活动</small></span></a></li>
+    <li><a href="#events" data-nav="list"><span><b>活动</b><small>查看全部活动并报名</small></span><span class="dcount" id="dEvents" hidden>0</span></a></li>
+    <li><a href="#mine" data-nav="mine"><span><b>我的报名</b><small>我回复过的活动</small></span><span class="dcount" id="dMine" hidden>0</span></a></li>
+    <li><a href="#me" data-nav="me" id="dMeLink"><span><b id="dMeLabel">我的资料</b><small id="dMeSub"></small></span></a></li>
+    <li id="dMembersItem" hidden><a href="#members" data-nav="members"><span><b>会员名单</b><small>管理员专用：电话和游戏 ID</small></span></a></li>
+  </ul>
+  <div class="dfoot">TX GAME CLUB</div>
+</nav>
+<div id="toast" class="toast" hidden></div>
+
+<div class="pv" id="pv" role="note"><b>预览模式</b><span>数据只存在你的浏览器里，别人看不到 · 测试账号：admin / 123456（管理员）、小明 / 123456</span><button type="button" id="pvReset">重置预览数据</button><button type="button" id="pvMin" aria-label="收起提示">–</button></div>
+<script>
+document.getElementById('pvReset').onclick = () => window.__TX_PREVIEW_RESET__ && window.__TX_PREVIEW_RESET__();
+document.getElementById('pvMin').onclick = e => { const p = document.getElementById('pv'); p.classList.toggle('min'); e.currentTarget.textContent = p.classList.contains('min') ? '+' : '–'; };
+</script>
+<script>
+// Preview-only data layer: same interface as the Firebase layer in app.js, but everything
+// lives in this browser (localStorage). Used to try the site without a Firebase project.
+(() => {
+  const KEY = 'txgc-preview-v1', SKEY = 'txgc-preview-session';
+  const day = 864e5;
+  const at = (d, h, m = 0) => { const t = new Date(Date.now() + d * day); t.setHours(h, m, 0, 0); return t.toISOString(); };
+  function seed() {
+    const now = new Date().toISOString();
+    return {
+      accounts: { admin: { uid: 'u_admin', pw: '123456' }, '小明': { uid: 'u_xm', pw: '123456' }, '阿杰': { uid: 'u_aj', pw: '123456' } },
+      admins: ['u_admin'],
+      users: {
+        u_admin: { username: 'admin', phone: '+60 12-000 0000', gameId: 'TX-ADMIN', createdAt: now, updatedAt: now },
+        u_xm: { username: '小明', phone: '+60 12-345 6789', gameId: 'XM-88', createdAt: now, updatedAt: now },
+        u_aj: { username: '阿杰', phone: '+60 19-876 5432', gameId: 'AJ-21', createdAt: now, updatedAt: now }
+      },
+      events: {
+        edemo1: { title: '周六晚 计时赛（示例）', game: '暮色公路', place: '线上', startAt: at(8, 20), durationMin: 120, deadline: '', capacity: 8, link: '', description: '这是预览用的示例活动。每人三次机会，取最快一圈。', createdAt: now, updatedAt: now },
+        edemo2: { title: '新手教学夜（示例）', game: '暮色公路', place: '线上语音', startAt: at(15, 21), durationMin: 90, deadline: '', capacity: 0, link: '', description: '这是预览用的示例活动。', createdAt: now, updatedAt: now },
+        edemo3: { title: '上周友谊赛（示例）', game: '暮色公路', place: '线下', startAt: at(-7, 19), durationMin: 120, deadline: '', capacity: 0, link: '', description: '', createdAt: now, updatedAt: now }
+      },
+      rsvps: {
+        edemo1: { u_xm: { status: 'yes', note: '可能晚到十分钟', updatedAt: now }, u_aj: { status: 'maybe', note: '', updatedAt: now } },
+        edemo3: { u_xm: { status: 'yes', note: '', updatedAt: now } }
+      }
+    };
+  }
+  let mem = null;
+  function load() { if (mem) return mem; try { const s = localStorage.getItem(KEY); mem = s ? JSON.parse(s) : seed(); } catch (e) { mem = seed(); } return mem; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) { } }
+  const err = code => Object.assign(new Error(code), { code });
+  const delay = v => new Promise(r => setTimeout(() => r(v), 180));
+  let session = null;
+  try { session = JSON.parse(localStorage.getItem(SKEY) || sessionStorage.getItem(SKEY) || 'null'); } catch (e) { }
+  const authCbs = [], subs = new Set();
+  const fire = () => { save(); subs.forEach(f => f()); };
+  const sub = f => { subs.add(f); setTimeout(f, 60); return () => subs.delete(f); };
+  const setSession = (s, remember) => {
+    session = s;
+    try { localStorage.removeItem(SKEY); sessionStorage.removeItem(SKEY); if (s) (remember ? localStorage : sessionStorage).setItem(SKEY, JSON.stringify(s)); } catch (e) { }
+    authCbs.forEach(cb => cb(s));
+  };
+  const admin = () => session && load().admins.includes(session.uid);
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const mailOf = u => 'u' + [...new TextEncoder().encode(u)].map(b => b.toString(16).padStart(2, '0')).join('') + '@txgc.example.com';
+
+  window.__TX_PREVIEW__ = true;
+  window.__TX_PREVIEW_RESET__ = () => { try { localStorage.removeItem(KEY); localStorage.removeItem(SKEY); sessionStorage.removeItem(SKEY); } catch (e) { } mem = null; location.hash = 'home'; location.reload(); };
+  window.__TX_MOCK_API__ = {
+    onAuth(cb) { authCbs.push(cb); setTimeout(() => cb(session), 80); return () => { }; },
+    async register({ username, phone, gameId, password }) {
+      const d = load(), k = username.toLowerCase();
+      await delay();
+      if (d.accounts[k]) throw err('auth/email-already-in-use');
+      const uid = 'u_' + Math.random().toString(36).slice(2, 10), now = new Date().toISOString();
+      d.accounts[k] = { uid, pw: password };
+      d.users[uid] = { username, phone, gameId, createdAt: now, updatedAt: now };
+      save(); setSession({ uid, email: mailOf(k) }, true); fire();
+    },
+    async login(username, password, remember) {
+      const a = load().accounts[username.trim().toLowerCase()];
+      await delay();
+      if (!a || a.pw !== password) throw err('auth/invalid-credential');
+      setSession({ uid: a.uid, email: mailOf(username.trim().toLowerCase()) }, remember);
+    },
+    async logout() { setSession(null, false); },
+    isAdmin: async uid => load().admins.includes(uid),
+    getUser: async uid => { if (!session || (uid !== session.uid && !admin())) throw err('permission-denied'); const u = load().users[uid]; return u ? clone(u) : null; },
+    async saveProfile(uid, data, isNew) {
+      if (!session || uid !== session.uid) throw err('permission-denied');
+      const d = load(), now = new Date().toISOString();
+      d.users[uid] = Object.assign({}, isNew ? { createdAt: now } : d.users[uid], data, { updatedAt: now }); fire();
+    },
+    getPublic: async uid => { const u = load().users[uid]; return u ? { username: u.username } : null; },
+    onEvents: cb => sub(() => cb(Object.entries(clone(load().events)))),
+    async saveEvent(id, data) { if (!admin()) throw err('permission-denied'); load().events[id] = clone(data); fire(); },
+    async deleteEvent(id) { if (!admin()) throw err('permission-denied'); delete load().events[id]; fire(); },
+    onRsvps: (evId, cb) => sub(() => cb(Object.entries(clone(load().rsvps[evId] || {})))),
+    async setRsvp(evId, uid, data) { if (!session || uid !== session.uid) throw err('permission-denied'); const r = load().rsvps; (r[evId] = r[evId] || {})[uid] = clone(data); fire(); },
+    async deleteRsvp(evId, uid) { if (!session || (uid !== session.uid && !admin())) throw err('permission-denied'); const r = load().rsvps[evId]; if (r) delete r[uid]; fire(); },
+    onUsers: (cb, e) => { if (!admin()) { setTimeout(() => e && e(err('permission-denied')), 0); return () => { }; } return sub(() => cb(Object.entries(clone(load().users)))); }
+  };
+})();
+
+</script>
+<script type="module">
+// TX Game Club — standalone site. Accounts and data live in Firebase (Auth + Firestore).
+const firebaseConfig = {};
+
+const FB_VERSION = '10.12.2';
+const EMAIL_DOMAIN = 'txgc.example.com'; // never receives mail; usernames are mapped to these addresses for Firebase Auth
+
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const STATUS = { yes: '参加', maybe: '可能来', no: '来不了' };
+const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+const PH_LABEL = { open: '报名中', closed: '报名已截止', live: '进行中', ended: '已结束' };
+const NEEDS_LOGIN = new Set(['list', 'mine', 'event', 'edit', 'me', 'members']);
+
+/* ---------- state ---------- */
+let api = null, authKnown = false, setupNeeded = false, regPromise = null;
+let me = null, profile = null, profileLoaded = false, isAdmin = false;
+let events = new Map(), eventsLoaded = false, eventsError = false;
+const rsvps = new Map(), rsvpSubs = new Map();
+let unsubEvents = null, unsubUsers = null;
+const pub = {}, pubPending = new Set();
+let members = new Map(), membersLoaded = false;
+let route = { view: 'home', id: null }, pendingRoute = null;
+let tab = 'yes', myDraft = null, busy = false, confirmDel = null, confirmEvDel = false, formFor = null;
+
+/* ---------- helpers ---------- */
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2800); }
+const pad = n => String(n).padStart(2, '0');
+function fmtDate(iso) { const d = new Date(iso); if (isNaN(d)) return ''; return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（周${WEEK[d.getDay()]}）${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function tzLabel() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } }
+function toLocalInput(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d)) return ''; return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+const clampNum = (v, a, b, d) => { const n = Math.round(Number(v)); return isFinite(n) ? Math.max(a, Math.min(b, n)) : d; };
+const endOf = ev => Date.parse(ev.startAt) + (Number(ev.durationMin) || 120) * 60000;
+function phaseOf(ev, now = Date.now()) {
+  if (!ev || !ev.startAt) return 'none';
+  if (now >= endOf(ev)) return 'ended';
+  if (now >= Date.parse(ev.startAt)) return 'live';
+  if (ev.deadline && now > Date.parse(ev.deadline)) return 'closed';
+  return 'open';
+}
+function pillFor(ph) { const p = el('span', 'pill', PH_LABEL[ph] || ''); if (ph === 'closed' || ph === 'ended') p.classList.add('closed'); if (ph === 'live') p.classList.add('live'); return p; }
+const sorted = () => [...events.entries()].filter(([, e]) => e && e.startAt && !isNaN(Date.parse(e.startAt))).sort((a, b) => Date.parse(a[1].startAt) - Date.parse(b[1].startAt));
+const upcoming = () => sorted().filter(([, e]) => phaseOf(e) !== 'ended');
+const past = () => sorted().filter(([, e]) => phaseOf(e) === 'ended').reverse();
+function responses(evId) { const m = rsvps.get(evId); return m ? [...m.entries()].filter(([, r]) => r && STATUS[r.status]) : []; }
+function counts(evId) { const c = { yes: 0, maybe: 0, no: 0 }; for (const [, r] of responses(evId)) c[r.status]++; return c; }
+function myResp(evId) { const m = rsvps.get(evId); return (me && m && m.get(me.uid)) || null; }
+function full(evId) { const ev = events.get(evId); const cap = Number(ev && ev.capacity) || 0; return cap > 0 && counts(evId).yes >= cap; }
+const newId = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const emptyBox = text => el('div', 'empty', text);
+function nameOf(uid) { return (pub[uid] && pub[uid].username) || (members.get(uid) || {}).username || '会员'; }
+function copy(text, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast(msg), () => fallbackCopy(text, msg));
+  else fallbackCopy(text, msg);
+}
+function fallbackCopy(text, msg) {
+  const ta = el('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px'; document.body.append(ta); ta.select();
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) { }
+  ta.remove(); toast(ok ? msg : '复制失败，请手动选择文字复制');
+}
+function errText(e) {
+  const c = (e && e.code) || '';
+  if (c.includes('email-already-in-use')) return '这个用户名已经被注册了，换一个试试。';
+  if (c.includes('invalid-credential') || c.includes('wrong-password') || c.includes('user-not-found') || c.includes('invalid-email')) return '用户名或密码不对。';
+  if (c.includes('weak-password')) return '密码至少要 6 位。';
+  if (c.includes('too-many-requests')) return '尝试次数太多，请过几分钟再试。';
+  if (c.includes('network-request-failed') || c.includes('unavailable')) return '网络连接失败，请检查网络后再试。';
+  if (c.includes('operation-not-allowed')) return '网站还没开启账号登录，请联系管理员。';
+  if (c.includes('permission-denied')) return '你没有这个操作的权限。';
+  return '出了点问题，请稍后再试。';
+}
+async function write(fn, okMsg) {
+  if (busy) return false; busy = true;
+  try { await fn(); if (okMsg) toast(okMsg); return true; }
+  catch (e) { console.error(e); toast(errText(e)); return false; }
+  finally { busy = false; }
+}
+
+/* ---------- username <-> login address ---------- */
+const enc = new TextEncoder(), dec = new TextDecoder();
+function usernameToEmail(u) { return 'u' + [...enc.encode(u.trim().toLowerCase())].map(b => b.toString(16).padStart(2, '0')).join('') + '@' + EMAIL_DOMAIN; }
+function emailToUsername(email) {
+  const m = /^u([0-9a-f]+)@/.exec(email || ''); if (!m) return '';
+  try { return dec.decode(new Uint8Array(m[1].match(/../g).map(h => parseInt(h, 16)))); } catch (e) { return ''; }
+}
+const USERNAME_RE = /^[A-Za-z0-9_\u4e00-\u9fa5]{2,16}$/;
+const PHONE_RE = /^\+?[0-9][0-9 -]{6,19}$/;
+
+/* ---------- Firebase data layer ---------- */
+async function firebaseApi(cfg) {
+  const base = `https://www.gstatic.com/firebasejs/${FB_VERSION}/`;
+  const [A, U, F] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js')]);
+  const app = A.initializeApp(cfg), auth = U.getAuth(app), db = F.getFirestore(app);
+  // Local testing only: open the site with ?emulator on localhost to use the Firebase emulators.
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).has('emulator')) {
+    U.connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+    F.connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  }
+  const list = snap => snap.docs.map(d => [d.id, d.data()]);
+  return {
+    onAuth: cb => U.onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, email: u.email } : null)),
+    async register({ username, phone, gameId, password }) {
+      await U.setPersistence(auth, U.browserLocalPersistence);
+      const cred = await U.createUserWithEmailAndPassword(auth, usernameToEmail(username), password);
+      const now = new Date().toISOString(), b = F.writeBatch(db);
+      b.set(F.doc(db, 'users', cred.user.uid), { username, phone, gameId, createdAt: now, updatedAt: now });
+      b.set(F.doc(db, 'publicProfiles', cred.user.uid), { username, updatedAt: now });
+      await b.commit();
+    },
+    async login(username, password, remember) {
+      await U.setPersistence(auth, remember ? U.browserLocalPersistence : U.browserSessionPersistence);
+      await U.signInWithEmailAndPassword(auth, usernameToEmail(username), password);
+    },
+    logout: () => U.signOut(auth),
+    isAdmin: async uid => (await F.getDoc(F.doc(db, 'admins', uid))).exists(),
+    getUser: async uid => { const s = await F.getDoc(F.doc(db, 'users', uid)); return s.exists() ? s.data() : null; },
+    async saveProfile(uid, data, isNew) {
+      const now = new Date().toISOString(), b = F.writeBatch(db);
+      b.set(F.doc(db, 'users', uid), Object.assign({}, data, { updatedAt: now }, isNew ? { createdAt: now } : {}), { merge: !isNew });
+      b.set(F.doc(db, 'publicProfiles', uid), { username: data.username, updatedAt: now });
+      await b.commit();
+    },
+    getPublic: async uid => { const s = await F.getDoc(F.doc(db, 'publicProfiles', uid)); return s.exists() ? s.data() : null; },
+    onEvents: (cb, err) => F.onSnapshot(F.collection(db, 'events'), s => cb(list(s)), err),
+    saveEvent: (id, data) => F.setDoc(F.doc(db, 'events', id), data),
+    deleteEvent: id => F.deleteDoc(F.doc(db, 'events', id)),
+    onRsvps: (evId, cb, err) => F.onSnapshot(F.collection(db, 'events', evId, 'rsvps'), s => cb(list(s)), err),
+    setRsvp: (evId, uid, data) => F.setDoc(F.doc(db, 'events', evId, 'rsvps', uid), data),
+    deleteRsvp: (evId, uid) => F.deleteDoc(F.doc(db, 'events', evId, 'rsvps', uid)),
+    onUsers: (cb, err) => F.onSnapshot(F.collection(db, 'users'), s => cb(list(s)), err)
+  };
+}
+
+/* ---------- auth session ---------- */
+function stopSubs() {
+  if (unsubEvents) { unsubEvents(); unsubEvents = null; }
+  if (unsubUsers) { unsubUsers(); unsubUsers = null; }
+  for (const u of rsvpSubs.values()) u(); rsvpSubs.clear(); rsvps.clear();
+}
+async function onAuthChange(u) {
+  stopSubs();
+  const wasIn = !!me;
+  me = u; profile = null; profileLoaded = false; isAdmin = false;
+  events = new Map(); eventsLoaded = false; eventsError = false; members = new Map(); membersLoaded = false;
+  authKnown = true;
+  if (!me) {
+    pendingRoute = !wasIn && NEEDS_LOGIN.has(route.view) ? location.hash.slice(1) : null;
+    if (wasIn && NEEDS_LOGIN.has(route.view)) { location.hash = 'home'; return; }
+    return render();
+  }
+  render();
+  if (regPromise) { try { await regPromise; } catch (e) { } }
+  try { isAdmin = await api.isAdmin(me.uid); } catch (e) { isAdmin = false; }
+  try { profile = await api.getUser(me.uid); } catch (e) { profile = null; }
+  profileLoaded = true;
+  if (profile) pub[me.uid] = { username: profile.username };
+  unsubEvents = api.onEvents(lst => { events = new Map(lst); eventsLoaded = true; syncRsvpSubs(); render(); }, e => { console.error(e); eventsLoaded = true; eventsError = true; render(); });
+  if (isAdmin) unsubUsers = api.onUsers(lst => { members = new Map(lst); membersLoaded = true; render(); }, e => { console.error(e); membersLoaded = true; render(); });
+  if (pendingRoute) { const r = pendingRoute; pendingRoute = null; go(r); }
+  else if (route.view === 'login' || route.view === 'register') go('events');
+  render();
+}
+function syncRsvpSubs() {
+  const keep = new Set([...upcoming(), ...past().slice(0, 20)].map(([id]) => id));
+  for (const [id, un] of rsvpSubs) if (!keep.has(id)) { un(); rsvpSubs.delete(id); rsvps.delete(id); }
+  for (const id of keep) if (!rsvpSubs.has(id)) {
+    rsvpSubs.set(id, api.onRsvps(id, lst => { rsvps.set(id, new Map(lst)); loadNames(lst.map(([uid]) => uid)); render(); }, e => console.error(e)));
+  }
+}
+function loadNames(uids) {
+  const missing = uids.filter(u => !pub[u] && !pubPending.has(u));
+  if (!missing.length) return;
+  missing.forEach(u => pubPending.add(u));
+  Promise.all(missing.map(u => api.getPublic(u).then(p => { pub[u] = p || { username: '' }; }).catch(() => { pub[u] = { username: '' }; })))
+    .then(() => { missing.forEach(u => pubPending.delete(u)); render(); });
+}
+
+/* ---------- routing ---------- */
+function parseRoute() {
+  const h = location.hash.slice(1);
+  const simple = { events: 'list', signup: 'list', mine: 'mine', login: 'login', register: 'register', me: 'me', members: 'members', new: 'edit' };
+  if (simple[h]) return { view: simple[h], id: null };
+  let m = h.match(/^event-([a-z0-9]+)$/); if (m) return { view: 'event', id: m[1] };
+  m = h.match(/^edit-([a-z0-9]+)$/); if (m) return { view: 'edit', id: m[1] };
+  return { view: 'home', id: null };
+}
+function go(h) { if (location.hash === '#' + h) onRoute(); else location.hash = h; }
+function onRoute() {
+  const r = parseRoute(), changed = r.view !== route.view || r.id !== route.id;
+  route = r;
+  if (changed) { myDraft = null; confirmDel = null; confirmEvDel = false; tab = 'yes'; formFor = null; syncTabs(); setMenu(false); }
+  if (NEEDS_LOGIN.has(route.view) && authKnown && !me) pendingRoute = location.hash.slice(1);
+  $('viewHome').hidden = route.view !== 'home'; $('viewApp').hidden = route.view === 'home';
+  if (changed) window.scrollTo(0, 0);
+  render();
+}
+
+/* ---------- render ---------- */
+const SECTIONS = ['secGate', 'secSetup', 'secList', 'secMine', 'secEvent', 'secEdit', 'secMissing', 'secLogin', 'secRegister', 'secMe', 'secMembers'];
+function show(id) { SECTIONS.forEach(s => $(s).hidden = s !== id); }
+function render() {
+  renderAuthBoxes(); renderDrawer(); renderHome();
+  if (route.view === 'home') return;
+  renderTop();
+  if (setupNeeded) return show('secSetup');
+  if (!authKnown) return show(null);
+  if (route.view === 'login') { show('secLogin'); return renderLogin(); }
+  if (route.view === 'register') { show('secRegister'); return renderRegister(); }
+  if (NEEDS_LOGIN.has(route.view) && !me) return show('secGate');
+  if (route.view === 'me') { show('secMe'); return renderMe(); }
+  if (route.view === 'members') { if (!isAdmin) return missing('只有管理员可以查看会员名单', '会员的电话和游戏 ID 只对管理员开放。'); show('secMembers'); return renderMembers(); }
+  if (route.view === 'list') { show('secList'); return renderList(); }
+  if (route.view === 'mine') { show('secMine'); return renderMine(); }
+  const cur = route.id ? events.get(route.id) : null;
+  if (route.id && eventsLoaded && !cur) return missing('找不到这个活动', '它可能已经被管理员删除了。');
+  if (route.view === 'event') { show('secEvent'); return renderEvent(); }
+  if (route.view === 'edit') { if (!isAdmin) return missing('只有管理员可以编辑活动', '如果你想办活动，请联系 TX Game Club 的管理员。'); show('secEdit'); return renderEdit(); }
+}
+function missing(title, text) { show('secMissing'); $('missTitle').textContent = title; $('missText').textContent = text; }
+
+function renderAuthBoxes() {
+  document.querySelectorAll('[data-auth]').forEach(box => {
+    box.replaceChildren();
+    if (!authKnown || setupNeeded) return;
+    if (me) {
+      const a = el('a', 'userchip'); a.href = '#me';
+      const n = profile ? profile.username : emailToUsername(me.email) || '我';
+      const av = el('span', 'av sm', n.slice(0, 1).toUpperCase());
+      a.append(av, el('span', 'uname', n)); box.append(a);
+    } else {
+      const lg = el('a', 'btn-login', '登入'); lg.href = '#login';
+      const rg = el('a', 'lnk-reg', '注册'); rg.href = '#register';
+      box.append(lg, rg);
+    }
+  });
+}
+function renderTop() {
+  const back = $('backLink'), hb = $('topHost');
+  hb.hidden = true;
+  if (route.view === 'list') { back.href = '#home'; back.textContent = '← 返回首页'; if (isAdmin) { hb.textContent = '+ 添加活动'; hb.hidden = false; } }
+  else if (route.view === 'event') { back.href = '#events'; back.textContent = '← 全部活动'; if (isAdmin && events.get(route.id)) { hb.textContent = '编辑活动'; hb.hidden = false; } }
+  else if (route.view === 'edit') { back.href = route.id ? '#event-' + route.id : '#events'; back.textContent = '← 返回'; }
+  else { back.href = '#home'; back.textContent = '← 返回首页'; }
+}
+
+/* ---------- home ---------- */
+function renderHome() {
+  const pill = $('nPill'), name = $('nName'), when = $('nWhen'), nums = $('nNums'), link = $('nLink'), acts = $('nAuth');
+  pill.className = 'pill'; link.hidden = true; nums.hidden = true; acts.hidden = true;
+  $('homeAdd').hidden = !isAdmin;
+  const up = upcoming();
+  $('allLink').hidden = !(me && eventsLoaded && events.size);
+  $('allLink').textContent = up.length ? `全部活动（${up.length} 场即将开始）→` : '查看往期活动 →';
+  if (setupNeeded) { pill.textContent = '未连接'; pill.classList.add('closed'); name.textContent = '网站还没连接数据库'; when.textContent = '管理员按设置说明填好 Firebase 配置后，这里就会显示活动。'; return; }
+  if (!authKnown) { pill.textContent = '读取中'; name.textContent = '正在读取…'; when.textContent = ''; return; }
+  if (!me) { pill.textContent = '会员专享'; name.textContent = '登入后查看活动'; when.textContent = '活动信息只对会员开放。注册只要一分钟。'; acts.hidden = false; return; }
+  if (!eventsLoaded) { pill.textContent = '读取中'; name.textContent = '正在读取活动信息…'; when.textContent = ''; return; }
+  if (!up.length) { pill.textContent = '筹备中'; pill.classList.add('closed'); name.textContent = '下一场活动即将公布'; when.textContent = isAdmin ? '点下面的「添加活动」发布一场吧。' : '管理员还在准备，过几天再来看看。'; return; }
+  const [id, ev] = up[0], ph = phaseOf(ev);
+  pill.textContent = PH_LABEL[ph]; if (ph === 'closed') pill.classList.add('closed'); if (ph === 'live') pill.classList.add('live');
+  name.textContent = ev.title || '未命名活动';
+  when.textContent = [fmtDate(ev.startAt), ev.game, ev.place].filter(Boolean).join(' · ');
+  link.hidden = false; link.href = '#event-' + id;
+  nums.hidden = false;
+  const days = Math.ceil((Date.parse(ev.startAt) - Date.now()) / 864e5);
+  $('nDays').textContent = ph === 'live' ? '0' : String(Math.max(0, days));
+  $('nDays').nextElementSibling.textContent = ph === 'live' ? '正在进行' : days <= 0 ? '今天开始' : '天后开始';
+  const cap = Number(ev.capacity) || 0, c = counts(id);
+  $('nSeats').textContent = cap > 0 ? `${c.yes}/${cap}` : String(c.yes);
+  $('nSeatsLabel').textContent = cap > 0 ? '名额已报' : '人确认参加';
+}
+
+/* ---------- lists ---------- */
+function listOf(arr) {
+  const ul = el('ul', 'evlist');
+  for (const [id, ev] of arr) {
+    const d = new Date(ev.startAt), ph = phaseOf(ev), c = counts(id), cap = Number(ev.capacity) || 0, mine = myResp(id);
+    const a = el('a', 'evcard'); a.href = '#event-' + id;
+    const date = el('div', 'evdate'); date.append(el('b', null, String(d.getDate())), el('span', null, `${d.getMonth() + 1}月 周${WEEK[d.getDay()]}`));
+    const info = el('div', 'evinfo');
+    info.append(pillFor(ph), el('h3', null, ev.title || '未命名活动'), el('p', null, [`${pad(d.getHours())}:${pad(d.getMinutes())} 开始`, ev.game, ev.place].filter(Boolean).join(' · ')));
+    const side = el('div', 'evside');
+    const seats = el('span'); seats.append(document.createTextNode('参加 '), el('b', null, cap > 0 ? `${c.yes}/${cap}` : String(c.yes)));
+    side.append(seats);
+    if (mine) side.append(el('span', 'status ' + mine.status, '我：' + STATUS[mine.status]));
+    side.append(el('span', 'go', ph === 'ended' || mine ? '查看 →' : '报名 →'));
+    a.append(date, info, side);
+    const li = el('li'); li.append(a); ul.append(li);
+  }
+  return ul;
+}
+function renderList() {
+  const box = $('listBody'); box.replaceChildren();
+  if (!eventsLoaded) return box.append(emptyBox('正在读取活动…'));
+  if (eventsError) return box.append(emptyBox('读取活动失败，请刷新页面再试。'));
+  const up = upcoming(), ps = past();
+  if (!up.length) box.append(emptyBox(isAdmin ? '还没有即将开始的活动。点右上角「添加活动」发布一场吧。' : '暂时没有即将开始的活动，过几天再来看看。'));
+  else box.append(listOf(up));
+  if (ps.length) { const sec = el('section', 'list-sec past'); sec.append(el('h2', null, '往期活动'), listOf(ps)); box.append(sec); }
+}
+const myEvents = () => sorted().filter(([id]) => myResp(id));
+function renderMine() {
+  const box = $('mineBody'); box.replaceChildren();
+  if (!eventsLoaded) return box.append(emptyBox('正在读取你的报名…'));
+  const all = myEvents(), up = all.filter(([, e]) => phaseOf(e) !== 'ended'), ps = all.filter(([, e]) => phaseOf(e) === 'ended').reverse();
+  if (!all.length) { const e = emptyBox('你还没有报名任何活动。'); const a = el('a', 'cardlink', '去看看有哪些活动 →'); a.href = '#events'; e.append(el('br'), a); return box.append(e); }
+  box.append(up.length ? listOf(up) : emptyBox('你报名的活动都已经结束了。'));
+  if (ps.length) { const sec = el('section', 'list-sec past'); sec.append(el('h2', null, '已结束'), listOf(ps)); box.append(sec); }
+}
+
+/* ---------- event page ---------- */
+function renderEvent() {
+  const id = route.id, ev = events.get(id);
+  renderTicket(id, ev);
+  const sd = !!(ev && ev.description); $('descPanel').hidden = !sd; if (sd) $('desc').textContent = ev.description;
+  document.title = ev && ev.title ? ev.title + ' · TX Game Club' : 'TX Game Club';
+  const typing = document.activeElement && $('rsvpBody').contains(document.activeElement);
+  if (!typing) renderRsvp(id, ev);
+  renderRoster(id);
+  $('ownerBar').hidden = !isAdmin || !ev;
+}
+function renderTicket(id, ev) {
+  const main = $('tMain'), stub = $('tStub');
+  main.replaceChildren(); stub.replaceChildren();
+  if (!ev) {
+    main.append(el('span', 'pill', '读取中'));
+    const s1 = el('div', 'skel'); s1.style.cssText = 'width:70%;height:40px'; const s2 = el('div', 'skel'); s2.style.width = '85%'; main.append(s1, s2);
+    stub.append(el('div', 'stub-label', '距离开始'), el('div', 'stub-big', '…'));
+    return;
+  }
+  const ph = phaseOf(ev);
+  main.append(pillFor(ph), el('h1', null, ev.title || '未命名活动'));
+  const dl = el('dl', 'meta');
+  const add = (k, v, small) => { const dd = el('dd', null, v); if (small) dd.append(el('small', null, small)); dl.append(el('dt', null, k), dd); return dd; };
+  const end = new Date(endOf(ev));
+  add('时间', fmtDate(ev.startAt), `约 ${Number(ev.durationMin) || 120} 分钟，到 ${pad(end.getHours())}:${pad(end.getMinutes())} 结束 · 按你的时区 ${tzLabel()} 显示`);
+  if (ev.game) add('游戏', ev.game);
+  if (ev.place) add('方式', ev.place);
+  if (ev.link) {
+    const dd = add('链接', ''), row = el('div', 'linkrow');
+    const a = el('a', null, ev.link); a.href = /^https?:\/\//i.test(ev.link) ? ev.link : 'https://' + ev.link; a.target = '_blank'; a.rel = 'noopener';
+    const cp = el('button', 'mini', '复制'); cp.type = 'button'; cp.onclick = () => copy(ev.link, '链接已复制');
+    row.append(a, cp); dd.append(row);
+  }
+  if (ev.deadline) add('报名截止', fmtDate(ev.deadline));
+  const cap = Number(ev.capacity) || 0;
+  add('名额', cap > 0 ? `${cap} 人` : '不限');
+  main.append(dl);
+  const c = counts(id);
+  if (ph === 'open' || ph === 'closed') {
+    stub.append(el('div', 'stub-label', '距离开始'));
+    const cd = el('div', 'count'); cd.id = 'cd'; cd.setAttribute('aria-label', '倒计时');
+    ['天', '时', '分', '秒'].forEach(u => { const d = el('div'); d.append(el('b', null, '--'), el('span', null, u)); cd.append(d); });
+    stub.append(cd);
+  } else stub.append(el('div', 'stub-big', ph === 'live' ? '正在进行！' : '活动已结束'));
+  const seats = el('div', 'seats');
+  seats.append(el('span', 'stub-label', '已确认参加'), el('br'), el('b', null, String(c.yes)), document.createTextNode(cap > 0 ? ` / ${cap} 人` : ' 人'));
+  if (cap > 0) { const bar = el('div', 'bar'), i = el('i'); i.style.width = Math.min(100, c.yes / cap * 100) + '%'; bar.append(i); seats.append(bar); }
+  stub.append(seats);
+  if ((ph === 'open' || ph === 'closed') && !window.__TX_PREVIEW__) { const ics = el('button', 'ics', '加入我的日历'); ics.type = 'button'; ics.onclick = () => saveIcs(id, ev); stub.append(ics); }
+  tick();
+}
+function tick() {
+  const cd = $('cd'); if (!cd || route.view !== 'event') return;
+  const ev = events.get(route.id); if (!ev) return;
+  let ms = Math.max(0, Date.parse(ev.startAt) - Date.now());
+  const d = Math.floor(ms / 864e5); ms -= d * 864e5;
+  const h = Math.floor(ms / 36e5); ms -= h * 36e5;
+  const m = Math.floor(ms / 6e4); ms -= m * 6e4;
+  const s = Math.floor(ms / 1e3), b = cd.querySelectorAll('b');
+  [d, h, m, s].forEach((v, i) => { const t = pad(v); if (b[i].textContent !== t) b[i].textContent = t; });
+}
+let sig = '';
+setInterval(() => { tick(); const s = sorted().map(([id, e]) => id + phaseOf(e)).join('|'); if (s !== sig) { sig = s; if (eventsLoaded) render(); } }, 1000);
+
+function renderRsvp(id, ev) {
+  const body = $('rsvpBody'); body.replaceChildren(); $('rsvpSub').textContent = '';
+  if (!ev) { const s = el('div', 'skel'); s.style.width = '80%'; return body.append(s); }
+  const ph = phaseOf(ev), mine = myResp(id);
+  if (ph === 'ended') return body.append(el('p', 'note', mine ? `活动已结束。你当时的回复是「${STATUS[mine.status]}」。` : '活动已结束，报名已关闭。'));
+  if (profileLoaded && !profile) {
+    body.append(el('p', 'note', '报名前请先补全你的会员资料（电话号码和游戏 ID）。'));
+    const a = el('a', 'btn', '去补全资料'); a.href = '#me'; a.style.textDecoration = 'none'; a.style.alignSelf = 'flex-start'; return body.append(a);
+  }
+  const locked = (ph === 'closed' || ph === 'live') && !isAdmin;
+  if (mine && !myDraft) {
+    const box = el('div', 'mine'), t = el('div', 'who'); t.style.flex = '1';
+    t.append(el('b', null, mine.status === 'yes' ? '你已报名，到时见！' : mine.status === 'maybe' ? '你标记了可能来' : '你说这次来不了'));
+    if (mine.note) t.append(el('span', null, '留言：' + mine.note));
+    box.append(el('span', 'status ' + mine.status, STATUS[mine.status]), t); body.append(box);
+    if (locked) return body.append(el('p', 'note', ph === 'live' ? '活动进行中，回复已锁定。' : '报名已截止，回复已锁定。'));
+    const act = el('div', 'actions');
+    const ch = el('button', 'ghost', '修改回复'); ch.type = 'button'; ch.onclick = () => { myDraft = { status: mine.status, note: mine.note || '' }; renderRsvp(id, ev); };
+    const del = el('button', 'ghost danger', confirmDel === 'me' ? '确定撤回？' : '撤回报名'); del.type = 'button';
+    del.onclick = async () => { if (confirmDel !== 'me') { confirmDel = 'me'; return renderRsvp(id, ev); } confirmDel = null; await write(() => api.deleteRsvp(id, me.uid), '已撤回报名'); };
+    act.append(ch, del); return body.append(act);
+  }
+  if (locked) return body.append(el('p', 'note', ph === 'live' ? '活动已经开始，报名已关闭。' : '报名已截止。'));
+  const d = myDraft || (myDraft = { status: '', note: '' });
+  const isFull = full(id) && !(mine && mine.status === 'yes');
+  if (isFull) $('rsvpSub').textContent = '「参加」名额已满';
+  const submit = el('button', 'btn', mine ? '更新回复' : '提交报名'); submit.type = 'button'; submit.disabled = !d.status;
+  const seg = el('div', 'seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', '你会来吗');
+  [['yes', '参加', '我会来'], ['maybe', '可能来', '还不确定'], ['no', '来不了', '这次算了']].forEach(([v, a, b]) => {
+    const btn = el('button'); btn.type = 'button'; btn.dataset.v = v; btn.setAttribute('aria-pressed', d.status === v ? 'true' : 'false');
+    btn.append(document.createTextNode(a), el('small', null, v === 'yes' && isFull ? '名额已满' : b));
+    btn.disabled = v === 'yes' && isFull;
+    btn.onclick = () => { d.status = v; seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === btn ? 'true' : 'false')); submit.disabled = false; };
+    seg.append(btn);
+  });
+  const note = el('label', 'f', '想说的话（可不填，大家都看得到）'); const nt = el('input'); nt.maxLength = 120; nt.value = d.note; nt.placeholder = '例如：可能晚到十分钟'; nt.oninput = () => d.note = nt.value; note.append(nt);
+  submit.onclick = async () => {
+    if (!d.status) return;
+    const ok = await write(() => api.setRsvp(id, me.uid, { status: d.status, note: d.note.trim().slice(0, 120), updatedAt: new Date().toISOString() }), d.status === 'yes' ? '报名成功，到时见！' : '已记下你的回复');
+    if (ok) myDraft = null;
+    renderRsvp(id, events.get(id));
+  };
+  const act = el('div', 'actions'); act.append(submit);
+  if (mine) { const cancel = el('button', 'ghost', '取消'); cancel.type = 'button'; cancel.onclick = () => { myDraft = null; renderRsvp(id, ev); }; act.append(cancel); }
+  body.append(el('p', 'note', `将以「${profile ? profile.username : '你的用户名'}」报名，其他会员只看得到你的用户名。`), seg, note, act);
+}
+
+function syncTabs() { document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', x.dataset.t === tab ? 'true' : 'false')); }
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.t; syncTabs(); renderRoster(route.id); });
+const COLORS = ['#e3182a', '#8e0d18', '#ff3344', '#4a4446', '#b3121f', '#6b6466'];
+function colorFor(id) { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; }
+function renderRoster(id) {
+  const c = counts(id);
+  $('nYes').textContent = c.yes; $('nMaybe').textContent = c.maybe; $('nNo').textContent = c.no;
+  const list = $('roster'), empty = $('rosterEmpty');
+  list.replaceChildren();
+  if (!rsvps.has(id)) { empty.hidden = false; empty.textContent = '正在读取报名名单…'; return; }
+  const rows = responses(id).filter(([, r]) => r.status === tab).sort((a, b) => String(a[1].updatedAt).localeCompare(String(b[1].updatedAt)));
+  empty.hidden = rows.length > 0;
+  empty.textContent = tab === 'yes' ? '还没有人报名参加，来当第一个吧。' : tab === 'maybe' ? '还没有人标记「可能来」。' : '还没有人说来不了。';
+  for (const [uid, r] of rows) {
+    const name = nameOf(uid), li = el('li');
+    const av = el('div', 'av', name.slice(0, 1).toUpperCase()); av.style.background = colorFor(uid);
+    const who = el('div', 'who'); who.append(el('b', null, uid === me.uid ? name + '（你）' : name));
+    if (isAdmin) { const m = members.get(uid); if (m) who.append(el('span', null, `游戏 ID：${m.gameId || '—'} · 电话：${m.phone || '—'}`)); }
+    if (r.note) who.append(el('p', null, r.note));
+    const side = el('div', 'side');
+    const d = new Date(r.updatedAt); if (!isNaN(d)) side.append(el('span', 'note', `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`));
+    if (isAdmin && uid !== me.uid) {
+      const rm = el('button', 'mini danger', confirmDel === uid ? '确认移除' : '移除'); rm.type = 'button';
+      rm.onclick = async () => { if (confirmDel !== uid) { confirmDel = uid; return renderRoster(id); } confirmDel = null; await write(() => api.deleteRsvp(id, uid), '已移除'); };
+      side.append(rm);
+    }
+    li.append(av, who, side); list.append(li);
+  }
+}
+$('copyList').onclick = () => {
+  const id = route.id, ev = events.get(id); if (!ev) return;
+  const rs = responses(id), lines = [`${ev.title || '活动'} 报名名单`, fmtDate(ev.startAt), ''];
+  for (const st of ['yes', 'maybe', 'no']) {
+    const g = rs.filter(([, r]) => r.status === st);
+    lines.push(`【${STATUS[st]}】${g.length} 人`);
+    g.forEach(([uid, r], i) => { const m = members.get(uid) || {}; lines.push(`${i + 1}. ${nameOf(uid)}${m.gameId ? '（游戏 ID：' + m.gameId + '）' : ''}${m.phone ? ' 电话：' + m.phone : ''}${r.note ? ' — ' + r.note : ''}`); });
+    lines.push('');
+  }
+  copy(lines.join('\n').trim(), '名单已复制');
+};
+function saveIcs(id, ev) {
+  const f = iso => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const esc = s => String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//tx-game-club//CN', 'BEGIN:VEVENT',
+    'UID:' + id + '@tx-game-club', 'DTSTAMP:' + f(new Date().toISOString()), 'DTSTART:' + f(ev.startAt), 'DTEND:' + f(new Date(endOf(ev)).toISOString()),
+    'SUMMARY:' + esc(ev.title), 'DESCRIPTION:' + esc([ev.game && '游戏：' + ev.game, ev.place && '方式：' + ev.place, ev.link, ev.description].filter(Boolean).join('\n')),
+    'LOCATION:' + esc(ev.place || ''), 'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(ev.title), 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+  const a = el('a'); a.href = url; a.download = 'tx-game-club-event.ics'; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/* ---------- event editor (admin) ---------- */
+function renderEdit() {
+  const id = route.id, key = id || 'new';
+  if (id && !events.get(id)) return;
+  $('editTitle').textContent = id ? '编辑活动' : '添加新活动';
+  $('fDelete').hidden = !id; $('fDelete').textContent = confirmEvDel ? '确定删除？' : '删除这个活动';
+  $('fCancel').href = id ? '#event-' + id : '#events';
+  if (formFor === key) return;
+  formFor = key;
+  const e = (id && events.get(id)) || {};
+  $('fTitle').value = e.title || ''; $('fGame').value = e.game || ''; $('fPlace').value = e.place || '';
+  $('fStart').value = toLocalInput(e.startAt); $('fDur').value = e.durationMin || 120;
+  $('fDeadline').value = toLocalInput(e.deadline); $('fCap').value = e.capacity || 0;
+  $('fLink').value = e.link || ''; $('fDesc').value = e.description || ''; $('fMsg').textContent = '';
+}
+$('editForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  if (busy) return;
+  const start = new Date($('fStart').value), dl = $('fDeadline').value ? new Date($('fDeadline').value) : null;
+  if (isNaN(start)) { $('fMsg').textContent = '请填写开始时间。'; return; }
+  if (dl && dl > start) { $('fMsg').textContent = '报名截止时间要早于开始时间。'; return; }
+  const id = route.id || newId(), old = events.get(id) || {};
+  const body = {
+    title: $('fTitle').value.trim(), game: $('fGame').value.trim(), place: $('fPlace').value.trim(),
+    startAt: start.toISOString(), durationMin: clampNum($('fDur').value, 10, 1440, 120),
+    deadline: dl ? dl.toISOString() : '', capacity: clampNum($('fCap').value, 0, 999, 0),
+    link: $('fLink').value.trim(), description: $('fDesc').value.trim(), hostTimeZone: tzLabel(),
+    createdAt: old.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString()
+  };
+  $('fSave').disabled = true; $('fMsg').textContent = '保存中…';
+  const ok = await write(() => api.saveEvent(id, body), route.id ? '活动已更新' : '新活动已发布');
+  $('fSave').disabled = false; $('fMsg').textContent = '';
+  if (ok) go('event-' + id);
+});
+$('fDelete').onclick = async () => {
+  if (!route.id) return;
+  if (!confirmEvDel) { confirmEvDel = true; return renderEdit(); }
+  confirmEvDel = false;
+  if (await write(() => api.deleteEvent(route.id), '活动已删除')) go('events');
+};
+
+/* ---------- login / register ---------- */
+function renderLogin() {
+  const done = !!me; $('loginForm').hidden = done; $('loginDone').hidden = !done;
+  if (done) $('loginDoneName').textContent = profile ? profile.username : emailToUsername(me.email);
+}
+function renderRegister() {
+  const done = !!me; $('regForm').hidden = done; $('regDone').hidden = !done;
+}
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (busy) return;
+  const u = $('lUser').value.trim(), p = $('lPass').value;
+  if (!u || !p) { $('lMsg').textContent = '请填写用户名和密码。'; return; }
+  busy = true; $('lBtn').disabled = true; $('lMsg').textContent = '登入中…';
+  try { await api.login(u, p, $('lRemember').checked); $('lMsg').textContent = ''; $('lPass').value = ''; toast('欢迎回来！'); }
+  catch (er) { $('lMsg').textContent = errText(er); }
+  finally { busy = false; $('lBtn').disabled = false; }
+});
+$('regForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (busy) return;
+  const username = $('rUser').value.trim(), phone = $('rPhone').value.trim(), gameId = $('rGame').value.trim(), p1 = $('rPass').value, p2 = $('rPass2').value;
+  const msg = t => { $('rMsg').textContent = t; };
+  if (!USERNAME_RE.test(username) || enc.encode(username).length > 30) return msg('用户名要 2–16 个字，只能用中文、英文字母、数字和下划线。');
+  if (!PHONE_RE.test(phone)) return msg('请填写正确的电话号码，可以带国家代码，例如 +60 12-345 6789。');
+  if (!gameId || gameId.length > 40) return msg('请填写游戏 ID（最多 40 个字）。');
+  if (p1.length < 6) return msg('密码至少要 6 位。');
+  if (p1 !== p2) return msg('两次输入的密码不一样。');
+  busy = true; $('rBtn').disabled = true; msg('注册中…');
+  try { regPromise = api.register({ username, phone, gameId, password: p1 }); await regPromise; profile = { username, phone, gameId }; pub[me ? me.uid : ''] = { username }; msg(''); $('rPass').value = $('rPass2').value = ''; toast('注册成功，欢迎加入 TX Game Club！'); }
+  catch (er) { msg(errText(er)); }
+  finally { busy = false; regPromise = null; $('rBtn').disabled = false; }
+});
+
+/* ---------- my profile ---------- */
+let meFormFor = null;
+function renderMe() {
+  const isNew = profileLoaded && !profile;
+  $('meIntro').textContent = isNew ? '你的账号还缺少会员资料，请补全后才能报名。' : '电话号码和游戏 ID 只有管理员看得到；其他会员只看得到你的用户名。';
+  $('meUid').textContent = me.uid;
+  $('meRole').textContent = isAdmin ? '管理员' : '会员';
+  const key = me.uid + (profile ? '1' : '0');
+  if (meFormFor !== key && profileLoaded) {
+    meFormFor = key;
+    $('mUser').value = profile ? profile.username : emailToUsername(me.email);
+    $('mPhone').value = profile ? profile.phone || '' : '';
+    $('mGame').value = profile ? profile.gameId || '' : '';
+  }
+}
+$('meForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (busy) return;
+  const phone = $('mPhone').value.trim(), gameId = $('mGame').value.trim(), username = $('mUser').value.trim();
+  if (!PHONE_RE.test(phone)) { $('mMsg').textContent = '请填写正确的电话号码。'; return; }
+  if (!gameId || gameId.length > 40) { $('mMsg').textContent = '请填写游戏 ID（最多 40 个字）。'; return; }
+  const isNew = !profile;
+  const ok = await write(() => api.saveProfile(me.uid, { username, phone, gameId }, isNew), '资料已保存');
+  if (ok) { profile = Object.assign({}, profile || {}, { username, phone, gameId }); pub[me.uid] = { username }; $('mMsg').textContent = ''; render(); }
+});
+$('meCopyUid').onclick = () => copy(me.uid, '编号已复制');
+$('logout').onclick = () => write(() => api.logout(), '已退出登入');
+
+/* ---------- members (admin) ---------- */
+function renderMembers() {
+  const body = $('membersBody'); body.replaceChildren();
+  if (!membersLoaded) return body.append(emptyBox('正在读取会员名单…'));
+  const rows = [...members.entries()].sort((a, b) => String(a[1].createdAt).localeCompare(String(b[1].createdAt)));
+  $('membersCount').textContent = `共 ${rows.length} 位会员`;
+  if (!rows.length) return body.append(emptyBox('还没有会员注册。'));
+  const wrap = el('div', 'tablewrap'), t = el('table', 'mtable'), thead = el('thead'), tr = el('tr');
+  ['用户名', '电话号码', '游戏 ID', '注册时间'].forEach(h => tr.append(el('th', null, h))); thead.append(tr); t.append(thead);
+  const tb = el('tbody');
+  for (const [uid, m] of rows) {
+    const r = el('tr'), d = new Date(m.createdAt);
+    r.append(el('td', null, m.username || '—'), el('td', null, m.phone || '—'), el('td', null, m.gameId || '—'), el('td', null, isNaN(d) ? '—' : `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`));
+    if (uid === me.uid) r.classList.add('self');
+    tb.append(r);
+  }
+  t.append(tb); wrap.append(t); body.append(wrap);
+}
+$('copyMembers').onclick = () => {
+  const rows = [...members.values()].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+  copy(['TX Game Club 会员名单', '用户名\t电话号码\t游戏 ID', ...rows.map(m => `${m.username}\t${m.phone}\t${m.gameId}`)].join('\n'), '会员名单已复制');
+};
+
+/* ---------- menu drawer ---------- */
+const drawer = $('drawer'), scrim = $('scrim');
+let menuOpener = null;
+function setMenu(open) {
+  if (open === drawer.classList.contains('open')) return;
+  drawer.classList.toggle('open', open); drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+  if (open) { scrim.hidden = false; requestAnimationFrame(() => scrim.classList.add('open')); }
+  else { scrim.classList.remove('open'); setTimeout(() => { if (!drawer.classList.contains('open')) scrim.hidden = true; }, 260); }
+  document.querySelectorAll('[data-menu]').forEach(b => b.setAttribute('aria-expanded', open ? 'true' : 'false'));
+  document.body.style.overflow = open ? 'hidden' : '';
+  if (open) setTimeout(() => { const cur = drawer.querySelector('[aria-current="page"]') || drawer.querySelector('.dnav a'); try { cur.focus({ preventScroll: true }); } catch (e) { } }, 60);
+  else if (menuOpener) { try { menuOpener.focus({ preventScroll: true }); } catch (e) { } menuOpener = null; }
+}
+document.querySelectorAll('[data-menu]').forEach(b => b.onclick = () => { menuOpener = b; setMenu(true); });
+$('dClose').onclick = () => setMenu(false);
+scrim.onclick = () => setMenu(false);
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('open')) setMenu(false); });
+function renderDrawer() {
+  const sec = { home: 'home', mine: 'mine', me: 'me', members: 'members', login: 'me', register: 'me' }[route.view] || 'list';
+  drawer.querySelectorAll('[data-nav]').forEach(a => { if (a.dataset.nav === sec) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  $('dMembersItem').hidden = !isAdmin;
+  const nUp = me && eventsLoaded ? upcoming().length : 0, nMine = me && eventsLoaded ? myEvents().filter(([, e]) => phaseOf(e) !== 'ended').length : 0;
+  $('dEvents').hidden = !nUp; $('dEvents').textContent = nUp;
+  $('dMine').hidden = !nMine; $('dMine').textContent = nMine;
+  $('dMeLabel').textContent = me ? '我的资料' : '登入 / 注册';
+  $('dMeSub').textContent = me ? '电话、游戏 ID 和退出登入' : '会员才能查看活动和报名';
+  $('dMeLink').href = me ? '#me' : '#login';
+}
+
+/* ---------- wiring + boot ---------- */
+addEventListener('hashchange', onRoute);
+$('toJoin').onclick = () => $('join').scrollIntoView({ behavior: 'smooth', block: 'start' });
+$('homeAdd').onclick = () => go('new');
+$('editBtn').onclick = () => go('edit-' + route.id);
+$('topHost').onclick = () => go(route.view === 'event' ? 'edit-' + route.id : 'new');
+
+onRoute();
+(async () => {
+  try {
+    if (window.__TX_MOCK_API__) api = window.__TX_MOCK_API__;
+    else if (!firebaseConfig || !firebaseConfig.apiKey) { setupNeeded = true; authKnown = true; render(); return; }
+    else api = await firebaseApi(firebaseConfig);
+    api.onAuth(u => { onAuthChange(u); });
+  } catch (e) {
+    console.error(e); setupNeeded = true; authKnown = true; render();
+  }
+})();
+
+</script>
