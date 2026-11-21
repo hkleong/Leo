@@ -1,11 +1,10 @@
-// 把 Firebase 控制台里「添加网页应用」后显示的 firebaseConfig 贴到这里。
+// Firebase 控制台「添加网页应用」后得到的配置。
 // 这些值本来就会出现在网页里，不是密码；数据安全由 firestore.rules 保护。
-// 在这里填好之前，网站会显示「网站还没连接数据库」。
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyAT9KSIG8ZG6fZh1mqoYe6-wEs0yzsoQ0Q",
+  authDomain: "tx-game-club-d5ba4.firebaseapp.com",
+  projectId: "tx-game-club-d5ba4",
+  storageBucket: "tx-game-club-d5ba4.firebasestorage.app",
+  messagingSenderId: "618931502925",
+  appId: "1:618931502925:web:3a3ba4f426c1f8cdcc4104"
 };
