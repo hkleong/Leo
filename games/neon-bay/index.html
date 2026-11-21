@@ -349,11 +349,14 @@ function step(){requestAnimationFrame(step);const now=performance.now(),dt=Math.
   if(act.fire){act.fire=0;if(!player.car)fire()}
   if(player.car){const c=player.car;carPhysics(c,ay,-ax,brakeHeld(),dt);player.x=c.x;player.z=c.z;player.rot=c.h;
     if(c.hp<40&&R()<.3){const sm=box(.8,.8,.8,new THREE.MeshBasicMaterial({color:0x444444,transparent:true,opacity:.6}));sm.position.set(c.x,2.5,c.z);scene.add(sm);fxs.push({m:sm,t:0,smoke:1})}}
-  else{const run=keys.ShiftLeft||keys.ShiftRight||Math.hypot(ax,ay)>.9;
-    if(touchMode&&(ax||ay)){player.rot=Math.atan2(ax,ay)+camYaw;const sp=(Math.hypot(ax,ay)>.85?11:5);
-      tryMove(Math.sin(player.rot)*sp*dt,Math.cos(player.rot)*sp*dt)}
-    else{player.rot-=ax*3*dt;const sp=ay*(run?11:5);tryMove(Math.sin(player.rot)*sp*dt,Math.cos(player.rot)*sp*dt)}
-    player.t+=dt;player.mesh.position.set(player.x,0,player.z);player.mesh.rotation.y=player.rot;animWalk(player.mesh,player.t,(ax||ay)?.8:0)}
+  else{const mag=Math.min(1,Math.hypot(ax,ay)),moving=mag>.15;
+    const run=keys.ShiftLeft||keys.ShiftRight||(touchMode&&mag>.85);
+    if(moving){ // 相对镜头移动：W/上=朝镜头前方，A/D=向屏幕左右
+      const want=camYaw-Math.atan2(ax,ay);
+      player.rot+=angDiff(want,player.rot)*Math.min(1,dt*12);
+      const sp=(run?11:5)*(touchMode?Math.max(.4,mag):1);
+      tryMove(Math.sin(want)*sp*dt,Math.cos(want)*sp*dt)}
+    player.t+=dt;player.mesh.position.set(player.x,0,player.z);player.mesh.rotation.y=player.rot;animWalk(player.mesh,player.t,moving?(run?1:.6):0)}
   for(const c of[...cars]){if(c.dead||c===player.car)continue;if(c.police)driveCop(c,dt);else if(c.driver==='ai')driveAI(c,dt);else{c.speed*=1-2*dt;if(Math.abs(c.speed)>.3)carPhysics(c,0,0,true,dt)}}
   for(const p of[...peds])updPed(p,dt);
   // 远处回收 + 补充
@@ -367,13 +370,17 @@ function step(){requestAnimationFrame(step);const now=performance.now(),dt=Math.
   updWanted(dt);updMission(dt);
   if(player.hp<=0)respawn();else if(!player.car&&player.wanted===0)player.hp=Math.min(100,player.hp+dt*2);
   // 相机
-  const tgtYaw=player.rot;camYaw+=((((tgtYaw-camYaw)+Math.PI*3)%(Math.PI*2))-Math.PI)*Math.min(1,dt*(player.car?3:2.5));
+  { // 车上：镜头紧跟车头；步行：只在往前/侧走时慢慢转到人物身后，往后走不转镜头
+    const d=angDiff(player.rot,camYaw);let rate=3;
+    if(!player.car){const{x:a2,y:b2}=axis();rate=(a2||b2)?1.6*Math.max(0,Math.cos(d)+.25):0}
+    camYaw+=d*Math.min(1,dt*rate)}
   const dist=player.car?11+Math.abs(player.car.speed)*.12:7,hgt=player.car?5:4;
   camPos.set(player.x-Math.sin(camYaw)*dist,hgt,player.z-Math.cos(camYaw)*dist);cam.position.lerp(camPos,Math.min(1,dt*8));
   camLook.set(player.x,player.car?1.5:2.5,player.z);cam.lookAt(camLook);
   sun.position.set(player.x-120,180,player.z+80);sun.target.position.set(player.x,0,player.z);
   hud(dt);ren.render(scene,cam)}
 let camYaw=0;
+function angDiff(a,b){return((a-b)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI}
 function tryMove(dx,dz){if(!hit(player.x+dx,player.z,.6))player.x+=dx;if(!hit(player.x,player.z+dz,.6))player.z+=dz}
 for(let k=0;k<24;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
 {const c=makeCar(road(0)+6,road(2)+8,0,{color:0xff3d8b});c.driver=null}
