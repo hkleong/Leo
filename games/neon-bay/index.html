@@ -36,6 +36,7 @@ canvas{display:block}
 #knob{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,61,139,.7)}
 .tb{position:absolute;width:66px;height:66px;touch-action:none;border-radius:50%;background:rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.4);color:#fff;font-family:var(--disp);font-size:13px;display:flex;align-items:center;justify-content:center;pointer-events:auto}
 #touch .tb.on{background:rgba(255,61,139,.65)}
+#touch .tb.car{background:rgba(34,211,238,.6);border-color:#fff}
 #touch .big{width:84px;height:84px;font-size:26px}
 #touch[data-mode="foot"] .drive,#touch[data-mode="drive"] .foot{display:none}
 .bm-top{display:flex;justify-content:space-between;align-items:center;width:min(92vw,92vh);font-family:var(--disp);color:var(--sun);font-size:18px}
@@ -61,7 +62,7 @@ canvas{display:block}
     <button class="hero" id="pickM" role="radio" aria-checked="false"><img src="art/hero_m.jpg" alt=""><span>科尔</span><small>牛仔夹克 · 工装靴</small></button>
   </div>
   <button id="start">开始游戏</button>
-  <div class="keys">WASD 移动·驾驶 · 鼠标拖动 转视角 · Shift 奔跑 · 空格 跳跃/手刹 · Q 出拳 · R/右键 瞄准 · F 开火 · E 上下车 · Tab 地图 · M 静音</div>
+  <div class="keys">WASD 移动·驾驶 · 鼠标拖动 转视角 · Shift 奔跑 · 空格 跳跃/手刹 · Q 出拳 · R/右键 瞄准开关 · F 开火 · E 上下车 · Tab 地图 · M 静音</div>
 </div>
 <div id="hud">
   <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div></div>
@@ -75,10 +76,10 @@ canvas{display:block}
   <div id="stick" class="foot"><div id="knob"></div></div>
   <div class="tb foot" id="bRun" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">奔跑</div>
   <div class="tb foot" id="bF" style="right:calc(104px + env(safe-area-inset-right,0px));bottom:calc(60px + env(safe-area-inset-bottom,0px))">开火</div>
-  <div class="tb foot" id="bJ" style="right:calc(184px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">跳跃</div>
+  <div class="tb foot" id="bJ" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(122px + env(safe-area-inset-bottom,0px))">跳跃</div>
   <div class="tb foot" id="bP" style="right:calc(104px + env(safe-area-inset-right,0px));bottom:calc(140px + env(safe-area-inset-bottom,0px))">出拳</div>
   <div class="tb foot" id="bA" style="right:calc(184px + env(safe-area-inset-right,0px));bottom:calc(116px + env(safe-area-inset-bottom,0px))">瞄准</div>
-  <div class="tb" id="bE" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(122px + env(safe-area-inset-bottom,0px))">上下车</div>
+  <div class="tb drive" id="bE" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(130px + env(safe-area-inset-bottom,0px))">下车</div>
   <div class="tb drive big" id="bL" style="left:calc(20px + env(safe-area-inset-left,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">◀</div>
   <div class="tb drive big" id="bR" style="left:calc(116px + env(safe-area-inset-left,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">▶</div>
   <div class="tb drive big" id="bG" style="right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));font-size:15px">油门</div>
@@ -270,8 +271,9 @@ function hit(x,z,r){if(!onIsland(x,z,3+r))return SEA;for(const s of solids)if(x>
 const keys={};let touchMode=false;const stick={x:0,y:0};
 addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE')act.enter=1;if(e.code==='KeyF')act.fire=1;if(e.code==='Space'&&!e.repeat)act.jump=1;if(e.code==='KeyQ')act.punch=1;if(e.code==='KeyM')toggleMute();if(e.code.startsWith('Arrow')||e.code==='Space')e.preventDefault()});
 addEventListener('keyup',e=>keys[e.code]=false);
-const act={enter:0,fire:0,jump:0,punch:0};let mouseAim=false;
-addEventListener('mousedown',e=>{if(e.button===2)mouseAim=true});addEventListener('mouseup',e=>{if(e.button===2)mouseAim=false});addEventListener('contextmenu',e=>e.preventDefault());
+const act={enter:0,fire:0,jump:0,punch:0};let aimOn=false;
+function toggleAim(v){if(player.car){aimOn=false;return}aimOn=v??!aimOn;document.getElementById('bA').classList.toggle('on',aimOn)}
+addEventListener('mousedown',e=>{if(e.button===2&&running)toggleAim()});addEventListener('keydown',e=>{if(e.code==='KeyR'&&!e.repeat&&running)toggleAim()});addEventListener('contextmenu',e=>e.preventDefault());
 function axis(){let x=0,y=0;
   if(keys.KeyW||keys.ArrowUp)y+=1;if(keys.KeyS||keys.ArrowDown)y-=1;if(keys.KeyA||keys.ArrowLeft)x-=1;if(keys.KeyD||keys.ArrowRight)x+=1;
   if(touchMode&&player.car){x=(tb_.R?1:0)-(tb_.L?1:0)||x;y=(tb_.G?1:0)-(tb_.B?1:0)||y}
@@ -284,8 +286,8 @@ const tb_={};const brakeHeld=()=>keys.Space||tb_.S;
   st.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===id)mv(t);e.preventDefault()},{passive:false});
   st.addEventListener('touchend',()=>{id=null;stick.x=stick.y=0;kn.style.transform=''});
   const tb=(el,fn,up)=>{const b=document.getElementById(el);b.addEventListener('touchstart',e=>{fn();e.preventDefault()},{passive:false});if(up)b.addEventListener('touchend',up)};
-  tb('bE',()=>act.enter=1);tb('bF',()=>act.fire=1);tb('bJ',()=>act.jump=1);tb('bP',()=>act.punch=1);
-  for(const[k,id]of[['S','bS'],['L','bL'],['R','bR'],['G','bG'],['B','bB'],['Run','bRun'],['Aim','bA']]){const el=document.getElementById(id);
+  tb('bE',()=>act.enter=1);tb('bF',()=>act.fire=1);tb('bJ',()=>{if(nearCar())act.enter=1;else act.jump=1});tb('bP',()=>act.punch=1);tb('bA',()=>toggleAim());
+  for(const[k,id]of[['S','bS'],['L','bL'],['R','bR'],['G','bG'],['B','bB'],['Run','bRun']]){const el=document.getElementById(id);
     const on=v=>e=>{tb_[k]=v;el.classList.toggle('on',v);e.preventDefault()};
     el.addEventListener('touchstart',on(true),{passive:false});el.addEventListener('touchend',on(false));el.addEventListener('touchcancel',on(false))}
   addEventListener('touchstart',()=>{touchMode=true;document.getElementById('touch').style.display='block'},{once:true});
@@ -579,12 +581,13 @@ const polyShape=pts=>{const s=new THREE.Shape();s.moveTo(pts[0][0],pts[0][1]);fo
 const GLASS=0x1c2438,CHROME=0xdde2ea,TIRE=0x15151a;
 // 车身缓存：同车型同颜色只建一次，之后克隆
 const carCache={};
+const CS=1.5; // 车辆缩放：人约 1.8 米、轿车约 4.8 米长
 function carMesh(kind,col){const key=kind+col;if(!carCache[key])carCache[key]=buildCar(kind,col);
   const src=carCache[key];const g=src.g.clone();const wheels=[],siren=[];
   g.traverse(o=>{if(o.userData.wheel)wheels.push(o);if(o.userData.siren!==undefined)siren[o.userData.siren]=o});
   // 警灯每辆车独立材质（各自闪烁）
   for(const s of siren)if(s)s.material=s.material.clone();
-  g.userData.wheels=wheels;return{g,siren:siren.length?siren:null}}
+  g.scale.setScalar(CS);g.userData.wheels=wheels;return{g,siren:siren.length?siren:null}}
 function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();const B=new Bld(),Lt=new Bld();
   const xs=d.top.map(p=>p[0]),L0=Math.min(...xs),L1=Math.max(...xs);
   B.add(extrude(sideShape(d),W,.12),col);
@@ -659,7 +662,7 @@ function makeCar(x,z,h,opts={}){let kind=opts.kind;if(!kind&&!opts.police){const
  const mb=new THREE.Group();const ad=(m,x,y,z)=>{m.position.set(x,y,z);mb.add(m)};ad(new THREE.Mesh(wheelGeo,wheelMat),0,.55,1);ad(new THREE.Mesh(wheelGeo,wheelMat),0,.55,-1);
  mb.children.forEach(w=>w.scale.set(.4,1,1));ad(box(.5,.6,2,0x14161c),0,1.1,0);ad(box(.7,.5,.6,0xf4f4f4),0,1.5,.8);ad(box(.3,.2,.3,redMat()),-.15,1.9,.7);ad(box(.3,.2,.3,blueMat()),.15,1.9,.7);
  mb.position.set(S.x+2,0,S.z+19);mb.rotation.y=Math.PI;scene.add(mb);
- solids.push({x0:S.x-14,x1:S.x+12,z0:S.z+16.5,z1:S.z+21.5})}
+ solids.push({x0:S.x-15,x1:S.x+13,z0:S.z+15,z1:S.z+23})}
 // 警用直升机（3 星以上出动）
 let heli=null;
 function makeHeli(){const g=new THREE.Group();const ad=(m,x,y,z)=>{m.position.set(x,y,z);g.add(m);return m};
@@ -696,11 +699,11 @@ function carPhysics(c,thr,steer,brake,dt){
   c.speed=clamp(c.speed,-12,max);
   c.h+=steer*clamp(c.speed/10,-1,1)*(brake?sp.steer+.8:sp.steer)*dt;
   const nx=c.x+Math.sin(c.h)*c.speed*dt,nz=c.z+Math.cos(c.h)*c.speed*dt;
-  if(hit(nx,nz,1.6)){if(Math.abs(c.speed)>14){crashFx(c);c.hp-=Math.abs(c.speed)*.6}c.speed*=-.3;}
+  if(hit(nx,nz,2.3)){if(Math.abs(c.speed)>14){crashFx(c);c.hp-=Math.abs(c.speed)*.6}c.speed*=-.3;}
   else{c.x=nx;c.z=nz}
   // 车与车碰撞
   for(const o of cars)if(o!==c&&!o.dead){const dx=o.x-c.x,dz=o.z-c.z,d=Math.hypot(dx,dz);
-    if(d<3.6&&d>0){const p=(3.6-d)/2;c.x-=dx/d*p;c.z-=dz/d*p;o.x+=dx/d*p;o.z+=dz/d*p;
+    if(d<5.2&&d>0){const p=(5.2-d)/2;c.x-=dx/d*p;c.z-=dz/d*p;o.x+=dx/d*p;o.z+=dz/d*p;
       if(Math.abs(c.speed)>10){const ms=(SPECS[c.kind]||SPECS.sedan).mass/((SPECS[o.kind]||SPECS.sedan).mass);o.speed=c.speed*.5*ms;c.speed*=Math.min(.9,.4*ms);if(c===player.car)beep(90,.15,'sawtooth',.1)}}}
   c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;for(const w of c.mesh.userData.wheels)w.rotation.x+=c.speed*dt/.55;
   if(c.hp<=0)explode(c)}
@@ -712,12 +715,12 @@ function aiPickNext(c){const d=[[1,0],[-1,0],[0,1],[0,-1]].filter(([a,b])=>{cons
 function spawnTraffic(patrol){const i=(R()*(N+1))|0,j=(R()*(N+1))|0;if(!nodeOK(i,j))return;const n=node(i,j);
   if(Math.hypot(n.x-player.x,n.z-player.z)<50)return;
   const c=makeCar(n.x,n.z,0,patrol?{police:true}:{});if(patrol){c.driver='ai';c.patrol=1}c.ni=i;c.nj=j;c.dx=0;c.dz=0;aiPickNext(c);c.h=Math.atan2(c.dx,c.dz)}
-function driveAI(c,dt){const n=node(c.ni,c.nj);const tx=n.x+c.dz*3.5,tz=n.z-c.dx*3.5;
+function driveAI(c,dt){const n=node(c.ni,c.nj);const tx=n.x+c.dz*4,tz=n.z-c.dx*4;
   if(Math.hypot(tx-c.x,tz-c.z)<4)aiPickNext(c);
   const want=Math.atan2(tx-c.x,tz-c.z);let diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;
   let block=false;const fx=Math.sin(c.h),fz=Math.cos(c.h);
   const obs=[...cars.filter(o=>o!==c&&!o.dead),player.car?null:player].filter(Boolean);
-  for(const o of obs){const dx=o.x-c.x,dz=o.z-c.z,f=dx*fx+dz*fz,s=Math.abs(dx*fz-dz*fx);if(f>0&&f<10&&s<2.5)block=true}
+  for(const o of obs){const dx=o.x-c.x,dz=o.z-c.z,f=dx*fx+dz*fz,s=Math.abs(dx*fz-dz*fx);if(f>0&&f<14&&s<3.2)block=true}
   const target=Math.abs(diff)>.4?9:16;
   carPhysics(c,block?0:(c.speed<target?.6:0),clamp(diff*2.5,-1,1),block,dt);
   if(Math.abs(c.speed)<.5&&!block){if((c.stuck+=dt)>3){c.x=tx;c.z=tz;c.stuck=0}}else c.stuck=0}
@@ -743,13 +746,13 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8){scene.remove(p.mesh);pe
     if(player.wanted===0||d>90){scene.remove(p.mesh);peds.splice(peds.indexOf(p),1);return}
     if(!player.car){p.rot=Math.atan2(dx,dz);if(d>1.4){const sp=8.5*dt,nx=p.x+dx/d*sp,nz=p.z+dz/d*sp;if(!hit(nx,p.z,.6))p.x=nx;if(!hit(p.x,nz,.6))p.z=nz}
       else{player.hp-=(p.mesh.userData.limbs&&p.look==='swat'?26:18)*dt;if(R()<dt*2)beep(120,.08,'square',.06)}}
-    for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.hypot(c.x-p.x,c.z-p.z)<2.6){killPed(p,c===player.car);addHeat(.8);break}
+    for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.hypot(c.x-p.x,c.z-p.z)<3.4){killPed(p,c===player.car);addHeat(.8);break}
     p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.rot;animWalk(p.mesh,p.t*1.4,!player.car&&d>1.4?1:.1);return}
   // 被打倒：躺 3 秒后爬起来逃跑
   if(p.knock>0){p.knock-=dt;p.mesh.rotation.x=-Math.PI/2;p.mesh.position.set(p.x,.35,p.z);pose(p.mesh,'idle',p.t,0);
     if(p.knock<=0){p.mesh.rotation.x=0;p.flee=6;if(p.bench){p.bench.used=null;p.bench=null}p.act='walk'}return}
   const pd=Math.hypot(player.x-p.x,player.z-p.z);
-  for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.hypot(c.x-p.x,c.z-p.z)<2.6){killPed(p,c===player.car);return}
+  for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.hypot(c.x-p.x,c.z-p.z)<3.4){killPed(p,c===player.car);return}
   p.flee-=dt;p.wave-=dt;p.danceT-=dt;p.pause-=dt;
   // 玩家走近，偶尔招手打招呼
   if(!p.waved&&!player.car&&pd<5&&p.flee<=0&&player.wanted===0&&R()<.5&&p.act!=='sit'){p.waved=1;p.wave=2.2}
@@ -809,7 +812,7 @@ function driveCop(c,dt){if(c.patrol&&c.driver==='ai'&&player.wanted===0){driveAI
       const o=spawnPed(c.x+Math.cos(c.h)*(k?-2.5:2.5),c.z-Math.sin(c.h)*(k?-2.5:2.5),lk);if(o)o.cop=1}}
   if(player.car)c.dropped=0;
   if(Math.abs(c.speed)<2){if((c.stuck+=dt)>1.2){c.rev=1;c.stuck=0}}else c.stuck=0;
-  if(d<5){if(player.car){if(Math.abs(c.speed)>12)player.car.hp-=8*dt*5}else if(Math.abs(c.speed)>8)player.hp-=40*dt}}
+  if(d<6.5){if(player.car){if(Math.abs(c.speed)>12)player.car.hp-=8*dt*5}else if(Math.abs(c.speed)>8)player.hp-=40*dt}}
 function driveAI2(c,dt){c.speed*=1-dt;carPhysics(c,0,0,true,dt)}
 function removeCar(c){scene.remove(c.mesh);const i=cars.indexOf(c);if(i>=0)cars.splice(i,1);if(c===player.car)exitCar(true)}
 const fxs=[];
@@ -850,16 +853,17 @@ function updAimLock(){aimLock=null;let bd=50;const fx=Math.sin(player.rot),fz=Ma
   for(const t of[...peds.filter(p=>!p.dead),...cars.filter(c=>!c.dead&&c!==player.car)]){const dx=t.x-player.x,dz=t.z-player.z,d=Math.hypot(dx,dz);
     if(d<1||d>bd)continue;const cos=(dx*fx+dz*fz)/d;if(cos>Math.cos(.21)){bd=d;aimLock=t}}}
 // ===== 上下车 =====
-function enterCar(){let best=null,bd=5.5;for(const c of cars)if(!c.dead){const d=Math.hypot(c.x-player.x,c.z-player.z);if(d<bd){bd=d;best=c}}
+const ENTER_R=7;function nearCar(){return cars.some(c=>!c.dead&&c!==player.car&&Math.hypot(c.x-player.x,c.z-player.z)<ENTER_R)}
+function enterCar(){let best=null,bd=ENTER_R;for(const c of cars)if(!c.dead){const d=Math.hypot(c.x-player.x,c.z-player.z);if(d<bd){bd=d;best=c}}
   if(!best)return;
   const seen=copWitness(best.x,best.z);
   if(best.driver==='ai'){const p=spawnPed(best.x+3,best.z);if(p)p.flee=5;if(seen)addHeat(best.speed>2?.5:.2)}
   if(best.police&&seen)addHeat(1.5);
   if((best.driver==='ai'||best.police)&&seen)setTimeout(()=>toast('被警察看到了！'),900);
-  best.driver='player';player.car=best;toast((SPECS[best.kind]||SPECS.sedan).name);player.mesh.visible=false;beep(300,.1);beep(450,.1)}
+  toggleAim(false);best.driver='player';player.car=best;toast((SPECS[best.kind]||SPECS.sedan).name);player.mesh.visible=false;beep(300,.1);beep(450,.1)}
 function exitCar(force){const c=player.car;if(!c)return;if(!force&&Math.abs(c.speed)>6)return;
   c.driver=null;player.car=null;player.mesh.visible=true;
-  player.x=c.x+Math.cos(c.h)*3;player.z=c.z-Math.sin(c.h)*3;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*3;player.z=c.z+Math.sin(c.h)*3}player.rot=c.h}
+  player.x=c.x+Math.cos(c.h)*4.2;player.z=c.z-Math.sin(c.h)*4.2;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}player.rot=c.h}
 
 // ===== 任务 =====
 const GOAL=30000;
@@ -946,7 +950,8 @@ function hud(dt){$('money').textContent='$'+player.money.toLocaleString();
   $('stars').innerHTML='<b>'+'★'.repeat(player.wanted)+'</b>'+'☆'.repeat(5-player.wanted);
   $('speed').textContent=player.car?Math.round(Math.abs(player.car.speed)*3.6)+' km/h':'';
   if(toastT>0&&(toastT-=dt)<=0)$('toast').style.opacity=0;
-  let hint='';if(!player.car&&cars.some(c=>!c.dead&&Math.hypot(c.x-player.x,c.z-player.z)<5.5))hint=touchMode?'点「上下车」':'按 E 上车';
+  const nc=!player.car&&nearCar();const bj=$('bJ');if(bj.textContent!==(nc?'上车':'跳跃')){bj.textContent=nc?'上车':'跳跃';bj.classList.toggle('car',nc)}
+  let hint='';if(nc&&!touchMode)hint='按 E 上车';
   $('hint').textContent=hint;$('hint').style.opacity=hint?1:0;drawMini()}
 
 // ===== 主循环 =====
@@ -965,7 +970,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
     if(c.hp<40&&R()<.3){const sm=box(.8,.8,.8,new THREE.MeshBasicMaterial({color:0x444444,transparent:true,opacity:.6}));sm.position.set(c.x,2.5,c.z);scene.add(sm);fxs.push({m:sm,t:0,smoke:1})}}
   else{const mag=Math.min(1,Math.hypot(ax,ay)),moving=mag>.15;
     const run=keys.ShiftLeft||keys.ShiftRight||tb_.Run;
-    const aiming=!!(keys.KeyR||tb_.Aim||mouseAim);player.aiming=aiming;
+    const aiming=aimOn;player.aiming=aiming;
     if(aiming){camYaw-=ax*(touchMode?1.8:2.2)*dt;player.rot=camYaw;if(Math.abs(ay)>.15)tryMove(Math.sin(camYaw)*ay*3*dt,Math.cos(camYaw)*ay*3*dt);updAimLock()}
     else if(moving){ // 相对镜头移动：W/上=朝镜头前方，A/D=向屏幕左右
       const want=camYaw-Math.atan2(ax,ay);
@@ -999,7 +1004,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
     if(camHold>0){camHold-=dt;rate=0}
     camYaw+=d*Math.min(1,dt*rate)}
   const aimC=!player.car&&player.aiming;
-  const dist=player.car?10+Math.abs(player.car.speed)*.12:aimC?3:5.2,hgt=player.car?4.6:aimC?2.65:3,sh=aimC?.95:0;
+  const dist=player.car?13+Math.abs(player.car.speed)*.12:aimC?3:5.2,hgt=player.car?5.8:aimC?2.65:3,sh=aimC?.95:0;
   const hd=dist*(1-camPitch*.35);camPos.set(player.x-Math.sin(camYaw)*hd-Math.cos(camYaw)*sh,hgt+player.y*(aimC?1:0)+camPitch*dist*(aimC?.4:1),player.z-Math.cos(camYaw)*hd+Math.sin(camYaw)*sh);cam.position.lerp(camPos,Math.min(1,dt*(aimC?14:8)));
   const tf=aimC?50:65;if(Math.abs(cam.fov-tf)>.1){cam.fov+=(tf-cam.fov)*Math.min(1,dt*10);cam.updateProjectionMatrix()}
   if(aimC)camLook.set(player.x+Math.sin(camYaw)*12-Math.cos(camYaw)*sh,2.3,player.z+Math.cos(camYaw)*12+Math.sin(camYaw)*sh);else camLook.set(player.x,player.car?1.5:2,player.z);
@@ -1023,7 +1028,7 @@ for(let k=0;k<24;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
 {const c=makeCar(SPN.x+6,SPN.z+8,0,{color:0x1fb5a8,kind:'wedge'});c.driver=null}
 // 海滩停车场：六种车停成一排（东侧沙滩，空车可直接开走）
 {const px=LOT.x-4,pz0=LOT.z-27;const lot=new THREE.Mesh(new THREE.PlaneGeometry(22,62),M(0x3a3348));lot.rotation.x=-Math.PI/2;lot.position.set(px,.04,pz0+25);lot.receiveShadow=true;scene.add(lot);
- const lm=new THREE.MeshBasicMaterial({color:0xf4f0e6});for(let k=0;k<=6;k++){const l=new THREE.Mesh(new THREE.PlaneGeometry(9,.25),lm);l.rotation.x=-Math.PI/2;l.position.set(px+4,.06,pz0+k*8.5-2);scene.add(l)}
+ const lm=new THREE.MeshBasicMaterial({color:0xf4f0e6});for(let k=0;k<=6;k++){const l=new THREE.Mesh(new THREE.PlaneGeometry(10,.25),lm);l.rotation.x=-Math.PI/2;l.position.set(px+4,.06,pz0+k*8.5-2);scene.add(l)}
  const sg=new THREE.Mesh(new THREE.PlaneGeometry(10,3.75),signMat('PARK',0x22d3ee));sg.position.set(px-12,5,pz0+25);sg.rotation.y=-Math.PI/2;scene.add(sg);
  [['wedge',0x1fb5a8],['convertible',0xf4f0e6],['pickup',0x15151a],['sedan',0x8a3fc8],['taxi',0xffd21f],['coupe',0xc8ccd4]].forEach(([k,col],i)=>{
    const c=makeCar(px+4,pz0+i*8.5+2.25,-Math.PI/2,{kind:k,color:col});c.driver=null;c.parked=1});}
