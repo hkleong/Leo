@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Saira+Condensed:wght@500;700;800&family=ZCOOL+QingKe+HuangYou&display=swap">
 <style>
-/* Layout: two views on one page. Home = full-bleed black/red bands (hero → about → next event → join), sign-up = event ticket + RSVP desk. Deliberately single-theme red on black. */
+/* Layout: hash-routed views. Home = full-bleed black/red bands (hero → about → next event → join); app = event list, event ticket + RSVP desk, and the host editor. Deliberately single-theme red on black. */
 :root{
   --bg:#0a0a0b; --paper:#141416; --sunk:#1c1c1f; --ink:#f4f1f0; --muted:#a39d9c; --line:#2d2a2b;
   --accent:#e3182a; --accent-hot:#ff3344; --accent-ink:#ffffff; --accent-soft:#3a0d12;
@@ -183,6 +183,38 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
 .owner-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 @media (prefers-reduced-motion:reduce){.skel{animation:none}}
+
+/* ---------- event list + editor ---------- */
+#viewApp{padding-bottom:56px}
+.page{max-width:1080px;margin:28px auto 0;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.page-head h1{font-size:clamp(30px,5vw,44px)}
+.page-head p{margin:6px 0 0;color:var(--muted)}
+.evlist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.evcard{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px;background:var(--paper);border-radius:16px;box-shadow:0 0 0 1px var(--line);text-decoration:none;transition:box-shadow .15s,transform .15s}
+.evcard:hover{box-shadow:0 0 0 1.5px var(--accent);transform:translateY(-1px)}
+.evdate{background:var(--accent);color:#fff;border-radius:12px;text-align:center;padding:10px 4px 8px;line-height:1}
+.evdate b{display:block;font-family:var(--f-num);font-weight:800;font-size:36px}
+.evdate span{display:block;font-size:12px;letter-spacing:.06em;margin-top:4px}
+.evinfo{min-width:0;display:flex;flex-direction:column;gap:4px}
+.evinfo h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:23px;line-height:1.2;overflow-wrap:anywhere}
+.evinfo p{margin:0;font-size:13.5px;color:var(--muted);overflow-wrap:anywhere}
+.evside{display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap}
+.evside b{font-family:var(--f-num);font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
+.go{color:var(--accent-hot);font-weight:800}
+.past .evcard{opacity:.78}
+.past .evdate{background:var(--sunk);color:var(--muted)}
+@media (max-width:540px){
+  .evcard{grid-template-columns:64px minmax(0,1fr)}
+  .evside{grid-column:2;flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px}
+  .evdate b{font-size:28px}
+}
+.list-sec{margin-top:32px}
+.list-sec > h2{font-size:13px;letter-spacing:.24em;color:var(--muted);margin:0 0 12px;font-weight:700}
+.editwrap{max-width:760px}
+.homeacts{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.morelink{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:2px}
+.cardlink{display:inline-block;margin-top:12px;color:var(--accent-hot);font-weight:800;text-decoration:none}
 </style>
 
 <div id="viewHome">
@@ -206,11 +238,11 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
     <div class="in about-grid">
       <div>
         <h2><small>ABOUT</small>关于这个网站</h2>
-        <p>这是 TX Game Club 的活动公告板。每次俱乐部办活动，主办方会把时间、游戏、玩法和名额写在报名页上。</p>
-        <p>你可以先看看下一场活动是什么，再决定要不要来。报名之后，大家都能在名单里看到你。</p>
+        <p>这是 TX Game Club 的活动公告板。每次俱乐部办活动，主办方会把时间、游戏、玩法和名额发布在这里。</p>
+        <p>你可以先看看最近有哪些活动，再决定要不要来。报名之后，大家都能在名单里看到你。</p>
       </div>
       <ol class="steps">
-        <li><span class="n">01</span><div><b>查看活动</b><span>报名页上写着时间、游戏、参加方式和剩余名额</span></div></li>
+        <li><span class="n">01</span><div><b>查看活动</b><span>每场活动都写着时间、游戏、参加方式和剩余名额</span></div></li>
         <li><span class="n">02</span><div><b>填写报名</b><span>选「参加」「可能来」或「来不了」，留下你的游戏昵称</span></div></li>
         <li><span class="n">03</span><div><b>准时上线</b><span>可以把活动加进日历，开始前 30 分钟提醒你</span></div></li>
       </ol>
@@ -221,11 +253,20 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
     <div class="in">
       <h2 id="nextTitle"><small>NEXT EVENT</small>下一场活动</h2>
       <div class="next-card" id="nextCard">
-        <div><span class="pill" id="nPill">读取中</span><h3 id="nName">正在读取活动信息…</h3><p id="nWhen"></p><button class="host" type="button" id="homeEdit" style="margin-top:14px" hidden>编辑活动时间</button></div>
+        <div>
+          <span class="pill" id="nPill">读取中</span>
+          <h3 id="nName">正在读取活动信息…</h3>
+          <p id="nWhen"></p>
+          <a class="cardlink" id="nLink" href="#signup" hidden>查看详情并报名 →</a>
+        </div>
         <div class="next-num" id="nNums" hidden>
           <div><b id="nDays">--</b><span>天后开始</span></div>
           <div><b id="nSeats">0</b><span id="nSeatsLabel">人已报名</span></div>
         </div>
+      </div>
+      <div class="homeacts">
+        <a class="morelink" id="allLink" href="#signup" hidden>全部活动 →</a>
+        <button class="host" type="button" id="homeAdd" hidden>+ 添加活动</button>
       </div>
     </div>
   </section>
@@ -233,45 +274,66 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
   <section class="band join" id="join" aria-labelledby="joinTitle">
     <div class="in">
       <h2 id="joinTitle"><small>SIGN UP</small>报名入口</h2>
-      <p>点下面的按钮进入报名页，查看活动详情，并告诉大家你会不会来。</p>
+      <p>点下面的按钮进入报名页，选一场活动查看详情，并告诉大家你会不会来。</p>
       <a class="enter" href="#signup">进入报名页面 <i aria-hidden="true">→</i></a>
     </div>
   </section>
   <footer class="foot"><div class="in">TX GAME CLUB</div></footer>
 </div>
 
-<div id="viewSignup" hidden>
-<header class="topbar">
-  <div class="in">
-    <a class="back" href="#home">← 返回首页</a>
-    <div class="topright"><button class="host" type="button" id="topEdit" hidden>编辑活动</button><a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a></div>
-  </div>
-</header>
-<main class="wrap">
-  <div class="col">
-    <article class="ticket" id="ticket" aria-live="polite">
-      <div class="t-main" id="tMain">
-        <span class="pill" id="pill">读取中</span>
-        <div class="skel" style="width:70%;height:40px"></div>
-        <div class="skel" style="width:90%"></div>
-        <div class="skel" style="width:60%"></div>
-      </div>
-      <aside class="t-stub" id="tStub">
-        <div class="stub-label">距离开始</div>
-        <div class="count" aria-label="倒计时"><div><b>--</b><span>天</span></div><div><b>--</b><span>时</span></div><div><b>--</b><span>分</span></div><div><b>--</b><span>秒</span></div></div>
-        <div class="seats"><span class="stub-label">已确认参加</span><br><b>0</b> 人</div>
-      </aside>
-    </article>
+<div id="viewApp" hidden>
+  <header class="topbar">
+    <div class="in">
+      <a class="back" id="backLink" href="#home">← 返回首页</a>
+      <div class="topright"><button class="host" type="button" id="topHost" hidden>+ 添加活动</button><a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a></div>
+    </div>
+  </header>
 
-    <section class="panel" id="descPanel" hidden>
-      <h2>活动介绍</h2>
-      <p class="desc" id="desc"></p>
-    </section>
+  <section id="secList" class="page" hidden>
+    <div class="page-head">
+      <div><h1>选择活动报名</h1><p>点一场活动，查看详情并报名。</p></div>
+    </div>
+    <div id="listBody"></div>
+  </section>
 
-    <section class="panel" id="editPanel" hidden>
-      <h2>编辑活动信息 <span class="sub">只有你（主办方）能看到这里</span></h2>
+  <section id="secMissing" class="page" hidden>
+    <div class="panel"><h2 id="missTitle">找不到这个活动</h2><p class="note" id="missText">它可能已经被主办方删除了。</p><div class="actions"><a class="btn" href="#signup" style="text-decoration:none">查看全部活动</a></div></div>
+  </section>
+
+  <main id="secEvent" class="wrap" hidden>
+    <div class="col">
+      <article class="ticket">
+        <div class="t-main" id="tMain"></div>
+        <aside class="t-stub" id="tStub"></aside>
+      </article>
+      <section class="panel" id="descPanel" hidden>
+        <h2>活动介绍</h2>
+        <p class="desc" id="desc"></p>
+      </section>
+    </div>
+    <div class="col">
+      <section class="panel">
+        <h2>报名 <span class="sub" id="rsvpSub"></span></h2>
+        <div id="rsvpBody" class="col" style="gap:12px"></div>
+      </section>
+      <section class="panel">
+        <h2>谁会来 <span class="owner-bar" id="ownerBar" hidden><button class="mini" type="button" id="copyList">复制名单</button><button class="mini" type="button" id="editBtn">编辑活动</button></span></h2>
+        <div class="tabs" role="tablist" id="tabs">
+          <button role="tab" data-t="yes" aria-selected="true">参加<b id="nYes">0</b></button>
+          <button role="tab" data-t="maybe" aria-selected="false">可能来<b id="nMaybe">0</b></button>
+          <button role="tab" data-t="no" aria-selected="false">来不了<b id="nNo">0</b></button>
+        </div>
+        <ul class="roster" id="roster"></ul>
+        <div class="empty" id="rosterEmpty">正在读取报名名单…</div>
+      </section>
+    </div>
+  </main>
+
+  <section id="secEdit" class="page editwrap" hidden>
+    <div class="panel">
+      <h2><span id="editTitle">添加新活动</span> <span class="sub">只有你（主办方）能看到这里</span></h2>
       <form id="editForm" class="col" style="gap:12px">
-        <label class="f">活动名称<input id="fTitle" maxlength="60" required placeholder="例如：周六晚上 暮色公路 计时赛"></label>
+        <label class="f">活动名称<input id="fTitle" maxlength="60" required placeholder="例如：周六晚上 计时赛"></label>
         <div class="grid2">
           <label class="f">玩什么游戏<input id="fGame" maxlength="40" placeholder="例如：暮色公路"></label>
           <label class="f">方式 / 地点<input id="fPlace" maxlength="60" placeholder="例如：线上，语音频道见"></label>
@@ -288,31 +350,13 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
         <label class="f">活动介绍<textarea id="fDesc" maxlength="2000" placeholder="规则、奖励、需要提前准备什么……"></textarea></label>
         <div class="actions">
           <button class="btn" type="submit" id="fSave">保存并公布</button>
-          <button class="ghost" type="button" id="fCancel">取消</button>
+          <a class="ghost" id="fCancel" href="#signup" style="text-decoration:none">取消</a>
+          <button class="ghost danger" type="button" id="fDelete" hidden>删除这个活动</button>
           <span class="note" id="fMsg"></span>
         </div>
       </form>
-    </section>
-  </div>
-
-  <div class="col">
-    <section class="panel" id="rsvpPanel">
-      <h2>报名 <span class="sub" id="rsvpSub"></span></h2>
-      <div id="rsvpBody"><div class="skel" style="width:80%"></div></div>
-    </section>
-
-    <section class="panel" id="rosterPanel">
-      <h2>谁会来 <span class="owner-bar" id="ownerBar" hidden><button class="mini" type="button" id="copyList">复制名单</button><button class="mini" type="button" id="editBtn">编辑活动</button></span></h2>
-      <div class="tabs" role="tablist" id="tabs">
-        <button role="tab" data-t="yes" aria-selected="true">参加<b id="nYes">0</b></button>
-        <button role="tab" data-t="maybe" aria-selected="false">可能来<b id="nMaybe">0</b></button>
-        <button role="tab" data-t="no" aria-selected="false">来不了<b id="nNo">0</b></button>
-      </div>
-      <ul class="roster" id="roster"></ul>
-      <div class="empty" id="rosterEmpty">正在读取报名名单…</div>
-    </section>
-  </div>
-</main>
+    </div>
+  </section>
 </div>
 <div id="toast" class="toast" hidden></div>
 
@@ -323,82 +367,211 @@ const $ = id => document.getElementById(id);
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
 const STATUS = { yes: '参加', maybe: '可能来', no: '来不了' };
 const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+const PH_LABEL = { open: '报名中', closed: '报名已截止', live: '进行中', ended: '已结束' };
 
 let db = null, user = null, downloads = null;
-let me = { id: null, isOwner: false };
-let canWrite = null;
-let event = null, eventLoaded = false;
-let rsvps = new Map(), rsvpLoaded = false;
+const me = { id: null, isOwner: false };
+let canWrite = null, booted = false;
+let events = new Map(), eventsLoaded = false, slowEv = false;
+let rdocs = new Map(), rsvpLoaded = false, slowRs = false;
 let profiles = {};
-let tab = 'yes', editing = false, myDraft = null, busy = false, confirmDel = null;
+let route = { view: 'home', id: null };
+let tab = 'yes', myDraft = null, busy = false, confirmDel = null, confirmEvDel = false, formFor = null;
 
+/* ---------- helpers ---------- */
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
 const pad = n => String(n).padStart(2, '0');
-function fmtDate(iso) {
-  const d = new Date(iso); if (isNaN(d)) return '';
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（周${WEEK[d.getDay()]}）${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
+function fmtDate(iso) { const d = new Date(iso); if (isNaN(d)) return ''; return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（周${WEEK[d.getDay()]}）${pad(d.getHours())}:${pad(d.getMinutes())}`; }
 function tzLabel() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } }
 function toLocalInput(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d)) return ''; return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
-function counts() { const c = { yes: 0, maybe: 0, no: 0 }; for (const r of rsvps.values()) if (c[r.status] !== undefined) c[r.status]++; return c; }
-function phaseOf(now = Date.now()) {
-  if (!event || !event.startAt) return 'none';
-  const s = Date.parse(event.startAt), e = s + (Number(event.durationMin) || 120) * 60000;
-  if (now >= e) return 'ended';
-  if (now >= s) return 'live';
-  if (event.deadline && now > Date.parse(event.deadline)) return 'closed';
+const clampNum = (v, a, b, d) => { const n = Math.round(Number(v)); return isFinite(n) ? Math.max(a, Math.min(b, n)) : d; };
+const isHost = () => !!(me.isOwner && db);
+const endOf = ev => Date.parse(ev.startAt) + (Number(ev.durationMin) || 120) * 60000;
+function phaseOf(ev, now = Date.now()) {
+  if (!ev || !ev.startAt) return 'none';
+  if (now >= endOf(ev)) return 'ended';
+  if (now >= Date.parse(ev.startAt)) return 'live';
+  if (ev.deadline && now > Date.parse(ev.deadline)) return 'closed';
   return 'open';
 }
-function full() { const cap = Number(event && event.capacity) || 0; return cap > 0 && counts().yes >= cap; }
+function pillFor(ph) { const p = el('span', 'pill', PH_LABEL[ph] || ''); if (ph === 'closed' || ph === 'ended') p.classList.add('closed'); if (ph === 'live') p.classList.add('live'); return p; }
+const sorted = () => [...events.entries()].filter(([, e]) => e && e.startAt && !isNaN(Date.parse(e.startAt))).sort((a, b) => Date.parse(a[1].startAt) - Date.parse(b[1].startAt));
+const upcoming = () => sorted().filter(([, e]) => phaseOf(e) !== 'ended');
+const past = () => sorted().filter(([, e]) => phaseOf(e) === 'ended').reverse();
+function responses(evId) { const out = []; for (const [uid, d] of rdocs) { const r = d && d.events && d.events[evId]; if (r && STATUS[r.status]) out.push([uid, r]); } return out; }
+function counts(evId) { const c = { yes: 0, maybe: 0, no: 0 }; for (const [, r] of responses(evId)) c[r.status]++; return c; }
+function myResp(evId) { const d = me.id && rdocs.get(me.id); return (d && d.events && d.events[evId]) || null; }
+function full(evId) { const ev = events.get(evId); const cap = Number(ev && ev.capacity) || 0; return cap > 0 && counts(evId).yes >= cap; }
+const newId = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+function emptyBox(text) { return el('div', 'empty', text); }
+function copy(text, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast(msg), () => fallbackCopy(text, msg));
+  else fallbackCopy(text, msg);
+}
+function fallbackCopy(text, msg) {
+  const ta = el('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px'; document.body.append(ta); ta.select();
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) { }
+  ta.remove(); toast(ok ? msg : '复制失败，请手动选择文字复制');
+}
+async function write(fn, okMsg) {
+  if (busy) return false; busy = true;
+  try { await fn(); if (okMsg) toast(okMsg); return true; }
+  catch (e) {
+    if (e && e.code === 'invalid_argument') { canWrite = false; toast('你没有这个操作的权限。'); render(); }
+    else if (e && e.code === 'quota_exceeded') toast('存储空间已满，保存失败。');
+    else toast('保存失败，请稍后再试。');
+    return false;
+  } finally { busy = false; }
+}
+function writeResp(uid, evId, body, okMsg) {
+  const cur = rdocs.get(uid);
+  const evs = Object.assign({}, (cur && cur.events) || {});
+  if (body) evs[evId] = body; else delete evs[evId];
+  return write(() => db.doc('rsvps/' + uid).set({ events: evs, updatedAt: new Date().toISOString() }), okMsg);
+}
 
-/* ---------- ticket ---------- */
-function renderTicket() {
+/* ---------- routing ---------- */
+function parseRoute() {
+  const h = location.hash.slice(1);
+  if (h === 'signup') return { view: 'list', id: null };
+  if (h === 'new') return { view: 'edit', id: null };
+  let m = h.match(/^event-([a-z0-9]+)$/); if (m) return { view: 'event', id: m[1] };
+  m = h.match(/^edit-([a-z0-9]+)$/); if (m) return { view: 'edit', id: m[1] };
+  return { view: 'home', id: null };
+}
+function go(h) { if (location.hash === '#' + h) onRoute(); else location.hash = h; }
+function onRoute() {
+  const r = parseRoute(), changed = r.view !== route.view || r.id !== route.id;
+  route = r;
+  if (changed) { myDraft = null; confirmDel = null; confirmEvDel = false; tab = 'yes'; formFor = null; syncTabs(); }
+  $('viewHome').hidden = route.view !== 'home'; $('viewApp').hidden = route.view === 'home';
+  if (changed) window.scrollTo(0, 0);
+  render();
+}
+addEventListener('hashchange', onRoute);
+$('toJoin').onclick = () => $('join').scrollIntoView({ behavior: 'smooth', block: 'start' });
+$('homeAdd').onclick = () => go('new');
+$('editBtn').onclick = () => go('edit-' + route.id);
+$('topHost').onclick = () => go(route.view === 'event' ? 'edit-' + route.id : 'new');
+
+function render() {
+  renderHome();
+  if (route.view === 'home') return;
+  renderTop();
+  const cur = route.id ? events.get(route.id) : null;
+  const missing = eventsLoaded && db && route.id && !cur;
+  $('secList').hidden = route.view !== 'list';
+  $('secEvent').hidden = route.view !== 'event' || missing;
+  $('secEdit').hidden = route.view !== 'edit' || missing || !isHost();
+  $('secMissing').hidden = !(missing || (route.view === 'edit' && booted && !isHost()));
+  if (route.view === 'edit' && booted && !isHost()) { $('missTitle').textContent = '只有主办方可以编辑活动'; $('missText').textContent = '如果你想办活动，请联系 TX Game Club 的主办方。'; }
+  else { $('missTitle').textContent = '找不到这个活动'; $('missText').textContent = '它可能已经被主办方删除了。'; }
+  if (route.view === 'list') renderList();
+  if (route.view === 'event' && !missing) renderEvent();
+  if (route.view === 'edit' && !missing && isHost()) renderEdit();
+}
+function renderTop() {
+  const back = $('backLink'), hb = $('topHost');
+  if (route.view === 'list') { back.href = '#home'; back.textContent = '← 返回首页'; hb.textContent = '+ 添加活动'; hb.hidden = !isHost(); }
+  else if (route.view === 'event') { back.href = '#signup'; back.textContent = '← 全部活动'; hb.textContent = '编辑活动'; hb.hidden = !isHost() || !events.get(route.id); }
+  else { back.href = route.id ? '#event-' + route.id : '#signup'; back.textContent = '← 返回'; hb.hidden = true; }
+}
+
+/* ---------- home ---------- */
+function renderHome() {
+  const pill = $('nPill'), name = $('nName'), when = $('nWhen'), nums = $('nNums'), link = $('nLink');
+  pill.className = 'pill'; link.hidden = true; nums.hidden = true;
+  $('homeAdd').hidden = !isHost();
+  const up = upcoming();
+  $('allLink').hidden = !(eventsLoaded && events.size);
+  $('allLink').textContent = up.length ? `全部活动（${up.length} 场即将开始）→` : '查看往期活动 →';
+  if (!db && booted) { pill.textContent = '需要登录'; pill.classList.add('closed'); name.textContent = '登录 Claude 后可以看到活动'; when.textContent = '进入报名页面查看详情。'; return; }
+  if (!eventsLoaded) { pill.textContent = '读取中'; name.textContent = slowEv ? '暂时连不上活动数据' : '正在读取活动信息…'; when.textContent = ''; return; }
+  if (!up.length) { pill.textContent = '筹备中'; pill.classList.add('closed'); name.textContent = '下一场活动即将公布'; when.textContent = isHost() ? '点下面的「添加活动」发布一场吧。' : '主办方还在准备，过几天再来看看。'; return; }
+  const [id, ev] = up[0], ph = phaseOf(ev);
+  pill.textContent = PH_LABEL[ph]; if (ph === 'closed') pill.classList.add('closed'); if (ph === 'live') pill.classList.add('live');
+  name.textContent = ev.title || '未命名活动';
+  when.textContent = [fmtDate(ev.startAt), ev.game, ev.place].filter(Boolean).join(' · ');
+  link.hidden = false; link.href = '#event-' + id;
+  nums.hidden = false;
+  const days = Math.ceil((Date.parse(ev.startAt) - Date.now()) / 864e5);
+  $('nDays').textContent = ph === 'live' ? '0' : String(Math.max(0, days));
+  $('nDays').nextElementSibling.textContent = ph === 'live' ? '正在进行' : days <= 0 ? '今天开始' : '天后开始';
+  const cap = Number(ev.capacity) || 0, c = counts(id);
+  $('nSeats').textContent = cap > 0 ? `${c.yes}/${cap}` : String(c.yes);
+  $('nSeatsLabel').textContent = cap > 0 ? '名额已报' : '人确认参加';
+}
+
+/* ---------- list ---------- */
+function renderList() {
+  const box = $('listBody'); box.replaceChildren();
+  if (!db && booted) { box.append(emptyBox('登录 Claude 后才能查看活动和报名。')); return; }
+  if (!eventsLoaded) { box.append(emptyBox(slowEv ? '暂时连不上活动数据，稍后刷新页面再试。' : '正在读取活动…')); return; }
+  const up = upcoming(), ps = past();
+  if (!up.length) box.append(emptyBox(isHost() ? '还没有即将开始的活动。点右上角「添加活动」发布一场吧。' : '暂时没有即将开始的活动，过几天再来看看。'));
+  else box.append(listOf(up));
+  if (ps.length) { const sec = el('section', 'list-sec past'); sec.append(el('h2', null, '往期活动'), listOf(ps)); box.append(sec); }
+}
+function listOf(arr) {
+  const ul = el('ul', 'evlist');
+  for (const [id, ev] of arr) {
+    const d = new Date(ev.startAt), ph = phaseOf(ev), c = counts(id), cap = Number(ev.capacity) || 0, mine = myResp(id);
+    const a = el('a', 'evcard'); a.href = '#event-' + id;
+    const date = el('div', 'evdate'); date.append(el('b', null, String(d.getDate())), el('span', null, `${d.getMonth() + 1}月 周${WEEK[d.getDay()]}`));
+    const info = el('div', 'evinfo');
+    info.append(pillFor(ph), el('h3', null, ev.title || '未命名活动'), el('p', null, [`${pad(d.getHours())}:${pad(d.getMinutes())} 开始`, ev.game, ev.place].filter(Boolean).join(' · ')));
+    const side = el('div', 'evside');
+    const seats = el('span'); seats.append(document.createTextNode('参加 '), el('b', null, cap > 0 ? `${c.yes}/${cap}` : String(c.yes)));
+    side.append(seats);
+    if (mine) side.append(el('span', 'status ' + mine.status, '我：' + STATUS[mine.status]));
+    side.append(el('span', 'go', ph === 'ended' ? '查看 →' : mine ? '查看 →' : '报名 →'));
+    a.append(date, info, side);
+    const li = el('li'); li.append(a); ul.append(li);
+  }
+  return ul;
+}
+
+/* ---------- event page ---------- */
+function renderEvent() {
+  const id = route.id, ev = events.get(id);
+  renderTicket(id, ev);
+  const show = !!(ev && ev.description); $('descPanel').hidden = !show; if (show) $('desc').textContent = ev.description;
+  document.title = ev && ev.title ? ev.title + ' · TX Game Club' : 'TX Game Club';
+  const typing = document.activeElement && $('rsvpBody').contains(document.activeElement);
+  if (!typing) renderRsvp(id, ev);
+  renderRoster(id);
+  $('ownerBar').hidden = !isHost() || !ev;
+}
+function renderTicket(id, ev) {
   const main = $('tMain'), stub = $('tStub');
   main.replaceChildren(); stub.replaceChildren();
-  if (!db && eventLoaded) {
-    main.append(el('span', 'pill closed', '需要登录'), el('h1', null, 'TX Game Club'),
-      el('p', 'note', '登录 Claude 后才能查看活动详情和报名。如果你已经登录，请刷新页面再试一次。'));
-    stub.append(el('div', 'stub-big', '登录后可见'));
-    return;
-  }
-  if (!eventLoaded) {
+  if (!db && booted) { main.append(pillFor('closed'), el('h1', null, 'TX Game Club'), el('p', 'note', '登录 Claude 后才能查看活动详情和报名。')); stub.append(el('div', 'stub-big', '登录后可见')); return; }
+  if (!ev) {
     main.append(el('span', 'pill', '读取中'));
-    const s1 = el('div', 'skel'); s1.style.cssText = 'width:70%;height:40px'; main.append(s1);
-    const s2 = el('div', 'skel'); s2.style.width = '85%'; main.append(s2);
+    const s1 = el('div', 'skel'); s1.style.cssText = 'width:70%;height:40px'; const s2 = el('div', 'skel'); s2.style.width = '85%'; main.append(s1, s2);
+    if (slowEv) main.append(el('p', 'note', '暂时连不上活动数据，稍后刷新页面再试。'));
     stub.append(el('div', 'stub-label', '距离开始'), el('div', 'stub-big', '…'));
-    if (renderTicket.slow) main.append(el('p', 'note', '暂时连不上活动数据，可能是网络慢。稍后刷新页面再试。'));
     return;
   }
-  if (!event) {
-    main.append(el('span', 'pill closed', '筹备中'), el('h1', null, '活动即将公布'),
-      el('p', 'note', me.isOwner ? '你还没填写活动信息。在下方「编辑活动信息」里填好后点「保存并公布」，大家就能看到并报名了。' : '主办方还在准备活动信息，稍后再来看看。'));
-    stub.append(el('div', 'stub-label', '距离开始'), el('div', 'stub-big', '时间待定'));
-    return;
-  }
-  const ph = phaseOf();
-  const pill = el('span', 'pill', { open: '报名中', closed: '报名已截止', live: '进行中', ended: '已结束' }[ph]);
-  if (ph === 'closed' || ph === 'ended') pill.classList.add('closed'); if (ph === 'live') pill.classList.add('live');
-  main.append(pill, el('h1', null, event.title || '未命名活动'));
+  const ph = phaseOf(ev);
+  main.append(pillFor(ph), el('h1', null, ev.title || '未命名活动'));
   const dl = el('dl', 'meta');
-  const add = (k, v, small) => { const dt = el('dt', null, k), dd = el('dd', null, v); if (small) dd.append(el('small', null, small)); dl.append(dt, dd); return dd; };
-  const end = new Date(Date.parse(event.startAt) + (Number(event.durationMin) || 120) * 60000);
-  add('时间', fmtDate(event.startAt), `约 ${Number(event.durationMin) || 120} 分钟，到 ${pad(end.getHours())}:${pad(end.getMinutes())} 结束 · 按你的时区 ${tzLabel()} 显示`);
-  if (event.game) add('游戏', event.game);
-  if (event.place) add('方式', event.place);
-  if (event.link) {
-    const dd = add('链接', '');
-    const row = el('div', 'linkrow');
-    const a = el('a', null, event.link); a.href = /^https?:\/\//i.test(event.link) ? event.link : 'https://' + event.link; a.target = '_blank'; a.rel = 'noopener';
-    const cp = el('button', 'mini', '复制'); cp.type = 'button';
-    cp.onclick = () => copy(event.link, '链接已复制');
+  const add = (k, v, small) => { const dd = el('dd', null, v); if (small) dd.append(el('small', null, small)); dl.append(el('dt', null, k), dd); return dd; };
+  const end = new Date(endOf(ev));
+  add('时间', fmtDate(ev.startAt), `约 ${Number(ev.durationMin) || 120} 分钟，到 ${pad(end.getHours())}:${pad(end.getMinutes())} 结束 · 按你的时区 ${tzLabel()} 显示`);
+  if (ev.game) add('游戏', ev.game);
+  if (ev.place) add('方式', ev.place);
+  if (ev.link) {
+    const dd = add('链接', ''), row = el('div', 'linkrow');
+    const a = el('a', null, ev.link); a.href = /^https?:\/\//i.test(ev.link) ? ev.link : 'https://' + ev.link; a.target = '_blank'; a.rel = 'noopener';
+    const cp = el('button', 'mini', '复制'); cp.type = 'button'; cp.onclick = () => copy(ev.link, '链接已复制');
     row.append(a, cp); dd.append(row);
   }
-  if (event.deadline) add('报名截止', fmtDate(event.deadline));
-  const cap = Number(event.capacity) || 0;
+  if (ev.deadline) add('报名截止', fmtDate(ev.deadline));
+  const cap = Number(ev.capacity) || 0;
   add('名额', cap > 0 ? `${cap} 人` : '不限');
   main.append(dl);
-
-  const c = counts();
+  const c = counts(id);
   if (ph === 'open' || ph === 'closed') {
     stub.append(el('div', 'stub-label', '距离开始'));
     const cd = el('div', 'count'); cd.id = 'cd'; cd.setAttribute('aria-label', '倒计时');
@@ -409,136 +582,53 @@ function renderTicket() {
   seats.append(el('span', 'stub-label', '已确认参加'), el('br'), el('b', null, String(c.yes)), document.createTextNode(cap > 0 ? ` / ${cap} 人` : ' 人'));
   if (cap > 0) { const bar = el('div', 'bar'), i = el('i'); i.style.width = Math.min(100, c.yes / cap * 100) + '%'; bar.append(i); seats.append(bar); }
   stub.append(seats);
-  if (ph === 'open' || ph === 'closed') {
-    const ics = el('button', 'ics', '加入我的日历'); ics.type = 'button'; ics.onclick = saveIcs;
-    if (!downloads) ics.hidden = true;
-    stub.append(ics);
-  }
+  if ((ph === 'open' || ph === 'closed') && downloads) { const ics = el('button', 'ics', '加入我的日历'); ics.type = 'button'; ics.onclick = () => saveIcs(id, ev); stub.append(ics); }
   tick();
 }
 function tick() {
-  const cd = $('cd'); if (!cd || !event) return;
-  let ms = Math.max(0, Date.parse(event.startAt) - Date.now());
+  const cd = $('cd'); if (!cd || route.view !== 'event') return;
+  const ev = events.get(route.id); if (!ev) return;
+  let ms = Math.max(0, Date.parse(ev.startAt) - Date.now());
   const d = Math.floor(ms / 864e5); ms -= d * 864e5;
   const h = Math.floor(ms / 36e5); ms -= h * 36e5;
   const m = Math.floor(ms / 6e4); ms -= m * 6e4;
-  const s = Math.floor(ms / 1e3);
-  const b = cd.querySelectorAll('b');
+  const s = Math.floor(ms / 1e3), b = cd.querySelectorAll('b');
   [d, h, m, s].forEach((v, i) => { const t = pad(v); if (b[i].textContent !== t) b[i].textContent = t; });
 }
-let lastPhase = null;
-setInterval(() => { tick(); const p = phaseOf(); if (p !== lastPhase) { lastPhase = p; if (eventLoaded) { renderTicket(); renderRsvp(); renderHome(); } } }, 1000);
+let sig = '';
+setInterval(() => {
+  tick();
+  const s = sorted().map(([id, e]) => id + phaseOf(e)).join('|');
+  if (s !== sig) { sig = s; if (eventsLoaded) render(); }
+}, 1000);
 
-function renderDesc() {
-  const show = !!(event && event.description);
-  $('descPanel').hidden = !show; if (show) $('desc').textContent = event.description;
-  document.title = event && event.title ? event.title + ' · TX Game Club' : 'TX Game Club';
-}
-
-/* ---------- home ---------- */
-function renderHome() {
-  const pill = $('nPill'), name = $('nName'), when = $('nWhen'), nums = $('nNums');
-  pill.className = 'pill';
-  if (!db && eventLoaded) { pill.textContent = '需要登录'; pill.classList.add('closed'); name.textContent = '登录 Claude 后可以看到活动'; when.textContent = '进入报名页面查看详情。'; nums.hidden = true; return; }
-  if (!eventLoaded) { pill.textContent = '读取中'; name.textContent = renderTicket.slow ? '暂时连不上活动数据' : '正在读取活动信息…'; when.textContent = ''; nums.hidden = true; return; }
-  if (!event) { pill.textContent = '筹备中'; pill.classList.add('closed'); name.textContent = '下一场活动即将公布'; when.textContent = '主办方还在准备，过几天再来看看。'; nums.hidden = true; return; }
-  const ph = phaseOf();
-  pill.textContent = { open: '报名中', closed: '报名已截止', live: '进行中', ended: '已结束' }[ph];
-  if (ph === 'closed' || ph === 'ended') pill.classList.add('closed'); if (ph === 'live') pill.classList.add('live');
-  name.textContent = event.title || '未命名活动';
-  when.textContent = [fmtDate(event.startAt), event.game, event.place].filter(Boolean).join(' · ');
-  nums.hidden = false;
-  const days = Math.ceil((Date.parse(event.startAt) - Date.now()) / 864e5);
-  $('nDays').textContent = ph === 'open' || ph === 'closed' ? String(Math.max(0, days)) : '0';
-  $('nDays').nextElementSibling.textContent = ph === 'live' ? '正在进行' : ph === 'ended' ? '已结束' : days <= 0 ? '今天开始' : '天后开始';
-  const cap = Number(event.capacity) || 0, c = counts();
-  $('nSeats').textContent = cap > 0 ? `${c.yes}/${cap}` : String(c.yes);
-  $('nSeatsLabel').textContent = cap > 0 ? '名额已报' : '人确认参加';
-}
-
-/* ---------- views ---------- */
-function route() {
-  const signup = location.hash === '#signup';
-  $('viewHome').hidden = signup; $('viewSignup').hidden = !signup;
-  window.scrollTo(0, 0);
-}
-addEventListener('hashchange', route);
-$('toJoin').onclick = () => $('join').scrollIntoView({ behavior: 'smooth', block: 'start' });
-route();
-
-/* ---------- editor (owner) ---------- */
-function openEditor() {
-  editing = true; $('editPanel').hidden = false;
-  const e = event || {};
-  $('fTitle').value = e.title || ''; $('fGame').value = e.game || ''; $('fPlace').value = e.place || '';
-  $('fStart').value = toLocalInput(e.startAt); $('fDur').value = e.durationMin || 120;
-  $('fDeadline').value = toLocalInput(e.deadline); $('fCap').value = e.capacity || 0;
-  $('fLink').value = e.link || ''; $('fDesc').value = e.description || ''; $('fMsg').textContent = '';
-  $('fCancel').hidden = !event;
-}
-$('fCancel').onclick = () => { editing = false; $('editPanel').hidden = true; };
-function goEdit() {
-  const show = () => { openEditor(); $('editPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); try { $('fStart').focus({ preventScroll: true }); } catch (e) { } };
-  if (location.hash !== '#signup') { location.hash = 'signup'; setTimeout(show, 150); } else show();
-}
-$('editBtn').onclick = goEdit; $('topEdit').onclick = goEdit; $('homeEdit').onclick = goEdit;
-$('editForm').addEventListener('submit', async ev => {
-  ev.preventDefault();
-  if (!db || busy) return;
-  const start = new Date($('fStart').value), dl = $('fDeadline').value ? new Date($('fDeadline').value) : null;
-  if (isNaN(start)) { $('fMsg').textContent = '请填写开始时间。'; return; }
-  if (dl && dl > start) { $('fMsg').textContent = '报名截止时间要早于开始时间。'; return; }
-  const body = {
-    title: $('fTitle').value.trim(), game: $('fGame').value.trim(), place: $('fPlace').value.trim(),
-    startAt: start.toISOString(), durationMin: clampNum($('fDur').value, 10, 1440, 120),
-    deadline: dl ? dl.toISOString() : '', capacity: clampNum($('fCap').value, 0, 999, 0),
-    link: $('fLink').value.trim(), description: $('fDesc').value.trim(), hostTimeZone: tzLabel(), updatedAt: new Date().toISOString()
-  };
-  busy = true; $('fSave').disabled = true; $('fMsg').textContent = '保存中…';
-  try { await db.doc('event/info').set(body); editing = false; $('editPanel').hidden = true; $('fMsg').textContent = ''; toast('活动信息已公布'); }
-  catch (e) { $('fMsg').textContent = e && e.code === 'quota_exceeded' ? '存储空间已满，保存失败。' : '保存失败，请稍后再试。'; }
-  finally { busy = false; $('fSave').disabled = false; }
-});
-const clampNum = (v, a, b, d) => { const n = Math.round(Number(v)); return isFinite(n) ? Math.max(a, Math.min(b, n)) : d; };
-
-/* ---------- rsvp ---------- */
-function renderRsvp() {
+function renderRsvp(id, ev) {
   const body = $('rsvpBody'); body.replaceChildren(); $('rsvpSub').textContent = '';
-  if (!db) { body.append(el('p', 'note', '登录 Claude 后才能报名。')); return; }
-  if (!eventLoaded || !rsvpLoaded) { const s = el('div', 'skel'); s.style.width = '80%'; body.append(s); return; }
-  if (!event) { body.append(el('p', 'note', '活动信息公布后就可以报名了。')); return; }
-  const ph = phaseOf();
-  const mine = me.id ? rsvps.get(me.id) : null;
+  if (!db && booted) { body.append(el('p', 'note', '登录 Claude 后才能报名。')); return; }
+  if (!ev || !rsvpLoaded) { const s = el('div', 'skel'); s.style.width = '80%'; body.append(s); return; }
+  const ph = phaseOf(ev), mine = myResp(id);
   if (ph === 'ended') { body.append(el('p', 'note', mine ? `活动已结束。你当时的回复是「${STATUS[mine.status]}」。` : '活动已结束，报名已关闭。')); return; }
-  if (canWrite === false) {
-    body.append(el('p', 'note', '你现在只有查看权限，暂时不能报名。请让主办方把你加为这个页面的可编辑成员，然后刷新页面。'));
-    return;
-  }
+  if (canWrite === false) { body.append(el('p', 'note', '你现在只有查看权限，暂时不能报名。请让主办方把你加为这个页面的可编辑成员，然后刷新页面。')); return; }
   if (!me.id) { body.append(el('p', 'note', '读取不到你的账号信息，暂时不能报名。请刷新页面再试。')); return; }
   const locked = (ph === 'closed' || ph === 'live') && !me.isOwner;
   if (mine && !myDraft) {
-    const box = el('div', 'mine');
-    box.append(el('span', 'status ' + mine.status, STATUS[mine.status]));
-    const t = el('div', 'who'); t.style.flex = '1';
+    const box = el('div', 'mine'), t = el('div', 'who'); t.style.flex = '1';
     t.append(el('b', null, mine.status === 'yes' ? '你已报名，到时见！' : mine.status === 'maybe' ? '你标记了可能来' : '你说这次来不了'));
     if (mine.nickname) t.append(el('span', null, '游戏昵称：' + mine.nickname));
-    box.append(t); body.append(box);
-    if (!locked) {
-      const act = el('div', 'actions'); act.style.marginTop = '12px';
-      const ch = el('button', 'ghost', '修改回复'); ch.type = 'button'; ch.onclick = () => { myDraft = { status: mine.status, nickname: mine.nickname || '', note: mine.note || '' }; renderRsvp(); };
-      const del = el('button', 'ghost danger', confirmDel === 'me' ? '确定撤回？' : '撤回报名'); del.type = 'button';
-      del.onclick = async () => {
-        if (confirmDel !== 'me') { confirmDel = 'me'; renderRsvp(); return; }
-        confirmDel = null; await write(() => db.doc('rsvps/' + me.id).delete(), '已撤回报名');
-      };
-      act.append(ch, del); body.append(act);
-    } else body.append(el('p', 'note', ph === 'live' ? '活动进行中，回复已锁定。' : '报名已截止，回复已锁定。'));
+    box.append(el('span', 'status ' + mine.status, STATUS[mine.status]), t); body.append(box);
+    if (locked) { body.append(el('p', 'note', ph === 'live' ? '活动进行中，回复已锁定。' : '报名已截止，回复已锁定。')); return; }
+    const act = el('div', 'actions');
+    const ch = el('button', 'ghost', '修改回复'); ch.type = 'button'; ch.onclick = () => { myDraft = { status: mine.status, nickname: mine.nickname || '', note: mine.note || '' }; renderRsvp(id, ev); };
+    const del = el('button', 'ghost danger', confirmDel === 'me' ? '确定撤回？' : '撤回报名'); del.type = 'button';
+    del.onclick = async () => { if (confirmDel !== 'me') { confirmDel = 'me'; renderRsvp(id, ev); return; } confirmDel = null; await writeResp(me.id, id, null, '已撤回报名'); };
+    act.append(ch, del); body.append(act);
     return;
   }
   if (locked) { body.append(el('p', 'note', ph === 'live' ? '活动已经开始，报名已关闭。' : '报名已截止。')); return; }
   const d = myDraft || (myDraft = { status: '', nickname: '', note: '' });
-  const isFull = full() && !(mine && mine.status === 'yes');
+  const isFull = full(id) && !(mine && mine.status === 'yes');
   if (isFull) $('rsvpSub').textContent = '「参加」名额已满';
+  const submit = el('button', 'btn', mine ? '更新回复' : '提交报名'); submit.type = 'button'; submit.disabled = !d.status;
   const seg = el('div', 'seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', '你会来吗');
   [['yes', '参加', '我会来'], ['maybe', '可能来', '还不确定'], ['no', '来不了', '这次算了']].forEach(([v, a, b]) => {
     const btn = el('button'); btn.type = 'button'; btn.dataset.v = v; btn.setAttribute('aria-pressed', d.status === v ? 'true' : 'false');
@@ -547,110 +637,126 @@ function renderRsvp() {
     btn.onclick = () => { d.status = v; seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === btn ? 'true' : 'false')); submit.disabled = false; };
     seg.append(btn);
   });
-  const nick = el('label', 'f', '游戏昵称（方便大家在游戏里找到你）'); const ni = el('input'); ni.id = 'rNick'; ni.maxLength = 30; ni.value = d.nickname; ni.placeholder = '例如：夜行者_07'; ni.oninput = () => d.nickname = ni.value; nick.append(ni);
-  const note = el('label', 'f', '想说的话（可不填）'); const nt = el('input'); nt.id = 'rNote'; nt.maxLength = 120; nt.value = d.note; nt.placeholder = '例如：可能晚到十分钟'; nt.oninput = () => d.note = nt.value; note.append(nt);
-  const act = el('div', 'actions');
-  const submit = el('button', 'btn', mine ? '更新回复' : '提交报名'); submit.type = 'button'; submit.disabled = !d.status;
+  const nick = el('label', 'f', '游戏昵称（方便大家在游戏里找到你）'); const ni = el('input'); ni.maxLength = 30; ni.value = d.nickname; ni.placeholder = '例如：夜行者_07'; ni.oninput = () => d.nickname = ni.value; nick.append(ni);
+  const note = el('label', 'f', '想说的话（可不填）'); const nt = el('input'); nt.maxLength = 120; nt.value = d.note; nt.placeholder = '例如：可能晚到十分钟'; nt.oninput = () => d.note = nt.value; note.append(nt);
   submit.onclick = async () => {
     if (!d.status) return;
-    const bodyDoc = { status: d.status, nickname: d.nickname.trim().slice(0, 30), note: d.note.trim().slice(0, 120), updatedAt: new Date().toISOString() };
-    const ok = await write(() => db.doc('rsvps/' + me.id).set(bodyDoc), d.status === 'yes' ? '报名成功，到时见！' : '已记下你的回复');
+    const ok = await writeResp(me.id, id, { status: d.status, nickname: d.nickname.trim().slice(0, 30), note: d.note.trim().slice(0, 120), updatedAt: new Date().toISOString() }, d.status === 'yes' ? '报名成功，到时见！' : '已记下你的回复');
     if (ok) myDraft = null;
-    renderRsvp();
+    renderRsvp(id, events.get(id));
   };
-  act.append(submit);
-  if (mine) { const cancel = el('button', 'ghost', '取消'); cancel.type = 'button'; cancel.onclick = () => { myDraft = null; renderRsvp(); }; act.append(cancel); }
-  body.append(seg, el('div', null), nick, note, act);
-  body.style.display = 'flex'; body.style.flexDirection = 'column'; body.style.gap = '12px';
-}
-async function write(fn, okMsg) {
-  if (busy) return false; busy = true;
-  try { await fn(); toast(okMsg); return true; }
-  catch (e) {
-    if (e && e.code === 'invalid_argument') { canWrite = false; renderRsvp(); toast('你没有报名权限，请联系主办方。'); }
-    else if (e && e.code === 'quota_exceeded') toast('存储空间已满，提交失败。');
-    else toast('提交失败，请稍后再试。');
-    return false;
-  } finally { busy = false; }
+  const act = el('div', 'actions'); act.append(submit);
+  if (mine) { const cancel = el('button', 'ghost', '取消'); cancel.type = 'button'; cancel.onclick = () => { myDraft = null; renderRsvp(id, ev); }; act.append(cancel); }
+  body.append(seg, nick, note, act);
 }
 
-/* ---------- roster ---------- */
-document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.t; document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', x === b ? 'true' : 'false')); renderRoster(); });
+function syncTabs() { document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', x.dataset.t === tab ? 'true' : 'false')); }
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.t; syncTabs(); renderRoster(route.id); });
 const COLORS = ['#e3182a', '#8e0d18', '#ff3344', '#4a4446', '#b3121f', '#6b6466'];
 function colorFor(id) { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; }
-async function renderRoster() {
-  const c = counts();
+let rosterSeq = 0;
+async function renderRoster(id) {
+  const c = counts(id);
   $('nYes').textContent = c.yes; $('nMaybe').textContent = c.maybe; $('nNo').textContent = c.no;
   const list = $('roster'), empty = $('rosterEmpty');
-  if (!db) { list.replaceChildren(); empty.hidden = false; empty.textContent = '登录后可以看到报名名单。'; return; }
-  if (!rsvpLoaded) { empty.hidden = false; empty.textContent = renderRoster.slow ? '暂时连不上报名数据，稍后刷新页面再试。' : '正在读取报名名单…'; return; }
-  const rows = [...rsvps.entries()].filter(([, r]) => r.status === tab).sort((a, b) => String(a[1].updatedAt).localeCompare(String(b[1].updatedAt)));
-  if (user && rows.length) { try { profiles = Object.assign(profiles, await user.profiles(rows.map(r => r[0]))); } catch (e) { } }
+  if (!db && booted) { list.replaceChildren(); empty.hidden = false; empty.textContent = '登录后可以看到报名名单。'; return; }
+  if (!rsvpLoaded) { list.replaceChildren(); empty.hidden = false; empty.textContent = slowRs ? '暂时连不上报名数据，稍后刷新页面再试。' : '正在读取报名名单…'; return; }
+  const rows = responses(id).filter(([, r]) => r.status === tab).sort((a, b) => String(a[1].updatedAt).localeCompare(String(b[1].updatedAt)));
+  const seq = ++rosterSeq;
+  if (user && rows.length) { try { profiles = Object.assign({}, profiles, await user.profiles(rows.map(r => r[0]))); } catch (e) { } }
+  if (seq !== rosterSeq) return;
   list.replaceChildren();
   empty.hidden = rows.length > 0;
   empty.textContent = tab === 'yes' ? '还没有人报名参加，来当第一个吧。' : tab === 'maybe' ? '还没有人标记「可能来」。' : '还没有人说来不了。';
-  for (const [id, r] of rows) {
-    const p = profiles[id] || {};
-    const name = p.name || r.nickname || '某位玩家';
+  for (const [uid, r] of rows) {
+    const p = profiles[uid] || {}, name = p.name || r.nickname || '某位玩家';
     const li = el('li');
-    const av = el('div', 'av', name.trim().slice(0, 1).toUpperCase()); av.style.background = colorFor(id);
-    const who = el('div', 'who'); who.append(el('b', null, id === me.id ? name + '（你）' : name));
+    const av = el('div', 'av', name.trim().slice(0, 1).toUpperCase()); av.style.background = colorFor(uid);
+    const who = el('div', 'who'); who.append(el('b', null, uid === me.id ? name + '（你）' : name));
     if (r.nickname) who.append(el('span', null, '游戏昵称：' + r.nickname));
     if (r.note) who.append(el('p', null, r.note));
     const side = el('div', 'side');
     const d = new Date(r.updatedAt); if (!isNaN(d)) side.append(el('span', 'note', `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`));
-    if (me.isOwner && id !== me.id) {
-      const rm = el('button', 'mini danger', confirmDel === id ? '确认移除' : '移除'); rm.type = 'button';
-      rm.onclick = async () => {
-        if (confirmDel !== id) { confirmDel = id; renderRoster(); return; }
-        confirmDel = null; await write(() => db.doc('rsvps/' + id).delete(), '已移除');
-      };
+    if (isHost() && uid !== me.id) {
+      const rm = el('button', 'mini danger', confirmDel === uid ? '确认移除' : '移除'); rm.type = 'button';
+      rm.onclick = async () => { if (confirmDel !== uid) { confirmDel = uid; renderRoster(id); return; } confirmDel = null; await writeResp(uid, id, null, '已移除'); };
       side.append(rm);
     }
     li.append(av, who, side); list.append(li);
   }
 }
 $('copyList').onclick = async () => {
-  const ids = [...rsvps.keys()];
-  if (user && ids.length) { try { profiles = Object.assign(profiles, await user.profiles(ids)); } catch (e) { } }
-  const lines = [`${event && event.title || '活动'} 报名名单`, event ? fmtDate(event.startAt) : '', ''];
+  const id = route.id, ev = events.get(id); if (!ev) return;
+  const rs = responses(id);
+  if (user && rs.length) { try { profiles = Object.assign({}, profiles, await user.profiles(rs.map(r => r[0]))); } catch (e) { } }
+  const lines = [`${ev.title || '活动'} 报名名单`, fmtDate(ev.startAt), ''];
   for (const st of ['yes', 'maybe', 'no']) {
-    const rs = [...rsvps.entries()].filter(([, r]) => r.status === st);
-    lines.push(`【${STATUS[st]}】${rs.length} 人`);
-    rs.forEach(([id, r], i) => lines.push(`${i + 1}. ${(profiles[id] && profiles[id].name) || r.nickname || '某位玩家'}${r.nickname ? '（' + r.nickname + '）' : ''}${r.note ? ' — ' + r.note : ''}`));
+    const g = rs.filter(([, r]) => r.status === st);
+    lines.push(`【${STATUS[st]}】${g.length} 人`);
+    g.forEach(([uid, r], i) => lines.push(`${i + 1}. ${(profiles[uid] && profiles[uid].name) || r.nickname || '某位玩家'}${r.nickname ? '（' + r.nickname + '）' : ''}${r.note ? ' — ' + r.note : ''}`));
     lines.push('');
   }
   copy(lines.join('\n').trim(), '名单已复制');
 };
-function copy(text, msg) {
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast(msg), () => fallbackCopy(text, msg));
-  else fallbackCopy(text, msg);
-}
-function fallbackCopy(text, msg) {
-  const ta = el('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px'; document.body.append(ta); ta.select();
-  let ok = false; try { ok = document.execCommand('copy'); } catch (e) { }
-  ta.remove(); toast(ok ? msg : '复制失败，请手动选择文字复制');
-}
-
-/* ---------- calendar ---------- */
-async function saveIcs() {
-  if (!downloads || !event) return;
+async function saveIcs(id, ev) {
+  if (!downloads) return;
   const f = iso => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const esc = s => String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
-  const end = new Date(Date.parse(event.startAt) + (Number(event.durationMin) || 120) * 60000).toISOString();
   const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//tx-game-club//CN', 'BEGIN:VEVENT',
-    'UID:' + f(event.startAt) + '-game-event', 'DTSTAMP:' + f(new Date().toISOString()), 'DTSTART:' + f(event.startAt), 'DTEND:' + f(end),
-    'SUMMARY:' + esc(event.title), 'DESCRIPTION:' + esc([event.game && '游戏：' + event.game, event.place && '方式：' + event.place, event.link, event.description].filter(Boolean).join('\n')),
-    'LOCATION:' + esc(event.place || ''), 'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(event.title), 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
-  try { await downloads.save({ filename: 'game-event.ics', data: ics }); } catch (e) { if (!e || e.code !== 'declined') toast('暂时无法保存日历文件'); }
+    'UID:' + id + '@tx-game-club', 'DTSTAMP:' + f(new Date().toISOString()), 'DTSTART:' + f(ev.startAt), 'DTEND:' + f(new Date(endOf(ev)).toISOString()),
+    'SUMMARY:' + esc(ev.title), 'DESCRIPTION:' + esc([ev.game && '游戏：' + ev.game, ev.place && '方式：' + ev.place, ev.link, ev.description].filter(Boolean).join('\n')),
+    'LOCATION:' + esc(ev.place || ''), 'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(ev.title), 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  try { await downloads.save({ filename: 'tx-game-club-event.ics', data: ics }); } catch (e) { if (!e || e.code !== 'declined') toast('暂时无法保存日历文件'); }
 }
 
+/* ---------- editor ---------- */
+function renderEdit() {
+  const id = route.id, key = id || 'new';
+  if (id && !events.get(id)) return;
+  $('editTitle').textContent = id ? '编辑活动' : '添加新活动';
+  $('fDelete').hidden = !id; $('fDelete').textContent = confirmEvDel ? '确定删除？报名记录也会看不到' : '删除这个活动';
+  $('fCancel').href = id ? '#event-' + id : '#signup';
+  if (formFor === key) return;
+  formFor = key;
+  const e = (id && events.get(id)) || {};
+  $('fTitle').value = e.title || ''; $('fGame').value = e.game || ''; $('fPlace').value = e.place || '';
+  $('fStart').value = toLocalInput(e.startAt); $('fDur').value = e.durationMin || 120;
+  $('fDeadline').value = toLocalInput(e.deadline); $('fCap').value = e.capacity || 0;
+  $('fLink').value = e.link || ''; $('fDesc').value = e.description || ''; $('fMsg').textContent = '';
+  setTimeout(() => { try { $(id ? 'fStart' : 'fTitle').focus({ preventScroll: true }); } catch (er) { } }, 50);
+}
+$('editForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  if (!db || busy) return;
+  const start = new Date($('fStart').value), dl = $('fDeadline').value ? new Date($('fDeadline').value) : null;
+  if (isNaN(start)) { $('fMsg').textContent = '请填写开始时间。'; return; }
+  if (dl && dl > start) { $('fMsg').textContent = '报名截止时间要早于开始时间。'; return; }
+  const id = route.id || newId(), old = events.get(id) || {};
+  const body = {
+    title: $('fTitle').value.trim(), game: $('fGame').value.trim(), place: $('fPlace').value.trim(),
+    startAt: start.toISOString(), durationMin: clampNum($('fDur').value, 10, 1440, 120),
+    deadline: dl ? dl.toISOString() : '', capacity: clampNum($('fCap').value, 0, 999, 0),
+    link: $('fLink').value.trim(), description: $('fDesc').value.trim(), hostTimeZone: tzLabel(),
+    createdAt: old.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString()
+  };
+  $('fSave').disabled = true; $('fMsg').textContent = '保存中…';
+  const ok = await write(() => db.doc('events/' + id).set(body), route.id ? '活动已更新' : '新活动已发布');
+  $('fSave').disabled = false; $('fMsg').textContent = ok ? '' : '保存失败，请稍后再试。';
+  if (ok) go('event-' + id);
+});
+$('fDelete').onclick = async () => {
+  if (!route.id) return;
+  if (!confirmEvDel) { confirmEvDel = true; renderEdit(); return; }
+  confirmEvDel = false;
+  const ok = await write(() => db.doc('events/' + route.id).delete(), '活动已删除');
+  if (ok) go('signup');
+};
+
 /* ---------- boot ---------- */
-function renderAll() { renderTicket(); renderDesc(); renderRsvp(); renderRoster(); renderHome(); const host = !!(me.isOwner && db); $('ownerBar').hidden = !host; $('topEdit').hidden = !host; $('homeEdit').hidden = !host; if (host) $('homeEdit').textContent = eventLoaded && !event ? '填写活动信息' : '编辑活动时间'; }
-renderAll();
+onRoute();
 (async () => {
   const c = window.claude;
-  if (!c || typeof c.use !== 'function') { eventLoaded = true; rsvpLoaded = true; renderAll(); return; }
+  if (!c || typeof c.use !== 'function') { booted = true; eventsLoaded = rsvpLoaded = true; render(); return; }
   const [dbNs, userNs, dlNs] = await Promise.all([c.use('db'), c.use('user'), c.use('downloads')].map(p => p.catch(() => null)));
   db = dbNs; user = userNs; downloads = dlNs;
   if (user) {
@@ -658,23 +764,22 @@ renderAll();
     try { me.id = await user.id(); } catch (e) { }
     try { canWrite = await user.can('data.write'); } catch (e) { canWrite = null; }
   }
-  if (!db) { eventLoaded = true; rsvpLoaded = true; renderAll(); return; }
-  renderAll();
-  const evTimer = setTimeout(() => { renderTicket.slow = true; renderTicket(); renderHome(); }, 10000);
-  const rsTimer = setTimeout(() => { renderRoster.slow = true; renderRoster(); }, 10000);
-  db.doc('event/info').onSnapshot(snap => {
-    if (!snap.metadata.fromCache) clearTimeout(evTimer);
-    event = snap.exists ? snap.data() : null; eventLoaded = true;
-    if (!event && me.isOwner && !editing) openEditor();
-    renderAll();
-  }, () => { clearTimeout(evTimer); eventLoaded = true; renderAll(); });
+  booted = true;
+  if (!db) { eventsLoaded = rsvpLoaded = true; render(); return; }
+  render();
+  const t1 = setTimeout(() => { slowEv = true; render(); }, 10000);
+  const t2 = setTimeout(() => { slowRs = true; render(); }, 10000);
+  db.collection('events').onSnapshot(snap => {
+    if (!snap.metadata.fromCache) clearTimeout(t1);
+    const m = new Map(); snap.docs.forEach(d => { const v = d.data(); if (v) m.set(d.id, v); });
+    events = m; eventsLoaded = true; render();
+  }, () => { clearTimeout(t1); eventsLoaded = true; render(); });
   db.collection('rsvps').onSnapshot(snap => {
-    if (!snap.metadata.fromCache) clearTimeout(rsTimer);
-    const m = new Map(); snap.docs.forEach(d => { const v = d.data(); if (v && STATUS[v.status]) m.set(d.id, v); });
-    rsvps = m; rsvpLoaded = true;
-    const typing = document.activeElement && $('rsvpBody').contains(document.activeElement);
-    renderTicket(); if (!typing) renderRsvp(); renderRoster(); renderHome();
-  }, () => { clearTimeout(rsTimer); rsvpLoaded = true; renderRoster(); renderRsvp(); });
+    if (!snap.metadata.fromCache) clearTimeout(t2);
+    const m = new Map(); snap.docs.forEach(d => { const v = d.data(); if (v && v.events) m.set(d.id, v); });
+    rdocs = m; rsvpLoaded = true; render();
+  }, () => { clearTimeout(t2); rsvpLoaded = true; render(); });
+  try { const h = window.claude && window.claude.hot; if (h && typeof h.snapshot === 'function') h.snapshot(() => ({})); } catch (e) { }
 })();
 })();
 </script>
