@@ -32,12 +32,15 @@ canvas{display:block}
 #start{pointer-events:auto;font-family:var(--disp);font-size:22px;padding:14px 34px;border:0;border-radius:6px;background:#2a0b3d;color:var(--sun);cursor:pointer;box-shadow:0 5px 0 #000}
 #start:focus-visible{outline:3px solid #fff}
 #touch{position:fixed;inset:0;pointer-events:none;display:none}
-#stick{position:absolute;left:calc(24px + env(safe-area-inset-left,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);pointer-events:auto}
+#stick{position:absolute;left:calc(24px + env(safe-area-inset-left,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);pointer-events:auto}
 #knob{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,61,139,.7)}
 .tb{position:absolute;width:66px;height:66px;touch-action:none;border-radius:50%;background:rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.4);color:#fff;font-family:var(--disp);font-size:13px;display:flex;align-items:center;justify-content:center;pointer-events:auto}
 #touch .tb.on{background:rgba(255,61,139,.65)}
 #touch .tb.car{background:rgba(34,211,238,.6);border-color:#fff}
 #touch .big{width:84px;height:84px;font-size:26px}
+#touch .sm{width:54px;height:54px;font-size:12px}
+#touch .pill{height:124px;border-radius:42px}
+#touch .hot{border-color:var(--hot);background:rgba(255,61,139,.35)}
 #touch[data-mode="foot"] .drive,#touch[data-mode="drive"] .foot{display:none}
 .bm-top{display:flex;justify-content:space-between;align-items:center;width:min(92vw,92vh);font-family:var(--disp);color:var(--sun);font-size:18px}
 #bigmap{position:fixed;inset:0;z-index:6;background:rgba(10,8,24,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
@@ -74,17 +77,17 @@ canvas{display:block}
   <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#ffe14d"></i>任务</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
 <div id="touch" data-mode="foot">
   <div id="stick" class="foot"><div id="knob"></div></div>
-  <div class="tb foot" id="bRun" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">奔跑</div>
-  <div class="tb foot" id="bF" style="right:calc(104px + env(safe-area-inset-right,0px));bottom:calc(60px + env(safe-area-inset-bottom,0px))">开火</div>
-  <div class="tb foot" id="bJ" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(122px + env(safe-area-inset-bottom,0px))">跳跃</div>
-  <div class="tb foot" id="bP" style="right:calc(104px + env(safe-area-inset-right,0px));bottom:calc(140px + env(safe-area-inset-bottom,0px))">出拳</div>
-  <div class="tb foot" id="bA" style="right:calc(184px + env(safe-area-inset-right,0px));bottom:calc(116px + env(safe-area-inset-bottom,0px))">瞄准</div>
-  <div class="tb drive" id="bE" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(130px + env(safe-area-inset-bottom,0px))">下车</div>
+  <div class="tb foot sm" id="bRun" style="left:calc(56px + env(safe-area-inset-left,0px));bottom:calc(172px + env(safe-area-inset-bottom,0px))">奔跑</div>
+  <div class="tb foot big hot" id="bF" style="right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(34px + env(safe-area-inset-bottom,0px))">开火</div>
+  <div class="tb foot" id="bJ" style="right:calc(124px + env(safe-area-inset-right,0px));bottom:calc(28px + env(safe-area-inset-bottom,0px))">跳跃</div>
+  <div class="tb foot" id="bP" style="right:calc(108px + env(safe-area-inset-right,0px));bottom:calc(112px + env(safe-area-inset-bottom,0px))">出拳</div>
+  <div class="tb foot" id="bA" style="right:calc(32px + env(safe-area-inset-right,0px));bottom:calc(136px + env(safe-area-inset-bottom,0px))">瞄准</div>
   <div class="tb drive big" id="bL" style="left:calc(20px + env(safe-area-inset-left,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">◀</div>
   <div class="tb drive big" id="bR" style="left:calc(116px + env(safe-area-inset-left,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">▶</div>
-  <div class="tb drive big" id="bG" style="right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));font-size:15px">油门</div>
-  <div class="tb drive big" id="bB" style="right:calc(116px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));font-size:15px">刹车</div>
-  <div class="tb drive" id="bS" style="right:calc(112px + env(safe-area-inset-right,0px));bottom:calc(130px + env(safe-area-inset-bottom,0px))">手刹</div>
+  <div class="tb drive big pill hot" id="bG" style="right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));font-size:15px">油门</div>
+  <div class="tb drive big" id="bB" style="right:calc(112px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));font-size:15px">刹车</div>
+  <div class="tb drive" id="bS" style="right:calc(122px + env(safe-area-inset-right,0px));bottom:calc(132px + env(safe-area-inset-bottom,0px))">手刹</div>
+  <div class="tb drive sm" id="bE" style="right:calc(30px + env(safe-area-inset-right,0px));bottom:calc(176px + env(safe-area-inset-bottom,0px))">下车</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -584,7 +587,7 @@ const carCache={};
 const CS=1.5; // 车辆缩放：人约 1.8 米、轿车约 4.8 米长
 function carMesh(kind,col){const key=kind+col;if(!carCache[key])carCache[key]=buildCar(kind,col);
   const src=carCache[key];const g=src.g.clone();const wheels=[],siren=[];
-  g.traverse(o=>{if(o.userData.wheel)wheels.push(o);if(o.userData.siren!==undefined)siren[o.userData.siren]=o});
+  let door=null;g.traverse(o=>{if(o.userData.wheel)wheels.push(o);if(o.userData.siren!==undefined)siren[o.userData.siren]=o;if(o.userData.door)door=o});g.userData.door=door;
   // 警灯每辆车独立材质（各自闪烁）
   for(const s of siren)if(s)s.material=s.material.clone();
   g.scale.setScalar(CS);g.userData.wheels=wheels;return{g,siren:siren.length?siren:null}}
@@ -636,6 +639,16 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
   for(const sd of[-1,1])Lt.add(rgeo(.5,.16,.05,.3),0xff2a3a,[sd*(W/2-.4),kind==='pickup'?1.55:mid+.12,rear-.03]);
   if(kind==='taxi'){const tx=new THREE.Mesh(new THREE.BoxGeometry(1,.34,.42),[taxiSign(),taxiSign(),M(0xffd21f),M(0xffd21f),taxiSign(),taxiSign()]);tx.position.set(0,1.85,-.15);g.add(tx)}
   g.add(B.build(vcMat,OL_C));g.add(Lt.build(lightVC,null));
+  { // 车门：铰链在门前缘，门板向后延伸；开门时绕 y 轴向外转
+    const DL={sedan:1.15,taxi:1.15,police:1.15,suv:1.25,wedge:1.4,coupe:1.5,pickup:1.35,convertible:1.5}[kind];
+    const zf=d.glass?d.glass[3][0]+.02:.42,yb=d.glass?d.glass[0][1]:1.08,yt=d.glass?Math.max(d.glass[1][1],d.glass[2][1])-.04:yb,y0=d.gr+.08;
+    const dc=(kind==='police'||kind==='suv')?0xf4f4f4:col;const DB=new Bld();
+    DB.add(rgeo(.07,yb-y0,DL,.25),dc,[0,(y0+yb)/2,-DL/2]);
+    if(yt>yb+.05)DB.add(rgeo(.05,yt-yb,DL*.92,.2),GLASS,[0,(yb+yt)/2,-DL/2-.02]);
+    DB.add(rgeo(.04,.05,.18,.3),CHROME,[.04,yb-.12,-DL+.22]);
+    DB.add(rgeo(.03,yb-y0-.05,DL-.05,.2),0x3a2a30,[-.04,(y0+yb)/2,-DL/2]); // 门内衬
+    const hinge=new THREE.Group();hinge.position.set(W/2+.02,0,zf);hinge.add(DB.build(vcMat,OL_C));hinge.userData.door=1;g.add(hinge);
+    g.userData.doorZ=zf-DL*.55;g.userData.halfW=W/2}
   // —— 警灯
   if(kind==='police'||kind==='suv'){const roofY=Math.max(...d.top.map(p=>p[1]))+.28;
     const s1=new THREE.Mesh(rgeo(.66,.18,.3,.4),redMat()),s2=new THREE.Mesh(rgeo(.66,.18,.3,.4),blueMat());s1.position.set(-.36,roofY,-.15);s2.position.set(.36,roofY,-.15);
@@ -854,15 +867,46 @@ function updAimLock(){aimLock=null;let bd=50;const fx=Math.sin(player.rot),fz=Ma
     if(d<1||d>bd)continue;const cos=(dx*fx+dz*fz)/d;if(cos>Math.cos(.21)){bd=d;aimLock=t}}}
 // ===== 上下车 =====
 const ENTER_R=7;function nearCar(){return cars.some(c=>!c.dead&&c!==player.car&&Math.hypot(c.x-player.x,c.z-player.z)<ENTER_R)}
-function enterCar(){let best=null,bd=ENTER_R;for(const c of cars)if(!c.dead){const d=Math.hypot(c.x-player.x,c.z-player.z);if(d<bd){bd=d;best=c}}
-  if(!best)return;
+// 车门外站位 / 驾驶座位置（世界坐标）
+function carPt(c,lx,lz){const s=Math.sin(c.h),co=Math.cos(c.h);return{x:c.x+lx*co+lz*s,z:c.z-lx*s+lz*co}}
+const doorStand=c=>carPt(c,(c.mesh.userData.halfW+.75)*CS,c.mesh.userData.doorZ*CS);
+const seatPt=c=>carPt(c,c.mesh.userData.halfW*.35*CS,c.mesh.userData.doorZ*CS);
+let boarding=null;
+const ease=t=>t<0?0:t>1?1:t*t*(3-2*t);
+function setDoor(c,a){const d=c.mesh.userData.door;if(d)d.rotation.y=-1.2*a}
+// 上车：走到车门 → 开门（这时把原司机拽下车）→ 坐进去 → 关门
+function enterCar(){if(boarding)return;let best=null,bd=ENTER_R;for(const c of cars)if(!c.dead){const d=Math.hypot(c.x-player.x,c.z-player.z);if(d<bd){bd=d;best=c}}
+  if(!best)return;toggleAim(false);best.hold=1;best.speed=0;
+  boarding={car:best,mode:'in',t:0,sx:player.x,sz:player.z,done:false};beep(240,.05,'triangle',.05)}
+function updBoard(dt){const b=boarding,c=b.car;b.t+=dt;
+  if(c.dead){setDoor(c,0);c.hold=0;player.mesh.visible=true;boarding=null;return}
+  const st=doorStand(c),se=seatPt(c),face=Math.atan2(-Math.cos(c.h),Math.sin(c.h));let pz='idle',k=0;
+  if(b.mode==='in'){
+    const t=b.t;
+    if(t<.45){const f=ease(t/.45);player.x=b.sx+(st.x-b.sx)*f;player.z=b.sz+(st.z-b.sz)*f;player.rot=Math.atan2(st.x-b.sx,st.z-b.sz)||face;pz='walk';k=1}
+    else if(t<.8){if(!b.opened){b.opened=1;beep(160,.08,'square',.05);boardEffects(c)}player.x=st.x;player.z=st.z;player.rot+=angDiff(face,player.rot)*Math.min(1,dt*14);setDoor(c,ease((t-.45)/.3))}
+    else if(t<1.15){const f=ease((t-.8)/.35);player.x=st.x+(se.x-st.x)*f;player.z=st.z+(se.z-st.z)*f;player.rot+=angDiff(c.h,player.rot)*Math.min(1,dt*10);pz=f>.4?'sit':'walk';k=.6}
+    else{player.mesh.visible=false;setDoor(c,1-ease((t-1.15)/.3));
+      if(t>1.45){setDoor(c,0);c.hold=0;c.driver='player';player.car=c;boarding=null;toast((SPECS[c.kind]||SPECS.sedan).name);beep(300,.1);beep(450,.1);return}}
+  }else{ // 下车：开门 → 走出来 → 关门
+    const t=b.t;
+    if(t<.3)setDoor(c,ease(t/.3));
+    else if(t<.7){player.mesh.visible=true;const f=ease((t-.3)/.4);player.x=se.x+(st.x-se.x)*f;player.z=se.z+(st.z-se.z)*f;player.rot=face;pz=f<.4?'sit':'walk';k=.6}
+    else{setDoor(c,1-ease((t-.7)/.3));player.rot+=angDiff(c.h,player.rot)*Math.min(1,dt*8);
+      if(t>1.0){setDoor(c,0);c.hold=0;boarding=null;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}}}
+  }
+  player.t+=dt;player.y=0;player.mesh.position.set(player.x,0,player.z);player.mesh.rotation.y=player.rot;pose(player.mesh,pz,player.t,k)}
+// 开门那一刻：原司机被拽下车、警察看见就加通缉
+function boardEffects(best){
   const seen=copWitness(best.x,best.z);
-  if(best.driver==='ai'){const p=spawnPed(best.x+3,best.z);if(p)p.flee=5;if(seen)addHeat(best.speed>2?.5:.2)}
+  if(best.driver==='ai'){const pt=carPt(best,(best.mesh.userData.halfW+2.5)*CS,0);const p=spawnPed(pt.x,pt.z);if(p)p.flee=5;if(seen)addHeat(.4)}
   if(best.police&&seen)addHeat(1.5);
-  if((best.driver==='ai'||best.police)&&seen)setTimeout(()=>toast('被警察看到了！'),900);
-  toggleAim(false);best.driver='player';player.car=best;toast((SPECS[best.kind]||SPECS.sedan).name);player.mesh.visible=false;beep(300,.1);beep(450,.1)}
+  if((best.driver==='ai'||best.police)&&seen)setTimeout(()=>toast('被警察看到了！'),600);
+  if(best.driver==='ai')best.driver=null}
 function exitCar(force){const c=player.car;if(!c)return;if(!force&&Math.abs(c.speed)>6)return;
-  c.driver=null;player.car=null;player.mesh.visible=true;
+  c.driver=null;player.car=null;
+  if(!force&&c.mesh.userData.door){c.hold=1;c.speed=0;const se=seatPt(c);player.x=se.x;player.z=se.z;player.rot=c.h;boarding={car:c,mode:'out',t:0};return}
+  player.mesh.visible=true;
   player.x=c.x+Math.cos(c.h)*4.2;player.z=c.z-Math.sin(c.h)*4.2;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}player.rot=c.h}
 
 // ===== 任务 =====
@@ -963,10 +1007,11 @@ function step(){requestAnimationFrame(step);try{frame()}catch(e){console.error(e
 function frame(){const tm=player.car?'drive':'foot',te=document.getElementById('touch');if(te.dataset.mode!==tm){te.dataset.mode=tm;for(const k in tb_)tb_[k]=false;te.querySelectorAll('.on').forEach(e=>e.classList.remove('on'));stick.x=stick.y=0;document.getElementById('knob').style.transform=''}
 const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running||mapOpen){ren.render(scene,cam);return}
   const{ x:ax,y:ay}=axis();
-  if(act.enter){act.enter=0;player.car?exitCar(false):enterCar()}
+  if(act.enter){act.enter=0;if(!boarding)player.car?exitCar(false):enterCar()}
   if(act.fire){act.fire=0;if(!player.car)fire()}
   if(player.car){act.jump=act.punch=0;player.aiming=false}
-  if(player.car){const c=player.car;carPhysics(c,ay,-ax,brakeHeld(),dt);player.x=c.x;player.z=c.z;player.rot=c.h;
+  if(boarding)updBoard(dt);
+  else if(player.car){const c=player.car;carPhysics(c,ay,-ax,brakeHeld(),dt);player.x=c.x;player.z=c.z;player.rot=c.h;
     if(c.hp<40&&R()<.3){const sm=box(.8,.8,.8,new THREE.MeshBasicMaterial({color:0x444444,transparent:true,opacity:.6}));sm.position.set(c.x,2.5,c.z);scene.add(sm);fxs.push({m:sm,t:0,smoke:1})}}
   else{const mag=Math.min(1,Math.hypot(ax,ay)),moving=mag>.15;
     const run=keys.ShiftLeft||keys.ShiftRight||tb_.Run;
@@ -985,7 +1030,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
     if(player.y>.05)st='jump';else if(player.punchT>0){st='punch';ex=(.42-player.punchT)/.42}else if(aiming||player.aimT>0){st='aim';pk=aiming?(Math.abs(ay)>.15?1:0):(moving?1:0)}
     else if(moving){st=run?'run':'walk';pk=1}
     player.t+=dt;player.mesh.position.set(player.x,player.y,player.z);player.mesh.rotation.y=player.rot;pose(player.mesh,st,player.t,pk,ex)}
-  for(const c of[...cars]){if(c.dead||c===player.car)continue;if(c.police)driveCop(c,dt);else if(c.driver==='ai')driveAI(c,dt);else{c.speed*=1-2*dt;if(Math.abs(c.speed)>.3)carPhysics(c,0,0,true,dt)}}
+  for(const c of[...cars]){if(c.dead||c===player.car)continue;if(c.hold){c.speed=0;continue}if(c.police)driveCop(c,dt);else if(c.driver==='ai')driveAI(c,dt);else{c.speed*=1-2*dt;if(Math.abs(c.speed)>.3)carPhysics(c,0,0,true,dt)}}
   for(const p of[...peds])updPed(p,dt);
   // 远处回收 + 补充
   for(const c of[...cars])if(c.driver==='ai'&&!c.parked&&Math.hypot(c.x-player.x,c.z-player.z)>220)removeCar(c);
