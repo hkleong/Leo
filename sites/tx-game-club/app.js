@@ -111,6 +111,12 @@ async function firebaseApi(cfg) {
       await U.signInWithEmailAndPassword(auth, usernameToEmail(username), password);
     },
     logout: () => U.signOut(auth),
+    async changePassword(current, next) {
+      const u = auth.currentUser;
+      if (!u) throw Object.assign(new Error('no user'), { code: 'auth/no-current-user' });
+      await U.reauthenticateWithCredential(u, U.EmailAuthProvider.credential(u.email, current));
+      await U.updatePassword(u, next);
+    },
     isAdmin: async uid => (await F.getDoc(F.doc(db, 'admins', uid))).exists(),
     getUser: async uid => { const s = await F.getDoc(F.doc(db, 'users', uid)); return s.exists() ? s.data() : null; },
     async saveProfile(uid, data, isNew) {
@@ -569,6 +575,24 @@ $('meForm').addEventListener('submit', async e => {
   if (ok) { profile = Object.assign({}, profile || {}, { username, phone, gameId }); pub[me.uid] = { username }; $('mMsg').textContent = ''; render(); }
 });
 $('meCopyUid').onclick = () => copy(me.uid, '编号已复制');
+const WEAK = new Set(['000000', '111111', '123456', '654321', '123123', '888888', '666666', 'password', 'qwerty', '12345678', '00000000']);
+$('pwForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (busy) return;
+  const cur = $('pCur').value, n1 = $('pNew').value, n2 = $('pNew2').value, msg = t => { $('pMsg').textContent = t; };
+  if (!cur) return msg('请输入当前密码。');
+  if (n1.length < 6) return msg('新密码至少要 6 位。');
+  if (WEAK.has(n1.toLowerCase())) return msg('这个密码太容易被猜到了，换一个吧。');
+  if (n1 === cur) return msg('新密码不能和当前密码一样。');
+  if (n1 !== n2) return msg('两次输入的新密码不一样。');
+  busy = true; $('pBtn').disabled = true; msg('修改中…');
+  try {
+    await api.changePassword(cur, n1);
+    $('pCur').value = $('pNew').value = $('pNew2').value = ''; msg(''); toast('密码已修改，下次请用新密码登入');
+  } catch (er) {
+    const c = (er && er.code) || '';
+    msg(c.includes('wrong-password') || c.includes('invalid-credential') || c.includes('invalid-login') ? '当前密码不对。' : errText(er));
+  } finally { busy = false; $('pBtn').disabled = false; }
+});
 $('logout').onclick = () => write(() => api.logout(), '已退出登入');
 
 /* ---------- members (admin) ---------- */

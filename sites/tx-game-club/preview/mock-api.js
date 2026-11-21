@@ -64,6 +64,13 @@
       setSession({ uid: a.uid, email: mailOf(username.trim().toLowerCase()) }, remember);
     },
     async logout() { setSession(null, false); },
+    async changePassword(current, next) {
+      const d = load(); await delay();
+      const acc = session && Object.values(d.accounts).find(x => x.uid === session.uid);
+      if (!acc) throw err('auth/no-current-user');
+      if (acc.pw !== current) throw err('auth/invalid-credential');
+      acc.pw = next; save();
+    },
     isAdmin: async uid => load().admins.includes(uid),
     getUser: async uid => { if (!session || (uid !== session.uid && !admin())) throw err('permission-denied'); const u = load().users[uid]; return u ? clone(u) : null; },
     async saveProfile(uid, data, isNew) {

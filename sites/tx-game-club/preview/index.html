@@ -439,6 +439,16 @@ label.f input[readonly]{opacity:.65}
       <label class="f">游戏 ID<input id="mGame" maxlength="40" required></label>
       <div class="actions"><button class="btn" type="submit">保存资料</button><span class="note warn" id="mMsg" role="alert"></span></div>
     </form>
+    <form id="pwForm" class="panel" style="margin-top:16px" novalidate>
+      <h2>修改密码</h2>
+      <label class="f">当前密码<input id="pCur" type="password" autocomplete="current-password" required></label>
+      <div class="grid2">
+        <label class="f">新密码<input id="pNew" type="password" autocomplete="new-password" placeholder="至少 6 位" required></label>
+        <label class="f">确认新密码<input id="pNew2" type="password" autocomplete="new-password" required></label>
+      </div>
+      <p class="note">建议用 8 位以上、字母和数字混合的密码，不要用 000000、123456 这类容易猜的。</p>
+      <div class="actions"><button class="btn" type="submit" id="pBtn">修改密码</button><span class="note warn" id="pMsg" role="alert"></span></div>
+    </form>
     <div class="panel" style="margin-top:16px">
       <dl class="kv">
         <dt>身份</dt><dd id="meRole"></dd>
@@ -620,6 +630,13 @@ document.getElementById('pvMin').onclick = e => { const p = document.getElementB
       setSession({ uid: a.uid, email: mailOf(username.trim().toLowerCase()) }, remember);
     },
     async logout() { setSession(null, false); },
+    async changePassword(current, next) {
+      const d = load(); await delay();
+      const acc = session && Object.values(d.accounts).find(x => x.uid === session.uid);
+      if (!acc) throw err('auth/no-current-user');
+      if (acc.pw !== current) throw err('auth/invalid-credential');
+      acc.pw = next; save();
+    },
     isAdmin: async uid => load().admins.includes(uid),
     getUser: async uid => { if (!session || (uid !== session.uid && !admin())) throw err('permission-denied'); const u = load().users[uid]; return u ? clone(u) : null; },
     async saveProfile(uid, data, isNew) {
@@ -753,6 +770,12 @@ async function firebaseApi(cfg) {
       await U.signInWithEmailAndPassword(auth, usernameToEmail(username), password);
     },
     logout: () => U.signOut(auth),
+    async changePassword(current, next) {
+      const u = auth.currentUser;
+      if (!u) throw Object.assign(new Error('no user'), { code: 'auth/no-current-user' });
+      await U.reauthenticateWithCredential(u, U.EmailAuthProvider.credential(u.email, current));
+      await U.updatePassword(u, next);
+    },
     isAdmin: async uid => (await F.getDoc(F.doc(db, 'admins', uid))).exists(),
     getUser: async uid => { const s = await F.getDoc(F.doc(db, 'users', uid)); return s.exists() ? s.data() : null; },
     async saveProfile(uid, data, isNew) {
@@ -1211,6 +1234,24 @@ $('meForm').addEventListener('submit', async e => {
   if (ok) { profile = Object.assign({}, profile || {}, { username, phone, gameId }); pub[me.uid] = { username }; $('mMsg').textContent = ''; render(); }
 });
 $('meCopyUid').onclick = () => copy(me.uid, '编号已复制');
+const WEAK = new Set(['000000', '111111', '123456', '654321', '123123', '888888', '666666', 'password', 'qwerty', '12345678', '00000000']);
+$('pwForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (busy) return;
+  const cur = $('pCur').value, n1 = $('pNew').value, n2 = $('pNew2').value, msg = t => { $('pMsg').textContent = t; };
+  if (!cur) return msg('请输入当前密码。');
+  if (n1.length < 6) return msg('新密码至少要 6 位。');
+  if (WEAK.has(n1.toLowerCase())) return msg('这个密码太容易被猜到了，换一个吧。');
+  if (n1 === cur) return msg('新密码不能和当前密码一样。');
+  if (n1 !== n2) return msg('两次输入的新密码不一样。');
+  busy = true; $('pBtn').disabled = true; msg('修改中…');
+  try {
+    await api.changePassword(cur, n1);
+    $('pCur').value = $('pNew').value = $('pNew2').value = ''; msg(''); toast('密码已修改，下次请用新密码登入');
+  } catch (er) {
+    const c = (er && er.code) || '';
+    msg(c.includes('wrong-password') || c.includes('invalid-credential') || c.includes('invalid-login') ? '当前密码不对。' : errText(er));
+  } finally { busy = false; $('pBtn').disabled = false; }
+});
 $('logout').onclick = () => write(() => api.logout(), '已退出登入');
 
 /* ---------- members (admin) ---------- */
