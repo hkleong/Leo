@@ -15,6 +15,7 @@
         "firebase.json",
         ".firebaserc",
         "firestore.rules",
+        "firestore-approval.rules",
         "README.md",
         "preview/**",
         "**/.*"
@@ -38,6 +39,7 @@
         "firebase.json",
         ".firebaserc",
         "firestore.rules",
+        "firestore-approval.rules",
         "README.md",
         "preview/**",
         "**/.*"
