@@ -17,7 +17,7 @@ canvas{display:block}
 #mission{background:var(--ui);padding:6px 10px;border-left:4px solid var(--hot);border-radius:4px;max-width:200px;font-size:13px}
 #mission b{font-family:var(--disp);font-size:12px;color:var(--hot);letter-spacing:.06em;display:block}
 #speed{font-family:var(--disp);font-size:20px;color:var(--sea);text-shadow:0 2px 0 #000}
-#mini{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));width:104px;height:104px;border-radius:50%;border:3px solid #000;background:#123;box-shadow:0 0 0 2px var(--hot)}
+#mini{pointer-events:auto;cursor:pointer;position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));width:104px;height:104px;border-radius:50%;border:3px solid #000;background:#123;box-shadow:0 0 0 2px var(--hot)}
 #toast{position:absolute;top:30%;left:50%;transform:translateX(-50%);font-family:var(--disp);font-size:clamp(22px,5vw,42px);color:var(--sun);text-shadow:0 3px 0 #000,0 0 20px var(--hot);opacity:0;transition:opacity .4s;text-align:center;white-space:nowrap}
 #hint{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ui);padding:6px 12px;border-radius:4px;font-size:13px;opacity:0;transition:opacity .2s}
 #title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow-y:auto;background:linear-gradient(180deg,rgba(20,8,40,.55),rgba(20,8,40,.25) 40%,rgba(20,8,40,.8)),url(art/title.jpg) center/cover,#2a0b3d;z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));text-align:center}
@@ -38,6 +38,14 @@ canvas{display:block}
 #touch .tb.on{background:rgba(255,61,139,.65)}
 #touch .big{width:84px;height:84px;font-size:26px}
 #touch[data-mode="foot"] .drive,#touch[data-mode="drive"] .foot{display:none}
+.bm-top{display:flex;justify-content:space-between;align-items:center;width:min(92vw,92vh);font-family:var(--disp);color:var(--sun);font-size:18px}
+#bigmap{position:fixed;inset:0;z-index:6;background:rgba(10,8,24,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#bigmap[hidden]{display:none}
+#bmc{width:min(92vw,80vh);height:min(92vw,80vh);border-radius:12px;border:3px solid #000;box-shadow:0 0 0 2px var(--hot)}
+#bmClose{font-family:var(--disp);font-size:14px;padding:8px 16px;border:0;border-radius:6px;background:var(--hot);color:#fff;cursor:pointer}
+#bmClose:focus-visible,#mini:focus-visible{outline:3px solid #fff}
+.bm-legend{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;font-size:13px;color:#fff}
+.bm-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;border:1px solid #000;vertical-align:-1px}
 @media (prefers-reduced-motion:reduce){#toast,#hint{transition:none}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;600&display=swap">
@@ -54,9 +62,11 @@ canvas{display:block}
 <div id="hud">
   <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div></div>
   <div class="tr"><div id="stars"></div><div id="speed"></div></div>
-  <canvas id="mini" width="300" height="300"></canvas>
+  <canvas id="mini" width="300" height="300" role="button" aria-label="打开完整地图" tabindex="0"></canvas>
   <div id="toast"></div><div id="hint"></div>
 </div>
+<div id="bigmap" hidden><div class="bm-top"><b>霓虹湾地图</b><button id="bmClose" aria-label="关闭地图">关闭</button></div><canvas id="bmc"></canvas>
+  <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#ffe14d"></i>任务</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
 <div id="touch" data-mode="foot">
   <div id="stick" class="foot"><div id="knob"></div></div>
   <div class="tb foot" id="bRun" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">奔跑</div>
@@ -655,7 +665,7 @@ function carPhysics(c,thr,steer,brake,dt){
   // 车与车碰撞
   for(const o of cars)if(o!==c&&!o.dead){const dx=o.x-c.x,dz=o.z-c.z,d=Math.hypot(dx,dz);
     if(d<3.6&&d>0){const p=(3.6-d)/2;c.x-=dx/d*p;c.z-=dz/d*p;o.x+=dx/d*p;o.z+=dz/d*p;
-      if(Math.abs(c.speed)>10){const ms=(SPECS[c.kind]||SPECS.sedan).mass/((SPECS[o.kind]||SPECS.sedan).mass);o.speed=c.speed*.5*ms;c.speed*=Math.min(.9,.4*ms);if(c===player.car&&!o.police)addHeat(.3);if(c===player.car)beep(90,.15,'sawtooth',.1)}}}
+      if(Math.abs(c.speed)>10){const ms=(SPECS[c.kind]||SPECS.sedan).mass/((SPECS[o.kind]||SPECS.sedan).mass);o.speed=c.speed*.5*ms;c.speed*=Math.min(.9,.4*ms);if(c===player.car)beep(90,.15,'sawtooth',.1)}}}
   c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;for(const w of c.mesh.userData.wheels)w.rotation.x+=c.speed*dt/.55;
   if(c.hp<=0)explode(c)}
 
@@ -773,7 +783,7 @@ function explode(c){if(c.dead)return;c.dead=true;c.speed=0;c.mesh.traverse(o=>{i
   const f=new THREE.Mesh(new THREE.SphereGeometry(4,10,8),new THREE.MeshBasicMaterial({color:0xff8a2f,transparent:true,opacity:.9}));
   f.position.set(c.x,2,c.z);scene.add(f);fxs.push({m:f,t:0});beep(50,.8,'sawtooth',.2);
   if(c===player.car){exitCar(true);player.hp-=50}
-  else{if(Math.hypot(c.x-player.x,c.z-player.z)<7)player.hp-=30;if(c.police)addHeat(1.2);else addHeat(.6)}
+  else{if(Math.hypot(c.x-player.x,c.z-player.z)<7)player.hp-=30}
   for(const p of peds)if(!p.dead&&Math.hypot(p.x-c.x,p.z-c.z)<7)killPed(p,false);
   setTimeout(()=>removeCar(c),6000)}
 
@@ -844,6 +854,30 @@ function updMission(dt){const px=player.car?player.car.x:player.x,pz=player.car?
 const $=id=>document.getElementById(id);let toastT=0;
 function toast(t){$('toast').textContent=t;$('toast').style.opacity=1;toastT=2.2}
 const mini=$('mini').getContext('2d');
+// —— 完整地图：点小地图打开，游戏暂停；点关闭、点空白处或按 Esc/Tab 关闭
+let mapOpen=false;
+function openMap(v){mapOpen=v;$('bigmap').hidden=!v;if(v)drawBigMap();else last=performance.now()}
+$('mini').addEventListener('click',()=>openMap(true));$('mini').addEventListener('touchend',e=>{e.preventDefault();openMap(true)});
+$('mini').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')openMap(true)});
+$('bmClose').addEventListener('click',()=>openMap(false));$('bigmap').addEventListener('click',e=>{if(e.target.id==='bigmap')openMap(false)});
+addEventListener('keydown',e=>{if(e.code==='Tab'&&running){e.preventDefault();openMap(!mapOpen)}else if(e.code==='Escape'&&mapOpen)openMap(false)});
+function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),W=cv.clientWidth*dpr;cv.width=cv.height=W;const g=cv.getContext('2d');
+  const span=HALF*2.8+80,s=W/span;g.setTransform(s,0,0,s,W/2,W/2);
+  g.fillStyle='#1fb5c9';g.fillRect(-span/2,-span/2,span,span);
+  const isl=(m,c)=>{g.fillStyle=c;g.beginPath();for(let k=0;k<=160;k++){const a=k/160*Math.PI*2,r=ISL(a)-m;g.lineTo(Math.cos(a)*r,Math.sin(a)*r)}g.fill()};
+  isl(-6,'#7fd6d0');isl(0,'#f2d59b');isl(26,'#79c27c');
+  g.fillStyle='#55505f';for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){if(!nodeOK(i,j))continue;
+    if(nodeOK(i+1,j))g.fillRect(road(i)-RD/2,road(j)-RD/2,P+RD,RD);if(nodeOK(i,j+1))g.fillRect(road(i)-RD/2,road(j)-RD/2,RD,P+RD)}
+  for(const[i,j]of VALID){const x=road(i)+RD/2,z=road(j)+RD/2;g.fillStyle=parkSpots.some(p=>Math.abs(p[0]-x-BLK/2)<1&&Math.abs(p[1]-z-BLK/2)<1)?'#5fb565':'#c9c0d0';g.fillRect(x,z,BLK,BLK)}
+  const label=(x,z,txt,col)=>{g.fillStyle=col;g.strokeStyle='#000';g.lineWidth=3/s*dpr;g.beginPath();g.arc(x,z,12,0,7);g.fill();g.stroke();
+    g.font=`bold ${26}px Rubik,system-ui,sans-serif`;g.textAlign='center';g.lineWidth=6;g.strokeText(txt,x,z-20);g.fillStyle='#fff';g.fillText(txt,x,z-20)};
+  label(villa.x,villa.z,'海边别墅','#fff');label(station.x,station.z,'警察局','#4a7ab0');label(LOT.x,LOT.z,'停车场','#22d3ee');
+  for(const k of cash){g.fillStyle='#5cff7a';g.beginPath();g.arc(k.x,k.z,4,0,7);g.fill()}
+  for(const c of cars)if(c.police&&!c.dead){g.fillStyle='#ff2a3a';g.beginPath();g.arc(c.x,c.z,6,0,7);g.fill()}
+  if(heli){g.fillStyle='#ff2a3a';g.beginPath();g.arc(heli.x,heli.z,9,0,7);g.fill()}
+  if(beamMat.visible)label(mission.x,mission.z,'任务','#'+beamMat.color.getHexString());
+  const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z,h=player.car?player.car.h:player.rot;
+  g.save();g.translate(px,pz);g.rotate(-h+Math.PI);g.fillStyle='#ff3d8b';g.strokeStyle='#000';g.lineWidth=3;g.beginPath();g.moveTo(0,-16);g.lineTo(12,13);g.lineTo(-12,13);g.closePath();g.fill();g.stroke();g.restore()}
 function drawMini(){const s=300/(N*P+120),cx=150,cy=150,px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
   mini.fillStyle='#1fa3c4';mini.fillRect(0,0,300,300);
   mini.save();const z=2.4;mini.translate(cx,cy);mini.scale(z,z);mini.translate(-px*s,-pz*s);
@@ -875,7 +909,7 @@ function respawn(){toast('你倒下了…医院见');player.money=Math.floor(pla
   for(const c of cars.filter(c=>c.police))removeCar(c);if(mission.stage==='run')fail('任务失败')}
 function step(){requestAnimationFrame(step);try{frame()}catch(e){console.error(e)}}
 function frame(){const tm=player.car?'drive':'foot',te=document.getElementById('touch');if(te.dataset.mode!==tm){te.dataset.mode=tm;for(const k in tb_)tb_[k]=false;te.querySelectorAll('.on').forEach(e=>e.classList.remove('on'));stick.x=stick.y=0;document.getElementById('knob').style.transform=''}
-const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running){ren.render(scene,cam);return}
+const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running||mapOpen){ren.render(scene,cam);return}
   const{ x:ax,y:ay}=axis();
   if(act.enter){act.enter=0;player.car?exitCar(false):enterCar()}
   if(act.fire){act.fire=0;if(!player.car)fire()}
