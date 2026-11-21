@@ -1,0 +1,525 @@
+<title>玩家集结令</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;800&family=ZCOOL+QingKe+HuangYou&display=swap">
+<style>
+/* Layout: an event "ticket" (details + countdown stub) on the left, the sign-up desk and roster on the right; one column on phones */
+:root{
+  --bg:#eceff5; --paper:#ffffff; --sunk:#f4f6fa; --ink:#181c2a; --muted:#5b6377; --line:#d8dce7;
+  --accent:#ff5a36; --accent-ink:#ffffff; --accent-soft:#ffe6df;
+  --maybe:#2f5bff; --maybe-soft:#e3e9ff; --good:#1b9466; --good-soft:#dcf3ea; --no:#7a8196; --no-soft:#eceef3;
+  --danger:#c8372d;
+  --f-display:"ZCOOL QingKe HuangYou","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-num:"Saira Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  --f-body:system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --r:18px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10131c; --paper:#191d2a; --sunk:#141824; --ink:#eceef6; --muted:#9ba2b7; --line:#2b3043;
+  --accent:#ff6b4b; --accent-ink:#1a0d09; --accent-soft:#3a1f1a;
+  --maybe:#7b93ff; --maybe-soft:#1f2747; --good:#3cc58f; --good-soft:#173328; --no:#8d93a8; --no-soft:#222636;
+  --danger:#ff7468; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10131c; --paper:#191d2a; --sunk:#141824; --ink:#eceef6; --muted:#9ba2b7; --line:#2b3043;
+  --accent:#ff6b4b; --accent-ink:#1a0d09; --accent-soft:#3a1f1a;
+  --maybe:#7b93ff; --maybe-soft:#1f2747; --good:#3cc58f; --good-soft:#173328; --no:#8d93a8; --no-soft:#222636;
+  --danger:#ff7468; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+/* ticket */
+.ticket{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 190px;background:var(--paper);border-radius:var(--r);
+  box-shadow:0 1px 0 var(--line),0 12px 30px -18px rgba(20,24,40,.35);overflow:hidden}
+@media (max-width:560px){.ticket{grid-template-columns:minmax(0,1fr)}}
+.t-main{padding:26px 26px 24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.t-stub{position:relative;padding:24px 20px;background:var(--accent);color:var(--accent-ink);display:flex;flex-direction:column;gap:14px;justify-content:space-between}
+.t-stub::before{content:"";position:absolute;left:-1px;top:14px;bottom:14px;border-left:2px dashed color-mix(in srgb,var(--accent-ink) 45%,transparent)}
+.ticket::before,.ticket::after{content:"";position:absolute;right:190px;width:22px;height:22px;border-radius:50%;background:var(--bg);transform:translateX(50%)}
+.ticket::before{top:-11px}.ticket::after{bottom:-11px}
+@media (max-width:560px){
+  .t-stub::before{left:14px;right:14px;top:-1px;bottom:auto;border-left:none;border-top:2px dashed color-mix(in srgb,var(--accent-ink) 45%,transparent)}
+  .ticket::before,.ticket::after{display:none}
+}
+.pill{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.14em;padding:4px 10px 4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.closed{background:var(--no-soft);color:var(--no)}
+.pill.live{background:var(--good-soft);color:var(--good)}
+h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(34px,6vw,54px);line-height:1.08;letter-spacing:.02em;text-wrap:balance;overflow-wrap:anywhere}
+.meta{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;margin:0}
+.meta dt{font-size:12px;letter-spacing:.14em;color:var(--muted);padding-top:2px;white-space:nowrap}
+.meta dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.meta dd small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.linkrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.linkrow a{color:var(--accent);word-break:break-all}
+.mini{border:1px solid var(--line);background:var(--sunk);border-radius:8px;padding:2px 8px;font-size:12px}
+.stub-label{font-size:12px;letter-spacing:.2em;opacity:.85}
+.count{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center}
+.count b{display:block;font-family:var(--f-num);font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.count span{font-size:11px;opacity:.85}
+.stub-big{font-family:var(--f-display);font-size:26px;line-height:1.2}
+.seats b{font-family:var(--f-num);font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+.seats{font-size:13px}
+.bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--accent-ink) 25%,transparent);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent-ink)}
+.ics{border:1.5px solid color-mix(in srgb,var(--accent-ink) 60%,transparent);background:transparent;color:var(--accent-ink);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700}
+
+/* panels */
+.panel{background:var(--paper);border-radius:var(--r);padding:22px;box-shadow:0 1px 0 var(--line);display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel h2{margin:0;font-size:18px;display:flex;align-items:baseline;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.panel h2 .sub{font-size:13px;font-weight:400;color:var(--muted)}
+.desc{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:var(--ink)}
+.note{font-size:13.5px;color:var(--muted);margin:0}
+.note.warn{color:var(--danger)}
+
+/* rsvp */
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg button{border:1.5px solid var(--line);background:var(--sunk);border-radius:12px;padding:10px 6px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px}
+.seg button small{font-weight:400;font-size:11.5px;color:var(--muted)}
+.seg button[aria-pressed="true"][data-v="yes"]{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.seg button[aria-pressed="true"][data-v="maybe"]{border-color:var(--maybe);background:var(--maybe-soft);color:var(--maybe)}
+.seg button[aria-pressed="true"][data-v="no"]{border-color:var(--no);background:var(--no-soft);color:var(--ink)}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted);min-width:0}
+label.f input,label.f textarea{border:1.5px solid var(--line);background:var(--sunk);border-radius:10px;padding:10px 12px;color:var(--ink);font-size:15px;width:100%}
+label.f textarea{resize:vertical;min-height:84px}
+label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:none}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:999px;padding:11px 20px;background:var(--accent);color:var(--accent-ink);font-weight:800;letter-spacing:.06em}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.ghost{border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;background:transparent;font-weight:600}
+.danger{color:var(--danger)}
+.mine{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--sunk)}
+.status{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.status.yes{background:var(--good-soft);color:var(--good)}
+.status.maybe{background:var(--maybe-soft);color:var(--maybe)}
+.status.no{background:var(--no-soft);color:var(--no)}
+
+/* roster */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;font-size:13px}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tabs b{font-family:var(--f-num);font-size:15px;margin-left:4px;font-variant-numeric:tabular-nums}
+.roster{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.roster li{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
+.roster li:first-child{border-top:none}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff;background:var(--maybe)}
+.who{min-width:0}
+.who b{display:block;overflow-wrap:anywhere}
+.who span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.who p{margin:4px 0 0;font-size:13.5px;overflow-wrap:anywhere}
+.side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.empty{padding:18px;border:1.5px dashed var(--line);border-radius:12px;color:var(--muted);text-align:center;font-size:14px}
+.skel{height:14px;border-radius:7px;background:var(--sunk);animation:sk 1.2s ease-in-out infinite alternate}
+@keyframes sk{to{opacity:.4}}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+.owner-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+</style>
+
+<main class="wrap">
+  <div class="col">
+    <article class="ticket" id="ticket" aria-live="polite">
+      <div class="t-main" id="tMain">
+        <span class="pill" id="pill">读取中</span>
+        <div class="skel" style="width:70%;height:40px"></div>
+        <div class="skel" style="width:90%"></div>
+        <div class="skel" style="width:60%"></div>
+      </div>
+      <aside class="t-stub" id="tStub">
+        <div class="stub-label">距离开始</div>
+        <div class="count" aria-label="倒计时"><div><b>--</b><span>天</span></div><div><b>--</b><span>时</span></div><div><b>--</b><span>分</span></div><div><b>--</b><span>秒</span></div></div>
+        <div class="seats"><span class="stub-label">已确认参加</span><br><b>0</b> 人</div>
+      </aside>
+    </article>
+
+    <section class="panel" id="descPanel" hidden>
+      <h2>活动介绍</h2>
+      <p class="desc" id="desc"></p>
+    </section>
+
+    <section class="panel" id="editPanel" hidden>
+      <h2>编辑活动信息 <span class="sub">只有你（主办方）能看到这里</span></h2>
+      <form id="editForm" class="col" style="gap:12px">
+        <label class="f">活动名称<input id="fTitle" maxlength="60" required placeholder="例如：周六晚上 暮色公路 计时赛"></label>
+        <div class="grid2">
+          <label class="f">玩什么游戏<input id="fGame" maxlength="40" placeholder="例如：暮色公路"></label>
+          <label class="f">方式 / 地点<input id="fPlace" maxlength="60" placeholder="例如：线上，语音频道见"></label>
+        </div>
+        <div class="grid2">
+          <label class="f">开始时间<input id="fStart" type="datetime-local" required></label>
+          <label class="f">大约多久（分钟）<input id="fDur" type="number" min="10" max="1440" step="5" value="120"></label>
+        </div>
+        <div class="grid2">
+          <label class="f">报名截止（可不填）<input id="fDeadline" type="datetime-local"></label>
+          <label class="f">人数上限（0 表示不限）<input id="fCap" type="number" min="0" max="999" value="0"></label>
+        </div>
+        <label class="f">链接（可不填，比如游戏或语音房间的链接）<input id="fLink" type="url" maxlength="300" placeholder="https://"></label>
+        <label class="f">活动介绍<textarea id="fDesc" maxlength="2000" placeholder="规则、奖励、需要提前准备什么……"></textarea></label>
+        <div class="actions">
+          <button class="btn" type="submit" id="fSave">保存并公布</button>
+          <button class="ghost" type="button" id="fCancel">取消</button>
+          <span class="note" id="fMsg"></span>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="col">
+    <section class="panel" id="rsvpPanel">
+      <h2>报名 <span class="sub" id="rsvpSub"></span></h2>
+      <div id="rsvpBody"><div class="skel" style="width:80%"></div></div>
+    </section>
+
+    <section class="panel" id="rosterPanel">
+      <h2>谁会来 <span class="owner-bar" id="ownerBar" hidden><button class="mini" type="button" id="copyList">复制名单</button><button class="mini" type="button" id="editBtn">编辑活动</button></span></h2>
+      <div class="tabs" role="tablist" id="tabs">
+        <button role="tab" data-t="yes" aria-selected="true">参加<b id="nYes">0</b></button>
+        <button role="tab" data-t="maybe" aria-selected="false">可能来<b id="nMaybe">0</b></button>
+        <button role="tab" data-t="no" aria-selected="false">来不了<b id="nNo">0</b></button>
+      </div>
+      <ul class="roster" id="roster"></ul>
+      <div class="empty" id="rosterEmpty">正在读取报名名单…</div>
+    </section>
+  </div>
+</main>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const STATUS = { yes: '参加', maybe: '可能来', no: '来不了' };
+const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+
+let db = null, user = null, downloads = null;
+let me = { id: null, isOwner: false };
+let canWrite = null;
+let event = null, eventLoaded = false;
+let rsvps = new Map(), rsvpLoaded = false;
+let profiles = {};
+let tab = 'yes', editing = false, myDraft = null, busy = false, confirmDel = null;
+
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2600); }
+const pad = n => String(n).padStart(2, '0');
+function fmtDate(iso) {
+  const d = new Date(iso); if (isNaN(d)) return '';
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（周${WEEK[d.getDay()]}）${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function tzLabel() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } }
+function toLocalInput(iso) { if (!iso) return ''; const d = new Date(iso); if (isNaN(d)) return ''; return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function counts() { const c = { yes: 0, maybe: 0, no: 0 }; for (const r of rsvps.values()) if (c[r.status] !== undefined) c[r.status]++; return c; }
+function phaseOf(now = Date.now()) {
+  if (!event || !event.startAt) return 'none';
+  const s = Date.parse(event.startAt), e = s + (Number(event.durationMin) || 120) * 60000;
+  if (now >= e) return 'ended';
+  if (now >= s) return 'live';
+  if (event.deadline && now > Date.parse(event.deadline)) return 'closed';
+  return 'open';
+}
+function full() { const cap = Number(event && event.capacity) || 0; return cap > 0 && counts().yes >= cap; }
+
+/* ---------- ticket ---------- */
+function renderTicket() {
+  const main = $('tMain'), stub = $('tStub');
+  main.replaceChildren(); stub.replaceChildren();
+  if (!db && eventLoaded) {
+    main.append(el('span', 'pill closed', '需要登录'), el('h1', null, '玩家集结令'),
+      el('p', 'note', '登录 Claude 后才能查看活动详情和报名。如果你已经登录，请刷新页面再试一次。'));
+    stub.append(el('div', 'stub-big', '登录后可见'));
+    return;
+  }
+  if (!eventLoaded) {
+    main.append(el('span', 'pill', '读取中'));
+    const s1 = el('div', 'skel'); s1.style.cssText = 'width:70%;height:40px'; main.append(s1);
+    const s2 = el('div', 'skel'); s2.style.width = '85%'; main.append(s2);
+    stub.append(el('div', 'stub-label', '距离开始'), el('div', 'stub-big', '…'));
+    if (renderTicket.slow) main.append(el('p', 'note', '暂时连不上活动数据，可能是网络慢。稍后刷新页面再试。'));
+    return;
+  }
+  if (!event) {
+    main.append(el('span', 'pill closed', '筹备中'), el('h1', null, '活动即将公布'),
+      el('p', 'note', me.isOwner ? '你还没填写活动信息。在下方「编辑活动信息」里填好后点「保存并公布」，大家就能看到并报名了。' : '主办方还在准备活动信息，稍后再来看看。'));
+    stub.append(el('div', 'stub-label', '距离开始'), el('div', 'stub-big', '时间待定'));
+    return;
+  }
+  const ph = phaseOf();
+  const pill = el('span', 'pill', { open: '报名中', closed: '报名已截止', live: '进行中', ended: '已结束' }[ph]);
+  if (ph === 'closed' || ph === 'ended') pill.classList.add('closed'); if (ph === 'live') pill.classList.add('live');
+  main.append(pill, el('h1', null, event.title || '未命名活动'));
+  const dl = el('dl', 'meta');
+  const add = (k, v, small) => { const dt = el('dt', null, k), dd = el('dd', null, v); if (small) dd.append(el('small', null, small)); dl.append(dt, dd); return dd; };
+  const end = new Date(Date.parse(event.startAt) + (Number(event.durationMin) || 120) * 60000);
+  add('时间', fmtDate(event.startAt), `约 ${Number(event.durationMin) || 120} 分钟，到 ${pad(end.getHours())}:${pad(end.getMinutes())} 结束 · 按你的时区 ${tzLabel()} 显示`);
+  if (event.game) add('游戏', event.game);
+  if (event.place) add('方式', event.place);
+  if (event.link) {
+    const dd = add('链接', '');
+    const row = el('div', 'linkrow');
+    const a = el('a', null, event.link); a.href = /^https?:\/\//i.test(event.link) ? event.link : 'https://' + event.link; a.target = '_blank'; a.rel = 'noopener';
+    const cp = el('button', 'mini', '复制'); cp.type = 'button';
+    cp.onclick = () => copy(event.link, '链接已复制');
+    row.append(a, cp); dd.append(row);
+  }
+  if (event.deadline) add('报名截止', fmtDate(event.deadline));
+  const cap = Number(event.capacity) || 0;
+  add('名额', cap > 0 ? `${cap} 人` : '不限');
+  main.append(dl);
+
+  const c = counts();
+  if (ph === 'open' || ph === 'closed') {
+    stub.append(el('div', 'stub-label', '距离开始'));
+    const cd = el('div', 'count'); cd.id = 'cd'; cd.setAttribute('aria-label', '倒计时');
+    ['天', '时', '分', '秒'].forEach(u => { const d = el('div'); d.append(el('b', null, '--'), el('span', null, u)); cd.append(d); });
+    stub.append(cd);
+  } else stub.append(el('div', 'stub-big', ph === 'live' ? '正在进行！' : '活动已结束'));
+  const seats = el('div', 'seats');
+  seats.append(el('span', 'stub-label', '已确认参加'), el('br'), el('b', null, String(c.yes)), document.createTextNode(cap > 0 ? ` / ${cap} 人` : ' 人'));
+  if (cap > 0) { const bar = el('div', 'bar'), i = el('i'); i.style.width = Math.min(100, c.yes / cap * 100) + '%'; bar.append(i); seats.append(bar); }
+  stub.append(seats);
+  if (ph === 'open' || ph === 'closed') {
+    const ics = el('button', 'ics', '加入我的日历'); ics.type = 'button'; ics.onclick = saveIcs;
+    if (!downloads) ics.hidden = true;
+    stub.append(ics);
+  }
+  tick();
+}
+function tick() {
+  const cd = $('cd'); if (!cd || !event) return;
+  let ms = Math.max(0, Date.parse(event.startAt) - Date.now());
+  const d = Math.floor(ms / 864e5); ms -= d * 864e5;
+  const h = Math.floor(ms / 36e5); ms -= h * 36e5;
+  const m = Math.floor(ms / 6e4); ms -= m * 6e4;
+  const s = Math.floor(ms / 1e3);
+  const b = cd.querySelectorAll('b');
+  [d, h, m, s].forEach((v, i) => { const t = pad(v); if (b[i].textContent !== t) b[i].textContent = t; });
+}
+let lastPhase = null;
+setInterval(() => { tick(); const p = phaseOf(); if (p !== lastPhase) { lastPhase = p; if (eventLoaded) { renderTicket(); renderRsvp(); } } }, 1000);
+
+function renderDesc() {
+  const show = !!(event && event.description);
+  $('descPanel').hidden = !show; if (show) $('desc').textContent = event.description;
+  document.title = event && event.title ? event.title + ' · 玩家集结令' : '玩家集结令';
+}
+
+/* ---------- editor (owner) ---------- */
+function openEditor() {
+  editing = true; $('editPanel').hidden = false;
+  const e = event || {};
+  $('fTitle').value = e.title || ''; $('fGame').value = e.game || ''; $('fPlace').value = e.place || '';
+  $('fStart').value = toLocalInput(e.startAt); $('fDur').value = e.durationMin || 120;
+  $('fDeadline').value = toLocalInput(e.deadline); $('fCap').value = e.capacity || 0;
+  $('fLink').value = e.link || ''; $('fDesc').value = e.description || ''; $('fMsg').textContent = '';
+  $('fCancel').hidden = !event;
+}
+$('fCancel').onclick = () => { editing = false; $('editPanel').hidden = true; };
+$('editBtn').onclick = () => { openEditor(); $('editPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+$('editForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  if (!db || busy) return;
+  const start = new Date($('fStart').value), dl = $('fDeadline').value ? new Date($('fDeadline').value) : null;
+  if (isNaN(start)) { $('fMsg').textContent = '请填写开始时间。'; return; }
+  if (dl && dl > start) { $('fMsg').textContent = '报名截止时间要早于开始时间。'; return; }
+  const body = {
+    title: $('fTitle').value.trim(), game: $('fGame').value.trim(), place: $('fPlace').value.trim(),
+    startAt: start.toISOString(), durationMin: clampNum($('fDur').value, 10, 1440, 120),
+    deadline: dl ? dl.toISOString() : '', capacity: clampNum($('fCap').value, 0, 999, 0),
+    link: $('fLink').value.trim(), description: $('fDesc').value.trim(), hostTimeZone: tzLabel(), updatedAt: new Date().toISOString()
+  };
+  busy = true; $('fSave').disabled = true; $('fMsg').textContent = '保存中…';
+  try { await db.doc('event/info').set(body); editing = false; $('editPanel').hidden = true; $('fMsg').textContent = ''; toast('活动信息已公布'); }
+  catch (e) { $('fMsg').textContent = e && e.code === 'quota_exceeded' ? '存储空间已满，保存失败。' : '保存失败，请稍后再试。'; }
+  finally { busy = false; $('fSave').disabled = false; }
+});
+const clampNum = (v, a, b, d) => { const n = Math.round(Number(v)); return isFinite(n) ? Math.max(a, Math.min(b, n)) : d; };
+
+/* ---------- rsvp ---------- */
+function renderRsvp() {
+  const body = $('rsvpBody'); body.replaceChildren(); $('rsvpSub').textContent = '';
+  if (!db) { body.append(el('p', 'note', '登录 Claude 后才能报名。')); return; }
+  if (!eventLoaded || !rsvpLoaded) { const s = el('div', 'skel'); s.style.width = '80%'; body.append(s); return; }
+  if (!event) { body.append(el('p', 'note', '活动信息公布后就可以报名了。')); return; }
+  const ph = phaseOf();
+  const mine = me.id ? rsvps.get(me.id) : null;
+  if (ph === 'ended') { body.append(el('p', 'note', mine ? `活动已结束。你当时的回复是「${STATUS[mine.status]}」。` : '活动已结束，报名已关闭。')); return; }
+  if (canWrite === false) {
+    body.append(el('p', 'note', '你现在只有查看权限，暂时不能报名。请让主办方把你加为这个页面的可编辑成员，然后刷新页面。'));
+    return;
+  }
+  if (!me.id) { body.append(el('p', 'note', '读取不到你的账号信息，暂时不能报名。请刷新页面再试。')); return; }
+  const locked = (ph === 'closed' || ph === 'live') && !me.isOwner;
+  if (mine && !myDraft) {
+    const box = el('div', 'mine');
+    box.append(el('span', 'status ' + mine.status, STATUS[mine.status]));
+    const t = el('div', 'who'); t.style.flex = '1';
+    t.append(el('b', null, mine.status === 'yes' ? '你已报名，到时见！' : mine.status === 'maybe' ? '你标记了可能来' : '你说这次来不了'));
+    if (mine.nickname) t.append(el('span', null, '游戏昵称：' + mine.nickname));
+    box.append(t); body.append(box);
+    if (!locked) {
+      const act = el('div', 'actions'); act.style.marginTop = '12px';
+      const ch = el('button', 'ghost', '修改回复'); ch.type = 'button'; ch.onclick = () => { myDraft = { status: mine.status, nickname: mine.nickname || '', note: mine.note || '' }; renderRsvp(); };
+      const del = el('button', 'ghost danger', confirmDel === 'me' ? '确定撤回？' : '撤回报名'); del.type = 'button';
+      del.onclick = async () => {
+        if (confirmDel !== 'me') { confirmDel = 'me'; renderRsvp(); return; }
+        confirmDel = null; await write(() => db.doc('rsvps/' + me.id).delete(), '已撤回报名');
+      };
+      act.append(ch, del); body.append(act);
+    } else body.append(el('p', 'note', ph === 'live' ? '活动进行中，回复已锁定。' : '报名已截止，回复已锁定。'));
+    return;
+  }
+  if (locked) { body.append(el('p', 'note', ph === 'live' ? '活动已经开始，报名已关闭。' : '报名已截止。')); return; }
+  const d = myDraft || (myDraft = { status: '', nickname: '', note: '' });
+  const isFull = full() && !(mine && mine.status === 'yes');
+  if (isFull) $('rsvpSub').textContent = '「参加」名额已满';
+  const seg = el('div', 'seg'); seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', '你会来吗');
+  [['yes', '参加', '我会来'], ['maybe', '可能来', '还不确定'], ['no', '来不了', '这次算了']].forEach(([v, a, b]) => {
+    const btn = el('button'); btn.type = 'button'; btn.dataset.v = v; btn.setAttribute('aria-pressed', d.status === v ? 'true' : 'false');
+    btn.append(document.createTextNode(a), el('small', null, v === 'yes' && isFull ? '名额已满' : b));
+    btn.disabled = v === 'yes' && isFull;
+    btn.onclick = () => { d.status = v; seg.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === btn ? 'true' : 'false')); submit.disabled = false; };
+    seg.append(btn);
+  });
+  const nick = el('label', 'f', '游戏昵称（方便大家在游戏里找到你）'); const ni = el('input'); ni.id = 'rNick'; ni.maxLength = 30; ni.value = d.nickname; ni.placeholder = '例如：夜行者_07'; ni.oninput = () => d.nickname = ni.value; nick.append(ni);
+  const note = el('label', 'f', '想说的话（可不填）'); const nt = el('input'); nt.id = 'rNote'; nt.maxLength = 120; nt.value = d.note; nt.placeholder = '例如：可能晚到十分钟'; nt.oninput = () => d.note = nt.value; note.append(nt);
+  const act = el('div', 'actions');
+  const submit = el('button', 'btn', mine ? '更新回复' : '提交报名'); submit.type = 'button'; submit.disabled = !d.status;
+  submit.onclick = async () => {
+    if (!d.status) return;
+    const bodyDoc = { status: d.status, nickname: d.nickname.trim().slice(0, 30), note: d.note.trim().slice(0, 120), updatedAt: new Date().toISOString() };
+    const ok = await write(() => db.doc('rsvps/' + me.id).set(bodyDoc), d.status === 'yes' ? '报名成功，到时见！' : '已记下你的回复');
+    if (ok) myDraft = null;
+    renderRsvp();
+  };
+  act.append(submit);
+  if (mine) { const cancel = el('button', 'ghost', '取消'); cancel.type = 'button'; cancel.onclick = () => { myDraft = null; renderRsvp(); }; act.append(cancel); }
+  body.append(seg, el('div', null), nick, note, act);
+  body.style.display = 'flex'; body.style.flexDirection = 'column'; body.style.gap = '12px';
+}
+async function write(fn, okMsg) {
+  if (busy) return false; busy = true;
+  try { await fn(); toast(okMsg); return true; }
+  catch (e) {
+    if (e && e.code === 'invalid_argument') { canWrite = false; renderRsvp(); toast('你没有报名权限，请联系主办方。'); }
+    else if (e && e.code === 'quota_exceeded') toast('存储空间已满，提交失败。');
+    else toast('提交失败，请稍后再试。');
+    return false;
+  } finally { busy = false; }
+}
+
+/* ---------- roster ---------- */
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.t; document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', x === b ? 'true' : 'false')); renderRoster(); });
+const COLORS = ['#ff5a36', '#2f5bff', '#1b9466', '#a14fd6', '#d98a00', '#0f8fb0', '#d43f7a'];
+function colorFor(id) { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; }
+async function renderRoster() {
+  const c = counts();
+  $('nYes').textContent = c.yes; $('nMaybe').textContent = c.maybe; $('nNo').textContent = c.no;
+  const list = $('roster'), empty = $('rosterEmpty');
+  if (!db) { list.replaceChildren(); empty.hidden = false; empty.textContent = '登录后可以看到报名名单。'; return; }
+  if (!rsvpLoaded) { empty.hidden = false; empty.textContent = renderRoster.slow ? '暂时连不上报名数据，稍后刷新页面再试。' : '正在读取报名名单…'; return; }
+  const rows = [...rsvps.entries()].filter(([, r]) => r.status === tab).sort((a, b) => String(a[1].updatedAt).localeCompare(String(b[1].updatedAt)));
+  if (user && rows.length) { try { profiles = Object.assign(profiles, await user.profiles(rows.map(r => r[0]))); } catch (e) { } }
+  list.replaceChildren();
+  empty.hidden = rows.length > 0;
+  empty.textContent = tab === 'yes' ? '还没有人报名参加，来当第一个吧。' : tab === 'maybe' ? '还没有人标记「可能来」。' : '还没有人说来不了。';
+  for (const [id, r] of rows) {
+    const p = profiles[id] || {};
+    const name = p.name || r.nickname || '某位玩家';
+    const li = el('li');
+    const av = el('div', 'av', name.trim().slice(0, 1).toUpperCase()); av.style.background = p.color || colorFor(id);
+    const who = el('div', 'who'); who.append(el('b', null, id === me.id ? name + '（你）' : name));
+    if (r.nickname) who.append(el('span', null, '游戏昵称：' + r.nickname));
+    if (r.note) who.append(el('p', null, r.note));
+    const side = el('div', 'side');
+    const d = new Date(r.updatedAt); if (!isNaN(d)) side.append(el('span', 'note', `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`));
+    if (me.isOwner && id !== me.id) {
+      const rm = el('button', 'mini danger', confirmDel === id ? '确认移除' : '移除'); rm.type = 'button';
+      rm.onclick = async () => {
+        if (confirmDel !== id) { confirmDel = id; renderRoster(); return; }
+        confirmDel = null; await write(() => db.doc('rsvps/' + id).delete(), '已移除');
+      };
+      side.append(rm);
+    }
+    li.append(av, who, side); list.append(li);
+  }
+}
+$('copyList').onclick = async () => {
+  const ids = [...rsvps.keys()];
+  if (user && ids.length) { try { profiles = Object.assign(profiles, await user.profiles(ids)); } catch (e) { } }
+  const lines = [`${event && event.title || '活动'} 报名名单`, event ? fmtDate(event.startAt) : '', ''];
+  for (const st of ['yes', 'maybe', 'no']) {
+    const rs = [...rsvps.entries()].filter(([, r]) => r.status === st);
+    lines.push(`【${STATUS[st]}】${rs.length} 人`);
+    rs.forEach(([id, r], i) => lines.push(`${i + 1}. ${(profiles[id] && profiles[id].name) || r.nickname || '某位玩家'}${r.nickname ? '（' + r.nickname + '）' : ''}${r.note ? ' — ' + r.note : ''}`));
+    lines.push('');
+  }
+  copy(lines.join('\n').trim(), '名单已复制');
+};
+function copy(text, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => toast(msg), () => fallbackCopy(text, msg));
+  else fallbackCopy(text, msg);
+}
+function fallbackCopy(text, msg) {
+  const ta = el('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px'; document.body.append(ta); ta.select();
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) { }
+  ta.remove(); toast(ok ? msg : '复制失败，请手动选择文字复制');
+}
+
+/* ---------- calendar ---------- */
+async function saveIcs() {
+  if (!downloads || !event) return;
+  const f = iso => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const esc = s => String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
+  const end = new Date(Date.parse(event.startAt) + (Number(event.durationMin) || 120) * 60000).toISOString();
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//wanjia-jijieling//CN', 'BEGIN:VEVENT',
+    'UID:' + f(event.startAt) + '-game-event', 'DTSTAMP:' + f(new Date().toISOString()), 'DTSTART:' + f(event.startAt), 'DTEND:' + f(end),
+    'SUMMARY:' + esc(event.title), 'DESCRIPTION:' + esc([event.game && '游戏：' + event.game, event.place && '方式：' + event.place, event.link, event.description].filter(Boolean).join('\n')),
+    'LOCATION:' + esc(event.place || ''), 'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(event.title), 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  try { await downloads.save({ filename: 'game-event.ics', data: ics }); } catch (e) { if (!e || e.code !== 'declined') toast('暂时无法保存日历文件'); }
+}
+
+/* ---------- boot ---------- */
+function renderAll() { renderTicket(); renderDesc(); renderRsvp(); renderRoster(); $('ownerBar').hidden = !(me.isOwner && db); }
+renderAll();
+(async () => {
+  const c = window.claude;
+  if (!c || typeof c.use !== 'function') { eventLoaded = true; rsvpLoaded = true; renderAll(); return; }
+  const [dbNs, userNs, dlNs] = await Promise.all([c.use('db'), c.use('user'), c.use('downloads')].map(p => p.catch(() => null)));
+  db = dbNs; user = userNs; downloads = dlNs;
+  if (user) {
+    try { me.isOwner = await user.isOwner(); } catch (e) { }
+    try { me.id = await user.id(); } catch (e) { }
+    try { canWrite = await user.can('data.write'); } catch (e) { canWrite = null; }
+  }
+  if (!db) { eventLoaded = true; rsvpLoaded = true; renderAll(); return; }
+  renderAll();
+  const evTimer = setTimeout(() => { renderTicket.slow = true; renderTicket(); }, 10000);
+  const rsTimer = setTimeout(() => { renderRoster.slow = true; renderRoster(); }, 10000);
+  db.doc('event/info').onSnapshot(snap => {
+    if (!snap.metadata.fromCache) clearTimeout(evTimer);
+    event = snap.exists ? snap.data() : null; eventLoaded = true;
+    if (!event && me.isOwner && !editing) openEditor();
+    renderAll();
+  }, () => { clearTimeout(evTimer); eventLoaded = true; renderAll(); });
+  db.collection('rsvps').onSnapshot(snap => {
+    if (!snap.metadata.fromCache) clearTimeout(rsTimer);
+    const m = new Map(); snap.docs.forEach(d => { const v = d.data(); if (v && STATUS[v.status]) m.set(d.id, v); });
+    rsvps = m; rsvpLoaded = true;
+    const typing = document.activeElement && $('rsvpBody').contains(document.activeElement);
+    renderTicket(); if (!typing) renderRsvp(); renderRoster();
+  }, () => { clearTimeout(rsTimer); rsvpLoaded = true; renderRoster(); renderRsvp(); });
+})();
+})();
+</script>
