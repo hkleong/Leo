@@ -871,11 +871,17 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
   let seat;
   if(d.glass){const g=d.glass,belt=Math.min(g[0][1],g[3][1]),uR=g[0][0]-.12,uF=g[3][0]+.12,floor=Math.max(d.gr+.06,belt-.75);
     const sp=d.top.filter(p=>p[0]<uR),fp=d.top.filter(p=>p[0]>uF);
-    const bodyTop=[...chaikin(sp.slice(0,1).concat(sp.slice(1)),2),[uR,belt],[uR+.06,floor],[uF-.06,floor],[uF,belt],...chaikin(fp,2)];
+    // 车厢凹槽只挖在前后轮拱之间，避免和轮拱切口交叉（交叉会让轮廓自相交、三角化把凹槽又填实）
+    const ar=d.wr+.1,nR=Math.max(uR,Math.min(...d.wheels)+ar+.08),nF=Math.min(uF,Math.max(...d.wheels)-ar-.08);
+    const bodyTop=[...chaikin(sp,2),[uR,belt],[nR,belt],[nR+.06,floor],[nF-.06,floor],[nF,belt],[uF,belt],...chaikin(fp,2)];
     B.add(extrude(sideShape(d,bodyTop),W,.16),col);
     const DLm={sedan:1.15,taxi:1.15,police:1.15,suv:1.25,wedge:1.4,coupe:1.5,pickup:1.35}[kind]||1.2,zfD=g[3][0]+.02,cut=zfD-DLm;
     const wall=(a,b2,x)=>{if(b2-a>.05)B.add(extrude(polyShape([[a,floor-.02],[b2,floor-.02],[b2,belt],[a,belt]]),.12,0),col,[x,0,0])};
     wall(uR,uF,-(W/2-.08));wall(uR,cut,W/2-.08);wall(zfD,uF,W/2-.08);
+    // 车厢内侧用深色内饰：对面侧壁内衬、门洞门槛和前后边框，开着的门洞一眼能看出是空的
+    B.add(extrude(polyShape([[uR,floor],[uF,floor],[uF,belt-.02],[uR,belt-.02]]),.06,0),IN,[-(W/2-.17),0,0]);
+    B.add(rgeo(.2,.14,DLm,.3),0x18141a,[W/2-.06,floor+.04,cut+DLm/2]);
+    for(const z of[cut,zfD])B.add(rgeo(.16,belt-floor,.1,.3),0x18141a,[W/2-.06,(belt+floor)/2,z]);
     // 车顶框：车厢外轮廓 − 车窗，两侧各一片（形成 A/B/C 柱），顶上一块车顶板
     const cab=chaikin([[uR,belt],...d.top.filter(p=>p[0]>=uR&&p[0]<=uF),[uF,belt]],2);
     const fr=polyShape(cab);fr.holes.push(new THREE.Path(g.map(q=>new THREE.Vector2(q[0],q[1]))));
@@ -922,8 +928,11 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
   if(kind==='taxi'){for(const sd of[-1,1])for(let k=0;k<10;k++)B.add(rgeo(.02,.09,.38,.1),k%2?0x15151a:0xf4f4f4,[sd*(W/2+.02),mid+.15,-1.9+k*.42])}
   if(kind==='police'||kind==='suv'){ // 黑白涂装 + 车门警徽 + 推杆 + 灯排
     const dz0=kind==='suv'?-1.2:-1.15,dz1=kind==='suv'?1.1:1.05,yT=kind==='suv'?1.42:1.1;
-    for(const sd of[-1,1]){B.add(extrude(polyShape([[dz0,d.gr+.05],[dz1,d.gr+.05],[dz1,yT],[dz0,yT]]),.02,0),0xf4f4f4,[sd*(W/2+.01),0,0]);
-      B.add(cyl(.17,.17,.02,12),0xd9a93a,[sd*(W/2+.03),(d.gr+yT)/2,-.05],[0,0,Math.PI/2])}
+    // 副驾驶一侧：整块白色车门 + 警徽；驾驶座一侧只涂门洞后面那段，门洞留空
+    const cutP=d.glass[3][0]+.02-(kind==='suv'?1.25:1.15);
+    B.add(extrude(polyShape([[dz0,d.gr+.05],[dz1,d.gr+.05],[dz1,yT],[dz0,yT]]),.02,0),0xf4f4f4,[-(W/2+.01),0,0]);
+    B.add(cyl(.17,.17,.02,12),0xd9a93a,[-(W/2+.03),(d.gr+yT)/2,-.05],[0,0,Math.PI/2]);
+    if(cutP>dz0+.1)B.add(extrude(polyShape([[dz0,d.gr+.05],[cutP,d.gr+.05],[cutP,yT],[dz0,yT]]),.02,0),0xf4f4f4,[W/2+.01,0,0]);
     const roofY=Math.max(...d.top.map(p=>p[1]));B.add(rgeo(W*.8,.05,kind==='suv'?2.6:1.1,.3),0xf4f4f4,[0,roofY+.1,-.15]);
     B.add(rgeo(1.5,.1,.36,.3),0x222226,[0,roofY+.17,-.15]);
     B.add(rgeo(W*.75,.55,.1,.3),0x111114,[0,mid+.05,front+.25]);for(const sd of[-1,1])B.add(rgeo(.1,.6,.3,.3),0x111114,[sd*W*.3,mid+.05,front+.12])}
@@ -947,7 +956,7 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
     let dGlass=null;if(d.glass){const dp=clipU(d.glass,zf-DL,zf).map(q=>[q[0]-zf,q[1]]);if(dp.length>2){dGlass=new THREE.Mesh(extrude(polyShape(dp),.03,0),glassT);dGlass.renderOrder=2}}
     DB.add(rgeo(.04,.05,.18,.3),CHROME,[.04,yb-.12,-DL+.22]);
     DB.add(rgeo(.03,yb-y0-.05,DL-.05,.2),0x3a2a30,[-.04,(y0+yb)/2,-DL/2]); // 门内衬
-    const hinge=new THREE.Group();hinge.position.set(W/2+.02,0,zf);hinge.add(DB.build(vcMat,OL_C));if(dGlass)hinge.add(dGlass);hinge.userData.door=1;g.add(hinge);
+    // 驾驶座一侧不建车门，留空门洞，随时能看到车里（上下车直接从门洞进出）
     g.userData.doorZ=zf-DL*.55;g.userData.halfW=W/2}
   // —— 警灯
   if(kind==='police'||kind==='suv'){const roofY=Math.max(...d.top.map(p=>p[1]))+.28;
@@ -1236,7 +1245,7 @@ function updBoard(dt){const b=boarding,c=b.car;b.t+=dt;
   if(b.mode==='in'){
     const t=b.t;
     if(t<.45){const f=ease(t/.45);player.x=b.sx+(st.x-b.sx)*f;player.z=b.sz+(st.z-b.sz)*f;player.rot=Math.atan2(st.x-b.sx,st.z-b.sz)||face;pz='walk';k=1}
-    else if(t<.8){if(!b.opened){b.opened=1;SFX.doorOpen();b.jack=!!c.driverMesh;if(b.jack)c.jacking=true;boardEffects(c)}player.x=st.x;player.z=st.z;player.rot+=angDiff(face,player.rot)*Math.min(1,dt*14);setDoor(c,ease((t-.45)/.3))}
+    else if(t<.8){if(!b.opened){b.opened=1;b.jack=!!c.driverMesh;if(b.jack)c.jacking=true;boardEffects(c)}player.x=st.x;player.z=st.z;player.rot+=angDiff(face,player.rot)*Math.min(1,dt*14);setDoor(c,ease((t-.45)/.3))}
     else if(b.jack&&t<1.8){ // 拽司机：玩家伸手往外拉，司机从座位被拖出、摔在地上
       player.x=st.x;player.z=st.z;player.rot=face;const f=ease((t-.8)/.8);pz='punch';k=0;b.ex=Math.min(1,(t-.8)*2.2);
       const dm=b.dm||(b.dm=jackStart(c));if(!dm.userData.adopted){const out=carPt(c,(c.mesh.userData.halfW+3.2)*CS,c.mesh.userData.doorZ*CS);
@@ -1246,13 +1255,13 @@ function updBoard(dt){const b=boarding,c=b.car;b.t+=dt;
     else if(b.jack&&!b.done2){b.done2=1;b.t=.8;b.jack=false}
     else if(t<1.15){const f=ease((t-.8)/.35);player.x=st.x+(se.x-st.x)*f;player.z=st.z+(se.z-st.z)*f;player.rot+=angDiff(c.h,player.rot)*Math.min(1,dt*10);pz=f>.4?'sit':'walk';k=.6}
     else{seatPlayer(c);setDoor(c,1-ease((t-1.15)/.3));
-      if(t>1.45){setDoor(c,0);SFX.doorClose();c.hold=0;c.driver='player';player.car=c;boarding=null;toast((SPECS[c.kind]||SPECS.sedan).name);beep(300,.1);beep(450,.1);return}}
+      if(t>1.45){setDoor(c,0);c.hold=0;c.driver='player';player.car=c;boarding=null;toast((SPECS[c.kind]||SPECS.sedan).name);beep(300,.1);beep(450,.1);return}}
   }else{ // 下车：开门 → 走出来 → 关门
     const t=b.t;
     if(t<.3)setDoor(c,ease(t/.3));
     else if(t<.7){player.mesh.visible=true;const f=ease((t-.3)/.4);player.x=se.x+(st.x-se.x)*f;player.z=se.z+(st.z-se.z)*f;player.rot=face;pz=f<.4?'sit':'walk';k=.6}
     else{setDoor(c,1-ease((t-.7)/.3));player.rot+=angDiff(c.h,player.rot)*Math.min(1,dt*8);
-      if(t>1.0){setDoor(c,0);SFX.doorClose();c.hold=0;boarding=null;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}}}
+      if(t>1.0){setDoor(c,0);c.hold=0;boarding=null;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}}}
   }
   if(b.mode==='in'&&b.t>=1.15&&!b.jack)return;
   player.t+=dt;player.y=0;player.mesh.scale.setScalar(1);player.mesh.rotation.x=0;player.mesh.position.set(player.x,0,player.z);player.mesh.rotation.y=player.rot;pose(player.mesh,pz,player.t,k,b.ex||0)}
@@ -1271,7 +1280,7 @@ function boardEffects(best){
   if(best.driver==='ai'||best.driver==='cop')best.driver=null}
 function exitCar(force){const c=player.car;if(!c)return;if(!force&&Math.abs(c.speed)>6)return;
   c.driver=null;player.car=null;player.mesh.scale.setScalar(1);if(player.wMesh)player.wMesh.visible=true;
-  if(!force&&c.mesh.userData.door){c.hold=1;c.speed=0;const se=seatPt(c);player.x=se.x;player.z=se.z;player.rot=c.h;boarding={car:c,mode:'out',t:0};SFX.doorOpen();return}
+  if(!force&&c.mesh.userData.doorZ!==undefined){c.hold=1;c.speed=0;const se=seatPt(c);player.x=se.x;player.z=se.z;player.rot=c.h;boarding={car:c,mode:'out',t:0};return}
   player.mesh.visible=true;
   player.x=c.x+Math.cos(c.h)*4.2;player.z=c.z-Math.sin(c.h)*4.2;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}player.rot=c.h}
 
