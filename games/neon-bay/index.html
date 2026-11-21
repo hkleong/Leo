@@ -62,6 +62,12 @@ canvas{display:block}
 #wpnDots{display:flex;gap:3px}#wpnDots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}#wpnDots i.on{background:var(--sun)}
 #hurt{position:absolute;inset:0;background:radial-gradient(transparent 40%,rgba(255,0,40,.8));opacity:0;transition:opacity .15s;pointer-events:none}
 #newGame{pointer-events:auto;background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;cursor:pointer;opacity:.85}
+#cut{position:absolute;inset:0;pointer-events:none}
+#cut .bar{position:absolute;left:0;right:0;height:0;background:#000;transition:height .4s}#cut .bar.t{top:0}#cut .bar.b{bottom:0}#cut.on .bar{height:12vh}
+#cutTxt{position:absolute;left:0;right:0;top:38%;text-align:center;font-family:var(--disp);font-size:clamp(40px,10vw,90px);color:#fff;opacity:0;transform:scale(1.4);transition:opacity .35s,transform .5s;letter-spacing:.06em}
+#cut.on #cutTxt{opacity:1;transform:scale(1)}#cut.dead #cutTxt{color:#ff3d5a;text-shadow:0 4px 0 #000,0 0 30px #ff0040}#cut.arrest #cutTxt{color:#7fd8ff;text-shadow:0 4px 0 #000,0 0 30px #2a6fff}
+#cutSub{position:absolute;left:0;right:0;top:calc(38% + clamp(56px,13vw,120px));text-align:center;font-size:16px;color:#fff;opacity:0;transition:opacity .4s .3s}#cut.on #cutSub{opacity:.9}
+#fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:4}
 @media (prefers-reduced-motion:reduce){#toast,#hint{transition:none}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;600&display=swap">
@@ -80,10 +86,10 @@ canvas{display:block}
   <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div></div>
   <div class="tr"><div id="stars"></div><button id="wpn" aria-label="切换武器"><span id="wpnIcon"></span><span id="wpnName">拳头</span><span id="wpnDots"></span></button><div id="speed"></div></div>
   <canvas id="mini" width="300" height="300" role="button" aria-label="打开完整地图" tabindex="0"></canvas>
-  <div id="hurt"></div><div id="xh" hidden></div><div id="toast"></div><div id="hint"></div>
+  <div id="hurt"></div><div id="cut" hidden><i class="bar t"></i><i class="bar b"></i><div id="cutTxt"></div><div id="cutSub"></div></div><div id="fade"></div><div id="xh" hidden></div><div id="toast"></div><div id="hint"></div>
 </div>
 <div id="bigmap" hidden><div class="bm-top"><b>霓虹湾地图</b><button id="bmClose" aria-label="关闭地图">关闭</button></div><canvas id="bmc"></canvas>
-  <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#ffe14d"></i>任务</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
+  <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#ffe14d"></i>任务</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#ff2a3a"></i>医院</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
 <div id="touch" data-mode="foot">
   <div id="stick" class="foot"><div id="knob"></div></div>
   <div class="tb foot big hot" id="bF" style="right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(34px + env(safe-area-inset-bottom,0px))">攻击</div>
@@ -112,7 +118,7 @@ const blockOK=(i,j)=>nodeOK(i,j)&&nodeOK(i+1,j)&&nodeOK(i,j+1)&&nodeOK(i+1,j+1);
 // 特殊街区：别墅（最东南）、警察局（偏西北）、停车场（最东）
 const VALID=[];for(let i=0;i<N;i++)for(let j=0;j<N;j++)if(blockOK(i,j))VALID.push([i,j]);
 const pickBlock=(f,ex=[])=>VALID.filter(b=>!ex.some(e=>e[0]===b[0]&&e[1]===b[1])).reduce((a,b)=>f(b)>f(a)?b:a);
-const VB=pickBlock(b=>b[0]+b[1]),SB=pickBlock(b=>-Math.hypot(b[0]-N*.25,b[1]-N/2),[VB]),LB=pickBlock(b=>b[0]*3-Math.abs(b[1]-N/2+.5),[VB,SB]);
+const VB=pickBlock(b=>b[0]+b[1]),SB=pickBlock(b=>-Math.hypot(b[0]-N*.25,b[1]-N/2),[VB]),LB=pickBlock(b=>b[0]*3-Math.abs(b[1]-N/2+.5),[VB,SB]),HB=pickBlock(b=>-Math.hypot(b[0]-N*.66,b[1]-N*.42),[VB,SB,LB]);
 const bc=b=>({x:road(b[0])+P/2,z:road(b[1])+P/2});const LOT=bc(LB);
 // 出生点：最西边的路口
 const SPN=(()=>{let best=null;for(let i=0;i<=N;i++)for(let j=0;j<=N;j++)if(nodeOK(i,j)){const v=road(i)*2+Math.abs(road(j)+80);if(!best||v<best.v)best={v,x:road(i),z:road(j)}}return best})();
@@ -273,13 +279,14 @@ function addBuilding(ox,oz,w,h){const d=w,col=pal[(R()*pal.length)|0],trim=trimP
   // 阳台（约一半的楼，正面每层）
   if(R()<.5&&h>=14)for(let y=8.5;y<h-2;y+=5){const sl=box(w*.32,.25,1.5,0xffffff);sl.position.set(ox+sx*w*.22,y-1.25,oz+sz*(d/2+.75));scene.add(sl);
     const rl=box(w*.32,.9,.12,0xffffff);rl.position.set(ox+sx*w*.22,y-.65,oz+sz*(d/2+1.45));scene.add(rl)}}
-let villa=null,station=null;const parkSpots=[];
+let villa=null,station=null,hospital=null;const parkSpots=[];
 for(let i=0;i<N;i++)for(let j=0;j<N;j++){
   if(!blockOK(i,j))continue;
   const cx=road(i)+P/2,cz=road(j)+P/2;
   const side=new THREE.Mesh(new THREE.PlaneGeometry(BLK+4,BLK+4),M(0x9a8aa3));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);
   if(i===VB[0]&&j===VB[1]){villa={x:cx,z:cz};continue}
   if(i===SB[0]&&j===SB[1]){station={x:cx,z:cz};continue}
+  if(i===HB[0]&&j===HB[1]){hospital={x:cx,z:cz};continue}
   if(i===LB[0]&&j===LB[1])continue;
   if((i+j*3)%7===3||R()<.2){ // 公园 / 空地
     const g=new THREE.Mesh(new THREE.PlaneGeometry(BLK-4,BLK-4),M(0x4fb069));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
@@ -338,8 +345,38 @@ for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){if(!nodeOK(i,j))continue;const x=road
   const p1=box(.3,7,.3,0x3a3448);p1.position.set(x,3.5,z);scene.add(p1);
   const arm=box(2,.25,.25,0x3a3448);arm.position.set(x-1,7,z);scene.add(arm);
   const l=new THREE.Mesh(new THREE.BoxGeometry(.8,.3,.5),lampMat);l.position.set(x-1.8,6.8,z);scene.add(l)}
-// 警察局（参考图 6）：两层粉彩装饰艺术楼，中央青白塔楼 + 警徽，门廊立柱，眉檐窗带
+// 公共建筑前广场：浅色铺地 + 花坛 + 矮墙
+function plaza(x,z,w,d,col){const pl=new THREE.Mesh(new THREE.PlaneGeometry(w,d),M(col));pl.rotation.x=-Math.PI/2;pl.position.set(x,.1,z);pl.receiveShadow=true;scene.add(pl)}
+// 医院：比普通楼更宽更高，白色主楼 + 青色眉檐 + 红十字 + 急诊门廊 + 楼顶停机坪
+function buildHospital(H){const wht=0xf6f8fa,tr=0x2fb5c0;
+  plaza(H.x,H.z,BLK-6,BLK-6,0xb9b3c4);
+  const main=box(52,16,24,wht);main.position.set(H.x,8,H.z-8);scene.add(main);
+  for(const y of[3,8.5,13.5])floorBand(H.x,H.z-8,52,24,y,tr);pilasters(H.x,H.z-8,52.2,24.2,0,16,wht);
+  const par=box(52.6,1,24.6,tr);par.position.set(H.x,16.5,H.z-8);scene.add(par);
+  for(const sd of[-1,1]){const wing=box(14,10,16,0xdff4f6);wing.position.set(H.x+sd*28,5,H.z+4);scene.add(wing);floorBand(H.x+sd*28,H.z+4,14,16,3,tr);floorBand(H.x+sd*28,H.z+4,14,16,7.5,tr)}
+  // 楼顶停机坪
+  const hp=new THREE.Mesh(new THREE.CylinderGeometry(8,8,.4,24),M(0x3a3a44));hp.position.set(H.x+12,17.2,H.z-8);scene.add(hp);
+  const hc=document.createElement('canvas');hc.width=hc.height=128;const hg=hc.getContext('2d');hg.strokeStyle='#ffe14d';hg.lineWidth=8;hg.beginPath();hg.arc(64,64,54,0,7);hg.stroke();hg.fillStyle='#fff';hg.font='bold 80px sans-serif';hg.textAlign='center';hg.textBaseline='middle';hg.fillText('H',64,68);
+  const hm=new THREE.Mesh(new THREE.PlaneGeometry(14,14),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(hc),transparent:true}));hm.rotation.x=-Math.PI/2;hm.position.set(H.x+12,17.45,H.z-8);scene.add(hm);
+  // 红十字（正面 + 楼顶）
+  const cross=(x,y,z,sz,ry=0)=>{for(const[a,b2]of[[sz,sz*.32],[sz*.32,sz]]){const c=new THREE.Mesh(new THREE.BoxGeometry(a,b2,.3),new THREE.MeshBasicMaterial({color:0xff2a3a}));c.position.set(x,y,z);c.rotation.y=ry;scene.add(c)}};
+  cross(H.x-14,12,H.z+4.2,5);const cb=box(7,7,.6,0xffffff);cb.position.set(H.x-14,12,H.z+4.05);scene.add(cb);
+  // 急诊门廊
+  const can=box(22,.8,8,tr);can.position.set(H.x,5.6,H.z+8);scene.add(can);
+  for(const k of[-1,1]){const c=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,5.2,12),M(0xffffff));c.position.set(H.x+k*9.5,2.6,H.z+11.5);scene.add(c)}
+  const gl=new THREE.Mesh(new THREE.BoxGeometry(14,4.2,.2),winCool);gl.position.set(H.x,2.3,H.z+4.12);scene.add(gl);
+  const sg=new THREE.Mesh(new THREE.PlaneGeometry(14,2.4),signMat('医院',0xff2a3a));sg.position.set(H.x,6.9,H.z+12.05);scene.add(sg);
+  const sg2=new THREE.Mesh(new THREE.PlaneGeometry(16,2.6),signMat('HOSPITAL',0x22d3ee));sg2.position.set(H.x,14.5,H.z+4.2);scene.add(sg2);
+  solids.push({x0:H.x-26,x1:H.x+26,z0:H.z-20,z1:H.z+4},{x0:H.x-35,x1:H.x-21,z0:H.z-4,z1:H.z+12},{x0:H.x+21,x1:H.x+35,z0:H.z-4,z1:H.z+12});
+  for(const sd of[-1,1])palm(H.x+sd*16,H.z+26)}
+// 警察局（参考图 6）：两层粉彩装饰艺术楼，中央青白塔楼 + 警徽，门廊立柱，眉檐窗带；两侧加翼楼和前广场，比普通楼更宽敞
+buildHospital(hospital);
 {const S=station;const pink=0xf2b8d0,teal=0xb8f0ec,tr=0x22d3ee;
+ plaza(S.x,S.z,BLK-6,BLK-6,0xc4b2c0);
+ for(const sd of[-1,1]){const wg=box(11,8,18,0xf7c9dc);wg.position.set(S.x+sd*27,4,S.z-4);scene.add(wg);floorBand(S.x+sd*27,S.z-4,11,18,3.5,tr);
+   const fp=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,14,8),M(0xdde2ea));fp.position.set(S.x+sd*14,7,S.z+26);scene.add(fp);
+   const fl=box(3,1.8,.08,sd<0?0x1c2a4a:0x22d3ee);fl.position.set(S.x+sd*14+1.5,13,S.z+26);scene.add(fl);palm(S.x+sd*26,S.z+26)}
+ solids.push({x0:S.x-33,x1:S.x+33,z0:S.z-13,z1:S.z+5});
  const b1=box(42,11,24,pink);b1.position.set(S.x,5.5,S.z-6);scene.add(b1);
  for(const y of[3,8])floorBand(S.x,S.z-6,42,24,y,tr);pilasters(S.x,S.z-6,42.2,24.2,0,11,pink);
  const p1=box(42.6,1,24.6,0xffffff);p1.position.set(S.x,11.5,S.z-6);scene.add(p1);
@@ -895,6 +932,8 @@ function makeCar(x,z,h,opts={}){let kind=opts.kind;if(!kind&&!opts.police){const
   const c={mesh:g,x,z,h,speed:0,driver:opts.police?'cop':'ai',police:!!opts.police,kind,hp:SPECS[kind].hp,siren,dir:null,lane:0,stuck:0,dead:false};
   cars.push(c);return c}
 // 警察局门前停着的警车和警用摩托（装饰）
+{const H=hospital;const{g}=carMesh('suv',0xf6f8fa);g.position.set(H.x+16,0,H.z+18);g.rotation.y=Math.PI*.9;scene.add(g);
+ const st=new THREE.Mesh(new THREE.BoxGeometry(.06,.4,4.2),new THREE.MeshBasicMaterial({color:0xff2a3a}));for(const sd of[-1,1]){const m=st.clone();m.position.set(sd*1.27,1.3,0);g.add(m)}}
 {const S=station;[[-12,'police'],[-5,'police'],[9,'suv']].forEach(([dx,k])=>{const{g}=carMesh(k,0x14161c);g.position.set(S.x+dx,0,S.z+19);g.rotation.y=Math.PI;scene.add(g)});
  const mb=new THREE.Group();const ad=(m,x,y,z)=>{m.position.set(x,y,z);mb.add(m)};ad(new THREE.Mesh(wheelGeo,wheelMat),0,.55,1);ad(new THREE.Mesh(wheelGeo,wheelMat),0,.55,-1);
  mb.children.forEach(w=>w.scale.set(.4,1,1));ad(box(.5,.6,2,0x14161c),0,1.1,0);ad(box(.7,.5,.6,0xf4f4f4),0,1.5,.8);ad(box(.3,.2,.3,redMat()),-.15,1.9,.7);ad(box(.3,.2,.3,blueMat()),.15,1.9,.7);
@@ -990,8 +1029,10 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
     if(player.wanted===0||d>120){dropPed(p);return}
     if(d<28&&performance.now()-(p.lastSay||0)>3800){p.voice=p.voice||rr(95,115);say(p,'cop')}
     p.rot=Math.atan2(dx,dz);let cst='aim',ck=0;
-    if(d>16){const sp=7*dt,nx=p.x+dx/d*sp,nz=p.z+dz/d*sp;if(!hit(nx,p.z,.6))p.x=nx;if(!hit(p.x,nz,.6))p.z=nz;cst='run';ck=1}
-    else{p.shootT=(p.shootT??1)-dt;if(p.shootT<=0){p.shootT=rr(1.1,1.8);copShoot(p,d)}}
+    const arrestMode=player.wanted<=1;
+    if(arrestMode&&d>1.6||!arrestMode&&d>16){const sp=7*dt,nx=p.x+dx/d*sp,nz=p.z+dz/d*sp;if(!hit(nx,p.z,.6))p.x=nx;if(!hit(p.x,nz,.6))p.z=nz;cst='run';ck=1}
+    else if(!arrestMode){p.shootT=(p.shootT??1)-dt;if(p.shootT<=0){p.shootT=rr(1.1,1.8);copShoot(p,d)}}
+    else cst='idle';
     for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.hypot(c.x-p.x,c.z-p.z)<3.4){killPed(p,c===player.car);addHeat(.8);break}
     p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.rot;pose(p.mesh,cst,p.t*1.2,ck);return}
   // 被打倒：躺 3 秒后爬起来逃跑
@@ -1079,7 +1120,7 @@ function driveCop(c,dt){if(c.patrol&&c.driver==='ai'&&player.wanted===0){driveAI
   if(Math.abs(c.speed)<2){if((c.stuck+=dt)>1.2){c.rev=1;c.stuck=0}}else c.stuck=0;
   if(d<6.5){if(player.car){if(Math.abs(c.speed)>12)player.car.hp-=8*dt*5}else if(Math.abs(c.speed)>8)player.hp-=40*dt}}
 // 警员开枪：距离越近越准，玩家在车里就打车
-function copShoot(p,d){const f=p.gun&&p.gun.userData.flash;if(f){f.visible=true;setTimeout(()=>f.visible=false,60)}
+function copShoot(p,d){if(cut)return;const f=p.gun&&p.gun.userData.flash;if(f){f.visible=true;setTimeout(()=>f.visible=false,60)}
   if(d<80&&ac)SFX.rifle();const hitP=clamp(.55-d/45,.12,.5)*(player.car?.8:1);const miss=R()>hitP;
   const tx=player.x+(miss?rr(-2.5,2.5):0),tz=player.z+(miss?rr(-2.5,2.5):0);
   const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(p.x,2.2,p.z),new THREE.Vector3(tx,1.6,tz)]);const l=new THREE.Line(g,new THREE.LineBasicMaterial({color:0xffe14d}));scene.add(l);tracers.push({l,t:.07});
@@ -1228,7 +1269,7 @@ function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),W=cv.cl
   for(const[i,j]of VALID){const x=road(i)+RD/2,z=road(j)+RD/2;g.fillStyle=parkSpots.some(p=>Math.abs(p[0]-x-BLK/2)<1&&Math.abs(p[1]-z-BLK/2)<1)?'#5fb565':'#c9c0d0';g.fillRect(x,z,BLK,BLK)}
   const label=(x,z,txt,col)=>{g.fillStyle=col;g.strokeStyle='#000';g.lineWidth=3/s*dpr;g.beginPath();g.arc(x,z,12,0,7);g.fill();g.stroke();
     g.font=`bold ${26}px Rubik,system-ui,sans-serif`;g.textAlign='center';g.lineWidth=6;g.strokeText(txt,x,z-20);g.fillStyle='#fff';g.fillText(txt,x,z-20)};
-  label(villa.x,villa.z,'海边别墅','#fff');label(station.x,station.z,'警察局','#4a7ab0');label(LOT.x,LOT.z,'停车场','#22d3ee');
+  label(villa.x,villa.z,'海边别墅','#fff');label(station.x,station.z,'警察局','#4a7ab0');label(hospital.x,hospital.z,'医院','#ff2a3a');label(LOT.x,LOT.z,'停车场','#22d3ee');
   for(const k of cash){g.fillStyle='#5cff7a';g.beginPath();g.arc(k.x,k.z,4,0,7);g.fill()}
   for(const c of cars)if(c.police&&!c.dead){g.fillStyle='#ff2a3a';g.beginPath();g.arc(c.x,c.z,6,0,7);g.fill()}
   if(heli){g.fillStyle='#ff2a3a';g.beginPath();g.arc(heli.x,heli.z,9,0,7);g.fill()}
@@ -1243,7 +1284,7 @@ function drawMini(){const s=300/(N*P*.6+120),cx=150,cy=150,px=player.car?player.
   mini.fillStyle='#55505f';for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){if(!nodeOK(i,j))continue;
     if(nodeOK(i+1,j))mini.fillRect((road(i)-RD/2)*s,(road(j)-RD/2)*s,(P+RD)*s,RD*s);if(nodeOK(i,j+1))mini.fillRect((road(i)-RD/2)*s,(road(j)-RD/2)*s,RD*s,(P+RD)*s)}
   mini.fillStyle='#c9c0d0';for(const[i,j]of VALID)mini.fillRect((road(i)+RD/2)*s,(road(j)+RD/2)*s,BLK*s,BLK*s);
-  mini.fillStyle='#fff';mini.fillRect((villa.x-15)*s,(villa.z-11)*s,30*s,22*s);
+  mini.fillStyle='#fff';mini.fillRect((villa.x-15)*s,(villa.z-11)*s,30*s,22*s);mini.fillStyle='#ff2a3a';mini.fillRect((hospital.x-8)*s,(hospital.z-2.5)*s,16*s,5*s);mini.fillRect((hospital.x-2.5)*s,(hospital.z-8)*s,5*s,16*s);mini.fillStyle='#4a7ab0';mini.beginPath();mini.arc(station.x*s,station.z*s,7*s,0,7);mini.fill();
   for(const c of cars)if(c.police&&!c.dead){mini.fillStyle=((performance.now()/200)|0)%2?'#f00':'#04f';mini.fillRect(c.x*s-3,c.z*s-3,6,6)}
   if(beamMat.visible){mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(mission.x*s,mission.z*s,6,0,7);mini.fill()}
   mini.restore();
@@ -1262,9 +1303,27 @@ function hud(dt){$('money').textContent='$'+player.money.toLocaleString();
 
 // ===== 主循环 =====
 const camPos=new THREE.Vector3(),camLook=new THREE.Vector3();let last=performance.now(),running=false;
-function respawn(){toast('你倒下了…医院见');player.money=Math.floor(player.money*.9);player.heat=0;player.wanted=0;
-  if(player.car)exitCar(true);player.x=SPN.x+6;player.z=SPN.z;player.hp=100;
-  for(const c of cars.filter(c=>c.police))removeCar(c);if(mission.stage==='run')fail('任务失败')}
+// ===== 被捕 / 死亡：约 3 秒过场 → 黑屏 → 在警察局 / 医院重生 =====
+let cut=null;
+function startCut(type){if(cut)return;if(boarding){setDoor(boarding.car,0);boarding.car.hold=0;boarding=null;player.mesh.visible=true}
+  if(player.car){const c=player.car;exitCar(true)}toggleAim(false);
+  cut={type,t:0,yaw:camYaw,done:false};toastT=0;$('toast').style.opacity=0;const el=$('cut');el.hidden=false;el.className=type;requestAnimationFrame(()=>el.classList.add('on'));
+  $('cutTxt').textContent=type==='dead'?'你倒下了':'被捕！';$('cutSub').textContent=type==='dead'?'正在送往医院…':'正在押往警察局…';
+  if(type==='dead'){SFX.explode&&sweep&&ac&&sweep('sawtooth',300,60,.12,1.6)}else if(ac){sweep('square',880,660,.05,.25);sweep('square',880,660,.05,.25,.3)}}
+function updCut(dt){const c=cut;c.t+=dt;const T=c.t;
+  if(c.type==='dead'){const f=Math.min(1,T/.6);player.mesh.rotation.x=-Math.PI/2*f;player.mesh.position.set(player.x,.3*f,player.z);pose(player.mesh,'idle',0,0)}
+  else{player.mesh.rotation.x=0;player.mesh.position.set(player.x,0,player.z);pose(player.mesh,'wave',T,0);const r=player.mesh.userData.rig;if(r){r.shs[0].rotation.z=-2.6;r.shs[1].rotation.z=2.6;r.els[0].rotation.x=r.els[1].rotation.x=-.35}}
+  // 镜头：被捕时绕着人转，死亡时慢慢升高往下看
+  const a=c.yaw+T*(c.type==='dead'?.25:.7),dist=c.type==='dead'?6+T*2:6.5,hy=c.type==='dead'?3+T*3.5:2.8;
+  cam.position.set(player.x-Math.sin(a)*dist,hy,player.z-Math.cos(a)*dist);cam.lookAt(player.x,c.type==='dead'?.5:1.8,player.z);sky.position.copy(cam.position);
+  $('fade').style.opacity=T<2.2?0:T<2.8?(T-2.2)/.6:Math.max(0,1-(T-2.9)/.5);
+  if(T>=2.8&&!c.done){c.done=true;respawnAt(c.type)}
+  if(T>=3.4){$('cut').classList.remove('on');setTimeout(()=>{if(!cut)$('cut').hidden=true},400);$('fade').style.opacity=0;cut=null}}
+function respawnAt(type){const fee=Math.floor(player.money*.1),P0=type==='dead'?hospital:station;player.money-=fee;player.heat=0;player.wanted=0;player.hp=100;player.dispatch=0;player.bustT=0;
+  player.x=P0.x+rr(0,3);player.z=P0.z+24;player.rot=0;player.y=0;player.vy=0;camYaw=Math.PI;player.mesh.rotation.x=0;player.mesh.visible=true;
+  for(const c of cars.filter(c=>c.police&&!c.patrol))removeCar(c);for(const q of[...peds])if(q.cop)dropPed(q);if(heli){scene.remove(heli.g,heli.cone,heli.spot);heli=null}
+  if(mission.stage==='run')fail('任务失败');
+  setTimeout(()=>toast(type==='dead'?`出院了  医药费 -$${fee}`:`保释出来了  罚款 -$${fee}`),500)}
 function step(){requestAnimationFrame(step);try{frame()}catch(e){console.error(e)}}
 function frame(){const tm=player.car?'drive':'foot',te=document.getElementById('touch');if(te.dataset.mode!==tm){te.dataset.mode=tm;for(const k in tb_)tb_[k]=false;te.querySelectorAll('.on').forEach(e=>e.classList.remove('on'));stick.x=stick.y=0;document.getElementById('knob').style.transform=''}
 const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running||mapOpen){ren.render(scene,cam);return}
@@ -1273,7 +1332,8 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   player.cool=(player.cool||0)-dt;{const w=WEAPONS[wIdx],held=keys.KeyF||tb_.Fire;
     if(!player.car&&!boarding&&player.cool<=0&&(act.fire||(w.auto&&held))){attack();player.cool=w.cool}act.fire=0}
   if(player.car){act.jump=act.punch=0;player.aiming=false}
-  if(boarding)updBoard(dt);
+  if(cut){updCut(dt);act.fire=act.jump=act.enter=0}
+  else if(boarding)updBoard(dt);
   else if(player.car){const c=player.car;carPhysics(c,ay,-ax,brakeHeld(),dt);player.x=c.x;player.z=c.z;player.rot=c.h;
     if(c.hp<40&&R()<.3){const sm=box(.8,.8,.8,new THREE.MeshBasicMaterial({color:0x444444,transparent:true,opacity:.6}));sm.position.set(c.x,2.5,c.z);scene.add(sm);fxs.push({m:sm,t:0,smoke:1})}}
   else{const mag=Math.min(1,Math.hypot(ax,ay)),moving=mag>.15;
@@ -1304,7 +1364,11 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   for(const f of[...fxs]){f.t+=dt;if(f.smoke){f.m.position.y+=dt*3;f.m.material.opacity=.6-f.t*.4}else{f.m.scale.setScalar(1+f.t*2);f.m.material.opacity=.9-f.t}if(f.t>1.4){scene.remove(f.m);f.m.geometry.dispose();f.m.material.dispose();fxs.splice(fxs.indexOf(f),1)}}
   for(const t of[...tracers])if((t.t-=dt)<0){scene.remove(t.l);t.l.geometry.dispose();t.l.material.dispose();tracers.splice(tracers.indexOf(t),1)}
   updWanted(dt);updMission(dt);updAudio(dt,ax,ay);updBubbles(dt);
-  if(player.hp<=0)respawn();else if(!player.car&&player.wanted===0)player.hp=Math.min(100,player.hp+dt*2);
+  if(player.hp<=0&&!cut)startCut('dead');else if(!player.car&&player.wanted===0)player.hp=Math.min(100,player.hp+dt*2);
+  // 逮捕判定：有通缉时，警员贴身（步行时 2 米内且没在跑）或你的车停下、警员在 6 米内，持续一会儿就被捕
+  if(!cut&&player.wanted>0){let near=false;for(const q of peds)if(q.cop&&!q.dead&&!(q.knock>0)){const d=Math.hypot(q.x-player.x,q.z-player.z);
+      if(player.car?(Math.abs(player.car.speed)<2&&d<6.5):(d<2.2&&!(keys.ShiftLeft||keys.ShiftRight||tb_.Run)))near=true}
+    player.bustT=near?(player.bustT||0)+dt:Math.max(0,(player.bustT||0)-dt*2);if(player.bustT>(player.car?2.2:1.1))startCut('arrest')}else player.bustT=0;
   // 相机
   { // 车上：镜头紧跟车头；步行：只在往前/侧走时慢慢转到人物身后，往后走不转镜头
     const d=angDiff(player.rot,camYaw);let rate=3;
@@ -1313,10 +1377,10 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
     camYaw+=d*Math.min(1,dt*rate)}
   const aimC=!player.car&&player.aiming;
   const dist=player.car?13+Math.abs(player.car.speed)*.12:aimC?3:5.2,hgt=player.car?5.8:aimC?2.65:3,sh=aimC?.95:0;
-  const hd=dist*(1-camPitch*.35);camPos.set(player.x-Math.sin(camYaw)*hd-Math.cos(camYaw)*sh,hgt+player.y*(aimC?1:0)+camPitch*dist*(aimC?.4:1),player.z-Math.cos(camYaw)*hd+Math.sin(camYaw)*sh);cam.position.lerp(camPos,Math.min(1,dt*(aimC?14:8)));
+  if(cut)camPos.copy(cam.position);const hd=dist*(1-camPitch*.35);if(!cut)camPos.set(player.x-Math.sin(camYaw)*hd-Math.cos(camYaw)*sh,hgt+player.y*(aimC?1:0)+camPitch*dist*(aimC?.4:1),player.z-Math.cos(camYaw)*hd+Math.sin(camYaw)*sh);if(!cut)cam.position.lerp(camPos,Math.min(1,dt*(aimC?14:8)));
   const tf=aimC?50:65;if(Math.abs(cam.fov-tf)>.1){cam.fov+=(tf-cam.fov)*Math.min(1,dt*10);cam.updateProjectionMatrix()}
   if(aimC)camLook.set(player.x+Math.sin(camYaw)*12-Math.cos(camYaw)*sh,2.3,player.z+Math.cos(camYaw)*12+Math.sin(camYaw)*sh);else camLook.set(player.x,player.car?1.5:2,player.z);
-  sky.position.copy(cam.position);cam.lookAt(camLook);
+  if(!cut){sky.position.copy(cam.position);cam.lookAt(camLook)}
   $('xh').hidden=!aimC;$('xh').classList.toggle('lock',!!(aimC&&aimLock));
   sun.position.set(player.x-120,180,player.z+80);sun.target.position.set(player.x,0,player.z);
   hud(dt);ren.render(scene,cam)}
