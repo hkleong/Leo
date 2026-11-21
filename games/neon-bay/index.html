@@ -18,8 +18,11 @@ canvas{display:block}
 #mission b{font-family:var(--disp);font-size:12px;color:var(--hot);letter-spacing:.06em;display:block}
 #speed{font-family:var(--disp);font-size:20px;color:var(--sea);text-shadow:0 2px 0 #000}
 #mini{pointer-events:auto;cursor:pointer;position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));width:104px;height:104px;border-radius:50%;border:3px solid #000;background:#123;box-shadow:0 0 0 2px var(--hot)}
-#toast{position:absolute;top:30%;left:50%;transform:translateX(-50%);font-family:var(--disp);font-size:clamp(22px,5vw,42px);color:var(--sun);text-shadow:0 3px 0 #000,0 0 20px var(--hot);opacity:0;transition:opacity .4s;text-align:center;white-space:nowrap}
-#hint{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ui);padding:6px 12px;border-radius:4px;font-size:13px;opacity:0;transition:opacity .2s}
+#toast{position:absolute;bottom:calc(26px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);max-width:min(54vw,520px);width:max-content;font-family:var(--body);font-weight:600;font-size:clamp(14px,2.2vw,18px);line-height:1.4;color:#fff;background:rgba(10,8,24,.74);border-left:4px solid var(--sun);padding:6px 14px;border-radius:6px;opacity:0;transition:opacity .35s;text-align:center;pointer-events:none}
+#topmsg{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);max-width:min(40vw,360px);width:max-content;font-family:var(--body);font-weight:600;font-size:13px;color:#fff;background:rgba(10,8,24,.78);border:1.5px solid #ff2a3a;padding:4px 12px;border-radius:999px;opacity:0;transition:opacity .35s;text-align:center;pointer-events:none}
+#topmsg::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff2a3a;margin-right:7px;vertical-align:1px;animation:blink .5s steps(2) infinite}
+@keyframes blink{50%{background:#2a6fff}}
+#hint{position:absolute;bottom:calc(78px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ui);padding:6px 12px;border-radius:4px;font-size:13px;opacity:0;transition:opacity .2s}
 #title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow-y:auto;background:linear-gradient(180deg,rgba(20,8,40,.55),rgba(20,8,40,.25) 40%,rgba(20,8,40,.8)),url(art/title.jpg) center/cover,#2a0b3d;z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));text-align:center}
 .pick{display:flex;gap:12px}
 .hero{pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:2px;width:132px;padding:6px 6px 8px;border:3px solid rgba(255,255,255,.25);border-radius:8px;background:rgba(20,8,40,.7);color:#fff;font-family:var(--body);cursor:pointer}
@@ -68,6 +71,7 @@ canvas{display:block}
 #cut.on #cutTxt{opacity:1;transform:scale(1)}#cut.dead #cutTxt{color:#ff3d5a;text-shadow:0 4px 0 #000,0 0 30px #ff0040}#cut.arrest #cutTxt{color:#7fd8ff;text-shadow:0 4px 0 #000,0 0 30px #2a6fff}
 #cutSub{position:absolute;left:0;right:0;top:calc(38% + clamp(56px,13vw,120px));text-align:center;font-size:16px;color:#fff;opacity:0;transition:opacity .4s .3s}#cut.on #cutSub{opacity:.9}
 #fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:4}
+@media (prefers-reduced-motion:reduce){#topmsg::before{animation:none}}
 @media (prefers-reduced-motion:reduce){#toast,#hint{transition:none}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;600&display=swap">
@@ -86,7 +90,7 @@ canvas{display:block}
   <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div></div>
   <div class="tr"><div id="stars"></div><button id="wpn" aria-label="切换武器"><span id="wpnIcon"></span><span id="wpnName">拳头</span><span id="wpnDots"></span></button><div id="speed"></div></div>
   <canvas id="mini" width="300" height="300" role="button" aria-label="打开完整地图" tabindex="0"></canvas>
-  <div id="hurt"></div><div id="cut" hidden><i class="bar t"></i><i class="bar b"></i><div id="cutTxt"></div><div id="cutSub"></div></div><div id="fade"></div><div id="xh" hidden></div><div id="toast"></div><div id="hint"></div>
+  <div id="hurt"></div><div id="cut" hidden><i class="bar t"></i><i class="bar b"></i><div id="cutTxt"></div><div id="cutSub"></div></div><div id="fade"></div><div id="xh" hidden></div><div id="topmsg"></div><div id="toast"></div><div id="hint"></div>
 </div>
 <div id="bigmap" hidden><div class="bm-top"><b>霓虹湾地图</b><button id="bmClose" aria-label="关闭地图">关闭</button></div><canvas id="bmc"></canvas>
   <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#ffe14d"></i>任务</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#ff2a3a"></i>医院</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
@@ -1250,7 +1254,9 @@ function updMission(dt){const px=player.car?player.car.x:player.x,pz=player.car?
 
 // ===== HUD =====
 const $=id=>document.getElementById(id);let toastT=0;
-function toast(t){$('toast').textContent=t;$('toast').style.opacity=1;toastT=2.2}
+// 提示分两处：通缉/警察相关 → 顶部小字条；任务和其他 → 底部字幕
+let topT=0;
+function toast(t){if(/通缉|警|直升机|★/.test(t)){$('topmsg').textContent=t;$('topmsg').style.opacity=1;topT=2.6}else{$('toast').textContent=t;$('toast').style.opacity=1;toastT=2.6}}
 const mini=$('mini').getContext('2d');
 // —— 完整地图：点小地图打开，游戏暂停；点关闭、点空白处或按 Esc/Tab 关闭
 let mapOpen=false;
@@ -1297,6 +1303,7 @@ function hud(dt){$('money').textContent='$'+player.money.toLocaleString();
   $('stars').innerHTML='<b>'+'★'.repeat(player.wanted)+'</b>'+'☆'.repeat(5-player.wanted);
   $('speed').textContent=player.car?Math.round(Math.abs(player.car.speed)*3.6)+' km/h':'';
   if(toastT>0&&(toastT-=dt)<=0)$('toast').style.opacity=0;
+  if(topT>0&&(topT-=dt)<=0)$('topmsg').style.opacity=0;
   const nc=!player.car&&nearCar();const bj=$('bJ');if(bj.textContent!==(nc?'上车':'跳跃')){bj.textContent=nc?'上车':'跳跃';bj.classList.toggle('car',nc)}
   let hint='';if(nc&&!touchMode)hint='按 E 上车';
   $('hint').textContent=hint;$('hint').style.opacity=hint?1:0;drawMini()}
@@ -1307,7 +1314,7 @@ const camPos=new THREE.Vector3(),camLook=new THREE.Vector3();let last=performanc
 let cut=null;
 function startCut(type){if(cut)return;if(boarding){setDoor(boarding.car,0);boarding.car.hold=0;boarding=null;player.mesh.visible=true}
   if(player.car){const c=player.car;exitCar(true)}toggleAim(false);
-  cut={type,t:0,yaw:camYaw,done:false};toastT=0;$('toast').style.opacity=0;const el=$('cut');el.hidden=false;el.className=type;requestAnimationFrame(()=>el.classList.add('on'));
+  cut={type,t:0,yaw:camYaw,done:false};toastT=0;topT=0;$('toast').style.opacity=0;$('topmsg').style.opacity=0;const el=$('cut');el.hidden=false;el.className=type;requestAnimationFrame(()=>el.classList.add('on'));
   $('cutTxt').textContent=type==='dead'?'你倒下了':'被捕！';$('cutSub').textContent=type==='dead'?'正在送往医院…':'正在押往警察局…';
   if(type==='dead'){SFX.explode&&sweep&&ac&&sweep('sawtooth',300,60,.12,1.6)}else if(ac){sweep('square',880,660,.05,.25);sweep('square',880,660,.05,.25,.3)}}
 function updCut(dt){const c=cut;c.t+=dt;const T=c.t;
