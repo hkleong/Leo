@@ -10,6 +10,8 @@ const STATUS = { yes: '参加', maybe: '可能来', no: '来不了' };
 const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
 const PH_LABEL = { open: '报名中', closed: '报名已截止', live: '进行中', ended: '已结束' };
 const NEEDS_LOGIN = new Set(['list', 'mine', 'event', 'edit', 'me', 'members']);
+// 会员审核开关：正式网站关闭；预览版打开（见 preview/build.py）。打开时还要部署 firestore-approval.rules。
+const REQUIRE_APPROVAL = !!window.__TX_REQUIRE_APPROVAL__;
 
 /* ---------- state ---------- */
 let api = null, authKnown = false, setupNeeded = false, regPromise = null;
@@ -21,8 +23,8 @@ const pub = {}, pubPending = new Set();
 let members = new Map(), membersLoaded = false;
 let myStatus = null, myStatusLoaded = false, unsubMyStatus = null, approvals = new Map(), approvalsLoaded = false, unsubApprovals = null, adminIds = new Set();
 let mtab = 'pending', mConfirm = null;
-const isMember = () => isAdmin || myStatus === 'approved';
-const statusOf = uid => adminIds.has(uid) ? 'admin' : ((approvals.get(uid) || {}).status || 'pending');
+const isMember = () => isAdmin || !REQUIRE_APPROVAL || myStatus === 'approved';
+const statusOf = uid => adminIds.has(uid) ? 'admin' : !REQUIRE_APPROVAL ? 'approved' : ((approvals.get(uid) || {}).status || 'pending');
 let route = { view: 'home', id: null }, pendingRoute = null;
 let tab = 'yes', myDraft = null, busy = false, confirmDel = null, confirmEvDel = false, formFor = null;
 
@@ -181,7 +183,10 @@ async function onAuthChange(u) {
     myStatusLoaded = true; startMemberData();
     try { adminIds = new Set(await api.listAdmins()); } catch (e) { adminIds = new Set([me.uid]); }
     unsubUsers = api.onUsers(lst => { members = new Map(lst); membersLoaded = true; render(); }, e => { console.error(e); membersLoaded = true; render(); });
-    unsubApprovals = api.onMembers(lst => { approvals = new Map(lst); approvalsLoaded = true; render(); }, e => { console.error(e); approvalsLoaded = true; render(); });
+    if (!REQUIRE_APPROVAL) approvalsLoaded = true;
+    else unsubApprovals = api.onMembers(lst => { approvals = new Map(lst); approvalsLoaded = true; render(); }, e => { console.error(e); approvalsLoaded = true; render(); });
+  } else if (!REQUIRE_APPROVAL) {
+    myStatusLoaded = true; startMemberData();
   } else {
     unsubMyStatus = api.onMyStatus(me.uid, st => {
       const was = isMember(); myStatus = st; myStatusLoaded = true;
@@ -592,7 +597,7 @@ $('regForm').addEventListener('submit', async e => {
   if (p1.length < 6) return msg('密码至少要 6 位。');
   if (p1 !== p2) return msg('两次输入的密码不一样。');
   busy = true; $('rBtn').disabled = true; msg('注册中…');
-  try { regPromise = api.register({ username, phone, gameId, password: p1 }); await regPromise; profile = { username, phone, gameId }; pub[me ? me.uid : ''] = { username }; msg(''); $('rPass').value = $('rPass2').value = ''; toast('注册成功！请等待管理员审核'); }
+  try { regPromise = api.register({ username, phone, gameId, password: p1 }); await regPromise; profile = { username, phone, gameId }; pub[me ? me.uid : ''] = { username }; msg(''); $('rPass').value = $('rPass2').value = ''; toast(REQUIRE_APPROVAL ? '注册成功！请等待管理员审核' : '注册成功，欢迎加入 The Imperial Club！'); }
   catch (er) { msg(errText(er)); }
   finally { busy = false; regPromise = null; $('rBtn').disabled = false; }
 });
@@ -657,6 +662,7 @@ function renderMembers() {
   const body = $('membersBody'); body.replaceChildren();
   if (!membersLoaded || !approvalsLoaded) return body.append(emptyBox('正在读取会员名单…'));
   const g = memberGroups();
+  $('mtabs').hidden = !REQUIRE_APPROVAL; if (!REQUIRE_APPROVAL) mtab = 'approved';
   $('membersCount').textContent = `共 ${members.size} 位注册会员` + (g.pending.length ? ` · ${g.pending.length} 位待审核` : '');
   document.querySelectorAll('#mtabs button').forEach(b => { b.setAttribute('aria-selected', b.dataset.t === mtab ? 'true' : 'false'); b.querySelector('b').textContent = g[b.dataset.t].length; });
   const rows = g[mtab];
@@ -674,7 +680,7 @@ function renderMembers() {
     if (st === 'pending') {
       btn('通过', 'ok', () => setStatus(uid, 'approved', `已通过 ${name}`));
       btn(mConfirm === 'rej' + uid ? '确认拒绝' : '拒绝', 'danger', () => { if (mConfirm !== 'rej' + uid) { mConfirm = 'rej' + uid; return renderMembers(); } mConfirm = null; setStatus(uid, 'rejected', `已拒绝 ${name}`); });
-    } else if (st === 'approved') {
+    } else if (st === 'approved' && REQUIRE_APPROVAL) {
       btn(mConfirm === 'rev' + uid ? '确认取消' : '取消资格', 'danger', () => { if (mConfirm !== 'rev' + uid) { mConfirm = 'rev' + uid; return renderMembers(); } mConfirm = null; setStatus(uid, 'rejected', `已取消 ${name} 的会员资格`); });
     } else if (st === 'rejected') {
       btn('改为通过', 'ok', () => setStatus(uid, 'approved', `已通过 ${name}`));

@@ -1,0 +1,82 @@
+rules_version = '2';
+
+// The Imperial Club 数据库权限规则（开启「会员审核」时使用）
+// 把整份内容贴到 Firebase 控制台 → Firestore Database → 规则 → 发布。
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function approved() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/members/$(request.auth.uid))
+        && get(/databases/$(database)/documents/members/$(request.auth.uid)).data.status == 'approved';
+    }
+    // 正式会员 = 管理员，或已通过审核的会员
+    function member() { return isAdmin() || approved(); }
+    function str(v, max) { return v is string && v.size() <= max; }
+    function validUser(d) {
+      return d.keys().hasOnly(['username', 'phone', 'gameId', 'createdAt', 'updatedAt'])
+        && str(d.username, 16) && d.username.size() >= 2
+        && str(d.phone, 20) && d.phone.size() >= 7
+        && str(d.gameId, 40) && d.gameId.size() >= 1;
+    }
+    function validPublic(uid, d) {
+      return d.keys().hasOnly(['username', 'updatedAt'])
+        && str(d.username, 16)
+        && d.username == getAfter(/databases/$(database)/documents/users/$(uid)).data.username;
+    }
+
+    // 管理员名单：网站不能修改，只能由你在 Firebase 控制台里手动添加
+    match /admins/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow write: if false;
+    }
+
+    // 审核状态：本人和管理员能看，只有管理员能改（approved 通过 / rejected 拒绝）
+    match /members/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['status', 'updatedAt', 'by'])
+        && request.resource.data.status in ['approved', 'rejected'];
+      allow delete: if isAdmin();
+    }
+
+    // 会员完整资料（用户名、电话号码、游戏 ID）：只有本人和管理员能看
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create: if isSelf(uid) && validUser(request.resource.data);
+      allow update: if isSelf(uid) && validUser(request.resource.data)
+        && request.resource.data.username == resource.data.username;
+      allow delete: if isAdmin();
+    }
+
+    // 公开资料：只有用户名，正式会员都能看
+    match /publicProfiles/{uid} {
+      allow read: if member();
+      allow create: if isSelf(uid) && validPublic(uid, request.resource.data);
+      allow update: if isSelf(uid) && validPublic(uid, request.resource.data)
+        && request.resource.data.username == resource.data.username;
+      allow delete: if isAdmin();
+    }
+
+    // 活动：正式会员能看，只有管理员能添加、修改、删除
+    match /events/{eventId} {
+      allow read: if member();
+      allow write: if isAdmin();
+
+      // 报名：正式会员能看名单，每个人只能改自己的回复；管理员可以移除任何人
+      match /rsvps/{uid} {
+        allow read: if member();
+        allow create, update: if isSelf(uid) && member()
+          && request.resource.data.keys().hasOnly(['status', 'note', 'updatedAt'])
+          && request.resource.data.status in ['yes', 'maybe', 'no']
+          && str(request.resource.data.note, 120);
+        allow delete: if isSelf(uid) || isAdmin();
+      }
+    }
+  }
+}

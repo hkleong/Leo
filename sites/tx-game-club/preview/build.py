@@ -8,6 +8,11 @@ css = html[html.index('<style>') + 7: html.index('</style>')]
 body = html[html.index('<body>') + 6: html.index('</body>')]
 body = body.replace('<script type="module" src="app.js"></script>', '')
 app = app.replace("import { firebaseConfig } from './firebase-config.js';", "const firebaseConfig = {};")
+# preview has member approval switched on
+body = body.replace('<p>注册会员后就能查看活动和报名。', '<p>注册并通过管理员审核后，就能查看牌局和报名。')
+body = body.replace('<span>填写用户名、电话号码、游戏 ID 和密码</span>', '<span>填写用户名、电话号码、游戏 ID 和密码，等待管理员审核</span>')
+body = body.replace('<small>管理员专用：电话和游戏 ID</small>', '<small>管理员专用：审核、电话和游戏 ID</small>')
+mock = 'window.__TX_REQUIRE_APPROVAL__ = true;\n' + mock
 assert "import " not in app.split('\n')[1]
 extra_css = '''
 /* preview badge */
@@ -17,6 +22,8 @@ extra_css = '''
 .pv button{border:1px solid var(--line);background:transparent;border-radius:8px;padding:2px 8px;font-size:12px;color:var(--ink)}
 .pv.min span,.pv.min #pvReset{display:none}
 .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 78px)}
+#viewApp{padding-bottom:150px}
+.foot{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 110px)}
 '''
 badge = '''<div class="pv" id="pv" role="note"><b>预览模式</b><span>数据只存在你的浏览器里，别人看不到 · 测试账号：admin / 123456（管理员）、小明 / 123456</span><button type="button" id="pvReset">重置预览数据</button><button type="button" id="pvMin" aria-label="收起提示">–</button></div>
 <script>

@@ -15,8 +15,9 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/members/$(request.auth.uid))
         && get(/databases/$(database)/documents/members/$(request.auth.uid)).data.status == 'approved';
     }
-    // 正式会员 = 管理员，或已通过审核的会员
-    function member() { return isAdmin() || approved(); }
+    // 目前不需要审核：登入的会员都算正式会员。
+    // 要开启会员审核，请改用 firestore-approval.rules（member() = isAdmin() || approved()）。
+    function member() { return signedIn(); }
     function str(v, max) { return v is string && v.size() <= max; }
     function validUser(d) {
       return d.keys().hasOnly(['username', 'phone', 'gameId', 'createdAt', 'updatedAt'])
