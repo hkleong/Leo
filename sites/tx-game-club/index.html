@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0b">
+<title>TX Game Club</title>
+<meta name="description" content="TX Game Club 会员活动网站：注册会员、查看俱乐部活动并报名。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Saira+Condensed:wght@500;700;800&family=ZCOOL+QingKe+HuangYou&display=swap">
+<style>
+/* Layout: standalone member site, hash-routed views. Home = full-bleed black/red bands (hero → about → next event → join); app = event list, event ticket + RSVP desk, and the host editor. Deliberately single-theme red on black. */
+:root{
+  --bg:#0a0a0b; --paper:#141416; --sunk:#1c1c1f; --ink:#f4f1f0; --muted:#a39d9c; --line:#2d2a2b;
+  --accent:#e3182a; --accent-hot:#ff3344; --accent-ink:#ffffff; --accent-soft:#3a0d12;
+  --good:#ff3344; --good-soft:#3a0d12; --maybe:#ece6e4; --maybe-soft:#2a2829; --no:#8a8485; --no-soft:#1f1e20;
+  --danger:#ff5a66;
+  --f-mark:"Anton","Impact","Arial Narrow Bold",sans-serif;
+  --f-display:"ZCOOL QingKe HuangYou","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-num:"Saira Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
+  --f-body:system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --r:18px;
+  --gut-l:max(16px,env(safe-area-inset-left,0px)); --gut-r:max(16px,env(safe-area-inset-right,0px));
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent-hot);outline-offset:2px}
+.in{max-width:1080px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+
+/* ---------- home ---------- */
+.nav{position:absolute;top:0;left:0;right:0;z-index:5}
+.nav .in{display:flex;align-items:center;justify-content:space-between;padding-block:18px}
+.mark{font-family:var(--f-mark);font-size:22px;letter-spacing:.04em;line-height:1;text-decoration:none;display:flex;align-items:center;gap:8px}
+.mark i{display:inline-block;width:12px;height:22px;background:var(--accent);transform:skewX(-14deg)}
+.navlink{border:1px solid rgba(255,255,255,.28);background:transparent;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;letter-spacing:.08em}
+.host{border:none;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;letter-spacing:.06em;white-space:nowrap}
+.host::before{content:"主办方 · ";font-weight:600;opacity:.8}
+.topright{display:flex;align-items:center;gap:12px}
+@media (max-width:420px){.topright .mark{display:none}}
+.hero{position:relative;min-height:88svh;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;
+  background:radial-gradient(120% 80% at 85% 15%,#2a070c 0%,transparent 60%),var(--bg)}
+.hero::before{content:"";position:absolute;z-index:-1;right:-12%;top:-20%;width:62%;height:150%;background:linear-gradient(180deg,var(--accent-hot),var(--accent) 55%,#8e0d18);transform:skewX(-14deg)}
+@media (max-width:640px){.hero::before{width:44%;right:-20%}}
+.hero::after{content:"";position:absolute;z-index:-1;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);pointer-events:none}
+.hero .in{width:100%;padding-block:110px 40px;display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.32em;color:var(--muted)}
+.wordmark{margin:0;font-family:var(--f-mark);font-weight:400;font-size:clamp(68px,17vw,200px);line-height:.86;letter-spacing:.01em;text-transform:uppercase}
+.wordmark span{display:block}
+.wordmark .o{color:transparent;-webkit-text-stroke:2px var(--ink)}
+.headline{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(28px,5.4vw,46px);line-height:1.15;max-width:16ch;text-wrap:balance}
+.headline em{font-style:normal;color:var(--accent-hot);background:var(--bg);padding:0 .18em;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.lede{margin:0;max-width:34em;color:#d8d2d1;font-size:16px}
+.cue{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:13px;letter-spacing:.16em;color:var(--muted)}
+.cue b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--accent);color:var(--accent-hot);font-size:16px;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(5px)}}
+.band{padding-block:72px}
+.band h2{margin:0 0 18px;font-family:var(--f-display);font-weight:400;font-size:clamp(28px,4.6vw,40px);line-height:1.15}
+.band h2 small{display:block;font-family:var(--f-mark);font-size:14px;letter-spacing:.22em;color:var(--accent-hot);margin-bottom:6px}
+.about{border-top:1px solid var(--line)}
+.about-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:40px;align-items:start}
+@media (max-width:760px){.about-grid{grid-template-columns:minmax(0,1fr);gap:24px}}
+.about p{margin:0 0 12px;color:#d8d2d1;max-width:36em}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.steps li{display:grid;grid-template-columns:56px minmax(0,1fr);gap:14px;align-items:start;padding:16px;background:var(--paper);border-radius:14px;border-left:3px solid var(--accent)}
+.steps .n{font-family:var(--f-mark);font-size:30px;line-height:1;color:var(--accent-hot)}
+.steps b{display:block;font-size:16px}
+.steps span{font-size:14px;color:var(--muted)}
+.next{background:var(--paper)}
+.next-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding:22px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg)}
+@media (max-width:620px){.next-card{grid-template-columns:minmax(0,1fr)}}
+.next-card h3{margin:6px 0 4px;font-family:var(--f-display);font-weight:400;font-size:28px;line-height:1.2;overflow-wrap:anywhere}
+.next-card p{margin:0;color:var(--muted)}
+.next-num{display:flex;gap:16px;text-align:center}
+.next-num b{display:block;font-family:var(--f-num);font-weight:800;font-size:40px;line-height:1;color:var(--accent-hot);font-variant-numeric:tabular-nums}
+.next-num span{font-size:12px;color:var(--muted)}
+.join{position:relative;overflow:hidden;background:var(--accent);color:var(--accent-ink);isolation:isolate}
+.join::before{content:"TX";position:absolute;z-index:-1;right:-2%;bottom:-24%;font-family:var(--f-mark);font-size:clamp(200px,40vw,420px);line-height:1;color:rgba(0,0,0,.16)}
+.join h2 small{color:rgba(255,255,255,.75)}
+.join p{margin:0 0 26px;max-width:32em;font-size:16px}
+.enter{display:inline-flex;align-items:center;gap:14px;background:var(--bg);color:var(--ink);text-decoration:none;font-weight:800;font-size:18px;letter-spacing:.08em;padding:16px 26px;border-radius:999px;box-shadow:0 6px 0 rgba(0,0,0,.35);transition:transform .1s,box-shadow .1s}
+.enter:hover{transform:translateY(-2px)}
+.enter:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.enter i{font-style:normal;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff}
+.foot{padding-block:26px calc(26px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:12px;letter-spacing:.1em;border-top:1px solid var(--line)}
+
+/* ---------- sign-up view ---------- */
+.topbar{border-bottom:1px solid var(--line);background:var(--bg)}
+.topbar .in{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:14px;font-weight:700;color:var(--muted)}
+.back:hover{color:var(--ink)}
+#viewSignup{padding-bottom:48px}
+.wrap{max-width:1080px;margin:28px auto 0;padding-left:var(--gut-l);padding-right:var(--gut-r);display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+/* ticket */
+.ticket{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 190px;background:var(--paper);border-radius:var(--r);
+  box-shadow:0 0 0 1px var(--line),0 18px 40px -22px rgba(227,24,42,.45);overflow:hidden}
+@media (max-width:560px){.ticket{grid-template-columns:minmax(0,1fr)}}
+.t-main{padding:26px 26px 24px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.t-stub{position:relative;padding:24px 20px;background:var(--accent);color:var(--accent-ink);display:flex;flex-direction:column;gap:14px;justify-content:space-between}
+.t-stub::before{content:"";position:absolute;left:-1px;top:14px;bottom:14px;border-left:2px dashed color-mix(in srgb,var(--accent-ink) 45%,transparent)}
+.ticket::before,.ticket::after{content:"";position:absolute;right:190px;width:22px;height:22px;border-radius:50%;background:var(--bg);transform:translateX(50%)}
+.ticket::before{top:-11px}.ticket::after{bottom:-11px}
+@media (max-width:560px){
+  .t-stub::before{left:14px;right:14px;top:-1px;bottom:auto;border-left:none;border-top:2px dashed color-mix(in srgb,var(--accent-ink) 45%,transparent)}
+  .ticket::before,.ticket::after{display:none}
+}
+.pill{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.14em;padding:4px 10px 4px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.closed{background:var(--no-soft);color:var(--no)}
+.pill.live{background:var(--good-soft);color:var(--good)}
+h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(34px,6vw,54px);line-height:1.08;letter-spacing:.02em;text-wrap:balance;overflow-wrap:anywhere}
+.meta{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;margin:0}
+.meta dt{font-size:12px;letter-spacing:.14em;color:var(--muted);padding-top:2px;white-space:nowrap}
+.meta dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.meta dd small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.linkrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.linkrow a{color:var(--accent);word-break:break-all}
+.mini{border:1px solid var(--line);background:var(--sunk);border-radius:8px;padding:2px 8px;font-size:12px}
+.stub-label{font-size:12px;letter-spacing:.2em;opacity:.85}
+.count{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center}
+.count b{display:block;font-family:var(--f-num);font-weight:800;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.count span{font-size:11px;opacity:.85}
+.stub-big{font-family:var(--f-display);font-size:26px;line-height:1.2}
+.seats b{font-family:var(--f-num);font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+.seats{font-size:13px}
+.bar{height:6px;border-radius:3px;background:color-mix(in srgb,var(--accent-ink) 25%,transparent);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent-ink)}
+.ics{border:1.5px solid color-mix(in srgb,var(--accent-ink) 60%,transparent);background:transparent;color:var(--accent-ink);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700}
+
+/* panels */
+.panel{background:var(--paper);border-radius:var(--r);padding:22px;box-shadow:0 0 0 1px var(--line);display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel h2{margin:0;font-size:18px;display:flex;align-items:baseline;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.panel h2 .sub{font-size:13px;font-weight:400;color:var(--muted)}
+.desc{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;color:var(--ink)}
+.note{font-size:13.5px;color:var(--muted);margin:0}
+.note.warn{color:var(--danger)}
+
+/* rsvp */
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg button{border:1.5px solid var(--line);background:var(--sunk);border-radius:12px;padding:10px 6px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px}
+.seg button small{font-weight:400;font-size:11.5px;color:var(--muted)}
+.seg button[aria-pressed="true"][data-v="yes"]{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.seg button[aria-pressed="true"][data-v="maybe"]{border-color:var(--maybe);background:var(--maybe-soft);color:var(--maybe)}
+.seg button[aria-pressed="true"][data-v="no"]{border-color:var(--no);background:var(--no-soft);color:var(--ink)}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted);min-width:0}
+label.f input,label.f textarea{border:1.5px solid var(--line);background:var(--sunk);border-radius:10px;padding:10px 12px;color:var(--ink);font-size:15px;width:100%}
+label.f textarea{resize:vertical;min-height:84px}
+label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:none}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:999px;padding:11px 20px;background:var(--accent);color:var(--accent-ink);font-weight:800;letter-spacing:.06em}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.ghost{border:1.5px solid var(--line);border-radius:999px;padding:9px 16px;background:transparent;font-weight:600}
+.danger{color:var(--danger)}
+.mine{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--sunk)}
+.status{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.status.yes{background:var(--good-soft);color:var(--good)}
+.status.maybe{background:var(--maybe-soft);color:var(--maybe)}
+.status.no{background:var(--no-soft);color:var(--no)}
+
+/* roster */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;font-size:13px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tabs b{font-family:var(--f-num);font-size:15px;margin-left:4px;font-variant-numeric:tabular-nums}
+.roster{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.roster li{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
+.roster li:first-child{border-top:none}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff;background:var(--accent)}
+.who{min-width:0}
+.who b{display:block;overflow-wrap:anywhere}
+.who span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.who p{margin:4px 0 0;font-size:13.5px;overflow-wrap:anywhere}
+.side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.empty{padding:18px;border:1.5px dashed var(--line);border-radius:12px;color:var(--muted);text-align:center;font-size:14px}
+.skel{height:14px;border-radius:7px;background:var(--sunk);animation:sk 1.2s ease-in-out infinite alternate}
+@keyframes sk{to{opacity:.4}}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+.owner-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+
+/* ---------- event list + editor ---------- */
+#viewApp{padding-bottom:56px}
+.page{max-width:1080px;margin:28px auto 0;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.page-head h1{font-size:clamp(30px,5vw,44px)}
+.page-head p{margin:6px 0 0;color:var(--muted)}
+.evlist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.evcard{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px;background:var(--paper);border-radius:16px;box-shadow:0 0 0 1px var(--line);text-decoration:none;transition:box-shadow .15s,transform .15s}
+.evcard:hover{box-shadow:0 0 0 1.5px var(--accent);transform:translateY(-1px)}
+.evdate{background:var(--accent);color:#fff;border-radius:12px;text-align:center;padding:10px 4px 8px;line-height:1}
+.evdate b{display:block;font-family:var(--f-num);font-weight:800;font-size:36px}
+.evdate span{display:block;font-size:12px;letter-spacing:.06em;margin-top:4px}
+.evinfo{min-width:0;display:flex;flex-direction:column;gap:4px}
+.evinfo h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:23px;line-height:1.2;overflow-wrap:anywhere}
+.evinfo p{margin:0;font-size:13.5px;color:var(--muted);overflow-wrap:anywhere}
+.evside{display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap}
+.evside b{font-family:var(--f-num);font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
+.go{color:var(--accent-hot);font-weight:800}
+.past .evcard{opacity:.78}
+.past .evdate{background:var(--sunk);color:var(--muted)}
+@media (max-width:540px){
+  .evcard{grid-template-columns:64px minmax(0,1fr)}
+  .evside{grid-column:2;flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px}
+  .evdate b{font-size:28px}
+}
+.list-sec{margin-top:32px}
+.list-sec > h2{font-size:13px;letter-spacing:.24em;color:var(--muted);margin:0 0 12px;font-weight:700}
+.editwrap{max-width:760px}
+.homeacts{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px}
+.morelink{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:2px}
+/* ---------- menu drawer ---------- */
+.navleft{display:flex;align-items:center;gap:12px;min-width:0}
+.menubtn{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(10,10,11,.55);display:grid;place-items:center;padding:0}
+.menubtn span{display:block;width:18px;height:2px;border-radius:1px;background:var(--ink);box-shadow:0 -6px 0 var(--ink),0 6px 0 var(--ink)}
+.menubtn:hover{border-color:var(--accent)}
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:41;top:0;bottom:0;left:0;width:min(86vw,max(33.333vw,300px));background:var(--paper);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;overflow-y:auto;transform:translateX(-102%);visibility:hidden;
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility 0s linear .3s;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px) max(18px,env(safe-area-inset-left,0px))}
+.drawer.open{transform:none;visibility:visible;transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility 0s}
+.drawer::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+.dhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dclose{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:transparent;font-size:20px;line-height:1;padding:0}
+.dlabel{margin:28px 0 8px;font-size:12px;letter-spacing:.24em;color:var(--muted);font-weight:700}
+.dnav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.dnav a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:12px;text-decoration:none}
+.dnav a b{display:block;font-size:17px}
+.dnav a small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.dnav a:hover{background:var(--sunk)}
+.dnav a[aria-current="page"]{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.dnav a[aria-current="page"] b{color:var(--accent-hot)}
+.dcount{flex:none;min-width:28px;height:28px;padding:0 8px;border-radius:999px;display:grid;place-items:center;font-family:var(--f-num);font-weight:800;font-size:16px;background:var(--sunk);color:var(--ink);font-variant-numeric:tabular-nums}
+.dfoot{margin-top:auto;padding-top:24px;font-family:var(--f-mark);letter-spacing:.08em;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){.drawer,.drawer.open,.scrim{transition:none}}
+.cardlink{display:inline-block;margin-top:12px;color:var(--accent-hot);font-weight:800;text-decoration:none}
+
+/* ---------- accounts ---------- */
+.host::before{content:"管理员 · "}
+.navright{display:flex;align-items:center;gap:14px}
+.authbox{display:flex;align-items:center;gap:14px}
+.btn-login{display:inline-flex;align-items:center;background:var(--accent);color:#fff;border-radius:999px;padding:8px 18px;font-weight:800;font-size:14px;text-decoration:none;letter-spacing:.08em;white-space:nowrap}
+.btn-login:hover{background:var(--accent-hot)}
+.lnk-reg{color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;white-space:nowrap}
+.lnk-reg:hover{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:5px}
+.userchip{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:14px;max-width:170px;min-width:0}
+.userchip .uname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av.sm{width:30px;height:30px;font-size:13px;flex:none}
+@media (max-width:600px){#toJoin{display:none}.host::before{content:none}.topbar .back{display:none}}
+.authwrap{max-width:480px;margin:36px auto 0;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+.authwrap h1{font-size:clamp(30px,6vw,40px);margin-bottom:4px}
+.check{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink);cursor:pointer;width:fit-content}
+.check input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.switch{font-size:14px;color:var(--muted);margin:0}
+.switch a{color:var(--accent-hot);font-weight:700}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;margin:0;font-size:14px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;overflow-wrap:anywhere;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kv code{font-size:12.5px;background:var(--sunk);padding:2px 6px;border-radius:6px;word-break:break-all}
+label.f input[readonly]{opacity:.65}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.mtable{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+.mtable th,.mtable td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.mtable th{font-size:12px;letter-spacing:.12em;color:var(--muted);background:var(--sunk);font-weight:700}
+.mtable tr:last-child td{border-bottom:none}
+.mtable tr.self td:first-child::after{content:"（你）";color:var(--muted)}
+.lock{display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--accent-soft);color:var(--accent-hot);font-size:24px}
+</style>
+</head>
+<body>
+<div id="viewHome">
+  <nav class="nav" aria-label="网站导航">
+    <div class="in">
+      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a></div>
+      <div class="navright"><button class="navlink" type="button" id="toJoin">报名入口 ↓</button><div class="authbox" data-auth></div></div>
+    </div>
+  </nav>
+  <header class="hero">
+    <div class="in">
+      <div class="eyebrow">TX GAME CLUB · 游戏俱乐部</div>
+      <h1 class="wordmark"><span>TX Game</span><span class="o">Club</span></h1>
+      <p class="headline">报名以参加<em>俱乐部活动</em></p>
+      <p class="lede">TX Game Club 的游戏活动都在这里发布。注册成为会员，看清时间和玩法，报个名，到点一起上线开玩。</p>
+      <div class="cue" aria-hidden="true"><b>↓</b>下拉找到报名入口</div>
+    </div>
+  </header>
+
+  <section class="band about">
+    <div class="in about-grid">
+      <div>
+        <h2><small>ABOUT</small>关于这个网站</h2>
+        <p>这是 TX Game Club 的活动公告板。每次俱乐部办活动，管理员会把时间、游戏、玩法和名额发布在这里。</p>
+        <p>注册会员后就能查看活动和报名。其他会员只看得到你的用户名；你的电话号码和游戏 ID 只有管理员看得到。</p>
+      </div>
+      <ol class="steps">
+        <li><span class="n">01</span><div><b>注册会员</b><span>填写用户名、电话号码、游戏 ID 和密码</span></div></li>
+        <li><span class="n">02</span><div><b>选择活动报名</b><span>选「参加」「可能来」或「来不了」，名单会实时更新</span></div></li>
+        <li><span class="n">03</span><div><b>准时上线</b><span>可以把活动加进日历，开始前 30 分钟提醒你</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band next" aria-labelledby="nextTitle">
+    <div class="in">
+      <h2 id="nextTitle"><small>NEXT EVENT</small>下一场活动</h2>
+      <div class="next-card" id="nextCard">
+        <div>
+          <span class="pill" id="nPill">读取中</span>
+          <h3 id="nName">正在读取…</h3>
+          <p id="nWhen"></p>
+          <a class="cardlink" id="nLink" href="#events" hidden>查看详情并报名 →</a>
+          <div class="actions" id="nAuth" style="margin-top:14px" hidden><a class="btn-login" href="#login">登入</a><a class="lnk-reg" href="#register">注册</a></div>
+        </div>
+        <div class="next-num" id="nNums" hidden>
+          <div><b id="nDays">--</b><span>天后开始</span></div>
+          <div><b id="nSeats">0</b><span id="nSeatsLabel">人已报名</span></div>
+        </div>
+      </div>
+      <div class="homeacts">
+        <a class="morelink" id="allLink" href="#events" hidden>全部活动 →</a>
+        <button class="host" type="button" id="homeAdd" hidden>+ 添加活动</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="band join" id="join" aria-labelledby="joinTitle">
+    <div class="in">
+      <h2 id="joinTitle"><small>SIGN UP</small>报名入口</h2>
+      <p>点下面的按钮进入报名页，选一场活动查看详情，并告诉大家你会不会来。还不是会员的话，先注册一下。</p>
+      <a class="enter" href="#events">进入报名页面 <i aria-hidden="true">→</i></a>
+    </div>
+  </section>
+  <footer class="foot"><div class="in">TX GAME CLUB</div></footer>
+</div>
+
+<div id="viewApp" hidden>
+  <header class="topbar">
+    <div class="in">
+      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="back" id="backLink" href="#home">← 返回首页</a></div>
+      <div class="topright"><button class="host" type="button" id="topHost" hidden>+ 添加活动</button><div class="authbox" data-auth></div></div>
+    </div>
+  </header>
+
+  <section id="secSetup" class="authwrap" hidden>
+    <div class="panel">
+      <div class="lock" aria-hidden="true">!</div>
+      <h2>网站还没连接数据库</h2>
+      <p class="note">管理员需要先按 README 里的步骤创建 Firebase 项目，并把配置填进 firebase-config.js。</p>
+    </div>
+  </section>
+
+  <section id="secGate" class="authwrap" hidden>
+    <div class="panel">
+      <div class="lock" aria-hidden="true">🔒</div>
+      <h2>会员才能查看</h2>
+      <p class="note">活动和报名只对 TX Game Club 会员开放。登入后会自动回到这个页面。</p>
+      <div class="actions"><a class="btn-login" href="#login">登入</a><a class="lnk-reg" href="#register">还没有账号？注册</a></div>
+    </div>
+  </section>
+
+  <section id="secLogin" class="authwrap" hidden>
+    <h1>登入</h1>
+    <p class="switch" style="margin-bottom:18px">还没有账号？<a href="#register">注册会员</a></p>
+    <form id="loginForm" class="panel" novalidate>
+      <label class="f">用户名<input id="lUser" autocomplete="username" maxlength="16" required></label>
+      <label class="f">密码<input id="lPass" type="password" autocomplete="current-password" required></label>
+      <label class="check"><input type="checkbox" id="lRemember"> 记住我（下次打开不用再登入）</label>
+      <div class="actions"><button class="btn" type="submit" id="lBtn">登入</button><span class="note warn" id="lMsg" role="alert"></span></div>
+    </form>
+    <div class="panel" id="loginDone" hidden>
+      <h2>你已经登入了</h2>
+      <p class="note">当前账号：<b id="loginDoneName"></b></p>
+      <div class="actions"><a class="btn" href="#events" style="text-decoration:none">去看活动</a><a class="ghost" href="#me" style="text-decoration:none">我的资料</a></div>
+    </div>
+  </section>
+
+  <section id="secRegister" class="authwrap" hidden>
+    <h1>注册会员</h1>
+    <p class="switch" style="margin-bottom:18px">已经有账号了？<a href="#login">直接登入</a></p>
+    <form id="regForm" class="panel" novalidate>
+      <label class="f">用户名（其他会员会看到）<input id="rUser" autocomplete="username" maxlength="16" placeholder="2–16 个字：中文、英文、数字或下划线" required></label>
+      <label class="f">电话号码<input id="rPhone" type="tel" autocomplete="tel" maxlength="20" placeholder="例如 +60 12-345 6789" required></label>
+      <label class="f">游戏 ID<input id="rGame" maxlength="40" placeholder="你在游戏里的 ID" required></label>
+      <div class="grid2">
+        <label class="f">密码<input id="rPass" type="password" autocomplete="new-password" placeholder="至少 6 位" required></label>
+        <label class="f">确认密码<input id="rPass2" type="password" autocomplete="new-password" required></label>
+      </div>
+      <p class="note">电话号码和游戏 ID 只有管理员看得到；其他会员只看得到你的用户名。</p>
+      <div class="actions"><button class="btn" type="submit" id="rBtn">注册</button><span class="note warn" id="rMsg" role="alert"></span></div>
+    </form>
+    <div class="panel" id="regDone" hidden>
+      <h2>你已经是会员了</h2>
+      <div class="actions"><a class="btn" href="#events" style="text-decoration:none">去看活动</a><a class="ghost" href="#me" style="text-decoration:none">我的资料</a></div>
+    </div>
+  </section>
+
+  <section id="secMe" class="authwrap" hidden>
+    <h1>我的资料</h1>
+    <p class="switch" id="meIntro" style="margin-bottom:18px"></p>
+    <form id="meForm" class="panel" novalidate>
+      <label class="f">用户名（注册后不能修改，用来登入）<input id="mUser" readonly></label>
+      <label class="f">电话号码<input id="mPhone" type="tel" autocomplete="tel" maxlength="20" required></label>
+      <label class="f">游戏 ID<input id="mGame" maxlength="40" required></label>
+      <div class="actions"><button class="btn" type="submit">保存资料</button><span class="note warn" id="mMsg" role="alert"></span></div>
+    </form>
+    <div class="panel" style="margin-top:16px">
+      <dl class="kv">
+        <dt>身份</dt><dd id="meRole"></dd>
+        <dt>会员编号</dt><dd><code id="meUid"></code><button class="mini" type="button" id="meCopyUid">复制</button></dd>
+      </dl>
+      <p class="note">设置管理员时需要用到会员编号（见 README）。</p>
+      <div class="actions"><button class="ghost danger" type="button" id="logout">退出登入</button></div>
+    </div>
+  </section>
+
+  <section id="secMembers" class="page" hidden>
+    <div class="page-head">
+      <div><h1>会员名单</h1><p id="membersCount">只有管理员能看到这个页面。</p></div>
+      <button class="mini" type="button" id="copyMembers">复制名单</button>
+    </div>
+    <div id="membersBody"></div>
+  </section>
+
+  <section id="secList" class="page" hidden>
+    <div class="page-head"><div><h1>选择活动报名</h1><p>点一场活动，查看详情并报名。</p></div></div>
+    <div id="listBody"></div>
+  </section>
+
+  <section id="secMine" class="page" hidden>
+    <div class="page-head"><div><h1>我的报名</h1><p>你回复过的活动都在这里，点进去可以修改或撤回。</p></div></div>
+    <div id="mineBody"></div>
+  </section>
+
+  <section id="secMissing" class="page" hidden>
+    <div class="panel"><h2 id="missTitle">找不到这个活动</h2><p class="note" id="missText"></p><div class="actions"><a class="btn" href="#events" style="text-decoration:none">查看全部活动</a></div></div>
+  </section>
+
+  <main id="secEvent" class="wrap" hidden>
+    <div class="col">
+      <article class="ticket">
+        <div class="t-main" id="tMain"></div>
+        <aside class="t-stub" id="tStub"></aside>
+      </article>
+      <section class="panel" id="descPanel" hidden>
+        <h2>活动介绍</h2>
+        <p class="desc" id="desc"></p>
+      </section>
+    </div>
+    <div class="col">
+      <section class="panel">
+        <h2>报名 <span class="sub" id="rsvpSub"></span></h2>
+        <div id="rsvpBody" class="col" style="gap:12px"></div>
+      </section>
+      <section class="panel">
+        <h2>谁会来 <span class="owner-bar" id="ownerBar" hidden><button class="mini" type="button" id="copyList">复制名单</button><button class="mini" type="button" id="editBtn">编辑活动</button></span></h2>
+        <div class="tabs" role="tablist" id="tabs">
+          <button role="tab" data-t="yes" aria-selected="true">参加<b id="nYes">0</b></button>
+          <button role="tab" data-t="maybe" aria-selected="false">可能来<b id="nMaybe">0</b></button>
+          <button role="tab" data-t="no" aria-selected="false">来不了<b id="nNo">0</b></button>
+        </div>
+        <ul class="roster" id="roster"></ul>
+        <div class="empty" id="rosterEmpty">正在读取报名名单…</div>
+      </section>
+    </div>
+  </main>
+
+  <section id="secEdit" class="page editwrap" hidden>
+    <div class="panel">
+      <h2><span id="editTitle">添加新活动</span> <span class="sub">只有管理员能看到这里</span></h2>
+      <form id="editForm" class="col" style="gap:12px">
+        <label class="f">活动名称<input id="fTitle" maxlength="60" required placeholder="例如：周六晚上 计时赛"></label>
+        <div class="grid2">
+          <label class="f">玩什么游戏<input id="fGame" maxlength="40" placeholder="例如：暮色公路"></label>
+          <label class="f">方式 / 地点<input id="fPlace" maxlength="60" placeholder="例如：线上，语音频道见"></label>
+        </div>
+        <div class="grid2">
+          <label class="f">开始时间<input id="fStart" type="datetime-local" required></label>
+          <label class="f">大约多久（分钟）<input id="fDur" type="number" min="10" max="1440" step="5" value="120"></label>
+        </div>
+        <div class="grid2">
+          <label class="f">报名截止（可不填）<input id="fDeadline" type="datetime-local"></label>
+          <label class="f">人数上限（0 表示不限）<input id="fCap" type="number" min="0" max="999" value="0"></label>
+        </div>
+        <label class="f">链接（可不填，比如游戏或语音房间的链接）<input id="fLink" type="url" maxlength="300" placeholder="https://"></label>
+        <label class="f">活动介绍<textarea id="fDesc" maxlength="2000" placeholder="规则、奖励、需要提前准备什么……"></textarea></label>
+        <div class="actions">
+          <button class="btn" type="submit" id="fSave">保存并公布</button>
+          <a class="ghost" id="fCancel" href="#events" style="text-decoration:none">取消</a>
+          <button class="ghost danger" type="button" id="fDelete" hidden>删除这个活动</button>
+          <span class="note" id="fMsg"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="drawer" aria-label="网站菜单" aria-hidden="true">
+  <div class="dhead">
+    <a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a>
+    <button class="dclose" type="button" id="dClose" aria-label="关闭菜单">×</button>
+  </div>
+  <div class="dlabel">MENU</div>
+  <ul class="dnav">
+    <li><a href="#home" data-nav="home"><span><b>首页</b><small>俱乐部介绍和下一场活动</small></span></a></li>
+    <li><a href="#events" data-nav="list"><span><b>活动</b><small>查看全部活动并报名</small></span><span class="dcount" id="dEvents" hidden>0</span></a></li>
+    <li><a href="#mine" data-nav="mine"><span><b>我的报名</b><small>我回复过的活动</small></span><span class="dcount" id="dMine" hidden>0</span></a></li>
+    <li><a href="#me" data-nav="me" id="dMeLink"><span><b id="dMeLabel">我的资料</b><small id="dMeSub"></small></span></a></li>
+    <li id="dMembersItem" hidden><a href="#members" data-nav="members"><span><b>会员名单</b><small>管理员专用：电话和游戏 ID</small></span></a></li>
+  </ul>
+  <div class="dfoot">TX GAME CLUB</div>
+</nav>
+<div id="toast" class="toast" hidden></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
