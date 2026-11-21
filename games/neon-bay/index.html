@@ -308,29 +308,73 @@ const carColors=[0xff3d8b,0x1fb5a8,0xffe14d,0xf4f4f4,0x8a5cff,0xff7a2f,0x2fd17a,
 const glassMat=new THREE.MeshLambertMaterial({color:0x1a2236}),tailMat=new THREE.MeshBasicMaterial({color:0xff2a3a}),headMat=new THREE.MeshBasicMaterial({color:0xfff4d0});
 const redMat=()=>new THREE.MeshBasicMaterial({color:0xff1030}),blueMat=()=>new THREE.MeshBasicMaterial({color:0x1050ff});
 const wheelGeo=new THREE.CylinderGeometry(.55,.55,.45,12);wheelGeo.rotateZ(Math.PI/2);const wheelMat=M(0x111114);
-// kind: sport 跑车 / sedan 轿车 / police 警车 / suv 警用SUV
-function carMesh(kind,col){const g=new THREE.Group();const add=(m,x,y,z)=>{m.position.set(x,y,z);g.add(m);return m};let siren=null;
-  const W=kind==='suv'?2.6:2.4,L=kind==='suv'?5:kind==='sport'?4.8:4.6,bodyH=kind==='sport'?.7:kind==='suv'?1.2:.9,y0=kind==='suv'?1.25:kind==='sport'?.85:1;
-  add(box(W,bodyH,L,col),0,y0,0);
-  if(kind==='sport'){add(box(W*.96,.35,1.3,col),0,y0-.05,L/2-.3).rotation.x=.18;
-    add(box(W*.8,.6,1.9,glassMat),0,y0+.6,-.3);add(box(W*.82,.12,1.6,col),0,y0+.95,-.4);
-    add(box(W*.95,.1,.55,0x15151a),0,y0+.95,-L/2+.25);for(const sd of[-1,1])add(box(.1,.5,.1,0x15151a),sd*.8,y0+.65,-L/2+.3);
-    add(box(.5,.06,L*.9,0xffffff),0,y0+.36,0).material.color.set(col===0x1fb5a8?0xff3d8b:0xffffff)}
-  else{const cabH=kind==='suv'?1.1:.85;add(box(W*.86,cabH,kind==='suv'?3.4:2.4,kind==='sedan'?glassMat:0xf4f4f4),0,y0+bodyH/2+cabH/2,-.2);
-    if(kind!=='sedan'){add(box(W*.88,cabH*.7,kind==='suv'?3.2:2.2,glassMat),0,y0+bodyH/2+cabH/2,-.2);add(box(W*.86,.12,kind==='suv'?3.4:2.4,0xf4f4f4),0,y0+bodyH/2+cabH+.02,-.2)}}
-  if(kind==='police'||kind==='suv'){ // 白色车门 + 警徽 + 灯排 + 推杆
-    for(const sd of[-1,1]){add(box(.06,bodyH*.9,2.3,0xf4f4f4),sd*(W/2+.02),y0,-.1);add(box(.05,.4,.4,0xd9a93a),sd*(W/2+.06),y0+.05,-.1)}
-    const top=y0+bodyH/2+(kind==='suv'?1.1:.85)+.2;add(box(1.8,.12,.4,0x222222),0,top-.05,-.2);
-    const s1=add(box(.85,.22,.38,redMat()),-.45,top+.1,-.2),s2=add(box(.85,.22,.38,blueMat()),.45,top+.1,-.2);siren=[s1,s2];
-    add(box(W*.7,.6,.15,0x111111),0,y0-.1,L/2+.25)}
-  add(new THREE.Mesh(new THREE.BoxGeometry(W*.75,.22,.08),headMat),0,y0+.1,L/2+.02);
+// 车型参数：max 极速 / acc 加速 / steer 转向 / hp 耐久 / mass 撞击时推开别人的力度
+const SPECS={
+ wedge:{name:'楔形超跑',max:54,acc:28,steer:2.0,hp:90,mass:1},
+ coupe:{name:'银色轿跑',max:50,acc:25,steer:1.95,hp:100,mass:1},
+ convertible:{name:'敞篷肌肉车',max:44,acc:21,steer:1.7,hp:110,mass:1.1},
+ sedan:{name:'复古轿车',max:38,acc:16,steer:1.75,hp:110,mass:1},
+ taxi:{name:'出租车',max:39,acc:17,steer:1.8,hp:110,mass:1},
+ pickup:{name:'大脚皮卡',max:37,acc:17,steer:1.5,hp:190,mass:1.8},
+ police:{name:'警车',max:47,acc:21,steer:1.9,hp:110,mass:1.2},
+ suv:{name:'警用 SUV',max:44,acc:19,steer:1.6,hp:170,mass:1.6},
+};
+const goldMat=M(0xc89a3a),chromeMat=M(0xd8dce4),tanMat=M(0xc8925a),blackMat=M(0x15151a),stripeMat=M(0xff4fa3);
+let taxiTex=null;function taxiSign(){if(!taxiTex){const c=document.createElement('canvas');c.width=128;c.height=48;const g=c.getContext('2d');g.fillStyle='#ffe14d';g.fillRect(0,0,128,48);
+  g.fillStyle='#15151a';g.font='bold 34px Impact,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('TAXI',64,26);taxiTex=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)})}return taxiTex}
+function carMesh(kind,col){
+  const g=new THREE.Group();const add=(m,x,y,z,rx=0)=>{m.position.set(x,y,z);m.rotation.x=rx;g.add(m);return m};let siren=null;
+  const D={wedge:[2.5,4.8,.62,.8,.5],coupe:[2.4,4.7,.7,.85,.52],convertible:[2.5,5.2,.8,1,.55],sedan:[2.4,4.8,.85,1,.55],taxi:[2.4,4.8,.85,1,.55],
+    pickup:[2.7,5.4,1.1,1.95,.92],police:[2.4,4.6,.9,1,.55],suv:[2.6,5,1.2,1.25,.6]}[kind];
+  const[W,L,bH,y0,wr]=D,top=y0+bH/2;
+  add(box(W,bH,L,col),0,y0,0);
+  if(kind==='wedge'){ // 楔形超跑：低趴、斜鼻、侧进气、大尾翼、斜条纹
+    add(box(W*.98,.3,1.5,col),0,y0-.12,L/2-.2,.22);
+    add(box(W*.78,.55,1.8,glassMat),0,top+.22,-.2,-.12);add(box(W*.8,.1,1.2,col),0,top+.5,-.45);
+    add(box(W*.84,.12,1.2,col),0,top+.04,-L/2+.8);
+    add(box(W+.3,.1,.6,col),0,top+.75,-L/2+.3);for(const sd of[-1,1])add(box(.12,.7,.12,col),sd*.9,top+.38,-L/2+.35);
+    for(const sd of[-1,1]){add(box(.06,.3,1,blackMat),sd*(W/2+.01),y0+.05,-.6);
+      for(let k=0;k<3;k++)add(box(.05,.12,1.6,stripeMat),sd*(W/2+.03),y0-.15+k*.17,.6+k*.25,-.35)}
+    for(const sd of[-1,1])add(box(.7,.08,.5,0x15151a),sd*.65,top+.02,L/2-.6)}
+  else if(kind==='coupe'){ // 银色轿跑：长溜背
+    add(box(W*.97,.25,1.3,col),0,y0+.05,L/2-.3,.15);
+    add(box(W*.82,.6,2.4,glassMat),0,top+.26,-.35);add(box(W*.84,.1,1.5,col),0,top+.6,-.25);
+    add(box(W*.8,.4,1.1,col),0,top+.1,-L/2+.6,.45)}
+  else if(kind==='convertible'){ // 敞篷：长车头、棕色内饰、镀铬保险杠
+    add(box(W*.84,.12,1.7,0x3a2a22),0,top+.02,-.3);for(const sd of[-1,1])add(box(.75,.6,.6,tanMat),sd*.5,top+.25,-.1);add(box(W*.8,.55,.55,tanMat),0,top+.25,-1.2);
+    add(box(W*.86,.55,.08,glassMat),0,top+.3,.75,-.5);add(box(W*.86,.06,.12,chromeMat),0,top+.55,.62);
+    for(const z of[L/2+.05,-L/2-.05])add(box(W*1.02,.2,.15,chromeMat),0,y0-.25,z);
+    add(box(W*.6,.06,1.4,col),0,top+.03,L/2-1)}
+  else if(kind==='pickup'){ // 大脚皮卡：抬高底盘、粗胎、后斗
+    add(box(W*.94,1.1,2,col),0,top+.55,.2);add(box(W*.96,.7,1.9,glassMat),0,top+.6,.2);add(box(W*.94,.1,2,col),0,top+1.12,.2);
+    add(box(W*.9,.14,2.1,0x0e0e12),0,top+.05,-1.55);for(const sd of[-1,1])add(box(.12,.5,2.2,col),sd*(W/2-.06),top+.25,-1.55);add(box(W,.5,.12,col),0,top+.25,-L/2+.05);
+    add(box(W*.8,.6,.1,0x2a2a30),0,y0+.1,L/2+.03);add(box(W*1.02,.25,.25,blackMat),0,y0-.45,L/2+.1);add(box(W*1.02,.25,.25,blackMat),0,y0-.45,-L/2-.1)}
+  else{const cabH=kind==='suv'?1.1:.85,cabL=kind==='suv'?3.4:2.5,glass=kind==='sedan'||kind==='taxi';
+    add(box(W*.86,cabH,cabL,glass?glassMat:0xf4f4f4),0,top+cabH/2,-.25);
+    add(box(W*.88,.1,cabL*.92,glass?col:0xf4f4f4),0,top+cabH+.02,-.25);
+    if(!glass)add(box(W*.88,cabH*.7,cabL*.94,glassMat),0,top+cabH/2,-.25);
+    if(glass){for(const z of[L/2+.05,-L/2-.05])add(box(W*1.02,.22,.15,chromeMat),0,y0-.25,z);add(box(W*.6,.3,.06,chromeMat),0,y0+.05,L/2+.03)}
+    if(kind==='taxi'){add(new THREE.Mesh(new THREE.BoxGeometry(1.1,.4,.5),taxiSign()),0,top+cabH+.3,-.2);for(const sd of[-1,1])add(box(.05,.18,3.8,0x15151a),sd*(W/2+.01),y0+.1,0)}
+    if(kind==='police'||kind==='suv'){
+      for(const sd of[-1,1]){add(box(.06,bH*.9,2.3,0xf4f4f4),sd*(W/2+.02),y0,-.1);add(box(.05,.4,.4,0xd9a93a),sd*(W/2+.06),y0+.05,-.1)}
+      const ty=top+cabH+.2;add(box(1.8,.12,.4,0x222222),0,ty-.05,-.2);
+      const s1=add(box(.85,.22,.38,redMat()),-.45,ty+.1,-.2),s2=add(box(.85,.22,.38,blueMat()),.45,ty+.1,-.2);siren=[s1,s2];
+      add(box(W*.7,.6,.15,0x111111),0,y0-.1,L/2+.25)}}
+  // 车灯：复古车四圆灯，跑车一字灯
+  if(kind==='sedan'||kind==='taxi'||kind==='convertible'||kind==='pickup')for(const sd of[-1,1])for(const k of[0,1])add(new THREE.Mesh(new THREE.BoxGeometry(.28,.24,.08),headMat),sd*(W/2-.35-k*.32),y0+.12,L/2+.02);
+  else add(new THREE.Mesh(new THREE.BoxGeometry(W*.75,.16,.08),headMat),0,y0+.08,L/2+.02);
   for(const sd of[-1,1])add(new THREE.Mesh(new THREE.BoxGeometry(.6,.2,.08),tailMat),sd*(W/2-.45),y0+.15,-L/2-.02);
-  const wy=.55,wz=L/2-1.05;const wheels=[];for(const[wx,wz2]of[[-1,1],[1,1],[-1,-1],[1,-1]]){const w=new THREE.Mesh(wheelGeo,wheelMat);w.position.set(wx*(W/2-.1),wy,wz2*wz);w.castShadow=true;g.add(w);wheels.push(w)}
+  // 轮子（复古车金色轮毂）
+  const rimMat=(kind==='convertible'||kind==='sedan'||kind==='taxi')?goldMat:kind==='coupe'||kind==='wedge'?M(0x2a2a30):null;
+  const wz=L/2-1.05,ww=kind==='pickup'?.75:.45;const wheels=[];
+  for(const[wx,wz2]of[[-1,1],[1,1],[-1,-1],[1,-1]]){const w=new THREE.Mesh(wheelGeo,wheelMat);w.scale.set(ww/.45,wr/.55,wr/.55);w.position.set(wx*(W/2-.1+(kind==='pickup'?.15:0)),wr,wz2*wz);w.castShadow=true;g.add(w);wheels.push(w);
+    if(rimMat){const r=new THREE.Mesh(new THREE.BoxGeometry(.05,1.1,1.1),rimMat);r.scale.set(1,.55,.55);r.position.x=wx*.24;w.add(r)}}
   g.userData.wheels=wheels;return{g,siren}}
-function makeCar(x,z,h,opts={}){const kind=opts.kind??(opts.police?'police':R()<.25?'sport':'sedan');
+const TRAFFIC=[['sedan',0x8a3fc8],['sedan',0x2a6fd0],['sedan',0xe8e2d4],['sedan',0xff7a2f],['taxi',0xffd21f],['taxi',0xffd21f],['convertible',0xf4f0e6],['convertible',0xff3d8b],['pickup',0x15151a],['pickup',0x8a2020],['coupe',0xc8ccd4],['coupe',0x22252e],['wedge',0x1fb5a8],['wedge',0xd92a3a]];
+function makeCar(x,z,h,opts={}){let kind=opts.kind;if(!kind&&!opts.police){const t=TRAFFIC[(R()*TRAFFIC.length)|0];kind=t[0];if(opts.color===undefined)opts={...opts,color:t[1]}}kind=kind??'police';
   const col=opts.police?0x14161c:opts.color??carColors[(R()*carColors.length)|0];
-  const{g,siren}=carMesh(kind,col);scene.add(g);
-  const c={mesh:g,x,z,h,speed:0,driver:opts.police?'cop':'ai',police:!!opts.police,kind,hp:kind==='suv'?160:100,siren,dir:null,lane:0,stuck:0,dead:false};
+  const{g,siren}=carMesh(kind,col);g.position.set(x,0,z);g.rotation.y=h;scene.add(g);
+  const c={mesh:g,x,z,h,speed:0,driver:opts.police?'cop':'ai',police:!!opts.police,kind,hp:SPECS[kind].hp,siren,dir:null,lane:0,stuck:0,dead:false};
   cars.push(c);return c}
 // 警察局门前停着的警车和警用摩托（装饰）
 {const S=station;[[-12,'police'],[-5,'police'],[9,'suv']].forEach(([dx,k])=>{const{g}=carMesh(k,0x14161c);g.position.set(S.x+dx,0,S.z+19);g.rotation.y=Math.PI;scene.add(g)});
@@ -363,18 +407,18 @@ function updHeli(dt){if(player.wanted>=3&&!heli){heli=makeHeli();toast('警用�
   if(((performance.now()/60)|0)%3===0)beep(55,.05,'sawtooth',.015);
   return player.wanted>=3&&Math.hypot(gx-player.x,gz-player.z)<9}
 function carPhysics(c,thr,steer,brake,dt){
-  const max=c.police?46:40;
-  if(thr>0)c.speed+=thr*(c.speed<0?40:18)*dt;else if(thr<0)c.speed+=thr*(c.speed>0?36:12)*dt;else c.speed*=1-1.2*dt;
+  const sp=SPECS[c.kind]||SPECS.sedan,max=c.driver==='ai'?40:sp.max;
+  if(thr>0)c.speed+=thr*(c.speed<0?40:sp.acc)*dt;else if(thr<0)c.speed+=thr*(c.speed>0?36:12)*dt;else c.speed*=1-1.2*dt;
   if(brake)c.speed*=1-3*dt;
   c.speed=clamp(c.speed,-12,max);
-  c.h+=steer*clamp(c.speed/10,-1,1)*(brake?2.6:1.8)*dt;
+  c.h+=steer*clamp(c.speed/10,-1,1)*(brake?sp.steer+.8:sp.steer)*dt;
   const nx=c.x+Math.sin(c.h)*c.speed*dt,nz=c.z+Math.cos(c.h)*c.speed*dt;
   if(hit(nx,nz,1.6)){if(Math.abs(c.speed)>14){crashFx(c);c.hp-=Math.abs(c.speed)*.6}c.speed*=-.3;}
   else{c.x=nx;c.z=nz}
   // 车与车碰撞
   for(const o of cars)if(o!==c&&!o.dead){const dx=o.x-c.x,dz=o.z-c.z,d=Math.hypot(dx,dz);
     if(d<3.6&&d>0){const p=(3.6-d)/2;c.x-=dx/d*p;c.z-=dz/d*p;o.x+=dx/d*p;o.z+=dz/d*p;
-      if(Math.abs(c.speed)>10){o.speed=c.speed*.5;c.speed*=.4;if(c===player.car&&!o.police)addHeat(.3);if(c===player.car)beep(90,.15,'sawtooth',.1)}}}
+      if(Math.abs(c.speed)>10){const ms=(SPECS[c.kind]||SPECS.sedan).mass/((SPECS[o.kind]||SPECS.sedan).mass);o.speed=c.speed*.5*ms;c.speed*=Math.min(.9,.4*ms);if(c===player.car&&!o.police)addHeat(.3);if(c===player.car)beep(90,.15,'sawtooth',.1)}}}
   c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;for(const w of c.mesh.userData.wheels)w.rotation.x+=c.speed*dt/.55;
   if(c.hp<=0)explode(c)}
 
@@ -478,7 +522,7 @@ function enterCar(){let best=null,bd=5.5;for(const c of cars)if(!c.dead){const d
   if(!best)return;
   if(best.driver==='ai'){const p=spawnPed(best.x+3,best.z);if(p)p.flee=5;addHeat(best.speed>2?.5:.2)}
   if(best.police)addHeat(1.5);
-  best.driver='player';player.car=best;player.mesh.visible=false;beep(300,.1);beep(450,.1)}
+  best.driver='player';player.car=best;toast((SPECS[best.kind]||SPECS.sedan).name);player.mesh.visible=false;beep(300,.1);beep(450,.1)}
 function exitCar(force){const c=player.car;if(!c)return;if(!force&&Math.abs(c.speed)>6)return;
   c.driver=null;player.car=null;player.mesh.visible=true;
   player.x=c.x+Math.cos(c.h)*3;player.z=c.z-Math.sin(c.h)*3;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*3;player.z=c.z+Math.sin(c.h)*3}player.rot=c.h}
@@ -494,7 +538,7 @@ const jobs=[
  {name:'急件快递',start(){const n=randNode(200);mission.x=n.x;mission.z=n.z;mission.timer=75;mission.reward=2500;setM('把包裹送到黄色光柱，限时 75 秒');beamMat.color.set(0xffe14d)}},
  {name:'海滨竞速',start(){mission.pts=[randNode(120),randNode(120),randNode(120)];const p=mission.pts.shift();mission.x=p.x;mission.z=p.z;mission.timer=90;mission.reward=4000;
    setM('开车穿过 3 个检查点，限时 90 秒');beamMat.color.set(0x22d3ee);if(!player.car)toast('先抢一辆车！')}},
- {name:'偷跑车',start(){const n=randNode(150);const c=makeCar(n.x,n.z,0,{color:0xffc83d,kind:'sport'});c.driver=null;mission.car=c;mission.x=n.x;mission.z=n.z;mission.timer=0;mission.reward=6000;
+ {name:'偷跑车',start(){const n=randNode(150);const c=makeCar(n.x,n.z,0,{color:0xffc83d,kind:'wedge'});c.driver=null;mission.car=c;mission.x=n.x;mission.z=n.z;mission.timer=0;mission.reward=6000;
    setM('找到那辆金色跑车并开走');beamMat.color.set(0xffe14d)}},
  {name:'甩掉追兵',start(){player.heat=Math.max(player.heat,2.5);mission.timer=0;mission.reward=5000;mission.esc=true;setM('警察来了！甩掉通缉');beamMat.visible=false}}
 ];
@@ -569,7 +613,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   for(const c of[...cars]){if(c.dead||c===player.car)continue;if(c.police)driveCop(c,dt);else if(c.driver==='ai')driveAI(c,dt);else{c.speed*=1-2*dt;if(Math.abs(c.speed)>.3)carPhysics(c,0,0,true,dt)}}
   for(const p of[...peds])updPed(p,dt);
   // 远处回收 + 补充
-  for(const c of[...cars])if(c.driver==='ai'&&Math.hypot(c.x-player.x,c.z-player.z)>220)removeCar(c);
+  for(const c of[...cars])if(c.driver==='ai'&&!c.parked&&Math.hypot(c.x-player.x,c.z-player.z)>220)removeCar(c);
   for(const p of[...peds])if(Math.hypot(p.x-player.x,p.z-player.z)>200){scene.remove(p.mesh);peds.splice(peds.indexOf(p),1)}
   if(cars.filter(c=>c.driver==='ai').length<28)spawnTraffic();if(peds.length<40)spawnPed();
   if(cash.length<12&&R()<.02){const n=randNode(30);dropCash(n.x+rr(-30,30),n.z+rr(-30,30),(rr(50,300))|0)}
@@ -585,14 +629,20 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
     camYaw+=d*Math.min(1,dt*rate)}
   const dist=player.car?11+Math.abs(player.car.speed)*.12:7,hgt=player.car?5:4;
   camPos.set(player.x-Math.sin(camYaw)*dist,hgt,player.z-Math.cos(camYaw)*dist);cam.position.lerp(camPos,Math.min(1,dt*8));
-  camLook.set(player.x,player.car?1.5:2.5,player.z);cam.lookAt(camLook);
+  sky.position.copy(cam.position);camLook.set(player.x,player.car?1.5:2.5,player.z);cam.lookAt(camLook);
   sun.position.set(player.x-120,180,player.z+80);sun.target.position.set(player.x,0,player.z);
   hud(dt);ren.render(scene,cam)}
 let camYaw=0;
 function angDiff(a,b){return((a-b)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI}
 function tryMove(dx,dz){if(!hit(player.x+dx,player.z,.6))player.x+=dx;if(!hit(player.x,player.z+dz,.6))player.z+=dz}
 for(let k=0;k<24;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
-{const c=makeCar(road(0)+6,road(2)+8,0,{color:0x1fb5a8,kind:'sport'});c.driver=null}
+{const c=makeCar(road(0)+6,road(2)+8,0,{color:0x1fb5a8,kind:'wedge'});c.driver=null}
+// 海滩停车场：六种车停成一排（东侧沙滩，空车可直接开走）
+{const px=HALF+30,pz0=-40;const lot=new THREE.Mesh(new THREE.PlaneGeometry(22,62),M(0x3a3348));lot.rotation.x=-Math.PI/2;lot.position.set(px,.04,pz0+25);lot.receiveShadow=true;scene.add(lot);
+ const lm=new THREE.MeshBasicMaterial({color:0xf4f0e6});for(let k=0;k<=6;k++){const l=new THREE.Mesh(new THREE.PlaneGeometry(9,.25),lm);l.rotation.x=-Math.PI/2;l.position.set(px+4,.06,pz0+k*8.5-2);scene.add(l)}
+ const sg=new THREE.Mesh(new THREE.PlaneGeometry(10,3.75),signMat('PARK',0x22d3ee));sg.position.set(px+14,5,pz0+25);sg.rotation.y=-Math.PI/2;scene.add(sg);
+ [['wedge',0x1fb5a8],['convertible',0xf4f0e6],['pickup',0x15151a],['sedan',0x8a3fc8],['taxi',0xffd21f],['coupe',0xc8ccd4]].forEach(([k,col],i)=>{
+   const c=makeCar(px+4,pz0+i*8.5+2.25,-Math.PI/2,{kind:k,color:col});c.driver=null;c.parked=1});}
 offerMission();cam.position.set(player.x,40,player.z-40);
 for(const[id,k]of[['pickF','heroF'],['pickM','heroM']])$(id).addEventListener('click',()=>{setHero(k);
   for(const b of document.querySelectorAll('.hero')){const on=b.id===id;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)}});
