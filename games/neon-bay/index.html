@@ -704,9 +704,9 @@ function carPhysics(c,thr,steer,brake,dt){
 const node=(i,j)=>({x:road(i),z:road(j)});
 function aiPickNext(c){const d=[[1,0],[-1,0],[0,1],[0,-1]].filter(([a,b])=>{const i=c.ni+a,j=c.nj+b;return nodeOK(i,j)&&!(a===-c.dx&&b===-c.dz)});
   if(!d.length)d.push([-c.dx,-c.dz]);const[a,b]=d[(R()*d.length)|0];c.dx=a;c.dz=b;c.ni+=a;c.nj+=b}
-function spawnTraffic(){const i=(R()*(N+1))|0,j=(R()*(N+1))|0;if(!nodeOK(i,j))return;const n=node(i,j);
+function spawnTraffic(patrol){const i=(R()*(N+1))|0,j=(R()*(N+1))|0;if(!nodeOK(i,j))return;const n=node(i,j);
   if(Math.hypot(n.x-player.x,n.z-player.z)<50)return;
-  const c=makeCar(n.x,n.z,0);c.ni=i;c.nj=j;c.dx=0;c.dz=0;aiPickNext(c);c.h=Math.atan2(c.dx,c.dz)}
+  const c=makeCar(n.x,n.z,0,patrol?{police:true}:{});if(patrol){c.driver='ai';c.patrol=1}c.ni=i;c.nj=j;c.dx=0;c.dz=0;aiPickNext(c);c.h=Math.atan2(c.dx,c.dz)}
 function driveAI(c,dt){const n=node(c.ni,c.nj);const tx=n.x+c.dz*3.5,tz=n.z-c.dx*3.5;
   if(Math.hypot(tx-c.x,tz-c.z)<4)aiPickNext(c);
   const want=Math.atan2(tx-c.x,tz-c.z);let diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;
@@ -790,11 +790,12 @@ function updWanted(dt){const w=clamp(Math.ceil(player.heat-.001),0,5);
   if(seen)player.lastSeen=0;else player.lastSeen+=dt;
   if(player.wanted>0&&player.lastSeen>7){player.heat=Math.max(0,player.heat-dt*.6);if(player.heat<=0){toast('甩掉警察了');}}
   if(player.wanted>0&&cops.length<player.wanted+1&&R()<dt*.6)spawnCop();
-  if(player.wanted===0)for(const c of cops)if(Math.hypot(c.x-player.x,c.z-player.z)>120){removeCar(c)}
-  for(const c of cops)for(const s of c.siren)s.visible=((performance.now()/150)|0)%2===(c.siren.indexOf(s))}
+  if(player.wanted===0)for(const c of cops)if(!c.patrol&&Math.hypot(c.x-player.x,c.z-player.z)>120){removeCar(c)}
+  for(const c of cops)for(const s of c.siren)s.visible=player.wanted>0&&((performance.now()/150)|0)%2===(c.siren.indexOf(s))}
 function spawnCop(){for(let k=0;k<10;k++){const i=(R()*(N+1))|0,j=(R()*(N+1))|0,n=node(i,j),d=Math.hypot(n.x-player.x,n.z-player.z);
   if(nodeOK(i,j)&&d>70&&d<150){const c=makeCar(n.x,n.z,Math.atan2(player.x-n.x,player.z-n.z),{police:true,kind:player.wanted>=3&&R()<.5?'suv':'police'});return c}}}
-function driveCop(c,dt){const tx=player.car?player.car.x:player.x,tz=player.car?player.car.z:player.z;
+function driveCop(c,dt){if(c.patrol&&c.driver==='ai'&&player.wanted===0){driveAI(c,dt);return}
+  const tx=player.car?player.car.x:player.x,tz=player.car?player.car.z:player.z;
   if(player.wanted===0){driveAI2(c,dt);return}
   const want=Math.atan2(tx-c.x,tz-c.z);let diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;const d=Math.hypot(tx-c.x,tz-c.z);
   if(c.rev>0){c.rev-=dt;carPhysics(c,-1,-clamp(diff*2,-1,1),false,dt);return}
@@ -835,11 +836,17 @@ function doPunch(){beep(180,.06,'triangle',.08);if(player.car)return;
   for(const p of peds){if(p.dead||p.knock>0)continue;const dx=p.x-player.x,dz=p.z-player.z,f=dx*fx+dz*fz,sd=Math.abs(dx*fz-dz*fx);
     if(f>0&&f<1.9&&sd<1){beep(90,.12,'square',.12);p.knock=3;p.x+=fx*.8;p.z+=fz*.8;addHeat(p.cop?1:.3);if(!p.cop&&R()<.4)dropCash(p.x,p.z,rr(5,40)|0);
       for(const o of peds)if(!o.dead&&!o.cop&&o!==p&&Math.hypot(o.x-p.x,o.z-p.z)<15)o.flee=5;return}}}
+// 附近有没有警察看着：警车 60 米内、步行警员 40 米内、直升机光柱下
+function copWitness(x,z){for(const c of cars)if(c.police&&!c.dead&&c!==player.car&&Math.hypot(c.x-x,c.z-z)<60)return true;
+  for(const o of peds)if(o.cop&&!o.dead&&Math.hypot(o.x-x,o.z-z)<40)return true;
+  return !!(heli&&player.wanted>=3&&Math.hypot(heli.x-x,heli.z-z)<30)}
 // ===== 上下车 =====
 function enterCar(){let best=null,bd=5.5;for(const c of cars)if(!c.dead){const d=Math.hypot(c.x-player.x,c.z-player.z);if(d<bd){bd=d;best=c}}
   if(!best)return;
-  if(best.driver==='ai'){const p=spawnPed(best.x+3,best.z);if(p)p.flee=5;addHeat(best.speed>2?.5:.2)}
-  if(best.police)addHeat(1.5);
+  const seen=copWitness(best.x,best.z);
+  if(best.driver==='ai'){const p=spawnPed(best.x+3,best.z);if(p)p.flee=5;if(seen)addHeat(best.speed>2?.5:.2)}
+  if(best.police&&seen)addHeat(1.5);
+  if((best.driver==='ai'||best.police)&&seen)setTimeout(()=>toast('被警察看到了！'),900);
   best.driver='player';player.car=best;toast((SPECS[best.kind]||SPECS.sedan).name);player.mesh.visible=false;beep(300,.1);beep(450,.1)}
 function exitCar(force){const c=player.car;if(!c)return;if(!force&&Math.abs(c.speed)>6)return;
   c.driver=null;player.car=null;player.mesh.visible=true;
@@ -969,7 +976,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   // 远处回收 + 补充
   for(const c of[...cars])if(c.driver==='ai'&&!c.parked&&Math.hypot(c.x-player.x,c.z-player.z)>220)removeCar(c);
   for(const p of[...peds])if(Math.hypot(p.x-player.x,p.z-player.z)>200){if(p.bench)p.bench.used=null;scene.remove(p.mesh);peds.splice(peds.indexOf(p),1)}
-  if(cars.filter(c=>c.driver==='ai').length<28)spawnTraffic();if(peds.length<40)spawnPed();
+  if(cars.filter(c=>c.driver==='ai').length<28)spawnTraffic();if(cars.filter(c=>c.patrol&&!c.dead).length<3)spawnTraffic(true);if(peds.length<40)spawnPed();
   if(cash.length<12&&R()<.02){const n=randNode(30);dropCash(n.x+rr(-30,30),n.z+rr(-30,30),(rr(50,300))|0)}
   for(const k of[...cash]){k.m.rotation.y+=dt*3;if(Math.hypot(k.x-player.x,k.z-player.z)<3){player.money+=k.v;beep(1200,.08,'sine',.08);scene.remove(k.m);cash.splice(cash.indexOf(k),1)}}
   for(const f of[...fxs]){f.t+=dt;if(f.smoke){f.m.position.y+=dt*3;f.m.material.opacity=.6-f.t*.4}else{f.m.scale.setScalar(1+f.t*2);f.m.material.opacity=.9-f.t}if(f.t>1.4){scene.remove(f.m);fxs.splice(fxs.indexOf(f),1)}}
