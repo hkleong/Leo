@@ -33,7 +33,11 @@ a{color:inherit}
 .nav{position:absolute;top:0;left:0;right:0;z-index:5}
 .nav .in{display:flex;align-items:center;justify-content:space-between;padding-block:18px}
 .mark{font-family:var(--f-mark);font-weight:700;font-size:19px;letter-spacing:.08em;line-height:1;text-decoration:none;display:flex;align-items:center;gap:8px;white-space:nowrap}
-.mark i{font-style:normal;color:var(--accent);font-size:1.15em;line-height:1}
+.mark-img{height:34px;width:auto;flex:none}
+.dhead .mark{font-size:17px;min-width:0}
+.dhead .mark .m-x{display:none}
+.hero-crest{display:block;align-self:flex-start;height:128px;width:auto;max-width:100%;object-fit:contain;margin-bottom:6px;filter:drop-shadow(0 8px 24px rgba(201,162,74,.18))}
+@media (max-width:640px){.hero-crest{height:92px}.cards{display:none}}
 @media (max-width:440px){.nav .mark .m-x{display:none}}
 .navlink{border:1px solid rgba(255,255,255,.28);background:transparent;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;letter-spacing:.08em}
 .host{border:none;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;letter-spacing:.06em;white-space:nowrap}
@@ -298,7 +302,7 @@ label.f input[readonly]{opacity:.65}
 <div id="viewHome">
   <nav class="nav" aria-label="网站导航">
     <div class="in">
-      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="mark" href="#home"><i aria-hidden="true">♠&#xFE0E;</i><span><span class="m-x">THE </span>IMPERIAL<span class="m-x"> CLUB</span></span></a></div>
+      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="mark" href="#home"><img class="mark-img" src="img/crest-96.png" alt="" width="74" height="96"><span><span class="m-x">THE </span>IMPERIAL<span class="m-x"> CLUB</span></span></a></div>
       <div class="navright"><button class="navlink" type="button" id="toJoin">报名入口 ↓</button><div class="authbox" data-auth></div></div>
     </div>
   </nav>
@@ -308,6 +312,7 @@ label.f input[readonly]{opacity:.65}
       <div class="pcard c2"><span class="r">K<i>♠&#xFE0E;</i></span><span class="big">&#x265A;&#xFE0E;</span><span class="r b">K<i>♠&#xFE0E;</i></span></div>
     </div>
     <div class="in">
+      <img class="hero-crest" src="img/crest-440.png" alt="The Imperial Club 徽章" width="338" height="440">
       <div class="eyebrow">THE IMPERIAL CLUB · 德州扑克俱乐部</div>
       <h1 class="wordmark"><span class="the">The</span><span>Imperial</span><span class="o">Club</span></h1>
       <p class="headline">报名以参加<em>俱乐部活动</em></p>
@@ -528,7 +533,7 @@ label.f input[readonly]{opacity:.65}
 <div class="scrim" id="scrim" hidden></div>
 <nav class="drawer" id="drawer" aria-label="网站菜单" aria-hidden="true">
   <div class="dhead">
-    <a class="mark" href="#home"><i aria-hidden="true">♠&#xFE0E;</i><span><span class="m-x">THE </span>IMPERIAL<span class="m-x"> CLUB</span></span></a>
+    <a class="mark" href="#home"><img class="mark-img" src="img/crest-96.png" alt="" width="74" height="96"><span><span class="m-x">THE </span>IMPERIAL<span class="m-x"> CLUB</span></span></a>
     <button class="dclose" type="button" id="dClose" aria-label="关闭菜单">×</button>
   </div>
   <div class="dlabel">MENU</div>
