@@ -214,13 +214,39 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
 .editwrap{max-width:760px}
 .homeacts{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px}
 .morelink{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:2px}
+/* ---------- menu drawer ---------- */
+.navleft{display:flex;align-items:center;gap:12px;min-width:0}
+.menubtn{flex:none;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(10,10,11,.55);display:grid;place-items:center;padding:0}
+.menubtn span{display:block;width:18px;height:2px;border-radius:1px;background:var(--ink);box-shadow:0 -6px 0 var(--ink),0 6px 0 var(--ink)}
+.menubtn:hover{border-color:var(--accent)}
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;z-index:41;top:0;bottom:0;left:0;width:min(86vw,max(33.333vw,300px));background:var(--paper);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;overflow-y:auto;transform:translateX(-102%);visibility:hidden;
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility 0s linear .3s;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px) max(18px,env(safe-area-inset-left,0px))}
+.drawer.open{transform:none;visibility:visible;transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility 0s}
+.drawer::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+.dhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dclose{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:transparent;font-size:20px;line-height:1;padding:0}
+.dlabel{margin:28px 0 8px;font-size:12px;letter-spacing:.24em;color:var(--muted);font-weight:700}
+.dnav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.dnav a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border-radius:12px;text-decoration:none}
+.dnav a b{display:block;font-size:17px}
+.dnav a small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.dnav a:hover{background:var(--sunk)}
+.dnav a[aria-current="page"]{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.dnav a[aria-current="page"] b{color:var(--accent-hot)}
+.dcount{flex:none;min-width:28px;height:28px;padding:0 8px;border-radius:999px;display:grid;place-items:center;font-family:var(--f-num);font-weight:800;font-size:16px;background:var(--sunk);color:var(--ink);font-variant-numeric:tabular-nums}
+.dfoot{margin-top:auto;padding-top:24px;font-family:var(--f-mark);letter-spacing:.08em;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){.drawer,.drawer.open,.scrim{transition:none}}
 .cardlink{display:inline-block;margin-top:12px;color:var(--accent-hot);font-weight:800;text-decoration:none}
 </style>
 
 <div id="viewHome">
   <nav class="nav" aria-label="网站导航">
     <div class="in">
-      <a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a>
+      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a></div>
       <button class="navlink" type="button" id="toJoin">报名入口 ↓</button>
     </div>
   </nav>
@@ -284,7 +310,7 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
 <div id="viewApp" hidden>
   <header class="topbar">
     <div class="in">
-      <a class="back" id="backLink" href="#home">← 返回首页</a>
+      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="back" id="backLink" href="#home">← 返回首页</a></div>
       <div class="topright"><button class="host" type="button" id="topHost" hidden>+ 添加活动</button><a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a></div>
     </div>
   </header>
@@ -294,6 +320,13 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
       <div><h1>选择活动报名</h1><p>点一场活动，查看详情并报名。</p></div>
     </div>
     <div id="listBody"></div>
+  </section>
+
+  <section id="secMine" class="page" hidden>
+    <div class="page-head">
+      <div><h1>我的报名</h1><p>你回复过的活动都在这里，点进去可以修改或撤回。</p></div>
+    </div>
+    <div id="mineBody"></div>
   </section>
 
   <section id="secMissing" class="page" hidden>
@@ -358,6 +391,20 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
     </div>
   </section>
 </div>
+<div class="scrim" id="scrim" hidden></div>
+<nav class="drawer" id="drawer" aria-label="网站菜单" aria-hidden="true">
+  <div class="dhead">
+    <a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a>
+    <button class="dclose" type="button" id="dClose" aria-label="关闭菜单">×</button>
+  </div>
+  <div class="dlabel">MENU</div>
+  <ul class="dnav">
+    <li><a href="#home" data-nav="home"><span><b>首页</b><small>俱乐部介绍和下一场活动</small></span></a></li>
+    <li><a href="#signup" data-nav="list"><span><b>活动</b><small>查看全部活动并报名</small></span><span class="dcount" id="dEvents" hidden>0</span></a></li>
+    <li><a href="#mine" data-nav="mine"><span><b>我的报名</b><small>我回复过的活动</small></span><span class="dcount" id="dMine" hidden>0</span></a></li>
+  </ul>
+  <div class="dfoot">TX GAME CLUB</div>
+</nav>
 <div id="toast" class="toast" hidden></div>
 
 <script>
@@ -434,6 +481,7 @@ function writeResp(uid, evId, body, okMsg) {
 function parseRoute() {
   const h = location.hash.slice(1);
   if (h === 'signup') return { view: 'list', id: null };
+  if (h === 'mine') return { view: 'mine', id: null };
   if (h === 'new') return { view: 'edit', id: null };
   let m = h.match(/^event-([a-z0-9]+)$/); if (m) return { view: 'event', id: m[1] };
   m = h.match(/^edit-([a-z0-9]+)$/); if (m) return { view: 'edit', id: m[1] };
@@ -455,18 +503,20 @@ $('editBtn').onclick = () => go('edit-' + route.id);
 $('topHost').onclick = () => go(route.view === 'event' ? 'edit-' + route.id : 'new');
 
 function render() {
-  renderHome();
+  renderHome(); renderDrawer();
   if (route.view === 'home') return;
   renderTop();
   const cur = route.id ? events.get(route.id) : null;
   const missing = eventsLoaded && db && route.id && !cur;
   $('secList').hidden = route.view !== 'list';
+  $('secMine').hidden = route.view !== 'mine';
   $('secEvent').hidden = route.view !== 'event' || missing;
   $('secEdit').hidden = route.view !== 'edit' || missing || !isHost();
   $('secMissing').hidden = !(missing || (route.view === 'edit' && booted && !isHost()));
   if (route.view === 'edit' && booted && !isHost()) { $('missTitle').textContent = '只有主办方可以编辑活动'; $('missText').textContent = '如果你想办活动，请联系 TX Game Club 的主办方。'; }
   else { $('missTitle').textContent = '找不到这个活动'; $('missText').textContent = '它可能已经被主办方删除了。'; }
   if (route.view === 'list') renderList();
+  if (route.view === 'mine') renderMine();
   if (route.view === 'event' && !missing) renderEvent();
   if (route.view === 'edit' && !missing && isHost()) renderEdit();
 }
@@ -474,6 +524,7 @@ function renderTop() {
   const back = $('backLink'), hb = $('topHost');
   if (route.view === 'list') { back.href = '#home'; back.textContent = '← 返回首页'; hb.textContent = '+ 添加活动'; hb.hidden = !isHost(); }
   else if (route.view === 'event') { back.href = '#signup'; back.textContent = '← 全部活动'; hb.textContent = '编辑活动'; hb.hidden = !isHost() || !events.get(route.id); }
+  else if (route.view === 'mine') { back.href = '#home'; back.textContent = '← 返回首页'; hb.hidden = true; }
   else { back.href = route.id ? '#event-' + route.id : '#signup'; back.textContent = '← 返回'; hb.hidden = true; }
 }
 
@@ -751,6 +802,47 @@ $('fDelete').onclick = async () => {
   const ok = await write(() => db.doc('events/' + route.id).delete(), '活动已删除');
   if (ok) go('signup');
 };
+
+/* ---------- my sign-ups ---------- */
+const myEvents = () => sorted().filter(([id]) => myResp(id));
+function renderMine() {
+  const box = $('mineBody'); box.replaceChildren();
+  if (!db && booted) { box.append(emptyBox('登录 Claude 后才能查看你的报名。')); return; }
+  if (!eventsLoaded || !rsvpLoaded) { box.append(emptyBox(slowEv || slowRs ? '暂时连不上数据，稍后刷新页面再试。' : '正在读取你的报名…')); return; }
+  const all = myEvents(), up = all.filter(([, e]) => phaseOf(e) !== 'ended'), ps = all.filter(([, e]) => phaseOf(e) === 'ended').reverse();
+  if (!all.length) {
+    const e = emptyBox('你还没有报名任何活动。'); const a = el('a', 'cardlink', '去看看有哪些活动 →'); a.href = '#signup';
+    e.append(el('br'), a); box.append(e); return;
+  }
+  if (up.length) box.append(listOf(up)); else box.append(emptyBox('你报名的活动都已经结束了。'));
+  if (ps.length) { const sec = el('section', 'list-sec past'); sec.append(el('h2', null, '已结束'), listOf(ps)); box.append(sec); }
+}
+
+/* ---------- menu drawer ---------- */
+const drawer = $('drawer'), scrim = $('scrim');
+let menuOpener = null;
+function setMenu(open) {
+  drawer.classList.toggle('open', open); drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+  if (open) { scrim.hidden = false; requestAnimationFrame(() => scrim.classList.add('open')); }
+  else { scrim.classList.remove('open'); setTimeout(() => { if (!drawer.classList.contains('open')) scrim.hidden = true; }, 260); }
+  document.querySelectorAll('[data-menu]').forEach(b => b.setAttribute('aria-expanded', open ? 'true' : 'false'));
+  document.body.style.overflow = open ? 'hidden' : '';
+  if (open) setTimeout(() => { const cur = drawer.querySelector('[aria-current="page"]') || drawer.querySelector('.dnav a'); try { cur.focus({ preventScroll: true }); } catch (e) { } }, 60);
+  else if (menuOpener) { try { menuOpener.focus({ preventScroll: true }); } catch (e) { } menuOpener = null; }
+}
+document.querySelectorAll('[data-menu]').forEach(b => b.onclick = () => { menuOpener = b; setMenu(true); });
+$('dClose').onclick = () => setMenu(false);
+scrim.onclick = () => setMenu(false);
+drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('open')) setMenu(false); });
+function renderDrawer() {
+  const sec = route.view === 'home' ? 'home' : route.view === 'mine' ? 'mine' : 'list';
+  drawer.querySelectorAll('[data-nav]').forEach(a => { if (a.dataset.nav === sec) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  const ready = db && eventsLoaded;
+  const nUp = ready ? upcoming().length : 0, nMine = ready && rsvpLoaded ? myEvents().filter(([, e]) => phaseOf(e) !== 'ended').length : 0;
+  $('dEvents').hidden = !nUp; $('dEvents').textContent = nUp;
+  $('dMine').hidden = !nMine; $('dMine').textContent = nMine;
+}
 
 /* ---------- boot ---------- */
 onRoute();
