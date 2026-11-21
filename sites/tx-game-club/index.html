@@ -297,6 +297,7 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
 .kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;margin:0;font-size:14px}
 .kv dt{color:var(--muted)}
 .kv dd{margin:0;overflow-wrap:anywhere;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kv code.memno{font-family:var(--f-num);font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--accent-hot);background:var(--accent-soft)}
 .kv code{font-size:12.5px;background:var(--sunk);padding:2px 6px;border-radius:6px;word-break:break-all}
 label.f input[readonly]{opacity:.65}
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
@@ -475,9 +476,8 @@ label.f input[readonly]{opacity:.65}
     <div class="panel" style="margin-top:16px">
       <dl class="kv">
         <dt>身份</dt><dd id="meRole"></dd>
-        <dt>会员编号</dt><dd><code id="meUid"></code><button class="mini" type="button" id="meCopyUid">复制</button></dd>
+        <dt>会员编号</dt><dd><code id="meNo" class="memno"></code><button class="mini" type="button" id="meCopyNo">复制</button></dd>
       </dl>
-      <p class="note">设置管理员时需要用到会员编号（见 README）。</p>
       <div class="actions"><button class="ghost danger" type="button" id="logout">退出登入</button></div>
     </div>
   </section>

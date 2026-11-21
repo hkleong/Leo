@@ -1,7 +1,7 @@
 // Preview-only data layer: same interface as the Firebase layer in app.js, but everything
 // lives in this browser (localStorage). Used to try the site without a Firebase project.
 (() => {
-  const KEY = 'imperial-preview-v2', SKEY = 'txgc-preview-session';
+  const KEY = 'imperial-preview-v3', SKEY = 'txgc-preview-session';
   const day = 864e5;
   const at = (d, h, m = 0) => { const t = new Date(Date.now() + d * day); t.setHours(h, m, 0, 0); return t.toISOString(); };
   function seed() {
@@ -10,11 +10,12 @@
       accounts: { admin: { uid: 'u_admin', pw: '123456' }, '小明': { uid: 'u_xm', pw: '123456' }, '阿杰': { uid: 'u_aj', pw: '123456' }, '阿强': { uid: 'u_aq', pw: '123456' } },
       members: { u_xm: { status: 'approved' }, u_aj: { status: 'approved' } },
       admins: ['u_admin'],
+      nextNo: 2600005,
       users: {
-        u_admin: { username: 'admin', phone: '+60 12-000 0000', gameId: 'IMP-ADMIN', createdAt: now, updatedAt: now },
-        u_xm: { username: '小明', phone: '+60 12-345 6789', gameId: 'XM-88', createdAt: now, updatedAt: now },
-        u_aj: { username: '阿杰', phone: '+60 19-876 5432', gameId: 'AJ-21', createdAt: now, updatedAt: now },
-        u_aq: { username: '阿强', phone: '+60 11-222 3333', gameId: 'AQ-07', createdAt: now, updatedAt: now }
+        u_admin: { memberNo: 2600001, username: 'admin', phone: '+60 12-000 0000', gameId: 'IMP-ADMIN', createdAt: now, updatedAt: now },
+        u_xm: { memberNo: 2600002, username: '小明', phone: '+60 12-345 6789', gameId: 'XM-88', createdAt: now, updatedAt: now },
+        u_aj: { memberNo: 2600003, username: '阿杰', phone: '+60 19-876 5432', gameId: 'AJ-21', createdAt: now, updatedAt: now },
+        u_aq: { memberNo: 2600004, username: '阿强', phone: '+60 11-222 3333', gameId: 'AQ-07', createdAt: now, updatedAt: now }
       },
       events: {
         edemo1: { title: '周六晚 锦标赛（示例）', game: '无限注德州 · 盲注 1/2', place: '俱乐部牌室', startAt: at(8, 20), durationMin: 120, deadline: '', capacity: 8, link: '', description: '这是预览用的示例活动。买入 100，起始筹码 10,000，每 20 分钟升盲。', createdAt: now, updatedAt: now },
@@ -56,8 +57,9 @@
       if (d.accounts[k]) throw err('auth/email-already-in-use');
       const uid = 'u_' + Math.random().toString(36).slice(2, 10), now = new Date().toISOString();
       d.accounts[k] = { uid, pw: password };
-      d.users[uid] = { username, phone, gameId, createdAt: now, updatedAt: now };
-      save(); setSession({ uid, email: mailOf(k) }, true); fire();
+      const no = d.nextNo++;
+      d.users[uid] = { username, phone, gameId, memberNo: no, createdAt: now, updatedAt: now };
+      save(); setSession({ uid, email: mailOf(k) }, true); fire(); return no;
     },
     async login(username, password, remember) {
       const a = load().accounts[username.trim().toLowerCase()];
@@ -78,7 +80,8 @@
     async saveProfile(uid, data, isNew) {
       if (!session || uid !== session.uid) throw err('permission-denied');
       const d = load(), now = new Date().toISOString();
-      d.users[uid] = Object.assign({}, isNew ? { createdAt: now } : d.users[uid], data, { updatedAt: now }); fire();
+      const no = isNew ? d.nextNo++ : undefined;
+      d.users[uid] = Object.assign({}, isNew ? { createdAt: now, memberNo: no } : d.users[uid], data, { updatedAt: now }); fire(); return no;
     },
     getPublic: async uid => { const u = load().users[uid]; return u ? { username: u.username } : null; },
     onEvents: cb => sub(() => cb(Object.entries(clone(load().events)))),

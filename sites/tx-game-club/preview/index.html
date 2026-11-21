@@ -280,6 +280,7 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
 .kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;margin:0;font-size:14px}
 .kv dt{color:var(--muted)}
 .kv dd{margin:0;overflow-wrap:anywhere;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kv code.memno{font-family:var(--f-num);font-size:17px;font-weight:700;letter-spacing:.06em;color:var(--accent-hot);background:var(--accent-soft)}
 .kv code{font-size:12.5px;background:var(--sunk);padding:2px 6px;border-radius:6px;word-break:break-all}
 label.f input[readonly]{opacity:.65}
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
@@ -467,9 +468,8 @@ label.f input[readonly]{opacity:.65}
     <div class="panel" style="margin-top:16px">
       <dl class="kv">
         <dt>身份</dt><dd id="meRole"></dd>
-        <dt>会员编号</dt><dd><code id="meUid"></code><button class="mini" type="button" id="meCopyUid">复制</button></dd>
+        <dt>会员编号</dt><dd><code id="meNo" class="memno"></code><button class="mini" type="button" id="meCopyNo">复制</button></dd>
       </dl>
-      <p class="note">设置管理员时需要用到会员编号（见 README）。</p>
       <div class="actions"><button class="ghost danger" type="button" id="logout">退出登入</button></div>
     </div>
   </section>
@@ -588,7 +588,7 @@ window.__TX_REQUIRE_APPROVAL__ = true;
 // Preview-only data layer: same interface as the Firebase layer in app.js, but everything
 // lives in this browser (localStorage). Used to try the site without a Firebase project.
 (() => {
-  const KEY = 'imperial-preview-v2', SKEY = 'txgc-preview-session';
+  const KEY = 'imperial-preview-v3', SKEY = 'txgc-preview-session';
   const day = 864e5;
   const at = (d, h, m = 0) => { const t = new Date(Date.now() + d * day); t.setHours(h, m, 0, 0); return t.toISOString(); };
   function seed() {
@@ -597,11 +597,12 @@ window.__TX_REQUIRE_APPROVAL__ = true;
       accounts: { admin: { uid: 'u_admin', pw: '123456' }, '小明': { uid: 'u_xm', pw: '123456' }, '阿杰': { uid: 'u_aj', pw: '123456' }, '阿强': { uid: 'u_aq', pw: '123456' } },
       members: { u_xm: { status: 'approved' }, u_aj: { status: 'approved' } },
       admins: ['u_admin'],
+      nextNo: 2600005,
       users: {
-        u_admin: { username: 'admin', phone: '+60 12-000 0000', gameId: 'IMP-ADMIN', createdAt: now, updatedAt: now },
-        u_xm: { username: '小明', phone: '+60 12-345 6789', gameId: 'XM-88', createdAt: now, updatedAt: now },
-        u_aj: { username: '阿杰', phone: '+60 19-876 5432', gameId: 'AJ-21', createdAt: now, updatedAt: now },
-        u_aq: { username: '阿强', phone: '+60 11-222 3333', gameId: 'AQ-07', createdAt: now, updatedAt: now }
+        u_admin: { memberNo: 2600001, username: 'admin', phone: '+60 12-000 0000', gameId: 'IMP-ADMIN', createdAt: now, updatedAt: now },
+        u_xm: { memberNo: 2600002, username: '小明', phone: '+60 12-345 6789', gameId: 'XM-88', createdAt: now, updatedAt: now },
+        u_aj: { memberNo: 2600003, username: '阿杰', phone: '+60 19-876 5432', gameId: 'AJ-21', createdAt: now, updatedAt: now },
+        u_aq: { memberNo: 2600004, username: '阿强', phone: '+60 11-222 3333', gameId: 'AQ-07', createdAt: now, updatedAt: now }
       },
       events: {
         edemo1: { title: '周六晚 锦标赛（示例）', game: '无限注德州 · 盲注 1/2', place: '俱乐部牌室', startAt: at(8, 20), durationMin: 120, deadline: '', capacity: 8, link: '', description: '这是预览用的示例活动。买入 100，起始筹码 10,000，每 20 分钟升盲。', createdAt: now, updatedAt: now },
@@ -643,8 +644,9 @@ window.__TX_REQUIRE_APPROVAL__ = true;
       if (d.accounts[k]) throw err('auth/email-already-in-use');
       const uid = 'u_' + Math.random().toString(36).slice(2, 10), now = new Date().toISOString();
       d.accounts[k] = { uid, pw: password };
-      d.users[uid] = { username, phone, gameId, createdAt: now, updatedAt: now };
-      save(); setSession({ uid, email: mailOf(k) }, true); fire();
+      const no = d.nextNo++;
+      d.users[uid] = { username, phone, gameId, memberNo: no, createdAt: now, updatedAt: now };
+      save(); setSession({ uid, email: mailOf(k) }, true); fire(); return no;
     },
     async login(username, password, remember) {
       const a = load().accounts[username.trim().toLowerCase()];
@@ -665,7 +667,8 @@ window.__TX_REQUIRE_APPROVAL__ = true;
     async saveProfile(uid, data, isNew) {
       if (!session || uid !== session.uid) throw err('permission-denied');
       const d = load(), now = new Date().toISOString();
-      d.users[uid] = Object.assign({}, isNew ? { createdAt: now } : d.users[uid], data, { updatedAt: now }); fire();
+      const no = isNew ? d.nextNo++ : undefined;
+      d.users[uid] = Object.assign({}, isNew ? { createdAt: now, memberNo: no } : d.users[uid], data, { updatedAt: now }); fire(); return no;
     },
     getPublic: async uid => { const u = load().users[uid]; return u ? { username: u.username } : null; },
     onEvents: cb => sub(() => cb(Object.entries(clone(load().events)))),
@@ -774,6 +777,8 @@ function emailToUsername(email) {
   const m = /^u([0-9a-f]+)@/.exec(email || ''); if (!m) return '';
   try { return dec.decode(new Uint8Array(m[1].match(/../g).map(h => parseInt(h, 16)))); } catch (e) { return ''; }
 }
+// 会员编号：tx-2600001 起，每个新会员加 1（编号由数据库里的 counters/members 计数器分配）
+const fmtNo = n => Number.isInteger(n) ? 'tx-' + n : '—';
 const USERNAME_RE = /^[A-Za-z0-9_\u4e00-\u9fa5]{2,16}$/;
 const PHONE_RE = /^\+?[0-9][0-9 -]{6,19}$/;
 
@@ -788,15 +793,35 @@ async function firebaseApi(cfg) {
     F.connectFirestoreEmulator(db, '127.0.0.1', 8080);
   }
   const list = snap => snap.docs.map(d => [d.id, d.data()]);
+  // New profile + next member number in one transaction, so two people never get the same number.
+  async function createProfile(uid, data) {
+    // Two people registering at the same moment race for the same number; the loser is refused, so re-read and retry.
+    for (let attempt = 0; ; attempt++) {
+      try { return await createProfileOnce(uid, data); }
+      catch (e) {
+        const c = (e && e.code) || '';
+        if (attempt >= 5 || !/permission-denied|aborted|failed-precondition/.test(c)) throw e;
+        await new Promise(r => setTimeout(r, 150 + Math.random() * 400 * (attempt + 1)));
+      }
+    }
+  }
+  async function createProfileOnce(uid, { username, phone, gameId }) {
+    return F.runTransaction(db, async tx => {
+      const cRef = F.doc(db, 'counters', 'members'), c = await tx.get(cRef);
+      if (!c.exists()) throw Object.assign(new Error('counter missing'), { code: 'unavailable' });
+      const n = c.data().next, now = new Date().toISOString();
+      tx.update(cRef, { next: n + 1 });
+      tx.set(F.doc(db, 'users', uid), { username, phone, gameId, memberNo: n, createdAt: now, updatedAt: now });
+      tx.set(F.doc(db, 'publicProfiles', uid), { username, updatedAt: now });
+      return n;
+    });
+  }
   return {
     onAuth: cb => U.onAuthStateChanged(auth, u => cb(u ? { uid: u.uid, email: u.email } : null)),
     async register({ username, phone, gameId, password }) {
       await U.setPersistence(auth, U.browserLocalPersistence);
       const cred = await U.createUserWithEmailAndPassword(auth, usernameToEmail(username), password);
-      const now = new Date().toISOString(), b = F.writeBatch(db);
-      b.set(F.doc(db, 'users', cred.user.uid), { username, phone, gameId, createdAt: now, updatedAt: now });
-      b.set(F.doc(db, 'publicProfiles', cred.user.uid), { username, updatedAt: now });
-      await b.commit();
+      return createProfile(cred.user.uid, { username, phone, gameId });
     },
     async login(username, password, remember) {
       await U.setPersistence(auth, remember ? U.browserLocalPersistence : U.browserSessionPersistence);
@@ -812,8 +837,9 @@ async function firebaseApi(cfg) {
     isAdmin: async uid => (await F.getDoc(F.doc(db, 'admins', uid))).exists(),
     getUser: async uid => { const s = await F.getDoc(F.doc(db, 'users', uid)); return s.exists() ? s.data() : null; },
     async saveProfile(uid, data, isNew) {
+      if (isNew) return createProfile(uid, data);
       const now = new Date().toISOString(), b = F.writeBatch(db);
-      b.set(F.doc(db, 'users', uid), Object.assign({}, data, { updatedAt: now }, isNew ? { createdAt: now } : {}), { merge: !isNew });
+      b.set(F.doc(db, 'users', uid), Object.assign({}, data, { updatedAt: now }), { merge: true });
       b.set(F.doc(db, 'publicProfiles', uid), { username: data.username, updatedAt: now });
       await b.commit();
     },
@@ -1180,7 +1206,7 @@ function renderRoster(id) {
     const name = nameOf(uid), li = el('li');
     const av = el('div', 'av', name.slice(0, 1).toUpperCase()); av.style.background = colorFor(uid);
     const who = el('div', 'who'); who.append(el('b', null, uid === me.uid ? name + '（你）' : name));
-    if (isAdmin) { const m = members.get(uid); if (m) who.append(el('span', null, `游戏 ID：${m.gameId || '—'} · 电话：${m.phone || '—'}`)); }
+    if (isAdmin) { const m = members.get(uid); if (m) who.append(el('span', null, `${fmtNo(m.memberNo)} · 游戏 ID：${m.gameId || '—'} · 电话：${m.phone || '—'}`)); }
     if (r.note) who.append(el('p', null, r.note));
     const side = el('div', 'side');
     const d = new Date(r.updatedAt); if (!isNaN(d)) side.append(el('span', 'note', `${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`));
@@ -1198,7 +1224,7 @@ $('copyList').onclick = () => {
   for (const st of ['yes', 'maybe', 'no']) {
     const g = rs.filter(([, r]) => r.status === st);
     lines.push(`【${STATUS[st]}】${g.length} 人`);
-    g.forEach(([uid, r], i) => { const m = members.get(uid) || {}; lines.push(`${i + 1}. ${nameOf(uid)}${m.gameId ? '（游戏 ID：' + m.gameId + '）' : ''}${m.phone ? ' 电话：' + m.phone : ''}${r.note ? ' — ' + r.note : ''}`); });
+    g.forEach(([uid, r], i) => { const m = members.get(uid) || {}; lines.push(`${i + 1}. ${nameOf(uid)}${m.memberNo ? ' ' + fmtNo(m.memberNo) : ''}${m.gameId ? '（游戏 ID：' + m.gameId + '）' : ''}${m.phone ? ' 电话：' + m.phone : ''}${r.note ? ' — ' + r.note : ''}`); });
     lines.push('');
   }
   copy(lines.join('\n').trim(), '名单已复制');
@@ -1283,7 +1309,7 @@ $('regForm').addEventListener('submit', async e => {
   if (p1.length < 6) return msg('密码至少要 6 位。');
   if (p1 !== p2) return msg('两次输入的密码不一样。');
   busy = true; $('rBtn').disabled = true; msg('注册中…');
-  try { regPromise = api.register({ username, phone, gameId, password: p1 }); await regPromise; profile = { username, phone, gameId }; pub[me ? me.uid : ''] = { username }; msg(''); $('rPass').value = $('rPass2').value = ''; toast(REQUIRE_APPROVAL ? '注册成功！请等待管理员审核' : '注册成功，欢迎加入 The Imperial Club！'); }
+  try { regPromise = api.register({ username, phone, gameId, password: p1 }); const no = await regPromise; profile = { username, phone, gameId, memberNo: no }; pub[me ? me.uid : ''] = { username }; msg(''); $('rPass').value = $('rPass2').value = ''; toast((REQUIRE_APPROVAL ? '注册成功！请等待管理员审核。' : '注册成功，欢迎加入 The Imperial Club！') + (Number.isInteger(no) ? `你的会员编号是 ${fmtNo(no)}` : '')); }
   catch (er) { msg(errText(er)); }
   finally { busy = false; regPromise = null; $('rBtn').disabled = false; }
 });
@@ -1293,7 +1319,7 @@ let meFormFor = null;
 function renderMe() {
   const isNew = profileLoaded && !profile;
   $('meIntro').textContent = isNew ? '你的账号还缺少会员资料，请补全后才能报名。' : '电话号码和游戏 ID 只有管理员看得到；其他会员只看得到你的用户名。';
-  $('meUid').textContent = me.uid;
+  $('meNo').textContent = profile ? fmtNo(profile.memberNo) : '注册完成后分配';
   $('meRole').textContent = isAdmin ? '管理员' : '会员';
   const key = me.uid + (profile ? '1' : '0');
   if (meFormFor !== key && profileLoaded) {
@@ -1309,10 +1335,11 @@ $('meForm').addEventListener('submit', async e => {
   if (!PHONE_RE.test(phone)) { $('mMsg').textContent = '请填写正确的电话号码。'; return; }
   if (!gameId || gameId.length > 40) { $('mMsg').textContent = '请填写游戏 ID（最多 40 个字）。'; return; }
   const isNew = !profile;
-  const ok = await write(() => api.saveProfile(me.uid, { username, phone, gameId }, isNew), '资料已保存');
-  if (ok) { profile = Object.assign({}, profile || {}, { username, phone, gameId }); pub[me.uid] = { username }; $('mMsg').textContent = ''; render(); }
+  let no;
+  const ok = await write(async () => { no = await api.saveProfile(me.uid, { username, phone, gameId }, isNew); }, '资料已保存');
+  if (ok) { profile = Object.assign({}, profile || {}, { username, phone, gameId }, Number.isInteger(no) ? { memberNo: no } : {}); pub[me.uid] = { username }; $('mMsg').textContent = ''; render(); }
 });
-$('meCopyUid').onclick = () => copy(me.uid, '编号已复制');
+$('meCopyNo').onclick = () => profile && copy(fmtNo(profile.memberNo), '会员编号已复制');
 const WEAK = new Set(['000000', '111111', '123456', '654321', '123123', '888888', '666666', 'password', 'qwerty', '12345678', '00000000']);
 $('pwForm').addEventListener('submit', async e => {
   e.preventDefault(); if (busy) return;
@@ -1339,7 +1366,8 @@ function pendingCount() { let n = 0; for (const uid of members.keys()) if (statu
 function memberGroups() {
   const g = { pending: [], approved: [], rejected: [] };
   for (const [uid, m] of members) { const st = statusOf(uid); (g[st === 'admin' ? 'approved' : st] || g.pending).push([uid, m]); }
-  for (const k in g) g[k].sort((a, b) => String(a[1].createdAt).localeCompare(String(b[1].createdAt)));
+  const key = m => Number.isInteger(m.memberNo) ? m.memberNo : 1e12;
+  for (const k in g) g[k].sort((a, b) => key(a[1]) - key(b[1]) || String(a[1].createdAt).localeCompare(String(b[1].createdAt)));
   return g;
 }
 document.querySelectorAll('#mtabs button').forEach(b => b.onclick = () => { mtab = b.dataset.t; mConfirm = null; renderMembers(); });
@@ -1359,7 +1387,7 @@ function renderMembers() {
     const av = el('div', 'av', name.slice(0, 1).toUpperCase()); av.style.background = colorFor(uid);
     const who = el('div', 'who');
     who.append(el('b', null, name + (uid === me.uid ? '（你）' : '') + (st === 'admin' ? ' · 管理员' : '')));
-    who.append(el('span', null, `电话：${m.phone || '—'} · 游戏 ID：${m.gameId || '—'}`));
+    who.append(el('span', null, `会员编号：${fmtNo(m.memberNo)}`), el('br'), el('span', null, `电话：${m.phone || '—'} · 游戏 ID：${m.gameId || '—'}`));
     const d = new Date(m.createdAt); who.append(el('p', 'note', isNaN(d) ? '' : `注册于 ${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`));
     const side = el('div', 'side');
     const btn = (text, cls, fn) => { const b = el('button', 'mini ' + cls, text); b.type = 'button'; b.onclick = fn; side.append(b); };
@@ -1377,8 +1405,8 @@ function renderMembers() {
 }
 $('copyMembers').onclick = () => {
   const g = memberGroups();
-  const line = ([, m]) => `${m.username}\t${m.phone}\t${m.gameId}`;
-  copy(['The Imperial Club 会员名单', '用户名\t电话号码\t游戏 ID', ...g.approved.map(line), ...(g.pending.length ? ['', '【待审核】', ...g.pending.map(line)] : [])].join('\n'), '会员名单已复制');
+  const line = ([, m]) => `${fmtNo(m.memberNo)}\t${m.username}\t${m.phone}\t${m.gameId}`;
+  copy(['The Imperial Club 会员名单', '会员编号\t用户名\t电话号码\t游戏 ID', ...g.approved.map(line), ...(g.pending.length ? ['', '【待审核】', ...g.pending.map(line)] : [])].join('\n'), '会员名单已复制');
 };
 
 /* ---------- menu drawer ---------- */

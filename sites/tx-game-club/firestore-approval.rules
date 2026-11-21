@@ -19,11 +19,12 @@ service cloud.firestore {
     function member() { return isAdmin() || approved(); }
     function str(v, max) { return v is string && v.size() <= max; }
     function validUser(d) {
-      return d.keys().hasOnly(['username', 'phone', 'gameId', 'createdAt', 'updatedAt'])
+      return d.keys().hasOnly(['username', 'phone', 'gameId', 'memberNo', 'createdAt', 'updatedAt'])
         && str(d.username, 16) && d.username.size() >= 2
         && str(d.phone, 20) && d.phone.size() >= 7
         && str(d.gameId, 40) && d.gameId.size() >= 1;
     }
+    function counterPath() { return /databases/$(database)/documents/counters/members; }
     function validPublic(uid, d) {
       return d.keys().hasOnly(['username', 'updatedAt'])
         && str(d.username, 16)
@@ -45,12 +46,28 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // 会员完整资料（用户名、电话号码、游戏 ID）：只有本人和管理员能看
+    // 会员编号计数器：next = 下一个新会员的编号（tx-2600001 起）。
+    // 只能在「新会员建立自己资料」的同一笔交易里加 1，管理员可以手动调整。
+    match /counters/members {
+      allow read: if signedIn();
+      allow update: if isAdmin() || (signedIn()
+        && request.resource.data.keys().hasOnly(['next'])
+        && request.resource.data.next == resource.data.next + 1
+        && !exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.memberNo == resource.data.next);
+      allow create, delete: if isAdmin();
+    }
+
+    // 会员完整资料（用户名、电话号码、游戏 ID、会员编号）：只有本人和管理员能看
     match /users/{uid} {
       allow read: if isSelf(uid) || isAdmin();
-      allow create: if isSelf(uid) && validUser(request.resource.data);
+      allow create: if isSelf(uid) && validUser(request.resource.data)
+        && request.resource.data.memberNo is int
+        && request.resource.data.memberNo == get(counterPath()).data.next
+        && getAfter(counterPath()).data.next == request.resource.data.memberNo + 1;
       allow update: if isSelf(uid) && validUser(request.resource.data)
-        && request.resource.data.username == resource.data.username;
+        && request.resource.data.username == resource.data.username
+        && request.resource.data.get('memberNo', -1) == resource.data.get('memberNo', -1);
       allow delete: if isAdmin();
     }
 
