@@ -956,7 +956,8 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
     let dGlass=null;if(d.glass){const dp=clipU(d.glass,zf-DL,zf).map(q=>[q[0]-zf,q[1]]);if(dp.length>2){dGlass=new THREE.Mesh(extrude(polyShape(dp),.03,0),glassT);dGlass.renderOrder=2}}
     DB.add(rgeo(.04,.05,.18,.3),CHROME,[.04,yb-.12,-DL+.22]);
     DB.add(rgeo(.03,yb-y0-.05,DL-.05,.2),0x3a2a30,[-.04,(y0+yb)/2,-DL/2]); // 门内衬
-    // 驾驶座一侧不建车门，留空门洞，随时能看到车里（上下车直接从门洞进出）
+    // 车门：挂在空门洞外侧，关门时正好盖住门洞，开门转开后能看到车里
+    const hinge=new THREE.Group();hinge.position.set(W/2+.02,0,zf);hinge.add(DB.build(vcMat,OL_C));if(dGlass)hinge.add(dGlass);hinge.userData.door=1;g.add(hinge);
     g.userData.doorZ=zf-DL*.55;g.userData.halfW=W/2}
   // —— 警灯
   if(kind==='police'||kind==='suv'){const roofY=Math.max(...d.top.map(p=>p[1]))+.28;
@@ -1245,7 +1246,7 @@ function updBoard(dt){const b=boarding,c=b.car;b.t+=dt;
   if(b.mode==='in'){
     const t=b.t;
     if(t<.45){const f=ease(t/.45);player.x=b.sx+(st.x-b.sx)*f;player.z=b.sz+(st.z-b.sz)*f;player.rot=Math.atan2(st.x-b.sx,st.z-b.sz)||face;pz='walk';k=1}
-    else if(t<.8){if(!b.opened){b.opened=1;b.jack=!!c.driverMesh;if(b.jack)c.jacking=true;boardEffects(c)}player.x=st.x;player.z=st.z;player.rot+=angDiff(face,player.rot)*Math.min(1,dt*14);setDoor(c,ease((t-.45)/.3))}
+    else if(t<.8){if(!b.opened){b.opened=1;SFX.doorOpen();b.jack=!!c.driverMesh;if(b.jack)c.jacking=true;boardEffects(c)}player.x=st.x;player.z=st.z;player.rot+=angDiff(face,player.rot)*Math.min(1,dt*14);setDoor(c,ease((t-.45)/.3))}
     else if(b.jack&&t<1.8){ // 拽司机：玩家伸手往外拉，司机从座位被拖出、摔在地上
       player.x=st.x;player.z=st.z;player.rot=face;const f=ease((t-.8)/.8);pz='punch';k=0;b.ex=Math.min(1,(t-.8)*2.2);
       const dm=b.dm||(b.dm=jackStart(c));if(!dm.userData.adopted){const out=carPt(c,(c.mesh.userData.halfW+3.2)*CS,c.mesh.userData.doorZ*CS);
@@ -1255,13 +1256,13 @@ function updBoard(dt){const b=boarding,c=b.car;b.t+=dt;
     else if(b.jack&&!b.done2){b.done2=1;b.t=.8;b.jack=false}
     else if(t<1.15){const f=ease((t-.8)/.35);player.x=st.x+(se.x-st.x)*f;player.z=st.z+(se.z-st.z)*f;player.rot+=angDiff(c.h,player.rot)*Math.min(1,dt*10);pz=f>.4?'sit':'walk';k=.6}
     else{seatPlayer(c);setDoor(c,1-ease((t-1.15)/.3));
-      if(t>1.45){setDoor(c,0);c.hold=0;c.driver='player';player.car=c;boarding=null;toast((SPECS[c.kind]||SPECS.sedan).name);beep(300,.1);beep(450,.1);return}}
+      if(t>1.45){setDoor(c,0);SFX.doorClose();c.hold=0;c.driver='player';player.car=c;boarding=null;toast((SPECS[c.kind]||SPECS.sedan).name);beep(300,.1);beep(450,.1);return}}
   }else{ // 下车：开门 → 走出来 → 关门
     const t=b.t;
     if(t<.3)setDoor(c,ease(t/.3));
     else if(t<.7){player.mesh.visible=true;const f=ease((t-.3)/.4);player.x=se.x+(st.x-se.x)*f;player.z=se.z+(st.z-se.z)*f;player.rot=face;pz=f<.4?'sit':'walk';k=.6}
     else{setDoor(c,1-ease((t-.7)/.3));player.rot+=angDiff(c.h,player.rot)*Math.min(1,dt*8);
-      if(t>1.0){setDoor(c,0);c.hold=0;boarding=null;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}}}
+      if(t>1.0){setDoor(c,0);SFX.doorClose();c.hold=0;boarding=null;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}}}
   }
   if(b.mode==='in'&&b.t>=1.15&&!b.jack)return;
   player.t+=dt;player.y=0;player.mesh.scale.setScalar(1);player.mesh.rotation.x=0;player.mesh.position.set(player.x,0,player.z);player.mesh.rotation.y=player.rot;pose(player.mesh,pz,player.t,k,b.ex||0)}
@@ -1280,7 +1281,7 @@ function boardEffects(best){
   if(best.driver==='ai'||best.driver==='cop')best.driver=null}
 function exitCar(force){const c=player.car;if(!c)return;if(!force&&Math.abs(c.speed)>6)return;
   c.driver=null;player.car=null;player.mesh.scale.setScalar(1);if(player.wMesh)player.wMesh.visible=true;
-  if(!force&&c.mesh.userData.doorZ!==undefined){c.hold=1;c.speed=0;const se=seatPt(c);player.x=se.x;player.z=se.z;player.rot=c.h;boarding={car:c,mode:'out',t:0};return}
+  if(!force&&c.mesh.userData.doorZ!==undefined){c.hold=1;c.speed=0;const se=seatPt(c);player.x=se.x;player.z=se.z;player.rot=c.h;boarding={car:c,mode:'out',t:0};SFX.doorOpen();return}
   player.mesh.visible=true;
   player.x=c.x+Math.cos(c.h)*4.2;player.z=c.z-Math.sin(c.h)*4.2;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}player.rot=c.h}
 
