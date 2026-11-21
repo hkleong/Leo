@@ -849,6 +849,10 @@ const polyShape=pts=>{const s=new THREE.Shape();s.moveTo(pts[0][0],pts[0][1]);fo
 const GLASS=0x1c2438,CHROME=0xdde2ea,TIRE=0x15151a;
 // 透明车窗：能看到车里；不写深度，避免挡住车内
 const glassT=new THREE.MeshPhongMaterial({color:0x9fd8ff,transparent:true,opacity:.3,shininess:120,specular:0xffffff,depthWrite:false,side:THREE.DoubleSide});
+// 多边形按前后位置裁剪（Sutherland–Hodgman，两条竖线）
+function clipU(poly,umin,umax){const clip=(P,keep,u0)=>{const o=[];for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length],ia=keep(a[0]),ib=keep(b[0]);
+  if(ia)o.push(a);if(ia!==ib){const t=(u0-a[0])/(b[0]-a[0]);o.push([u0,a[1]+(b[1]-a[1])*t])}}return o};
+  return clip(clip(poly,u=>u>=umin,umin),u=>u<=umax,umax)}
 // 折线平滑（Chaikin 细分）：让车顶、车头、车尾变成曲线，首尾点不动
 function chaikin(pts,it=2){for(let n=0;n<it;n++){const o=[pts[0]];for(let i=0;i<pts.length-1;i++){const[a,b]=[pts[i],pts[i+1]];o.push([a[0]*.75+b[0]*.25,a[1]*.75+b[1]*.25],[a[0]*.25+b[0]*.75,a[1]*.25+b[1]*.75])}o.push(pts.at(-1));pts=o}return pts}
 // 车身缓存：同车型同颜色只建一次，之后克隆
@@ -869,7 +873,9 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
     const sp=d.top.filter(p=>p[0]<uR),fp=d.top.filter(p=>p[0]>uF);
     const bodyTop=[...chaikin(sp.slice(0,1).concat(sp.slice(1)),2),[uR,belt],[uR+.06,floor],[uF-.06,floor],[uF,belt],...chaikin(fp,2)];
     B.add(extrude(sideShape(d,bodyTop),W,.16),col);
-    for(const sd of[-1,1])B.add(extrude(polyShape([[uR,floor-.02],[uF,floor-.02],[uF,belt],[uR,belt]]),.12,0),col,[sd*(W/2-.08),0,0]);
+    const DLm={sedan:1.15,taxi:1.15,police:1.15,suv:1.25,wedge:1.4,coupe:1.5,pickup:1.35}[kind]||1.2,zfD=g[3][0]+.02,cut=zfD-DLm;
+    const wall=(a,b2,x)=>{if(b2-a>.05)B.add(extrude(polyShape([[a,floor-.02],[b2,floor-.02],[b2,belt],[a,belt]]),.12,0),col,[x,0,0])};
+    wall(uR,uF,-(W/2-.08));wall(uR,cut,W/2-.08);wall(zfD,uF,W/2-.08);
     // 车顶框：车厢外轮廓 − 车窗，两侧各一片（形成 A/B/C 柱），顶上一块车顶板
     const cab=chaikin([[uR,belt],...d.top.filter(p=>p[0]>=uR&&p[0]<=uF),[uF,belt]],2);
     const fr=polyShape(cab);fr.holes.push(new THREE.Path(g.map(q=>new THREE.Vector2(q[0],q[1]))));
@@ -878,7 +884,7 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
     if(roofLine.length>1)B.add(extrude(polyShape([...roofLine,...roofLine.slice().reverse().map(q=>[q[0],q[1]-.1])]),W-.1,.04),kind==='police'||kind==='suv'?0xf4f4f4:col);
     // 透明玻璃：两侧车窗、前挡风、后窗
     const addGlass=(geo,x=0)=>{const m=new THREE.Mesh(geo,glassT);m.position.x=x;m.renderOrder=2;g2.push(m)};
-    const g2=[];for(const sd of[-1,1])addGlass(extrude(polyShape(g),.02,0),sd*(W/2-.04));
+    const g2=[];addGlass(extrude(polyShape(g),.02,0),-(W/2-.04));{const rp=clipU(g,-99,cut);if(rp.length>2)addGlass(extrude(polyShape(rp),.02,0),W/2-.04)}
     addGlass(extrude(polyShape([g[3],g[2],[g[2][0]+.05,g[2][1]],[g[3][0]+.05,g[3][1]]]),W-.18,0));
     addGlass(extrude(polyShape([g[0],g[1],[g[1][0]-.05,g[1][1]],[g[0][0]-.05,g[0][1]]]),W-.18,0));
     g2.forEach(m=>gGlass.push(m));
@@ -938,7 +944,7 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
     const zf=d.glass?d.glass[3][0]+.02:.42,yb=d.glass?d.glass[0][1]:1.08,yt=d.glass?Math.max(d.glass[1][1],d.glass[2][1])-.04:yb,y0=d.gr+.08;
     const dc=(kind==='police'||kind==='suv')?0xf4f4f4:col;const DB=new Bld();
     DB.add(rgeo(.07,yb-y0,DL,.25),dc,[0,(y0+yb)/2,-DL/2]);
-    const dGlass=yt>yb+.05?new THREE.Mesh(rgeo(.04,yt-yb,DL*.9,.2),glassT):null;if(dGlass){dGlass.position.set(.01,(yb+yt)/2,-DL/2-.02);dGlass.renderOrder=2}
+    let dGlass=null;if(d.glass){const dp=clipU(d.glass,zf-DL,zf).map(q=>[q[0]-zf,q[1]]);if(dp.length>2){dGlass=new THREE.Mesh(extrude(polyShape(dp),.03,0),glassT);dGlass.renderOrder=2}}
     DB.add(rgeo(.04,.05,.18,.3),CHROME,[.04,yb-.12,-DL+.22]);
     DB.add(rgeo(.03,yb-y0-.05,DL-.05,.2),0x3a2a30,[-.04,(y0+yb)/2,-DL/2]); // 门内衬
     const hinge=new THREE.Group();hinge.position.set(W/2+.02,0,zf);hinge.add(DB.build(vcMat,OL_C));if(dGlass)hinge.add(dGlass);hinge.userData.door=1;g.add(hinge);
