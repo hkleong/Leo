@@ -7,17 +7,17 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 canvas{display:block}
 [hidden]{display:none!important}
 #hud{position:fixed;inset:0;pointer-events:none}
-.tl{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:4px}
+.tl{position:absolute;top:calc(122px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:4px}
 .tr{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));text-align:right;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
-#money{font-family:var(--disp);font-size:26px;color:#7dff9b;text-shadow:0 2px 0 #000;font-variant-numeric:tabular-nums}
+#money{font-family:var(--disp);font-size:22px;color:#7dff9b;text-shadow:0 2px 0 #000;font-variant-numeric:tabular-nums}
 #stars{font-size:24px;letter-spacing:2px;color:#444;text-shadow:0 2px 0 #000}
 #stars b{color:var(--sun)}
-#hp{width:150px;height:10px;background:#300;border:2px solid #000;border-radius:3px}
+#hp{width:104px;height:10px;background:#300;border:2px solid #000;border-radius:3px}
 #hp i{display:block;height:100%;background:linear-gradient(90deg,#ff3d3d,#ff8a5c);width:100%}
-#mission{background:var(--ui);padding:8px 12px;border-left:4px solid var(--hot);border-radius:4px;max-width:260px;font-size:14px}
+#mission{background:var(--ui);padding:6px 10px;border-left:4px solid var(--hot);border-radius:4px;max-width:200px;font-size:13px}
 #mission b{font-family:var(--disp);font-size:12px;color:var(--hot);letter-spacing:.06em;display:block}
 #speed{font-family:var(--disp);font-size:20px;color:var(--sea);text-shadow:0 2px 0 #000}
-#mini{position:absolute;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:150px;height:150px;border-radius:50%;border:3px solid #000;background:#123;box-shadow:0 0 0 2px var(--hot)}
+#mini{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));width:104px;height:104px;border-radius:50%;border:3px solid #000;background:#123;box-shadow:0 0 0 2px var(--hot)}
 #toast{position:absolute;top:30%;left:50%;transform:translateX(-50%);font-family:var(--disp);font-size:clamp(22px,5vw,42px);color:var(--sun);text-shadow:0 3px 0 #000,0 0 20px var(--hot);opacity:0;transition:opacity .4s;text-align:center;white-space:nowrap}
 #hint{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ui);padding:6px 12px;border-radius:4px;font-size:13px;opacity:0;transition:opacity .2s}
 #title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:linear-gradient(180deg,#2a0b3d 0%,#ff3d8b 55%,#ffb347 100%);z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));text-align:center}
@@ -27,9 +27,12 @@ canvas{display:block}
 #start{pointer-events:auto;font-family:var(--disp);font-size:22px;padding:14px 34px;border:0;border-radius:6px;background:#2a0b3d;color:var(--sun);cursor:pointer;box-shadow:0 5px 0 #000}
 #start:focus-visible{outline:3px solid #fff}
 #touch{position:fixed;inset:0;pointer-events:none;display:none}
-#stick{position:absolute;left:calc(24px + env(safe-area-inset-left,0px));bottom:calc(190px + env(safe-area-inset-bottom,0px));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);pointer-events:auto}
+#stick{position:absolute;left:calc(24px + env(safe-area-inset-left,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.3);pointer-events:auto}
 #knob{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,61,139,.7)}
-.tb{position:absolute;width:64px;height:64px;border-radius:50%;background:rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.4);color:#fff;font-family:var(--disp);font-size:13px;display:flex;align-items:center;justify-content:center;pointer-events:auto}
+.tb{position:absolute;width:66px;height:66px;touch-action:none;border-radius:50%;background:rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.4);color:#fff;font-family:var(--disp);font-size:13px;display:flex;align-items:center;justify-content:center;pointer-events:auto}
+#touch .tb.on{background:rgba(255,61,139,.65)}
+#touch .big{width:84px;height:84px;font-size:26px}
+#touch[data-mode="foot"] .drive,#touch[data-mode="drive"] .foot{display:none}
 @media (prefers-reduced-motion:reduce){#toast,#hint{transition:none}}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;600&display=swap">
@@ -45,11 +48,16 @@ canvas{display:block}
   <canvas id="mini" width="300" height="300"></canvas>
   <div id="toast"></div><div id="hint"></div>
 </div>
-<div id="touch">
-  <div id="stick"><div id="knob"></div></div>
-  <div class="tb" id="bE" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(110px + env(safe-area-inset-bottom,0px))">上下车</div>
-  <div class="tb" id="bF" style="right:calc(100px + env(safe-area-inset-right,0px));bottom:calc(60px + env(safe-area-inset-bottom,0px))">开火</div>
-  <div class="tb" id="bS" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px))">手刹</div>
+<div id="touch" data-mode="foot">
+  <div id="stick" class="foot"><div id="knob"></div></div>
+  <div class="tb foot" id="bRun" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">奔跑</div>
+  <div class="tb foot" id="bF" style="right:calc(104px + env(safe-area-inset-right,0px));bottom:calc(60px + env(safe-area-inset-bottom,0px))">开火</div>
+  <div class="tb" id="bE" style="right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(122px + env(safe-area-inset-bottom,0px))">上下车</div>
+  <div class="tb drive big" id="bL" style="left:calc(20px + env(safe-area-inset-left,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">◀</div>
+  <div class="tb drive big" id="bR" style="left:calc(116px + env(safe-area-inset-left,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px))">▶</div>
+  <div class="tb drive big" id="bG" style="right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));font-size:15px">油门</div>
+  <div class="tb drive big" id="bB" style="right:calc(116px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));font-size:15px">刹车</div>
+  <div class="tb drive" id="bS" style="right:calc(112px + env(safe-area-inset-right,0px));bottom:calc(130px + env(safe-area-inset-bottom,0px))">手刹</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -127,8 +135,9 @@ addEventListener('keyup',e=>keys[e.code]=false);
 const act={enter:0,fire:0};
 function axis(){let x=0,y=0;
   if(keys.KeyW||keys.ArrowUp)y+=1;if(keys.KeyS||keys.ArrowDown)y-=1;if(keys.KeyA||keys.ArrowLeft)x-=1;if(keys.KeyD||keys.ArrowRight)x+=1;
-  if(touchMode&&(stick.x||stick.y)){x=stick.x;y=stick.y}return{x,y}}
-const brakeHeld=()=>keys.Space||tBrake;let tBrake=false;
+  if(touchMode&&player.car){x=(tb_.R?1:0)-(tb_.L?1:0)||x;y=(tb_.G?1:0)-(tb_.B?1:0)||y}
+  else if(touchMode&&(stick.x||stick.y)){x=stick.x;y=stick.y}return{x,y}}
+const tb_={};const brakeHeld=()=>keys.Space||tb_.S;
 (function(){const st=document.getElementById('stick'),kn=document.getElementById('knob');let id=null;
   const mv=t=>{const r=st.getBoundingClientRect();let dx=t.clientX-r.left-60,dy=t.clientY-r.top-60;const d=Math.hypot(dx,dy);if(d>45){dx*=45/d;dy*=45/d}
     kn.style.transform=`translate(${dx}px,${dy}px)`;stick.x=dx/45;stick.y=-dy/45};
@@ -136,7 +145,10 @@ const brakeHeld=()=>keys.Space||tBrake;let tBrake=false;
   st.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===id)mv(t);e.preventDefault()},{passive:false});
   st.addEventListener('touchend',()=>{id=null;stick.x=stick.y=0;kn.style.transform=''});
   const tb=(el,fn,up)=>{const b=document.getElementById(el);b.addEventListener('touchstart',e=>{fn();e.preventDefault()},{passive:false});if(up)b.addEventListener('touchend',up)};
-  tb('bE',()=>act.enter=1);tb('bF',()=>act.fire=1);tb('bS',()=>tBrake=true,()=>tBrake=false);
+  tb('bE',()=>act.enter=1);tb('bF',()=>act.fire=1);
+  for(const[k,id]of[['S','bS'],['L','bL'],['R','bR'],['G','bG'],['B','bB'],['Run','bRun']]){const el=document.getElementById(id);
+    const on=v=>e=>{tb_[k]=v;el.classList.toggle('on',v);e.preventDefault()};
+    el.addEventListener('touchstart',on(true),{passive:false});el.addEventListener('touchend',on(false));el.addEventListener('touchcancel',on(false))}
   addEventListener('touchstart',()=>{touchMode=true;document.getElementById('touch').style.display='block'},{once:true});
 })();
 
@@ -323,13 +335,13 @@ function drawMini(){const s=300/(N*P+120),cx=150,cy=150,px=player.car?player.car
   mini.fillStyle='#f2d59b';mini.fillRect(HALF*s+6,-HALF*s-6,40*s,N*P*s+12);
   mini.fillStyle='#c9c0d0';for(let i=0;i<N;i++)for(let j=0;j<N;j++)mini.fillRect((road(i)+RD/2)*s,(road(j)+RD/2)*s,BLK*s,BLK*s);
   mini.fillStyle='#fff';mini.fillRect((villa.x-15)*s,(villa.z-11)*s,30*s,22*s);
-  for(const c of cars)if(c.police&&!c.dead){mini.fillStyle=((performance.now()/200)|0)%2?'#f00':'#04f';mini.fillRect(c.x*s-1.5,c.z*s-1.5,3,3)}
-  if(beamMat.visible){mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(mission.x*s,mission.z*s,3,0,7);mini.fill()}
+  for(const c of cars)if(c.police&&!c.dead){mini.fillStyle=((performance.now()/200)|0)%2?'#f00':'#04f';mini.fillRect(c.x*s-3,c.z*s-3,6,6)}
+  if(beamMat.visible){mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(mission.x*s,mission.z*s,6,0,7);mini.fill()}
   mini.restore();
   // 屏外目标箭头
-  if(beamMat.visible){const dx=(mission.x-px)*s*z,dz=(mission.z-pz)*s*z;if(Math.hypot(dx,dz)>140){const a=Math.atan2(dz,dx);mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(cx+Math.cos(a)*132,cy+Math.sin(a)*132,7,0,7);mini.fill()}}
+  if(beamMat.visible){const dx=(mission.x-px)*s*z,dz=(mission.z-pz)*s*z;if(Math.hypot(dx,dz)>140){const a=Math.atan2(dz,dx);mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(cx+Math.cos(a)*128,cy+Math.sin(a)*128,14,0,7);mini.fill()}}
   const h=player.car?player.car.h:player.rot;mini.save();mini.translate(cx,cy);mini.rotate(-h+Math.PI);
-  mini.fillStyle='#ff3d8b';mini.strokeStyle='#000';mini.lineWidth=2;mini.beginPath();mini.moveTo(0,-9);mini.lineTo(7,8);mini.lineTo(-7,8);mini.closePath();mini.fill();mini.stroke();mini.restore()}
+  mini.fillStyle='#ff3d8b';mini.strokeStyle='#000';mini.lineWidth=4;mini.beginPath();mini.moveTo(0,-20);mini.lineTo(15,16);mini.lineTo(-15,16);mini.closePath();mini.fill();mini.stroke();mini.restore()}
 function hud(dt){$('money').textContent='$'+player.money.toLocaleString();
   $('hp').firstChild.style.width=clamp(player.hp,0,100)+'%';
   $('stars').innerHTML='<b>'+'★'.repeat(player.wanted)+'</b>'+'☆'.repeat(5-player.wanted);
@@ -344,14 +356,15 @@ function respawn(){toast('你倒下了…医院见');player.money=Math.floor(pla
   if(player.car)exitCar(true);player.x=road(0)+6;player.z=road(2);player.hp=100;
   for(const c of cars.filter(c=>c.police))removeCar(c);if(mission.stage==='run')fail('任务失败')}
 function step(){requestAnimationFrame(step);try{frame()}catch(e){console.error(e)}}
-function frame(){const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running){ren.render(scene,cam);return}
+function frame(){const tm=player.car?'drive':'foot',te=document.getElementById('touch');if(te.dataset.mode!==tm){te.dataset.mode=tm;for(const k in tb_)tb_[k]=false;te.querySelectorAll('.on').forEach(e=>e.classList.remove('on'));stick.x=stick.y=0;document.getElementById('knob').style.transform=''}
+const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running){ren.render(scene,cam);return}
   const{ x:ax,y:ay}=axis();
   if(act.enter){act.enter=0;player.car?exitCar(false):enterCar()}
   if(act.fire){act.fire=0;if(!player.car)fire()}
   if(player.car){const c=player.car;carPhysics(c,ay,-ax,brakeHeld(),dt);player.x=c.x;player.z=c.z;player.rot=c.h;
     if(c.hp<40&&R()<.3){const sm=box(.8,.8,.8,new THREE.MeshBasicMaterial({color:0x444444,transparent:true,opacity:.6}));sm.position.set(c.x,2.5,c.z);scene.add(sm);fxs.push({m:sm,t:0,smoke:1})}}
   else{const mag=Math.min(1,Math.hypot(ax,ay)),moving=mag>.15;
-    const run=keys.ShiftLeft||keys.ShiftRight||(touchMode&&mag>.85);
+    const run=keys.ShiftLeft||keys.ShiftRight||tb_.Run;
     if(moving){ // 相对镜头移动：W/上=朝镜头前方，A/D=向屏幕左右
       const want=camYaw-Math.atan2(ax,ay);
       player.rot+=angDiff(want,player.rot)*Math.min(1,dt*12);
