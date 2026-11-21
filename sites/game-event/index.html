@@ -34,6 +34,10 @@ a{color:inherit}
 .mark{font-family:var(--f-mark);font-size:22px;letter-spacing:.04em;line-height:1;text-decoration:none;display:flex;align-items:center;gap:8px}
 .mark i{display:inline-block;width:12px;height:22px;background:var(--accent);transform:skewX(-14deg)}
 .navlink{border:1px solid rgba(255,255,255,.28);background:transparent;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;letter-spacing:.08em}
+.host{border:none;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;letter-spacing:.06em;white-space:nowrap}
+.host::before{content:"主办方 · ";font-weight:600;opacity:.8}
+.topright{display:flex;align-items:center;gap:12px}
+@media (max-width:420px){.topright .mark{display:none}}
 .hero{position:relative;min-height:88svh;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;
   background:radial-gradient(120% 80% at 85% 15%,#2a070c 0%,transparent 60%),var(--bg)}
 .hero::before{content:"";position:absolute;z-index:-1;right:-12%;top:-20%;width:62%;height:150%;background:linear-gradient(180deg,var(--accent-hot),var(--accent) 55%,#8e0d18);transform:skewX(-14deg)}
@@ -217,7 +221,7 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
     <div class="in">
       <h2 id="nextTitle"><small>NEXT EVENT</small>下一场活动</h2>
       <div class="next-card" id="nextCard">
-        <div><span class="pill" id="nPill">读取中</span><h3 id="nName">正在读取活动信息…</h3><p id="nWhen"></p></div>
+        <div><span class="pill" id="nPill">读取中</span><h3 id="nName">正在读取活动信息…</h3><p id="nWhen"></p><button class="host" type="button" id="homeEdit" style="margin-top:14px" hidden>编辑活动时间</button></div>
         <div class="next-num" id="nNums" hidden>
           <div><b id="nDays">--</b><span>天后开始</span></div>
           <div><b id="nSeats">0</b><span id="nSeatsLabel">人已报名</span></div>
@@ -240,7 +244,7 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
 <header class="topbar">
   <div class="in">
     <a class="back" href="#home">← 返回首页</a>
-    <a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a>
+    <div class="topright"><button class="host" type="button" id="topEdit" hidden>编辑活动</button><a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a></div>
   </div>
 </header>
 <main class="wrap">
@@ -473,7 +477,11 @@ function openEditor() {
   $('fCancel').hidden = !event;
 }
 $('fCancel').onclick = () => { editing = false; $('editPanel').hidden = true; };
-$('editBtn').onclick = () => { openEditor(); $('editPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+function goEdit() {
+  const show = () => { openEditor(); $('editPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); try { $('fStart').focus({ preventScroll: true }); } catch (e) { } };
+  if (location.hash !== '#signup') { location.hash = 'signup'; setTimeout(show, 150); } else show();
+}
+$('editBtn').onclick = goEdit; $('topEdit').onclick = goEdit; $('homeEdit').onclick = goEdit;
 $('editForm').addEventListener('submit', async ev => {
   ev.preventDefault();
   if (!db || busy) return;
@@ -638,7 +646,7 @@ async function saveIcs() {
 }
 
 /* ---------- boot ---------- */
-function renderAll() { renderTicket(); renderDesc(); renderRsvp(); renderRoster(); renderHome(); $('ownerBar').hidden = !(me.isOwner && db); }
+function renderAll() { renderTicket(); renderDesc(); renderRsvp(); renderRoster(); renderHome(); const host = !!(me.isOwner && db); $('ownerBar').hidden = !host; $('topEdit').hidden = !host; $('homeEdit').hidden = !host; if (host) $('homeEdit').textContent = eventLoaded && !event ? '填写活动信息' : '编辑活动时间'; }
 renderAll();
 (async () => {
   const c = window.claude;
