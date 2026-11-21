@@ -223,8 +223,8 @@ const cash=[];const cashMat=new THREE.MeshBasicMaterial({color:0x5cff7a});
 function dropCash(x,z,v){const m=new THREE.Mesh(new THREE.BoxGeometry(1,.5,1),cashMat);m.position.set(x,1,z);scene.add(m);cash.push({m,x,z,v})}
 
 // ===== 警察 / 通缉 =====
-function addHeat(v){player.heat=clamp(player.heat+v,0,5.99);player.lastSeen=0}
-function updWanted(dt){const w=Math.ceil(player.heat-.001);
+function addHeat(v){player.heat=clamp(player.heat+v,0,5);player.lastSeen=0}
+function updWanted(dt){const w=clamp(Math.ceil(player.heat-.001),0,5);
   if(w!==player.wanted){if(w>player.wanted){toast('通缉 '+'★'.repeat(w));beep(880,.3)}player.wanted=w}
   const cops=cars.filter(c=>c.police&&!c.dead);let seen=false;
   for(const c of cops)if(Math.hypot(c.x-player.x,c.z-player.z)<70)seen=true;
@@ -243,7 +243,7 @@ function driveCop(c,dt){const tx=player.car?player.car.x:player.x,tz=player.car?
   if(Math.abs(c.speed)<2){if((c.stuck+=dt)>1.2){c.rev=1;c.stuck=0}}else c.stuck=0;
   if(d<5){if(player.car){if(Math.abs(c.speed)>12)player.car.hp-=8*dt*5}else player.hp-=14*dt}}
 function driveAI2(c,dt){c.speed*=1-dt;carPhysics(c,0,0,true,dt)}
-function removeCar(c){scene.remove(c.mesh);cars.splice(cars.indexOf(c),1)}
+function removeCar(c){scene.remove(c.mesh);const i=cars.indexOf(c);if(i>=0)cars.splice(i,1);if(c===player.car)exitCar(true)}
 const fxs=[];
 function crashFx(c){beep(70,.2,'sawtooth',.12)}
 function explode(c){if(c.dead)return;c.dead=true;c.speed=0;c.mesh.traverse(o=>{if(o.material)o.material=M(0x1a1a1a)});
@@ -343,7 +343,8 @@ const camPos=new THREE.Vector3(),camLook=new THREE.Vector3();let last=performanc
 function respawn(){toast('你倒下了…医院见');player.money=Math.floor(player.money*.9);player.heat=0;player.wanted=0;
   if(player.car)exitCar(true);player.x=road(0)+6;player.z=road(2);player.hp=100;
   for(const c of cars.filter(c=>c.police))removeCar(c);if(mission.stage==='run')fail('任务失败')}
-function step(){requestAnimationFrame(step);const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running){ren.render(scene,cam);return}
+function step(){requestAnimationFrame(step);try{frame()}catch(e){console.error(e)}}
+function frame(){const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running){ren.render(scene,cam);return}
   const{ x:ax,y:ay}=axis();
   if(act.enter){act.enter=0;player.car?exitCar(false):enterCar()}
   if(act.fire){act.fire=0;if(!player.car)fire()}
