@@ -92,7 +92,19 @@ scene.add(new THREE.HemisphereLight(0xb7a2ff,0x4a2450,.85));
 const sun=new THREE.DirectionalLight(0xffa86b,1.05);sun.position.set(200,90,-60);sun.castShadow=true;
 Object.assign(sun.shadow.camera,{left:-160,right:160,top:160,bottom:-160,far:500});sun.shadow.mapSize.set(2048,2048);
 scene.add(sun,sun.target);
-const M=c=>new THREE.MeshLambertMaterial({color:c});
+// 卡通分层着色（三档明暗，接近插画的赛璐璐感），按颜色缓存材质
+const toonGrad=(()=>{const t=new THREE.DataTexture(new Uint8Array([90,90,90,255,170,170,170,255,255,255,255,255]),3,1,THREE.RGBAFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;return t})();
+const matCache={};const M=c=>matCache[c]||(matCache[c]=new THREE.MeshToonMaterial({color:c,gradientMap:toonGrad}));
+// 圆角方块：把细分方块的顶点推到圆角面上，法线直接取圆角方向，表面平滑无接缝
+const geoCache={};
+function rgeo(w,h,d,k){const key=[w,h,d,k].map(v=>+v.toFixed(3)).join();if(geoCache[key])return geoCache[key];
+  const r=Math.min(w,h,d)*k,seg=4,g=new THREE.BoxGeometry(w,h,d,seg,seg,seg),pos=g.attributes.position,nor=g.attributes.normal;
+  const hx=w/2-r,hy=h/2-r,hz=d/2-r,v=new THREE.Vector3(),n=new THREE.Vector3();
+  for(let i=0;i<pos.count;i++){v.fromBufferAttribute(pos,i);n.set(clamp(v.x,-hx,hx),clamp(v.y,-hy,hy),clamp(v.z,-hz,hz));
+    const dir=v.clone().sub(n);if(dir.lengthSq()<1e-9)dir.fromBufferAttribute(nor,i);dir.normalize();v.copy(n).addScaledVector(dir,r);pos.setXYZ(i,v.x,v.y,v.z);nor.setXYZ(i,dir.x,dir.y,dir.z)}
+  return geoCache[key]=g}
+const rbox=(w,h,d,c,k=.42)=>{const m=new THREE.Mesh(rgeo(w,h,d,k),typeof c==='number'?M(c):c);m.castShadow=m.receiveShadow=true;return m};
+const leafGeo=(()=>{const g=rgeo(6,.25,1.6,.45).clone();g.translate(3,0,0);const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i);p.setY(i,p.getY(i)-x*x*.06)}g.computeVertexNormals();return g})();
 const box=(w,h,d,c)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof c==='number'?M(c):c);m.castShadow=m.receiveShadow=true;return m};
 
 // ===== 城市 =====
@@ -176,8 +188,10 @@ for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){const x=road(i)+RD/2-.5,z=road(j)+RD/
  const pool=new THREE.Mesh(new THREE.PlaneGeometry(16,8),new THREE.MeshBasicMaterial({color:0x37e0ff}));pool.rotation.x=-Math.PI/2;pool.position.set(villa.x,.1,villa.z+18);scene.add(pool);
  solids.push({x0:villa.x-15,x1:villa.x+15,z0:villa.z-11,z1:villa.z+11});}
 for(let z=-HALF;z<HALF;z+=18)palm(HALF+30,z+rr(-4,4));
-function palm(x,z){const t=box(.7,9,.7,0x8a5a3b);t.position.set(x,4.5,z);scene.add(t);
-  for(let k=0;k<5;k++){const l=box(6,.3,1.2,0x2fa84f);l.position.set(x,9,z);l.rotation.y=k*1.26;l.rotation.z=-.25;l.geometry.translate(3,0,0);scene.add(l)}}
+function palm(x,z){const lean=rr(-.12,.12),lz=rr(-.12,.12);let tx=x,tz=z;
+  for(let k=0;k<5;k++){const t=rbox(.75-k*.06,2.1,.75-k*.06,0x8a5a3b,.45);tx+=lean*1.6*k*.3;tz+=lz*1.6*k*.3;t.position.set(tx,1+k*1.9,tz);scene.add(t)}
+  for(let k=0;k<7;k++){const l=new THREE.Mesh(leafGeo,M(k%2?0x2fa84f:0x268a44));l.castShadow=true;l.position.set(tx,9.6,tz);l.rotation.y=k*.9+rr(0,.3);l.rotation.z=rr(.05,.25);scene.add(l)}
+  const nut=rbox(.9,.7,.9,0x5a3a1a,.48);nut.position.set(tx,9.2,tz);scene.add(nut)}
 // 边界
 solids.push({x0:-HALF-30,x1:-HALF-20,z0:-HALF-30,z1:HALF+30},{x0:HALF+80,x1:HALF+90,z0:-HALF-30,z1:HALF+30},
   {x0:-HALF-30,x1:HALF+90,z0:-HALF-30,z1:-HALF-20},{x0:-HALF-30,x1:HALF+90,z0:HALF+20,z1:HALF+30});
@@ -241,7 +255,7 @@ const LOOKS={
  detective:{shirt:0x6a6e78,jacket:0x1e1f26,sleeve:'long',pants:0x1e1f26,shoes:0x1a1a1a,badge:1,hair:'short',hairCol:0x9a9a9a},
 };
 const NPC_KEYS=['chef','suit','biker','courier','selfie','tourist','skater8','elder','skater','tank','sundress'];
-function makePerson(look){const L=typeof look==='string'?LOOKS[look]:look;const g=new THREE.Group();
+function makePerson(look){const box=rbox;const L=typeof look==='string'?LOOKS[look]:look;const g=new THREE.Group();
   const skin=L.skin??SKIN[(R()*SKIN.length)|0];const add=(m,x,y,z,par=g)=>{m.position.set(x,y,z);par.add(m);return m};
   const shirtM=L.shirtMat==='trop'?FLORAL_TROP:L.shirt;
   // 腿（绕髋关节摆动）
@@ -276,7 +290,7 @@ function makePerson(look){const L=typeof look==='string'?LOOKS[look]:look;const 
     else add(box(.28,1.25,.28,arm),0,-.62,0,pv);
     add(box(.26,.24,.26,skin),0,-1.3,0,pv);return pv});
   // 头
-  const head=add(box(.78,.82,.74,skin),0,3.42,0);
+  const head=add(rbox(.8,.84,.78,skin,.48),0,3.42,0);
   for(const sd of[-1,1]){add(box(.14,.12,.04,0x15151a),sd*.18,3.5,.38);add(box(.2,.05,.04,0x2a1a12),sd*.18,3.62,.38)}// 眼睛和眉毛
   if(L.beard)add(box(.8,.32,.2,L.beardCol??0x2a1a12),0,3.12,.3);
   const hc=L.hairCol??[0x1a1a1a,0x2a1a12,0x4a2e1a][(R()*3)|0];
@@ -322,7 +336,7 @@ const SPECS={
 const goldMat=M(0xc89a3a),chromeMat=M(0xd8dce4),tanMat=M(0xc8925a),blackMat=M(0x15151a),stripeMat=M(0xff4fa3);
 let taxiTex=null;function taxiSign(){if(!taxiTex){const c=document.createElement('canvas');c.width=128;c.height=48;const g=c.getContext('2d');g.fillStyle='#ffe14d';g.fillRect(0,0,128,48);
   g.fillStyle='#15151a';g.font='bold 34px Impact,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('TAXI',64,26);taxiTex=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)})}return taxiTex}
-function carMesh(kind,col){
+function carMesh(kind,col){const box=(w,h,d,c)=>rbox(w,h,d,c,.32);
   const g=new THREE.Group();const add=(m,x,y,z,rx=0)=>{m.position.set(x,y,z);m.rotation.x=rx;g.add(m);return m};let siren=null;
   const D={wedge:[2.5,4.8,.62,.8,.5],coupe:[2.4,4.7,.7,.85,.52],convertible:[2.5,5.2,.8,1,.55],sedan:[2.4,4.8,.85,1,.55],taxi:[2.4,4.8,.85,1,.55],
     pickup:[2.7,5.4,1.1,1.95,.92],police:[2.4,4.6,.9,1,.55],suv:[2.6,5,1.2,1.25,.6]}[kind];
