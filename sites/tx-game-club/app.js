@@ -19,6 +19,10 @@ const rsvps = new Map(), rsvpSubs = new Map();
 let unsubEvents = null, unsubUsers = null;
 const pub = {}, pubPending = new Set();
 let members = new Map(), membersLoaded = false;
+let myStatus = null, myStatusLoaded = false, unsubMyStatus = null, approvals = new Map(), approvalsLoaded = false, unsubApprovals = null, adminIds = new Set();
+let mtab = 'pending', mConfirm = null;
+const isMember = () => isAdmin || myStatus === 'approved';
+const statusOf = uid => adminIds.has(uid) ? 'admin' : ((approvals.get(uid) || {}).status || 'pending');
 let route = { view: 'home', id: null }, pendingRoute = null;
 let tab = 'yes', myDraft = null, busy = false, confirmDel = null, confirmEvDel = false, formFor = null;
 
@@ -132,20 +136,34 @@ async function firebaseApi(cfg) {
     onRsvps: (evId, cb, err) => F.onSnapshot(F.collection(db, 'events', evId, 'rsvps'), s => cb(list(s)), err),
     setRsvp: (evId, uid, data) => F.setDoc(F.doc(db, 'events', evId, 'rsvps', uid), data),
     deleteRsvp: (evId, uid) => F.deleteDoc(F.doc(db, 'events', evId, 'rsvps', uid)),
-    onUsers: (cb, err) => F.onSnapshot(F.collection(db, 'users'), s => cb(list(s)), err)
+    onUsers: (cb, err) => F.onSnapshot(F.collection(db, 'users'), s => cb(list(s)), err),
+    onMyStatus: (uid, cb, err) => F.onSnapshot(F.doc(db, 'members', uid), s => cb(s.exists() ? s.data().status : null), err),
+    onMembers: (cb, err) => F.onSnapshot(F.collection(db, 'members'), s => cb(list(s)), err),
+    setMemberStatus: (uid, status, by) => F.setDoc(F.doc(db, 'members', uid), { status, updatedAt: new Date().toISOString(), by }),
+    listAdmins: async () => (await F.getDocs(F.collection(db, 'admins'))).docs.map(d => d.id)
   };
 }
 
 /* ---------- auth session ---------- */
-function stopSubs() {
+function stopMemberData() {
   if (unsubEvents) { unsubEvents(); unsubEvents = null; }
-  if (unsubUsers) { unsubUsers(); unsubUsers = null; }
   for (const u of rsvpSubs.values()) u(); rsvpSubs.clear(); rsvps.clear();
+  events = new Map(); eventsLoaded = false; eventsError = false;
+}
+function startMemberData() {
+  if (unsubEvents) return;
+  unsubEvents = api.onEvents(lst => { events = new Map(lst); eventsLoaded = true; syncRsvpSubs(); render(); }, e => { console.error(e); eventsLoaded = true; eventsError = true; render(); });
+}
+function stopSubs() {
+  stopMemberData();
+  for (const k of ['unsubUsers', 'unsubMyStatus', 'unsubApprovals']) { const f = { unsubUsers, unsubMyStatus, unsubApprovals }[k]; if (f) f(); }
+  unsubUsers = unsubMyStatus = unsubApprovals = null;
 }
 async function onAuthChange(u) {
   stopSubs();
   const wasIn = !!me;
   me = u; profile = null; profileLoaded = false; isAdmin = false;
+  myStatus = null; myStatusLoaded = false; approvals = new Map(); approvalsLoaded = false; adminIds = new Set();
   events = new Map(); eventsLoaded = false; eventsError = false; members = new Map(); membersLoaded = false;
   authKnown = true;
   if (!me) {
@@ -159,8 +177,19 @@ async function onAuthChange(u) {
   try { profile = await api.getUser(me.uid); } catch (e) { profile = null; }
   profileLoaded = true;
   if (profile) pub[me.uid] = { username: profile.username };
-  unsubEvents = api.onEvents(lst => { events = new Map(lst); eventsLoaded = true; syncRsvpSubs(); render(); }, e => { console.error(e); eventsLoaded = true; eventsError = true; render(); });
-  if (isAdmin) unsubUsers = api.onUsers(lst => { members = new Map(lst); membersLoaded = true; render(); }, e => { console.error(e); membersLoaded = true; render(); });
+  if (isAdmin) {
+    myStatusLoaded = true; startMemberData();
+    try { adminIds = new Set(await api.listAdmins()); } catch (e) { adminIds = new Set([me.uid]); }
+    unsubUsers = api.onUsers(lst => { members = new Map(lst); membersLoaded = true; render(); }, e => { console.error(e); membersLoaded = true; render(); });
+    unsubApprovals = api.onMembers(lst => { approvals = new Map(lst); approvalsLoaded = true; render(); }, e => { console.error(e); approvalsLoaded = true; render(); });
+  } else {
+    unsubMyStatus = api.onMyStatus(me.uid, st => {
+      const was = isMember(); myStatus = st; myStatusLoaded = true;
+      if (isMember() && !was) { startMemberData(); toast('你的会员资格已通过审核，欢迎！'); }
+      if (!isMember() && was) stopMemberData();
+      render();
+    }, e => { console.error(e); myStatusLoaded = true; render(); });
+  }
   if (pendingRoute) { const r = pendingRoute; pendingRoute = null; go(r); }
   else if (route.view === 'login' || route.view === 'register') go('events');
   render();
@@ -201,7 +230,7 @@ function onRoute() {
 }
 
 /* ---------- render ---------- */
-const SECTIONS = ['secGate', 'secSetup', 'secList', 'secMine', 'secEvent', 'secEdit', 'secMissing', 'secLogin', 'secRegister', 'secMe', 'secMembers'];
+const SECTIONS = ['secGate', 'secPending', 'secSetup', 'secList', 'secMine', 'secEvent', 'secEdit', 'secMissing', 'secLogin', 'secRegister', 'secMe', 'secMembers'];
 function show(id) { SECTIONS.forEach(s => $(s).hidden = s !== id); }
 function render() {
   renderAuthBoxes(); renderDrawer(); renderHome();
@@ -214,12 +243,23 @@ function render() {
   if (NEEDS_LOGIN.has(route.view) && !me) return show('secGate');
   if (route.view === 'me') { show('secMe'); return renderMe(); }
   if (route.view === 'members') { if (!isAdmin) return missing('只有管理员可以查看会员名单', '会员的电话和游戏 ID 只对管理员开放。'); show('secMembers'); return renderMembers(); }
+  if (!isAdmin && ['list', 'mine', 'event', 'edit'].includes(route.view)) {
+    if (!myStatusLoaded) return show(null);
+    if (!isMember()) { show('secPending'); return renderPending(); }
+  }
   if (route.view === 'list') { show('secList'); return renderList(); }
   if (route.view === 'mine') { show('secMine'); return renderMine(); }
   const cur = route.id ? events.get(route.id) : null;
   if (route.id && eventsLoaded && !cur) return missing('找不到这个活动', '它可能已经被管理员删除了。');
   if (route.view === 'event') { show('secEvent'); return renderEvent(); }
   if (route.view === 'edit') { if (!isAdmin) return missing('只有管理员可以编辑活动', '如果你想办牌局，请联系 The Imperial Club 的管理员。'); show('secEdit'); return renderEdit(); }
+}
+function renderPending() {
+  const rej = myStatus === 'rejected';
+  $('pendIcon').textContent = rej ? '✕' : '⏳';
+  $('pendTitle').textContent = rej ? '会员申请没有通过' : '等待管理员审核';
+  $('pendText').textContent = rej ? '你的会员申请暂时没有通过。如有疑问，请联系 The Imperial Club 的管理员。'
+    : '你的注册已经提交。管理员审核通过后，你就能查看牌局并报名。通过后这个页面会自动刷新，不用重新登入。';
 }
 function missing(title, text) { show('secMissing'); $('missTitle').textContent = title; $('missText').textContent = text; }
 
@@ -253,12 +293,19 @@ function renderHome() {
   const pill = $('nPill'), name = $('nName'), when = $('nWhen'), nums = $('nNums'), link = $('nLink'), acts = $('nAuth');
   pill.className = 'pill'; link.hidden = true; nums.hidden = true; acts.hidden = true;
   $('homeAdd').hidden = !isAdmin;
+  const np = isAdmin && membersLoaded && approvalsLoaded ? pendingCount() : 0;
+  $('pendingLink').hidden = !np; $('pendingLink').textContent = `${np} 位新会员等待审核 →`;
   const up = upcoming();
   $('allLink').hidden = !(me && eventsLoaded && events.size);
   $('allLink').textContent = up.length ? `全部活动（${up.length} 场即将开始）→` : '查看往期活动 →';
   if (setupNeeded) { pill.textContent = '未连接'; pill.classList.add('closed'); name.textContent = '网站还没连接数据库'; when.textContent = '管理员按设置说明填好 Firebase 配置后，这里就会显示活动。'; return; }
   if (!authKnown) { pill.textContent = '读取中'; name.textContent = '正在读取…'; when.textContent = ''; return; }
   if (!me) { pill.textContent = '会员专享'; name.textContent = '登入后查看活动'; when.textContent = '活动信息只对会员开放。注册只要一分钟。'; acts.hidden = false; return; }
+  if (!isAdmin && myStatusLoaded && !isMember()) {
+    const rej = myStatus === 'rejected'; pill.textContent = rej ? '未通过' : '审核中'; pill.classList.add('closed');
+    name.textContent = rej ? '会员申请没有通过' : '等待管理员审核';
+    when.textContent = rej ? '如有疑问，请联系管理员。' : '审核通过后就能查看牌局和报名。'; return;
+  }
   if (!eventsLoaded) { pill.textContent = '读取中'; name.textContent = '正在读取活动信息…'; when.textContent = ''; return; }
   if (!up.length) { pill.textContent = '筹备中'; pill.classList.add('closed'); name.textContent = '下一场活动即将公布'; when.textContent = isAdmin ? '点下面的「添加活动」发布一场吧。' : '管理员还在准备，过几天再来看看。'; return; }
   const [id, ev] = up[0], ph = phaseOf(ev);
@@ -545,7 +592,7 @@ $('regForm').addEventListener('submit', async e => {
   if (p1.length < 6) return msg('密码至少要 6 位。');
   if (p1 !== p2) return msg('两次输入的密码不一样。');
   busy = true; $('rBtn').disabled = true; msg('注册中…');
-  try { regPromise = api.register({ username, phone, gameId, password: p1 }); await regPromise; profile = { username, phone, gameId }; pub[me ? me.uid : ''] = { username }; msg(''); $('rPass').value = $('rPass2').value = ''; toast('注册成功，欢迎加入 The Imperial Club！'); }
+  try { regPromise = api.register({ username, phone, gameId, password: p1 }); await regPromise; profile = { username, phone, gameId }; pub[me ? me.uid : ''] = { username }; msg(''); $('rPass').value = $('rPass2').value = ''; toast('注册成功！请等待管理员审核'); }
   catch (er) { msg(errText(er)); }
   finally { busy = false; regPromise = null; $('rBtn').disabled = false; }
 });
@@ -596,26 +643,50 @@ $('pwForm').addEventListener('submit', async e => {
 $('logout').onclick = () => write(() => api.logout(), '已退出登入');
 
 /* ---------- members (admin) ---------- */
+const MSTAT = { pending: '待审核', approved: '已通过', rejected: '已拒绝' };
+function pendingCount() { let n = 0; for (const uid of members.keys()) if (statusOf(uid) === 'pending') n++; return n; }
+function memberGroups() {
+  const g = { pending: [], approved: [], rejected: [] };
+  for (const [uid, m] of members) { const st = statusOf(uid); (g[st === 'admin' ? 'approved' : st] || g.pending).push([uid, m]); }
+  for (const k in g) g[k].sort((a, b) => String(a[1].createdAt).localeCompare(String(b[1].createdAt)));
+  return g;
+}
+document.querySelectorAll('#mtabs button').forEach(b => b.onclick = () => { mtab = b.dataset.t; mConfirm = null; renderMembers(); });
+async function setStatus(uid, status, okMsg) { await write(() => api.setMemberStatus(uid, status, me.uid), okMsg); }
 function renderMembers() {
   const body = $('membersBody'); body.replaceChildren();
-  if (!membersLoaded) return body.append(emptyBox('正在读取会员名单…'));
-  const rows = [...members.entries()].sort((a, b) => String(a[1].createdAt).localeCompare(String(b[1].createdAt)));
-  $('membersCount').textContent = `共 ${rows.length} 位会员`;
-  if (!rows.length) return body.append(emptyBox('还没有会员注册。'));
-  const wrap = el('div', 'tablewrap'), t = el('table', 'mtable'), thead = el('thead'), tr = el('tr');
-  ['用户名', '电话号码', '游戏 ID', '注册时间'].forEach(h => tr.append(el('th', null, h))); thead.append(tr); t.append(thead);
-  const tb = el('tbody');
+  if (!membersLoaded || !approvalsLoaded) return body.append(emptyBox('正在读取会员名单…'));
+  const g = memberGroups();
+  $('membersCount').textContent = `共 ${members.size} 位注册会员` + (g.pending.length ? ` · ${g.pending.length} 位待审核` : '');
+  document.querySelectorAll('#mtabs button').forEach(b => { b.setAttribute('aria-selected', b.dataset.t === mtab ? 'true' : 'false'); b.querySelector('b').textContent = g[b.dataset.t].length; });
+  const rows = g[mtab];
+  if (!rows.length) return body.append(emptyBox(mtab === 'pending' ? '没有等待审核的新会员。' : mtab === 'approved' ? '还没有已通过的会员。' : '没有被拒绝的申请。'));
+  const ul = el('ul', 'roster');
   for (const [uid, m] of rows) {
-    const r = el('tr'), d = new Date(m.createdAt);
-    r.append(el('td', null, m.username || '—'), el('td', null, m.phone || '—'), el('td', null, m.gameId || '—'), el('td', null, isNaN(d) ? '—' : `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`));
-    if (uid === me.uid) r.classList.add('self');
-    tb.append(r);
+    const st = statusOf(uid), li = el('li'), name = m.username || '会员';
+    const av = el('div', 'av', name.slice(0, 1).toUpperCase()); av.style.background = colorFor(uid);
+    const who = el('div', 'who');
+    who.append(el('b', null, name + (uid === me.uid ? '（你）' : '') + (st === 'admin' ? ' · 管理员' : '')));
+    who.append(el('span', null, `电话：${m.phone || '—'} · 游戏 ID：${m.gameId || '—'}`));
+    const d = new Date(m.createdAt); who.append(el('p', 'note', isNaN(d) ? '' : `注册于 ${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`));
+    const side = el('div', 'side');
+    const btn = (text, cls, fn) => { const b = el('button', 'mini ' + cls, text); b.type = 'button'; b.onclick = fn; side.append(b); };
+    if (st === 'pending') {
+      btn('通过', 'ok', () => setStatus(uid, 'approved', `已通过 ${name}`));
+      btn(mConfirm === 'rej' + uid ? '确认拒绝' : '拒绝', 'danger', () => { if (mConfirm !== 'rej' + uid) { mConfirm = 'rej' + uid; return renderMembers(); } mConfirm = null; setStatus(uid, 'rejected', `已拒绝 ${name}`); });
+    } else if (st === 'approved') {
+      btn(mConfirm === 'rev' + uid ? '确认取消' : '取消资格', 'danger', () => { if (mConfirm !== 'rev' + uid) { mConfirm = 'rev' + uid; return renderMembers(); } mConfirm = null; setStatus(uid, 'rejected', `已取消 ${name} 的会员资格`); });
+    } else if (st === 'rejected') {
+      btn('改为通过', 'ok', () => setStatus(uid, 'approved', `已通过 ${name}`));
+    }
+    li.append(av, who, side); ul.append(li);
   }
-  t.append(tb); wrap.append(t); body.append(wrap);
+  body.append(ul);
 }
 $('copyMembers').onclick = () => {
-  const rows = [...members.values()].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
-  copy(['The Imperial Club 会员名单', '用户名\t电话号码\t游戏 ID', ...rows.map(m => `${m.username}\t${m.phone}\t${m.gameId}`)].join('\n'), '会员名单已复制');
+  const g = memberGroups();
+  const line = ([, m]) => `${m.username}\t${m.phone}\t${m.gameId}`;
+  copy(['The Imperial Club 会员名单', '用户名\t电话号码\t游戏 ID', ...g.approved.map(line), ...(g.pending.length ? ['', '【待审核】', ...g.pending.map(line)] : [])].join('\n'), '会员名单已复制');
 };
 
 /* ---------- menu drawer ---------- */
@@ -640,6 +711,8 @@ function renderDrawer() {
   const sec = { home: 'home', mine: 'mine', me: 'me', members: 'members', login: 'me', register: 'me' }[route.view] || 'list';
   drawer.querySelectorAll('[data-nav]').forEach(a => { if (a.dataset.nav === sec) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   $('dMembersItem').hidden = !isAdmin;
+  const np = isAdmin && membersLoaded && approvalsLoaded ? pendingCount() : 0;
+  $('dPending').hidden = !np; $('dPending').textContent = np;
   const nUp = me && eventsLoaded ? upcoming().length : 0, nMine = me && eventsLoaded ? myEvents().filter(([, e]) => phaseOf(e) !== 'ended').length : 0;
   $('dEvents').hidden = !nUp; $('dEvents').textContent = nUp;
   $('dMine').hidden = !nMine; $('dMine').textContent = nMine;

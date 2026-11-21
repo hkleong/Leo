@@ -305,6 +305,9 @@ label.f input[readonly]{opacity:.65}
 .mtable th{font-size:12px;letter-spacing:.12em;color:var(--muted);background:var(--sunk);font-weight:700}
 .mtable tr:last-child td{border-bottom:none}
 .mtable tr.self td:first-child::after{content:"（你）";color:var(--muted)}
+.mini.ok{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+#membersBody .roster{background:var(--paper);border-radius:var(--r);padding:4px 18px;box-shadow:0 0 0 1px var(--line)}
+#pendingLink{color:var(--accent-hot)}
 .lock{display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--accent-soft);color:var(--accent-hot);font-size:24px}
 </style>
 </head>
@@ -336,10 +339,10 @@ label.f input[readonly]{opacity:.65}
       <div>
         <h2><small>ABOUT</small>关于这个网站</h2>
         <p>这是 The Imperial Club 的牌局公告板。每次开局或办锦标赛，管理员会把时间、玩法、盲注和座位数发布在这里。</p>
-        <p>注册会员后就能查看活动和报名。其他会员只看得到你的用户名；你的电话号码和游戏 ID 只有管理员看得到。</p>
+        <p>注册并通过管理员审核后，就能查看牌局和报名。其他会员只看得到你的用户名；你的电话号码和游戏 ID 只有管理员看得到。</p>
       </div>
       <ol class="steps">
-        <li><span class="n">01</span><div><b>注册会员</b><span>填写用户名、电话号码、游戏 ID 和密码</span></div></li>
+        <li><span class="n">01</span><div><b>注册会员</b><span>填写用户名、电话号码、游戏 ID 和密码，等待管理员审核</span></div></li>
         <li><span class="n">02</span><div><b>选择牌局报名</b><span>选「参加」「可能来」或「来不了」，名单会实时更新</span></div></li>
         <li><span class="n">03</span><div><b>准时入座</b><span>可以把牌局加进日历，开始前 30 分钟提醒你</span></div></li>
       </ol>
@@ -365,6 +368,7 @@ label.f input[readonly]{opacity:.65}
       <div class="homeacts">
         <a class="morelink" id="allLink" href="#events" hidden>全部活动 →</a>
         <button class="host" type="button" id="homeAdd" hidden>+ 添加活动</button>
+        <a class="morelink" id="pendingLink" href="#members" hidden></a>
       </div>
     </div>
   </section>
@@ -401,6 +405,15 @@ label.f input[readonly]{opacity:.65}
       <h2>会员才能查看</h2>
       <p class="note">牌局和报名只对 The Imperial Club 会员开放。登入后会自动回到这个页面。</p>
       <div class="actions"><a class="btn-login" href="#login">登入</a><a class="lnk-reg" href="#register">还没有账号？注册</a></div>
+    </div>
+  </section>
+
+  <section id="secPending" class="authwrap" hidden>
+    <div class="panel">
+      <div class="lock" aria-hidden="true" id="pendIcon">⏳</div>
+      <h2 id="pendTitle">等待管理员审核</h2>
+      <p class="note" id="pendText"></p>
+      <div class="actions"><a class="ghost" href="#me" style="text-decoration:none">我的资料</a><a class="ghost" href="#home" style="text-decoration:none">回到首页</a></div>
     </div>
   </section>
 
@@ -473,6 +486,11 @@ label.f input[readonly]{opacity:.65}
     <div class="page-head">
       <div><h1>会员名单</h1><p id="membersCount">只有管理员能看到这个页面。</p></div>
       <button class="mini" type="button" id="copyMembers">复制名单</button>
+    </div>
+    <div class="tabs" role="tablist" id="mtabs" style="margin-bottom:14px">
+      <button role="tab" data-t="pending" aria-selected="true">待审核<b>0</b></button>
+      <button role="tab" data-t="approved" aria-selected="false">已通过<b>0</b></button>
+      <button role="tab" data-t="rejected" aria-selected="false">已拒绝<b>0</b></button>
     </div>
     <div id="membersBody"></div>
   </section>
@@ -562,7 +580,7 @@ label.f input[readonly]{opacity:.65}
     <li><a href="#events" data-nav="list"><span><b>活动</b><small>查看全部活动并报名</small></span><span class="dcount" id="dEvents" hidden>0</span></a></li>
     <li><a href="#mine" data-nav="mine"><span><b>我的报名</b><small>我回复过的活动</small></span><span class="dcount" id="dMine" hidden>0</span></a></li>
     <li><a href="#me" data-nav="me" id="dMeLink"><span><b id="dMeLabel">我的资料</b><small id="dMeSub"></small></span></a></li>
-    <li id="dMembersItem" hidden><a href="#members" data-nav="members"><span><b>会员名单</b><small>管理员专用：电话和游戏 ID</small></span></a></li>
+    <li id="dMembersItem" hidden><a href="#members" data-nav="members"><span><b>会员名单</b><small>管理员专用：审核、电话和游戏 ID</small></span><span class="dcount" id="dPending" hidden>0</span></a></li>
   </ul>
   <div class="dfoot">THE IMPERIAL CLUB</div>
 </nav>
