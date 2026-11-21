@@ -61,7 +61,7 @@ canvas{display:block}
     <button class="hero" id="pickM" role="radio" aria-checked="false"><img src="art/hero_m.jpg" alt=""><span>科尔</span><small>牛仔夹克 · 工装靴</small></button>
   </div>
   <button id="start">开始游戏</button>
-  <div class="keys">WASD 移动·驾驶 · Shift 奔跑 · 空格 跳跃/手刹 · Q 出拳 · R/右键 瞄准 · F 开火 · E 上下车 · Tab 地图 · M 静音</div>
+  <div class="keys">WASD 移动·驾驶 · 鼠标拖动 转视角 · Shift 奔跑 · 空格 跳跃/手刹 · Q 出拳 · R/右键 瞄准 · F 开火 · E 上下车 · Tab 地图 · M 静音</div>
 </div>
 <div id="hud">
   <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div></div>
@@ -996,17 +996,26 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   { // 车上：镜头紧跟车头；步行：只在往前/侧走时慢慢转到人物身后，往后走不转镜头
     const d=angDiff(player.rot,camYaw);let rate=3;
     if(!player.car){const{x:a2,y:b2}=axis();rate=(a2||b2)?1.6*Math.max(0,Math.cos(d)+.25):0}
+    if(camHold>0){camHold-=dt;rate=0}
     camYaw+=d*Math.min(1,dt*rate)}
   const aimC=!player.car&&player.aiming;
   const dist=player.car?10+Math.abs(player.car.speed)*.12:aimC?3:5.2,hgt=player.car?4.6:aimC?2.65:3,sh=aimC?.95:0;
-  camPos.set(player.x-Math.sin(camYaw)*dist-Math.cos(camYaw)*sh,hgt+player.y*(aimC?1:0),player.z-Math.cos(camYaw)*dist+Math.sin(camYaw)*sh);cam.position.lerp(camPos,Math.min(1,dt*(aimC?14:8)));
+  const hd=dist*(1-camPitch*.35);camPos.set(player.x-Math.sin(camYaw)*hd-Math.cos(camYaw)*sh,hgt+player.y*(aimC?1:0)+camPitch*dist*(aimC?.4:1),player.z-Math.cos(camYaw)*hd+Math.sin(camYaw)*sh);cam.position.lerp(camPos,Math.min(1,dt*(aimC?14:8)));
   const tf=aimC?50:65;if(Math.abs(cam.fov-tf)>.1){cam.fov+=(tf-cam.fov)*Math.min(1,dt*10);cam.updateProjectionMatrix()}
   if(aimC)camLook.set(player.x+Math.sin(camYaw)*12-Math.cos(camYaw)*sh,2.3,player.z+Math.cos(camYaw)*12+Math.sin(camYaw)*sh);else camLook.set(player.x,player.car?1.5:2,player.z);
   sky.position.copy(cam.position);cam.lookAt(camLook);
   $('xh').hidden=!aimC;$('xh').classList.toggle('lock',!!(aimC&&aimLock));
   sun.position.set(player.x-120,180,player.z+80);sun.target.position.set(player.x,0,player.z);
   hud(dt);ren.render(scene,cam)}
-let camYaw=0;
+let camYaw=0,camPitch=0,camHold=0;
+// 拖动屏幕旋转视角：手指在空白处拖（不影响摇杆和按钮），电脑按住鼠标左键拖
+(function(){const el=ren.domElement;let lookId=null,lx=0,ly=0,md=false;
+  const move=(x,y)=>{const dx=x-lx,dy=y-ly;lx=x;ly=y;if(mapOpen||!running)return;camYaw-=dx*.0065;camPitch=clamp(camPitch+dy*.004,-.3,1);camHold=1.5};
+  el.addEventListener('touchstart',e=>{if(lookId!==null)return;const t=e.changedTouches[0];lookId=t.identifier;lx=t.clientX;ly=t.clientY},{passive:true});
+  el.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===lookId)move(t.clientX,t.clientY);e.preventDefault()},{passive:false});
+  const end=e=>{for(const t of e.changedTouches)if(t.identifier===lookId)lookId=null};el.addEventListener('touchend',end);el.addEventListener('touchcancel',end);
+  el.addEventListener('mousedown',e=>{if(e.button===0){md=true;lx=e.clientX;ly=e.clientY;el.style.cursor='grabbing'}});
+  addEventListener('mousemove',e=>{if(md)move(e.clientX,e.clientY)});addEventListener('mouseup',()=>{md=false;el.style.cursor=''});})();
 function angDiff(a,b){return((a-b)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI}
 function tryMove(dx,dz){if(!hit(player.x+dx,player.z,.6))player.x+=dx;if(!hit(player.x,player.z+dz,.6))player.z+=dz}
 for(const[cx,cz]of parkSpots)for(const[dx,dz,r]of[[-12,-8,0],[12,-8,0],[-12,10,Math.PI],[12,10,Math.PI],[0,-20,0],[0,20,Math.PI]])addBench(cx+dx,cz+dz,r);
