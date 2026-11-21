@@ -238,44 +238,41 @@ for(let i=0;i<N;i++)for(let j=0;j<N;j++){
     // 装饰艺术风：楼顶阶梯 + 彩色腰线
     const cap=box(w*.7,3,w*.7,col);cap.position.set(ox,h+1.5,oz);scene.add(cap);
     const t1=box(w+.6,.8,w+.6,trim);t1.position.set(ox,h-.4,oz);scene.add(t1);
-    const t2=box(w+.4,.6,w+.4,trim);t2.position.set(ox,3.6,oz);scene.add(t2);
-    if(h<=16){const aw=box(w*.8,.25,2.2,[0xff6f91,0x22d3ee,0xffd166,0xffffff][(R()*4)|0]);aw.position.set(ox,3.2,oz+w/2+1);aw.rotation.x=.25;scene.add(aw)}
-    for(let y=6;y<h-2;y+=4){const r=R(),s2=new THREE.Mesh(new THREE.BoxGeometry(w+.15,1.4,w+.15),r<.45?winWarm:r<.6?winCool:winDark);s2.position.set(ox,y,oz);scene.add(s2)}
+    const t2=box(w+.4,.7,w+.4,trim);t2.position.set(ox,5.6,oz);scene.add(t2);
+    if(h<=16){const aw=box(w*.8,.25,2.2,[0xff6f91,0x22d3ee,0xffd166,0xffffff][(R()*4)|0]);aw.position.set(ox,5,oz+w/2+1.3);aw.rotation.x=.25;aw.scale.z=1.3;scene.add(aw)}
+    for(let y=8;y<h-2;y+=5){const r=R(),s2=new THREE.Mesh(new THREE.BoxGeometry(w+.15,1.8,w+.15),r<.45?winWarm:r<.6?winCool:winDark);s2.position.set(ox,y,oz);scene.add(s2)}
     // 底层店面 + 霓虹招牌（朝四个街面中随机两个）
-    const shop=new THREE.Mesh(new THREE.BoxGeometry(w+.1,2.2,w+.1),R()<.6?winWarm:winCool);shop.position.set(ox,1.4,oz);scene.add(shop);
+    const shop=new THREE.Mesh(new THREE.BoxGeometry(w+.1,3.8,w+.1),R()<.6?winWarm:winCool);shop.position.set(ox,2.3,oz);scene.add(shop);
     const faces=[[0,w/2+.35,0],[Math.PI,-w/2-.35,0],[Math.PI/2,0,w/2+.35],[-Math.PI/2,0,-w/2-.35]];
     for(const f of faces)if(R()<.5){const ry=f[0]+(f[0]===Math.PI/2||f[0]===-Math.PI/2?0:0);
       const dx=f[0]===Math.PI/2?w/2+.35:f[0]===-Math.PI/2?-w/2-.35:0,dz=f[0]===0?w/2+.35:f[0]===Math.PI?-w/2-.35:0;
-      addSign(ox+dx,rr(5,Math.min(h-3,14)),oz+dz,f[0],Math.min(w*.6,9))}
+      addSign(ox+dx,rr(7,Math.min(h-3,16)),oz+dz,f[0],Math.min(w*.6,9))}
     solids.push({x0:ox-w/2,x1:ox+w/2,z0:oz-w/2,z1:oz+w/2});
   }
   palm(cx-BLK/2+2,cz-BLK/2+2);palm(cx+BLK/2-2,cz+BLK/2-2);
 }
-// 平房：粉彩外墙、坡屋顶、门廊、窗户、烟囱、白色栅栏和草坪；face=±1 朝向街道（+z / -z）
-function addHouse(x,z,face){const w=rr(13,17),d=rr(10,13),hh=rr(3.6,4.4);
+// 平房：按人物比例建（人≈2.9 单位≈1.8 米）。粉彩外墙、坡屋顶、门廊、窗户、烟囱、白色栅栏和草坪；face=±1 朝向街道
+function addHouse(x,z,face){const w=rr(17,22),d=rr(13,16),hh=rr(5.4,6.2),rise=3.2;
   const wall=[0xfff1e0,0xffd6e0,0xcff5ee,0xfff3b0,0xe0d6ff,0xffe0c8][(R()*6)|0],roof=[0xc8553d,0x2f8f9d,0x8a5cff,0x6a4a3a,0xd96a8a][(R()*5)|0];
   const yard=new THREE.Mesh(new THREE.PlaneGeometry(BLK/2-2,BLK/2-2),M(0x6fc070));yard.rotation.x=-Math.PI/2;yard.position.set(x,.09,z);yard.receiveShadow=true;scene.add(yard);
-  const hz=z-face*2;
+  const hz=z-face*2.5;
   const body=box(w,hh,d,wall);body.position.set(x,hh/2,hz);scene.add(body);
-  // 坡屋顶：两片斜板 + 屋脊 + 两侧山墙三角
-  const sl=Math.hypot(d/2+.6,2.2);for(const sd of[-1,1]){const r=box(w+1,.3,sl,roof);r.position.set(x,hh+1.1,hz+sd*(d/4+.15));r.rotation.x=sd*Math.atan2(2.2,d/2+.6);scene.add(r)}
-  const ridge=box(w+1.1,.35,.5,roof);ridge.position.set(x,hh+2.2,hz);scene.add(ridge);
-  {const tri=new THREE.Shape();tri.moveTo(-d/2-.1,0);tri.lineTo(d/2+.1,0);tri.lineTo(0,2.2);tri.lineTo(-d/2-.1,0);const tg=new THREE.ExtrudeGeometry(tri,{depth:w-.1,bevelEnabled:false});tg.rotateY(Math.PI/2);tg.translate(-(w-.1)/2,0,0);
+  const sl=Math.hypot(d/2+.8,rise);for(const sd of[-1,1]){const r=box(w+1.4,.35,sl,roof);r.position.set(x,hh+rise/2,hz+sd*(d/4+.2));r.rotation.x=sd*Math.atan2(rise,d/2+.8);scene.add(r)}
+  const ridge=box(w+1.5,.4,.6,roof);ridge.position.set(x,hh+rise,hz);scene.add(ridge);
+  {const tri=new THREE.Shape();tri.moveTo(-d/2-.1,0);tri.lineTo(d/2+.1,0);tri.lineTo(0,rise);tri.lineTo(-d/2-.1,0);const tg=new THREE.ExtrudeGeometry(tri,{depth:w-.1,bevelEnabled:false});tg.rotateY(Math.PI/2);tg.translate(-(w-.1)/2,0,0);
    const gab=new THREE.Mesh(tg,M(wall));gab.position.set(x,hh,hz);gab.castShadow=true;scene.add(gab)}
-  const ch=box(1,2.4,1,0x9a6a5a);ch.position.set(x+w*.28,hh+2,hz-d*.15);scene.add(ch);
-  // 正面：门、门廊顶、窗户、台阶
+  const ch=box(1.4,3.4,1.4,0x9a6a5a);ch.position.set(x+w*.28,hh+rise-.2,hz-d*.15);scene.add(ch);
   const fz=hz+face*(d/2+.05);
-  const door=box(1.3,2.4,.15,0x6a3a2a);door.position.set(x,1.2,fz);scene.add(door);
-  const knob=box(.12,.12,.2,0xd9a93a);knob.position.set(x+.4,1.2,fz+face*.08);scene.add(knob);
-  const por=box(4,.25,2.4,roof);por.position.set(x,2.9,fz+face*1.1);scene.add(por);
-  for(const sd of[-1,1]){const col=box(.25,2.8,.25,0xffffff);col.position.set(x+sd*1.8,1.4,fz+face*2.1);scene.add(col)}
-  const step=box(2.2,.3,1,0xb8b0a8);step.position.set(x,.15,fz+face*.6);scene.add(step);
-  for(const sd of[-1,1]){const wn=new THREE.Mesh(new THREE.BoxGeometry(2.2,1.6,.12),R()<.6?winWarm:winCool);wn.position.set(x+sd*(w*.3),2,fz);scene.add(wn);
-    const sh=box(.5,1.8,.1,roof);sh.position.set(x+sd*(w*.3)+1.45,2,fz+face*.05);scene.add(sh)}
-  const mb=box(.4,.5,.6,0x2f6fd0);mb.position.set(x-w*.4,1.2,z+face*(BLK/4-2));scene.add(mb);const mp=box(.12,1,.12,0x555555);mp.position.set(x-w*.4,.5,z+face*(BLK/4-2));scene.add(mp);
-  // 白色栅栏（沿街一侧，中间留门口）
-  const fzz=z+face*(BLK/4-1.2);for(let k=-6;k<=6;k++){if(Math.abs(k)<=1)continue;const pk=box(.18,1.1,.12,0xffffff);pk.position.set(x+k*1.15,.55,fzz);scene.add(pk)}
-  for(const sd of[-1,1]){const rail=box(5.6,.15,.1,0xffffff);rail.position.set(x+sd*4.45,.8,fzz);scene.add(rail)}
+  const door=box(1.9,3.6,.15,0x6a3a2a);door.position.set(x,1.8,fz);scene.add(door);
+  const knob=box(.16,.16,.25,0xd9a93a);knob.position.set(x+.6,1.7,fz+face*.1);scene.add(knob);
+  const por=box(6,.3,3.4,roof);por.position.set(x,4.4,fz+face*1.6);scene.add(por);
+  for(const sd of[-1,1]){const col=box(.35,4.3,.35,0xffffff);col.position.set(x+sd*2.7,2.15,fz+face*3.1);scene.add(col)}
+  const step=box(3,.45,1.4,0xb8b0a8);step.position.set(x,.22,fz+face*.8);scene.add(step);
+  for(const sd of[-1,1]){const wn=new THREE.Mesh(new THREE.BoxGeometry(3,2.4,.12),R()<.6?winWarm:winCool);wn.position.set(x+sd*(w*.3),3,fz);scene.add(wn);
+    const sh=box(.7,2.6,.1,roof);sh.position.set(x+sd*(w*.3)+sd*1.9,3,fz+face*.05);scene.add(sh)}
+  const mx=x-w*.42,mz=z+face*(BLK/4-2.2);const mb=box(.6,.7,.9,0x2f6fd0);mb.position.set(mx,1.6,mz);scene.add(mb);const mp=box(.15,1.4,.15,0x555555);mp.position.set(mx,.7,mz);scene.add(mp);
+  const fzz=z+face*(BLK/4-1.2);for(let k=-7;k<=7;k++){if(Math.abs(k)<=1)continue;const pk=box(.22,1.5,.14,0xffffff);pk.position.set(x+k*1.15,.75,fzz);scene.add(pk)}
+  for(const sd of[-1,1]){const rail=box(6.8,.18,.12,0xffffff);rail.position.set(x+sd*5.05,1.05,fzz);scene.add(rail)}
   solids.push({x0:x-w/2,x1:x+w/2,z0:hz-d/2,z1:hz+d/2})}
 // ===== 人行道路线：行人绕街区一圈走，只在斑马线处过马路 =====
 const HW=BLK/2-1,SL=2*HW,CR=5;              // 人行道离街区中心的距离、每条边长、斑马线离路口的距离
@@ -907,9 +904,15 @@ function driveAI(c,dt){const n=node(c.ni,c.nj);const tx=n.x+c.dz*4,tz=n.z-c.dx*4
   const want=Math.atan2(tx-c.x,tz-c.z);let diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;
   let block=false;const fx=Math.sin(c.h),fz=Math.cos(c.h);
   const obs=[...cars.filter(o=>o!==c&&!o.dead),player.car?null:player,...peds.filter(q=>!q.dead&&Math.abs(q.x-c.x)<16&&Math.abs(q.z-c.z)<16)].filter(Boolean);
-  for(const o of obs){const dx=o.x-c.x,dz=o.z-c.z,f=dx*fx+dz*fz,s=Math.abs(dx*fz-dz*fx);if(f>0&&f<14&&s<3.2)block=true}
+  let bPed=false;
+  for(const o of obs){const dx=o.x-c.x,dz=o.z-c.z,f=dx*fx+dz*fz,s=Math.abs(dx*fz-dz*fx);if(f<=0||f>14||s>3.2)continue;
+    if(o.kind){const same=Math.sin(o.h)*fx+Math.cos(o.h)*fz;if(same<.5&&f>6.5)continue;block=true} // 车：只让同向前车，横穿/对向的车贴近才停
+    else if(f<11)bPed=true}                                                                            // 行人（含玩家）：一直礼让
+  // 被车堵超过 4 秒：按喇叭，然后慢慢挤过去
+  if(block){c.blockT=(c.blockT||0)+dt;if(c.blockT>4){if(!c.honked&&Math.hypot(c.x-player.x,c.z-player.z)<50){c.honked=1;SFX.horn()}block=false;if(c.blockT>7)c.blockT=0}}else{c.blockT=0;c.honked=0}
+  block=block||bPed;
   const target=Math.abs(diff)>.4?9:16;
-  carPhysics(c,block?0:(c.speed<target?.6:0),clamp(diff*2.5,-1,1),block,dt);
+  carPhysics(c,block?0:(c.speed<(c.blockT>4?4:target)?.6:0),clamp(diff*2.5,-1,1),block,dt);
   if(Math.abs(c.speed)<.5&&!block){if((c.stuck+=dt)>3){c.x=tx;c.z=tz;c.stuck=0}}else c.stuck=0}
 
 // ===== 行人 =====
@@ -1064,9 +1067,12 @@ function copWitness(x,z){for(const c of cars)if(c.police&&!c.dead&&c!==player.ca
   return !!(heli&&player.wanted>=3&&Math.hypot(heli.x-x,heli.z-z)<30)}
 // 瞄准锁定：准星方向 12° 以内、50 米内最近的人或车
 let aimLock=null;
-function updAimLock(){aimLock=null;let bd=50;const fx=Math.sin(player.rot),fz=Math.cos(player.rot);
-  for(const t of[...peds.filter(p=>!p.dead),...cars.filter(c=>!c.dead&&c!==player.car)]){const dx=t.x-player.x,dz=t.z-player.z,d=Math.hypot(dx,dz);
-    if(d<1||d>bd)continue;const cos=(dx*fx+dz*fz)/d;if(cos>Math.cos(.21)){bd=d;aimLock=t}}}
+const _av=new THREE.Vector3();
+function updAimLock(){aimLock=null;let best=9;const cy=1-2*.46;
+  for(const t of[...peds.filter(p=>!p.dead),...cars.filter(c=>!c.dead&&c!==player.car)]){const d=Math.hypot(t.x-player.x,t.z-player.z);if(d>55||d<.6)continue;
+    // 目标从脚到头的屏幕范围：准星高度落在范围内就算对准，主要看左右偏差（瞄准时镜头只能左右转）
+    _av.set(t.x,.2,t.z).project(cam);if(_av.z>1||_av.z<-1)continue;const y0=_av.y,x0=_av.x;_av.set(t.x,t.kind?2.2:2.9,t.z).project(cam);const y1=_av.y;
+    const dy=cy<y0?y0-cy:cy>y1?cy-y1:0,sc=Math.abs((x0+_av.x)/2*cam.aspect)+dy*.5+d*.002;if(sc<.2+.8/Math.max(d,1)&&sc<best){best=sc;aimLock=t}}}
 // ===== 上下车 =====
 const ENTER_R=7;function nearCar(){return cars.some(c=>!c.dead&&c!==player.car&&Math.hypot(c.x-player.x,c.z-player.z)<ENTER_R)}
 // 车门外站位 / 驾驶座位置（世界坐标）
