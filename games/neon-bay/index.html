@@ -20,7 +20,12 @@ canvas{display:block}
 #mini{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(10px + env(safe-area-inset-top,0px));width:104px;height:104px;border-radius:50%;border:3px solid #000;background:#123;box-shadow:0 0 0 2px var(--hot)}
 #toast{position:absolute;top:30%;left:50%;transform:translateX(-50%);font-family:var(--disp);font-size:clamp(22px,5vw,42px);color:var(--sun);text-shadow:0 3px 0 #000,0 0 20px var(--hot);opacity:0;transition:opacity .4s;text-align:center;white-space:nowrap}
 #hint{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ui);padding:6px 12px;border-radius:4px;font-size:13px;opacity:0;transition:opacity .2s}
-#title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:linear-gradient(180deg,#2a0b3d 0%,#ff3d8b 55%,#ffb347 100%);z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));text-align:center}
+#title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow-y:auto;background:linear-gradient(180deg,rgba(20,8,40,.55),rgba(20,8,40,.25) 40%,rgba(20,8,40,.8)),url(art/title.jpg) center/cover,#2a0b3d;z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));text-align:center}
+.pick{display:flex;gap:12px}
+.hero{pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:2px;width:132px;padding:6px 6px 8px;border:3px solid rgba(255,255,255,.25);border-radius:8px;background:rgba(20,8,40,.7);color:#fff;font-family:var(--body);cursor:pointer}
+.hero img{width:100%;height:150px;object-fit:cover;object-position:top;border-radius:4px}
+.hero span{font-family:var(--disp);font-size:16px;color:var(--sun)}.hero small{font-size:11px;opacity:.8}
+.hero.on{border-color:var(--hot);box-shadow:0 0 18px var(--hot)}.hero:focus-visible{outline:3px solid #fff}
 #title h1{font-family:var(--disp);font-size:clamp(44px,12vw,110px);margin:0;line-height:.9;color:#fff;text-shadow:4px 4px 0 #2a0b3d,8px 8px 0 rgba(0,0,0,.25)}
 #title p{margin:0;max-width:520px;font-size:15px;line-height:1.6;color:#fff}
 #title .keys{font-size:13px;background:rgba(0,0,0,.35);padding:10px 14px;border-radius:6px;line-height:1.8}
@@ -38,9 +43,13 @@ canvas{display:block}
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;600&display=swap">
 <div id="title">
   <h1>霓虹湾</h1>
-  <p>阳光、海风、霓虹灯。你刚出狱，口袋空空。在这座海滨之城接活、飙车、躲警察，攒够 $30,000 买下海边那栋别墅。</p>
-  <div class="keys">WASD / 方向键 移动·驾驶 · 空格 手刹/跳 · E 上下车 · F 开火 · Shift 冲刺 · M 静音<br>手机：左摇杆移动，右侧按钮操作</div>
+  <p>日落时分的海滨之城。你刚出狱，口袋空空。接活、飙车、甩掉警察，攒够 $30,000 买下海边那栋别墅。</p>
+  <div class="pick" role="radiogroup" aria-label="选择主角">
+    <button class="hero on" id="pickF" role="radio" aria-checked="true"><img src="art/hero_f.jpg" alt=""><span>玛雅</span><small>花衬衫 · 破洞牛仔裤</small></button>
+    <button class="hero" id="pickM" role="radio" aria-checked="false"><img src="art/hero_m.jpg" alt=""><span>科尔</span><small>牛仔夹克 · 工装靴</small></button>
+  </div>
   <button id="start">开始游戏</button>
+  <div class="keys">WASD 移动·驾驶 · Shift 奔跑 · 空格 手刹 · E 上下车 · F 开火 · M 静音</div>
 </div>
 <div id="hud">
   <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div></div>
@@ -66,14 +75,21 @@ const R=Math.random,rr=(a,b)=>a+R()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v
 const N=8,BLK=60,RD=16,P=BLK+RD,HALF=N*P/2;
 const road=i=>i*P-HALF; // 道路中心线 i=0..N
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0xffb38a);scene.fog=new THREE.Fog(0xffb38a,120,420);
+scene.background=new THREE.Color(0x2b1b4a);scene.fog=new THREE.Fog(0xc8607a,110,440);
+// 日落天空：顶部青蓝 → 粉紫 → 地平线橙
+const sky=new THREE.Mesh(new THREE.SphereGeometry(800,24,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
+  vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:`varying vec3 vP;void main(){float h=vP.y;vec3 top=vec3(.05,.33,.40),mid=vec3(.86,.27,.52),hor=vec3(1.,.58,.25);
+   vec3 c=h>.18?mix(mid,top,smoothstep(.18,.6,h)):mix(hor,mid,smoothstep(-.02,.18,h));
+   float sd=distance(vP,normalize(vec3(.9,.06,-.3)));c+=vec3(1.,.8,.4)*smoothstep(.07,.05,sd)+vec3(1.,.5,.3)*.35*smoothstep(.5,.0,sd);gl_FragColor=vec4(c,1.);}`}));
+sky.renderOrder=-1;scene.add(sky);
 const cam=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.5,900);
 const ren=new THREE.WebGLRenderer({antialias:true});
 ren.setPixelRatio(Math.min(devicePixelRatio,2));ren.setSize(innerWidth,innerHeight);
 ren.shadowMap.enabled=true;document.body.prepend(ren.domElement);
 addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
-scene.add(new THREE.HemisphereLight(0xfff0e0,0x553366,.75));
-const sun=new THREE.DirectionalLight(0xffe0b0,.9);sun.position.set(-120,180,80);sun.castShadow=true;
+scene.add(new THREE.HemisphereLight(0xb7a2ff,0x4a2450,.85));
+const sun=new THREE.DirectionalLight(0xffa86b,1.05);sun.position.set(200,90,-60);sun.castShadow=true;
 Object.assign(sun.shadow.camera,{left:-160,right:160,top:160,bottom:-160,far:500});sun.shadow.mapSize.set(2048,2048);
 scene.add(sun,sun.target);
 const M=c=>new THREE.MeshLambertMaterial({color:c});
@@ -81,41 +97,80 @@ const box=(w,h,d,c)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof
 
 // ===== 城市 =====
 const solids=[]; // {x0,x1,z0,z1}
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(N*P+40,N*P+40),M(0x3a3a48));
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(N*P+40,N*P+40),M(0x2c2738));
 ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
-const sea=new THREE.Mesh(new THREE.PlaneGeometry(2000,2000),new THREE.MeshLambertMaterial({color:0x1fa3c4}));
+const sea=new THREE.Mesh(new THREE.PlaneGeometry(2000,2000),new THREE.MeshLambertMaterial({color:0x1fb5c9}));
 sea.rotation.x=-Math.PI/2;sea.position.y=-.6;scene.add(sea);
 // 东侧沙滩
 const sand=new THREE.Mesh(new THREE.PlaneGeometry(60,N*P+40),M(0xf2d59b));sand.rotation.x=-Math.PI/2;sand.position.set(HALF+50,.02,0);sand.receiveShadow=true;scene.add(sand);
 // 道路线
-const lineMat=new THREE.MeshBasicMaterial({color:0xf5f0c8});
+const lineMat=new THREE.MeshBasicMaterial({color:0xf2c14e});
 for(let i=0;i<=N;i++)for(let j=0;j<N;j++){
   for(let k=0;k<6;k++){const t=road(j)+RD/2+4+k*10;
     const a=new THREE.Mesh(new THREE.PlaneGeometry(.5,5),lineMat);a.rotation.x=-Math.PI/2;a.position.set(road(i),.03,t);scene.add(a);
     const b=new THREE.Mesh(new THREE.PlaneGeometry(5,.5),lineMat);b.rotation.x=-Math.PI/2;b.position.set(t,.03,road(i));scene.add(b);}
 }
-const pal=[0xff7eb6,0x7ee0ff,0xfff1a8,0xb59cff,0xffffff,0xffb38a,0x9cffd0,0xf0e6d8];
-const neon=[0xff3d8b,0x22d3ee,0xffe14d,0x8a5cff];
-const winMat=new THREE.MeshBasicMaterial({color:0x2a2a4a});
-let villa=null;
+const pal=[0xffb3c7,0x9ff0e6,0xfff0c2,0xc7b3ff,0xffd0a8,0xf7f2f7,0x7fd8ff,0xff9fb8];
+const trimPal=[0x22d3ee,0xff3d8b,0xffffff,0x8a5cff,0x2fd1b0];
+const neon=[0xff3d8b,0x22d3ee,0xffe14d,0x8a5cff,0x5cff9b];
+const winDark=new THREE.MeshBasicMaterial({color:0x2a2350}),winWarm=new THREE.MeshBasicMaterial({color:0xffc27a}),winCool=new THREE.MeshBasicMaterial({color:0x7fe0ff});
+// 霓虹文字招牌（画布贴图）
+const signWords=['HOTEL','OPEN','CAFÉ','BAR','DISCO','PIZZA','TACOS','MOTEL','24H','霓虹','海风','酒吧','夜市','LIVE','SURF','GYM'];
+const signTex={};
+function signMat(word,col){const k=word+col;if(signTex[k])return signTex[k];const c=document.createElement('canvas');c.width=256;c.height=96;const g=c.getContext('2d');
+  const hex='#'+col.toString(16).padStart(6,'0');g.fillStyle='rgba(20,8,30,.85)';g.fillRect(0,0,256,96);g.strokeStyle=hex;g.lineWidth=5;g.strokeRect(5,5,246,86);
+  g.font='bold 54px "Bungee",Impact,sans-serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor=hex;g.shadowBlur=18;g.fillStyle='#fff';g.fillText(word,128,52);g.fillStyle=hex;g.globalAlpha=.55;g.fillText(word,128,52);
+  const t=new THREE.CanvasTexture(c);return signTex[k]=new THREE.MeshBasicMaterial({map:t})}
+function addSign(x,y,z,ry,w){const word=signWords[(R()*signWords.length)|0],col=neon[(R()*neon.length)|0];
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,w*.375),signMat(word,col));m.position.set(x,y,z);m.rotation.y=ry;scene.add(m)}
+let villa=null,station=null;
 for(let i=0;i<N;i++)for(let j=0;j<N;j++){
   const cx=road(i)+P/2,cz=road(j)+P/2;
-  const side=new THREE.Mesh(new THREE.PlaneGeometry(BLK+4,BLK+4),M(0xb8b0a8));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);
+  const side=new THREE.Mesh(new THREE.PlaneGeometry(BLK+4,BLK+4),M(0x9a8aa3));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);
   if(i===N-1&&j===N-1){villa={x:cx,z:cz};continue}
+  if(i===1&&j===5){station={x:cx,z:cz};continue}
   if((i+j*3)%7===3){ // 公园
-    const g=new THREE.Mesh(new THREE.PlaneGeometry(BLK-4,BLK-4),M(0x5cbf6a));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
+    const g=new THREE.Mesh(new THREE.PlaneGeometry(BLK-4,BLK-4),M(0x4fb069));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
     for(let k=0;k<6;k++)palm(cx+rr(-24,24),cz+rr(-24,24));continue}
   const lots=R()<.5?1:2;
   for(let a=0;a<lots;a++)for(let b=0;b<lots;b++){
     const w=BLK/lots-6,ox=cx+(a-(lots-1)/2)*BLK/lots,oz=cz+(b-(lots-1)/2)*BLK/lots;
-    const dist=Math.hypot(ox,oz)/HALF,h=rr(8,20)+(1-dist)*rr(10,60);
-    const bd=box(w,h,w,pal[(R()*pal.length)|0]);bd.position.set(ox,h/2,oz);scene.add(bd);
-    for(let y=4;y<h-2;y+=5){const s=box(w+.2,1.2,w+.2,winMat);s.castShadow=false;s.position.set(ox,y,oz);scene.add(s)}
-    if(R()<.5){const n=new THREE.Mesh(new THREE.BoxGeometry(w*.7,1.5,.4),new THREE.MeshBasicMaterial({color:neon[(R()*4)|0]}));n.position.set(ox,h*.6,oz+w/2+.3);scene.add(n)}
+    const dist=Math.hypot(ox,oz)/HALF,h=Math.round((rr(8,18)+(1-dist)*rr(10,60))/4)*4;
+    const col=pal[(R()*pal.length)|0],trim=trimPal[(R()*trimPal.length)|0];
+    const bd=box(w,h,w,col);bd.position.set(ox,h/2,oz);scene.add(bd);
+    // 装饰艺术风：楼顶阶梯 + 彩色腰线
+    const cap=box(w*.7,3,w*.7,col);cap.position.set(ox,h+1.5,oz);scene.add(cap);
+    const t1=box(w+.6,.8,w+.6,trim);t1.position.set(ox,h-.4,oz);scene.add(t1);
+    const t2=box(w+.4,.6,w+.4,trim);t2.position.set(ox,3.6,oz);scene.add(t2);
+    for(let y=6;y<h-2;y+=4){const r=R(),s2=new THREE.Mesh(new THREE.BoxGeometry(w+.15,1.4,w+.15),r<.45?winWarm:r<.6?winCool:winDark);s2.position.set(ox,y,oz);scene.add(s2)}
+    // 底层店面 + 霓虹招牌（朝四个街面中随机两个）
+    const shop=new THREE.Mesh(new THREE.BoxGeometry(w+.1,2.2,w+.1),R()<.6?winWarm:winCool);shop.position.set(ox,1.4,oz);scene.add(shop);
+    const faces=[[0,w/2+.35,0],[Math.PI,-w/2-.35,0],[Math.PI/2,0,w/2+.35],[-Math.PI/2,0,-w/2-.35]];
+    for(const f of faces)if(R()<.5){const ry=f[0]+(f[0]===Math.PI/2||f[0]===-Math.PI/2?0:0);
+      const dx=f[0]===Math.PI/2?w/2+.35:f[0]===-Math.PI/2?-w/2-.35:0,dz=f[0]===0?w/2+.35:f[0]===Math.PI?-w/2-.35:0;
+      addSign(ox+dx,rr(5,Math.min(h-3,14)),oz+dz,f[0],Math.min(w*.6,9))}
     solids.push({x0:ox-w/2,x1:ox+w/2,z0:oz-w/2,z1:oz+w/2});
   }
   palm(cx-BLK/2+2,cz-BLK/2+2);palm(cx+BLK/2-2,cz+BLK/2-2);
 }
+// 路灯
+const lampMat=new THREE.MeshBasicMaterial({color:0xfff0b0});
+for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){const x=road(i)+RD/2-.5,z=road(j)+RD/2-.5;
+  const p1=box(.3,7,.3,0x3a3448);p1.position.set(x,3.5,z);scene.add(p1);
+  const arm=box(2,.25,.25,0x3a3448);arm.position.set(x-1,7,z);scene.add(arm);
+  const l=new THREE.Mesh(new THREE.BoxGeometry(.8,.3,.5),lampMat);l.position.set(x-1.8,6.8,z);scene.add(l)}
+// 警察局（粉彩装饰艺术楼 + 警徽）
+{const S=station;const b1=box(40,12,26,0xf2b8d0);b1.position.set(S.x,6,S.z-6);scene.add(b1);
+ const b2=box(18,16,10,0xb8f0ec);b2.position.set(S.x,8,S.z+5);scene.add(b2);
+ const can=box(44,.8,6,0x22d3ee);can.position.set(S.x,5,S.z+11);scene.add(can);
+ for(let k=-1;k<=1;k+=2){const c=box(1.2,5,1.2,0xffffff);c.position.set(S.x+k*7,2.5,S.z+12.5);scene.add(c)}
+ const gl=new THREE.Mesh(new THREE.BoxGeometry(14,3.5,.2),winWarm);gl.position.set(S.x,1.9,S.z+10.1);scene.add(gl);
+ const bc=document.createElement('canvas');bc.width=bc.height=128;const g=bc.getContext('2d');g.fillStyle='#d9a93a';g.beginPath();
+ for(let k=0;k<12;k++){const a=k/12*Math.PI*2,r=k%2?40:60;g.lineTo(64+Math.cos(a)*r,64+Math.sin(a)*r)}g.fill();g.fillStyle='#1b2a4a';g.beginPath();g.arc(64,64,30,0,7);g.fill();
+ g.fillStyle='#fff';g.font='bold 22px sans-serif';g.textAlign='center';g.fillText('警',64,72);
+ const badge=new THREE.Mesh(new THREE.PlaneGeometry(6,6),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(bc),transparent:true}));badge.position.set(S.x,12,S.z+10.1);scene.add(badge);
+ const sg=new THREE.Mesh(new THREE.PlaneGeometry(14,2.2),signMat('POLICE',0x22d3ee));sg.position.set(S.x,6.6,S.z+14.2);scene.add(sg);
+ solids.push({x0:S.x-20,x1:S.x+20,z0:S.z-19,z1:S.z+10});}
 // 别墅
 {const v=box(30,12,22,0xffffff);v.position.set(villa.x,6,villa.z);scene.add(v);
  const pool=new THREE.Mesh(new THREE.PlaneGeometry(16,8),new THREE.MeshBasicMaterial({color:0x37e0ff}));pool.rotation.x=-Math.PI/2;pool.position.set(villa.x,.1,villa.z+18);scene.add(pool);
@@ -159,28 +214,154 @@ function beep(f,d,type='square',v=.06){if(!ac||muted)return;const o=ac.createOsc
 function toggleMute(){muted=!muted;toast(muted?'已静音':'声音开启')}
 
 // ===== 角色 =====
-function makePerson(shirt){const g=new THREE.Group();
-  const body=box(1,1.6,.6,shirt);body.position.y=2;g.add(body);
-  const head=box(.8,.8,.8,0xd9a17a);head.position.y=3.2;g.add(head);
-  const hair=box(.85,.25,.85,0x1a1a1a);hair.position.y=3.65;g.add(hair);
-  const l1=box(.4,1.2,.4,0x223355),l2=l1.clone();l1.position.set(-.25,.6,0);l2.position.set(.25,.6,0);g.add(l1,l2);
-  const a1=box(.3,1.3,.3,shirt),a2=a1.clone();a1.position.set(-.7,2,0);a2.position.set(.7,2,0);g.add(a1,a2);
-  g.userData.limbs=[l1,l2,a1,a2];scene.add(g);return g}
-function animWalk(g,t,amt){const[l1,l2,a1,a2]=g.userData.limbs;const s=Math.sin(t*10)*amt;l1.rotation.x=s;l2.rotation.x=-s;a1.rotation.x=-s;a2.rotation.x=s}
-const player={mesh:makePerson(0xff3d8b),x:road(0)+6,z:road(2),rot:0,hp:100,car:null,money:0,wanted:0,heat:0,lastSeen:0,cool:0,t:0};
+// 花衬衫贴图
+function floral(base,cols){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle=base;g.fillRect(0,0,64,64);
+  for(let k=0;k<22;k++){g.fillStyle=cols[k%cols.length];const x=R()*64,y=R()*64;for(let q=0;q<5;q++){g.beginPath();g.arc(x+Math.cos(q*1.26)*3,y+Math.sin(q*1.26)*3,2.4,0,7);g.fill()}}
+  const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;return new THREE.MeshLambertMaterial({map:t})}
+const FLORAL_PINK=floral('#f7a6c4',['#2fbfa0','#ff5f8f','#fff3f8']),FLORAL_TROP=floral('#2f9e6a',['#ff8a2f','#ffd23f','#e8406a','#1f6fb0']);
+// 角色外观描述 → 方块人
+const SKIN=[0xf1c6a4,0xd9a17a,0xb97a52,0x8d5a3b,0x5e3a26];
+const LOOKS={
+ chef:{shirt:0xf2f2f2,sleeve:'long',pants:0x3a3d46,shoes:0xf5f5f5,apron:0x15151a,hat:'capBack',hatCol:0x8a1f2a,hair:'short',beard:1},
+ suit:{shirt:0xf2f2f2,jacket:0x55585f,sleeve:'long',pants:0x55585f,shoes:0x3a2418,tie:0x3b2a5a,hair:'short',beard:1},
+ biker:{shirt:0x1a1a1a,vest:0x111111,sleeve:'none',armCol:0x6e4f3c,pants:0x141414,shoes:0x111111,hat:'bandana',hatCol:0x1a1a1a,beard:1},
+ courier:{shirt:0xc8e636,sleeve:'short',pants:0x111111,shorts:1,shoes:0x1a1a1a,hat:'helmet',hatCol:0xd7f03c,carry:'pizza'},
+ selfie:{shirt:0xb070e0,crop:1,sleeve:'none',pants:0x9ab0c8,shorts:1,shoes:0xf7b6d8,hair:'curly',hairCol:0x2a1a14,glasses:0xff6fb5,carry:'selfie',fem:1},
+ tourist:{shirtMat:'trop',sleeve:'short',pants:0xb5a27a,shorts:1,shoes:0x3a2a1a,hat:'bucket',hatCol:0xd8c89a,cam:1,hair:'short',hairCol:0x7a5a3a},
+ skater8:{shirt:0x1a1a1a,crop:1,top:0xd4ff3a,sleeve:'none',pants:0x111111,shoes:0xff3d8b,blades:1,hair:'pony',band:0xff6fd0,glasses:0xd4ff3a,fem:1},
+ elder:{shirt:0xf4f0e6,jacket:0xf4f0e6,sleeve:'long',pants:0xf4f0e6,shoes:0xa07a52,hat:'fedora',hatCol:0xf4f0e6,hair:'short',hairCol:0xd8d8d8,beard:1,beardCol:0xd8d8d8},
+ skater:{shirt:0x222222,sleeve:'short',pants:0x2c2f36,shorts:1,shoes:0x111111,hair:'buzz',pack:0x1a1a1a},
+ tank:{shirt:0xf4f4f4,sleeve:'none',pants:0x161616,shorts:1,shoes:-1,hair:'buzz',phones:1},
+ sundress:{dress:0xfafafa,sleeve:'none',shoes:0xd8d8d8,hat:'sun',hatCol:0xe0c27a,hair:'long',hairCol:0x1a1210,glasses:0x111111,fem:1},
+ heroF:{shirt:0xf6f6f6,crop:1,jacketMat:'pink',sleeve:'short',pants:0xc6d6e6,shoes:0xf6f6f6,hair:'pony',hairCol:0x2a1810,skin:0xb97a52,fem:1},
+ heroM:{shirt:0x4f5a3a,jacket:0x2e3a48,sleeve:'long',pants:0x262b36,shoes:0x7a4a24,hair:'short',hairCol:0x5a3a22,skin:0xe6b894,beard:1,beardCol:0x5a3a22,chain:1},
+ cop:{shirt:0x1c2a4a,sleeve:'short',pants:0x1c2a4a,shoes:0x0d0d0d,belt:1,badge:1,hair:'buzz'},
+ copHelmet:{shirt:0x1c2a4a,sleeve:'short',pants:0x1c2a4a,shoes:0x0d0d0d,belt:1,badge:1,hat:'helmet',hatCol:0x16203a},
+ swat:{shirt:0x141414,vest:0x0a0a0a,sleeve:'long',pants:0x141414,shoes:0x0a0a0a,belt:1,hat:'helmet',hatCol:0x111111},
+ detective:{shirt:0x6a6e78,jacket:0x1e1f26,sleeve:'long',pants:0x1e1f26,shoes:0x1a1a1a,badge:1,hair:'short',hairCol:0x9a9a9a},
+};
+const NPC_KEYS=['chef','suit','biker','courier','selfie','tourist','skater8','elder','skater','tank','sundress'];
+function makePerson(look){const L=typeof look==='string'?LOOKS[look]:look;const g=new THREE.Group();
+  const skin=L.skin??SKIN[(R()*SKIN.length)|0];const add=(m,x,y,z,par=g)=>{m.position.set(x,y,z);par.add(m);return m};
+  const shirtM=L.shirtMat==='trop'?FLORAL_TROP:L.shirt;
+  // 腿（绕髋关节摆动）
+  const legs=[-1,1].map(sd=>{const pv=new THREE.Group();pv.position.set(sd*.26,1.45,0);g.add(pv);
+    if(L.dress){}else if(L.shorts){add(box(.44,.6,.48,L.pants),0,-.3,0,pv);add(box(.34,.75,.34,skin),0,-.95,0,pv)}
+    else add(box(.42,1.3,.42,L.pants),0,-.65,0,pv);
+    if(L.shoes!==-1)add(box(.44,.28,.62,L.shoes),0,-1.33,.08,pv);else add(box(.36,.2,.5,skin),0,-1.36,.06,pv);
+    if(L.blades){add(box(.46,.45,.66,L.shoes),0,-1.25,.08,pv);add(box(.12,.16,.7,0xff7a2f),0,-1.55,.08,pv)}
+    return pv});
+  if(L.dress){const d=add(box(1.15,2.1,.75,L.dress),0,1.25,0);}
+  // 躯干
+  if(L.crop){add(box(1.02,.8,.58,L.top??L.shirt),0,2.6,0);add(box(.92,.55,.5,skin),0,1.95,0);add(box(1,.25,.56,L.pants??L.dress),0,1.6,0)}
+  else if(L.dress)add(box(1,1.1,.56,L.dress),0,2.4,0);
+  else add(box(1.02,1.35,.58,shirtM),0,2.3,0);
+  if(L.jacket||L.jacketMat){const jm=L.jacketMat==='pink'?FLORAL_PINK:L.jacket;for(const sd of[-1,1])add(box(.36,1.4,.64,jm),sd*.35,2.3,0);
+    if(!L.crop)add(box(1.04,1.4,.5,jm),0,2.3,-.06)}
+  if(L.vest)for(const sd of[-1,1])add(box(.34,1.2,.64,L.vest),sd*.36,2.35,0);
+  if(L.apron)add(box(.9,1.7,.08,L.apron),0,1.75,.33);
+  if(L.tie)add(box(.14,.9,.06,L.tie),0,2.5,.31);
+  if(L.belt)add(box(1.06,.18,.62,0x0d0d0d),0,1.65,0);
+  if(L.badge)add(box(.16,.18,.05,0xd9a93a),-.25,2.75,.31);
+  if(L.cam){add(box(.4,.3,.25,0x1a1a1a),0,2.35,.36);add(box(.15,.15,.12,0x555555),0,2.35,.5)}
+  if(L.chain)add(box(.5,.06,.06,0xd8d8d8),0,2.85,.3);
+  if(L.pack)add(box(.8,1,.4,L.pack),0,2.4,-.5);
+  if(L.phones)add(box(.9,.22,.5,0x222222),0,3.03,.05);
+  // 手臂（绕肩摆动）
+  const sleeveCol=L.jacketMat==='pink'?FLORAL_PINK:L.jacket??(L.dress?skin:shirtM);
+  const arms=[-1,1].map(sd=>{const pv=new THREE.Group();pv.position.set(sd*.68,2.9,0);g.add(pv);
+    const arm=L.armCol??skin;
+    if(L.sleeve==='long')add(box(.32,1.25,.32,sleeveCol),0,-.62,0,pv);
+    else if(L.sleeve==='short'){add(box(.34,.5,.34,sleeveCol),0,-.25,0,pv);add(box(.28,.8,.28,arm),0,-.85,0,pv)}
+    else add(box(.28,1.25,.28,arm),0,-.62,0,pv);
+    add(box(.26,.24,.26,skin),0,-1.3,0,pv);return pv});
+  // 头
+  const head=add(box(.78,.82,.74,skin),0,3.42,0);
+  for(const sd of[-1,1]){add(box(.14,.12,.04,0x15151a),sd*.18,3.5,.38);add(box(.2,.05,.04,0x2a1a12),sd*.18,3.62,.38)}// 眼睛和眉毛
+  if(L.beard)add(box(.8,.32,.2,L.beardCol??0x2a1a12),0,3.12,.3);
+  const hc=L.hairCol??[0x1a1a1a,0x2a1a12,0x4a2e1a][(R()*3)|0];
+  if(L.hair==='short'){add(box(.84,.26,.8,hc),0,3.92,0);add(box(.84,.5,.16,hc),0,3.6,-.33)}
+  else if(L.hair==='buzz')add(box(.8,.1,.76,hc),0,3.86,0);
+  else if(L.hair==='long'){add(box(.86,.24,.82,hc),0,3.92,0);add(box(.9,1.3,.25,hc),0,3.25,-.35)}
+  else if(L.hair==='pony'){add(box(.86,.24,.82,hc),0,3.92,0);add(box(.3,1,.3,hc),0,3.5,-.52).rotation.x=.35;if(L.band)add(box(.88,.12,.84,L.band),0,3.78,0)}
+  else if(L.hair==='curly'){add(box(1.1,.6,1,hc),0,3.85,-.08);add(box(1.15,1.1,.4,hc),0,3.2,-.38)}
+  if(L.glasses!==undefined)add(box(.82,.16,.08,L.glasses),0,3.5,.4);
+  const hat=L.hat,hcl=L.hatCol;
+  if(hat==='capBack'){add(box(.86,.3,.82,hcl),0,3.95,0);add(box(.7,.08,.4,hcl),0,3.84,-.55)}
+  else if(hat==='bucket'){add(box(.88,.35,.84,hcl),0,3.98,0);add(box(1.25,.08,1.2,hcl),0,3.82,0)}
+  else if(hat==='fedora'){add(box(.82,.42,.78,hcl),0,4.02,0);add(box(1.3,.07,1.25,hcl),0,3.84,0);add(box(.84,.12,.8,0x1a1a1a),0,3.9,0)}
+  else if(hat==='sun'){add(box(.84,.36,.8,hcl),0,4,0);add(box(2.2,.06,2.1,hcl),0,3.86,0)}
+  else if(hat==='helmet'){add(box(1,1,.98,hcl),0,3.5,-.02);add(box(.84,.38,.06,0x111111),0,3.45,.48)}
+  else if(hat==='bandana')add(box(.84,.28,.8,hcl),0,3.92,0);
+  if(L.carry==='pizza'){add(box(1.1,.18,1.1,0xd8b27a),0,2,.75);for(const pv of arms)pv.rotation.x=-1.1}
+  if(L.carry==='selfie'){const st=add(box(.06,2,.06,0x222222),0,-1.9,0,arms[1]);add(box(.45,.25,.06,0x111111),0,-2.9,0,arms[1]);arms[1].rotation.set(-2.2,0,-.5);arms[1].userData.fixed=1}
+  g.userData.limbs=[legs[0],legs[1],arms[0],arms[1]];g.userData.carry=L.carry;scene.add(g);return g}
+function animWalk(g,t,amt){const[l1,l2,a1,a2]=g.userData.limbs;const s=Math.sin(t*10)*amt;l1.rotation.x=s;l2.rotation.x=-s;
+  if(!g.userData.carry){a1.rotation.x=-s;a2.rotation.x=s}else if(g.userData.carry==='selfie')a1.rotation.x=-s}
+let heroLook='heroF';
+const player={mesh:makePerson('heroF'),x:road(0)+6,z:road(2),rot:0,hp:100,car:null,money:0,wanted:0,heat:0,lastSeen:0,cool:0,t:0};
+function setHero(k){heroLook=k;scene.remove(player.mesh);player.mesh=makePerson(k);player.mesh.visible=!player.car}
 
 // ===== 车辆 =====
 const cars=[];
-const carColors=[0xff3d8b,0x22d3ee,0xffe14d,0xffffff,0x8a5cff,0xff7a2f,0x2fd17a,0x222222];
-function makeCar(x,z,h,opts={}){const g=new THREE.Group();const col=opts.police?0x111122:opts.color??carColors[(R()*carColors.length)|0];
-  const b=box(2.4,1,4.6,col);b.position.y=1;g.add(b);
-  const top=box(2,.9,2.4,opts.police?0xffffff:0x222233);top.position.set(0,1.9,-.2);g.add(top);
-  for(const[wx,wz]of[[-1.2,1.5],[1.2,1.5],[-1.2,-1.5],[1.2,-1.5]]){const w=box(.4,.9,.9,0x111111);w.position.set(wx,.5,wz);g.add(w)}
-  const hl=new THREE.Mesh(new THREE.BoxGeometry(1.8,.3,.1),new THREE.MeshBasicMaterial({color:0xffffcc}));hl.position.set(0,1.1,2.32);g.add(hl);
-  let siren=null;if(opts.police){const s1=box(.6,.3,.4,new THREE.MeshBasicMaterial({color:0xff0000})),s2=box(.6,.3,.4,new THREE.MeshBasicMaterial({color:0x0044ff}));
-    s1.position.set(-.35,2.5,-.2);s2.position.set(.35,2.5,-.2);g.add(s1,s2);siren=[s1,s2]}
-  scene.add(g);const c={mesh:g,x,z,h,speed:0,driver:opts.police?'cop':'ai',police:!!opts.police,hp:100,siren,dir:null,lane:0,stuck:0,dead:false};
+const carColors=[0xff3d8b,0x1fb5a8,0xffe14d,0xf4f4f4,0x8a5cff,0xff7a2f,0x2fd17a,0x22252e,0x7fd8ff];
+const glassMat=new THREE.MeshLambertMaterial({color:0x1a2236}),tailMat=new THREE.MeshBasicMaterial({color:0xff2a3a}),headMat=new THREE.MeshBasicMaterial({color:0xfff4d0});
+const redMat=()=>new THREE.MeshBasicMaterial({color:0xff1030}),blueMat=()=>new THREE.MeshBasicMaterial({color:0x1050ff});
+const wheelGeo=new THREE.CylinderGeometry(.55,.55,.45,12);wheelGeo.rotateZ(Math.PI/2);const wheelMat=M(0x111114);
+// kind: sport 跑车 / sedan 轿车 / police 警车 / suv 警用SUV
+function carMesh(kind,col){const g=new THREE.Group();const add=(m,x,y,z)=>{m.position.set(x,y,z);g.add(m);return m};let siren=null;
+  const W=kind==='suv'?2.6:2.4,L=kind==='suv'?5:kind==='sport'?4.8:4.6,bodyH=kind==='sport'?.7:kind==='suv'?1.2:.9,y0=kind==='suv'?1.25:kind==='sport'?.85:1;
+  add(box(W,bodyH,L,col),0,y0,0);
+  if(kind==='sport'){add(box(W*.96,.35,1.3,col),0,y0-.05,L/2-.3).rotation.x=.18;
+    add(box(W*.8,.6,1.9,glassMat),0,y0+.6,-.3);add(box(W*.82,.12,1.6,col),0,y0+.95,-.4);
+    add(box(W*.95,.1,.55,0x15151a),0,y0+.95,-L/2+.25);for(const sd of[-1,1])add(box(.1,.5,.1,0x15151a),sd*.8,y0+.65,-L/2+.3);
+    add(box(.5,.06,L*.9,0xffffff),0,y0+.36,0).material.color.set(col===0x1fb5a8?0xff3d8b:0xffffff)}
+  else{const cabH=kind==='suv'?1.1:.85;add(box(W*.86,cabH,kind==='suv'?3.4:2.4,kind==='sedan'?glassMat:0xf4f4f4),0,y0+bodyH/2+cabH/2,-.2);
+    if(kind!=='sedan'){add(box(W*.88,cabH*.7,kind==='suv'?3.2:2.2,glassMat),0,y0+bodyH/2+cabH/2,-.2);add(box(W*.86,.12,kind==='suv'?3.4:2.4,0xf4f4f4),0,y0+bodyH/2+cabH+.02,-.2)}}
+  if(kind==='police'||kind==='suv'){ // 白色车门 + 警徽 + 灯排 + 推杆
+    for(const sd of[-1,1]){add(box(.06,bodyH*.9,2.3,0xf4f4f4),sd*(W/2+.02),y0,-.1);add(box(.05,.4,.4,0xd9a93a),sd*(W/2+.06),y0+.05,-.1)}
+    const top=y0+bodyH/2+(kind==='suv'?1.1:.85)+.2;add(box(1.8,.12,.4,0x222222),0,top-.05,-.2);
+    const s1=add(box(.85,.22,.38,redMat()),-.45,top+.1,-.2),s2=add(box(.85,.22,.38,blueMat()),.45,top+.1,-.2);siren=[s1,s2];
+    add(box(W*.7,.6,.15,0x111111),0,y0-.1,L/2+.25)}
+  add(new THREE.Mesh(new THREE.BoxGeometry(W*.75,.22,.08),headMat),0,y0+.1,L/2+.02);
+  for(const sd of[-1,1])add(new THREE.Mesh(new THREE.BoxGeometry(.6,.2,.08),tailMat),sd*(W/2-.45),y0+.15,-L/2-.02);
+  const wy=.55,wz=L/2-1.05;const wheels=[];for(const[wx,wz2]of[[-1,1],[1,1],[-1,-1],[1,-1]]){const w=new THREE.Mesh(wheelGeo,wheelMat);w.position.set(wx*(W/2-.1),wy,wz2*wz);w.castShadow=true;g.add(w);wheels.push(w)}
+  g.userData.wheels=wheels;return{g,siren}}
+function makeCar(x,z,h,opts={}){const kind=opts.kind??(opts.police?'police':R()<.25?'sport':'sedan');
+  const col=opts.police?0x14161c:opts.color??carColors[(R()*carColors.length)|0];
+  const{g,siren}=carMesh(kind,col);scene.add(g);
+  const c={mesh:g,x,z,h,speed:0,driver:opts.police?'cop':'ai',police:!!opts.police,kind,hp:kind==='suv'?160:100,siren,dir:null,lane:0,stuck:0,dead:false};
   cars.push(c);return c}
+// 警察局门前停着的警车和警用摩托（装饰）
+{const S=station;[[-12,'police'],[-5,'police'],[9,'suv']].forEach(([dx,k])=>{const{g}=carMesh(k,0x14161c);g.position.set(S.x+dx,0,S.z+19);g.rotation.y=Math.PI;scene.add(g)});
+ const mb=new THREE.Group();const ad=(m,x,y,z)=>{m.position.set(x,y,z);mb.add(m)};ad(new THREE.Mesh(wheelGeo,wheelMat),0,.55,1);ad(new THREE.Mesh(wheelGeo,wheelMat),0,.55,-1);
+ mb.children.forEach(w=>w.scale.set(.4,1,1));ad(box(.5,.6,2,0x14161c),0,1.1,0);ad(box(.7,.5,.6,0xf4f4f4),0,1.5,.8);ad(box(.3,.2,.3,redMat()),-.15,1.9,.7);ad(box(.3,.2,.3,blueMat()),.15,1.9,.7);
+ mb.position.set(S.x+2,0,S.z+19);mb.rotation.y=Math.PI;scene.add(mb);
+ solids.push({x0:S.x-14,x1:S.x+12,z0:S.z+16.5,z1:S.z+21.5})}
+// 警用直升机（3 星以上出动）
+let heli=null;
+function makeHeli(){const g=new THREE.Group();const ad=(m,x,y,z)=>{m.position.set(x,y,z);g.add(m);return m};
+  ad(box(2.6,2.2,4.6,0x14161c),0,0,0);ad(box(2.4,1.2,1.6,glassMat),0,.3,2);ad(box(2.7,.8,2.4,0xf4f4f4),0,-.5,-.2);
+  ad(box(.5,.5,5,0x14161c),0,.4,-4.6);ad(box(.2,1.6,.8,0x14161c),0,1,-7);
+  for(const sd of[-1,1])ad(box(.15,.15,4,0x333333),sd*1.2,-1.5,0);
+  const rot=ad(new THREE.Group(),0,1.4,0);rot.add(box(14,.08,.5,0x222222),box(.5,.08,14,0x222222));
+  const s1=ad(box(.4,.25,.3,redMat()),-.8,1.2,1),s2=ad(box(.4,.25,.3,blueMat()),.8,1.2,1);
+  // 探照灯光柱 + 地面光斑
+  const cone=new THREE.Mesh(new THREE.CylinderGeometry(.6,6,30,16,1,true),new THREE.MeshBasicMaterial({color:0xfffbe0,transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending}));
+  scene.add(g);scene.add(cone);const spot=new THREE.Mesh(new THREE.CircleGeometry(6,24),new THREE.MeshBasicMaterial({color:0xfffbe0,transparent:true,opacity:.28,depthWrite:false}));spot.rotation.x=-Math.PI/2;scene.add(spot);
+  return{g,rot,cone,spot,siren:[s1,s2],x:player.x-120,z:player.z-120,tx:player.x,tz:player.z}}
+function updHeli(dt){if(player.wanted>=3&&!heli){heli=makeHeli();toast('警用直升机出动！')}
+  if(!heli)return false;
+  if(player.wanted<3){heli.leave=(heli.leave||0)+dt;heli.x+=40*dt;heli.z+=40*dt;if(heli.leave>6){scene.remove(heli.g,heli.cone,heli.spot);heli=null;return false}}
+  else{const dx=player.x-heli.x,dz=player.z-heli.z,d=Math.hypot(dx,dz),v=Math.min(d,30*dt);if(d>.1){heli.x+=dx/d*v;heli.z+=dz/d*v}heli.g.rotation.y=Math.atan2(dx,dz)}
+  const y=34+Math.sin(performance.now()/900)*1.5;heli.g.position.set(heli.x,y,heli.z);heli.rot.rotation.y+=dt*28;
+  // 光柱从机腹照到前下方
+  const gx=heli.x+Math.sin(heli.g.rotation.y)*4,gz=heli.z+Math.cos(heli.g.rotation.y)*4;
+  heli.cone.position.set((heli.x+gx)/2,y/2,(heli.z+gz)/2);heli.cone.scale.y=y/30;heli.spot.position.set(gx,.12,gz);
+  heli.cone.visible=heli.spot.visible=player.wanted>=3;
+  const f=((performance.now()/150)|0)%2;heli.siren[0].visible=!!f;heli.siren[1].visible=!f;
+  if(((performance.now()/60)|0)%3===0)beep(55,.05,'sawtooth',.015);
+  return player.wanted>=3&&Math.hypot(gx-player.x,gz-player.z)<9}
 function carPhysics(c,thr,steer,brake,dt){
   const max=c.police?46:40;
   if(thr>0)c.speed+=thr*(c.speed<0?40:18)*dt;else if(thr<0)c.speed+=thr*(c.speed>0?36:12)*dt;else c.speed*=1-1.2*dt;
@@ -194,7 +375,7 @@ function carPhysics(c,thr,steer,brake,dt){
   for(const o of cars)if(o!==c&&!o.dead){const dx=o.x-c.x,dz=o.z-c.z,d=Math.hypot(dx,dz);
     if(d<3.6&&d>0){const p=(3.6-d)/2;c.x-=dx/d*p;c.z-=dz/d*p;o.x+=dx/d*p;o.z+=dz/d*p;
       if(Math.abs(c.speed)>10){o.speed=c.speed*.5;c.speed*=.4;if(c===player.car&&!o.police)addHeat(.3);if(c===player.car)beep(90,.15,'sawtooth',.1)}}}
-  c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;
+  c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;for(const w of c.mesh.userData.wheels)w.rotation.x+=c.speed*dt/.55;
   if(c.hp<=0)explode(c)}
 
 // ===== 交通 AI =====
@@ -216,11 +397,19 @@ function driveAI(c,dt){const n=node(c.ni,c.nj);const tx=n.x+c.dz*3.5,tz=n.z-c.dx
 
 // ===== 行人 =====
 const peds=[];const shirts=[0x22d3ee,0xffe14d,0x9cffd0,0xffffff,0xff7a2f,0x8a5cff];
-function spawnPed(x,z){if(x===undefined){const i=(R()*N)|0,j=(R()*N)|0;x=road(i)+P/2+(R()<.5?-1:1)*(BLK/2+1);z=road(j)+rr(-BLK/2,BLK/2)+P/2;
+function spawnPed(x,z,look){if(x===undefined){const i=(R()*N)|0,j=(R()*N)|0;x=road(i)+P/2+(R()<.5?-1:1)*(BLK/2+1);z=road(j)+rr(-BLK/2,BLK/2)+P/2;
   if(Math.hypot(x-player.x,z-player.z)<40)return}
-  const p={mesh:makePerson(shirts[(R()*shirts.length)|0]),x,z,rot:R()*6.28,t:R()*9,dead:0,flee:0};peds.push(p);return p}
+  const p={mesh:makePerson(look??NPC_KEYS[(R()*NPC_KEYS.length)|0]),x,z,rot:R()*6.28,t:R()*9,dead:0,flee:0};p.look=look;peds.push(p);return p}
 function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8){scene.remove(p.mesh);peds.splice(peds.indexOf(p),1)}return}
-  p.t+=dt;if(R()<.005)p.rot+=rr(-1.5,1.5);
+  p.t+=dt;
+  if(p.cop){ // 警员：跑向玩家，贴身就扣血；没通缉了就离开
+    const dx=player.x-p.x,dz=player.z-p.z,d=Math.hypot(dx,dz);
+    if(player.wanted===0||d>90){scene.remove(p.mesh);peds.splice(peds.indexOf(p),1);return}
+    if(!player.car){p.rot=Math.atan2(dx,dz);if(d>1.4){const sp=8.5*dt,nx=p.x+dx/d*sp,nz=p.z+dz/d*sp;if(!hit(nx,p.z,.6))p.x=nx;if(!hit(p.x,nz,.6))p.z=nz}
+      else{player.hp-=(p.mesh.userData.limbs&&p.look==='swat'?26:18)*dt;if(R()<dt*2)beep(120,.08,'square',.06)}}
+    for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.hypot(c.x-p.x,c.z-p.z)<2.6){killPed(p,c===player.car);addHeat(.8);break}
+    p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.rot;animWalk(p.mesh,p.t*1.4,!player.car&&d>1.4?1:.1);return}
+  if(R()<.005)p.rot+=rr(-1.5,1.5);
   const sp=p.flee>0?7:2;p.flee-=dt;
   if(p.flee>0){p.rot=Math.atan2(p.x-player.x,p.z-player.z)}
   const nx=p.x+Math.sin(p.rot)*sp*dt,nz=p.z+Math.cos(p.rot)*sp*dt;
@@ -238,7 +427,8 @@ function dropCash(x,z,v){const m=new THREE.Mesh(new THREE.BoxGeometry(1,.5,1),ca
 function addHeat(v){player.heat=clamp(player.heat+v,0,5);player.lastSeen=0}
 function updWanted(dt){const w=clamp(Math.ceil(player.heat-.001),0,5);
   if(w!==player.wanted){if(w>player.wanted){toast('通缉 '+'★'.repeat(w));beep(880,.3)}player.wanted=w}
-  const cops=cars.filter(c=>c.police&&!c.dead);let seen=false;
+  const cops=cars.filter(c=>c.police&&!c.dead);let seen=updHeli(dt);
+  for(const o of peds)if(o.cop&&!o.dead&&Math.hypot(o.x-player.x,o.z-player.z)<40)seen=true;
   for(const c of cops)if(Math.hypot(c.x-player.x,c.z-player.z)<70)seen=true;
   if(seen)player.lastSeen=0;else player.lastSeen+=dt;
   if(player.wanted>0&&player.lastSeen>7){player.heat=Math.max(0,player.heat-dt*.6);if(player.heat<=0){toast('甩掉警察了');}}
@@ -246,14 +436,19 @@ function updWanted(dt){const w=clamp(Math.ceil(player.heat-.001),0,5);
   if(player.wanted===0)for(const c of cops)if(Math.hypot(c.x-player.x,c.z-player.z)>120){removeCar(c)}
   for(const c of cops)for(const s of c.siren)s.visible=((performance.now()/150)|0)%2===(c.siren.indexOf(s))}
 function spawnCop(){for(let k=0;k<10;k++){const i=(R()*(N+1))|0,j=(R()*(N+1))|0,n=node(i,j),d=Math.hypot(n.x-player.x,n.z-player.z);
-  if(d>70&&d<150){const c=makeCar(n.x,n.z,Math.atan2(player.x-n.x,player.z-n.z),{police:true});return c}}}
+  if(d>70&&d<150){const c=makeCar(n.x,n.z,Math.atan2(player.x-n.x,player.z-n.z),{police:true,kind:player.wanted>=3&&R()<.5?'suv':'police'});return c}}}
 function driveCop(c,dt){const tx=player.car?player.car.x:player.x,tz=player.car?player.car.z:player.z;
   if(player.wanted===0){driveAI2(c,dt);return}
   const want=Math.atan2(tx-c.x,tz-c.z);let diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;const d=Math.hypot(tx-c.x,tz-c.z);
   if(c.rev>0){c.rev-=dt;carPhysics(c,-1,-clamp(diff*2,-1,1),false,dt);return}
-  carPhysics(c,d<8&&!player.car?-.3:1,clamp(diff*2.5,-1,1),Math.abs(diff)>1.2&&c.speed>18,dt);
+  const near=!player.car&&d<14;carPhysics(c,near?0:1,clamp(diff*2.5,-1,1),near||Math.abs(diff)>1.2&&c.speed>18,dt);
+  // 停车放下警员步行追捕
+  if(near&&Math.abs(c.speed)<5&&!c.dropped){c.dropped=1;const n=player.wanted>=4?2:1;
+    for(let k=0;k<n;k++){const lk=player.wanted>=4?'swat':player.wanted>=5&&k?'detective':R()<.35?'copHelmet':'cop';
+      const o=spawnPed(c.x+Math.cos(c.h)*(k?-2.5:2.5),c.z-Math.sin(c.h)*(k?-2.5:2.5),lk);if(o)o.cop=1}}
+  if(player.car)c.dropped=0;
   if(Math.abs(c.speed)<2){if((c.stuck+=dt)>1.2){c.rev=1;c.stuck=0}}else c.stuck=0;
-  if(d<5){if(player.car){if(Math.abs(c.speed)>12)player.car.hp-=8*dt*5}else player.hp-=14*dt}}
+  if(d<5){if(player.car){if(Math.abs(c.speed)>12)player.car.hp-=8*dt*5}else if(Math.abs(c.speed)>8)player.hp-=40*dt}}
 function driveAI2(c,dt){c.speed*=1-dt;carPhysics(c,0,0,true,dt)}
 function removeCar(c){scene.remove(c.mesh);const i=cars.indexOf(c);if(i>=0)cars.splice(i,1);if(c===player.car)exitCar(true)}
 const fxs=[];
@@ -299,7 +494,7 @@ const jobs=[
  {name:'急件快递',start(){const n=randNode(200);mission.x=n.x;mission.z=n.z;mission.timer=75;mission.reward=2500;setM('把包裹送到黄色光柱，限时 75 秒');beamMat.color.set(0xffe14d)}},
  {name:'海滨竞速',start(){mission.pts=[randNode(120),randNode(120),randNode(120)];const p=mission.pts.shift();mission.x=p.x;mission.z=p.z;mission.timer=90;mission.reward=4000;
    setM('开车穿过 3 个检查点，限时 90 秒');beamMat.color.set(0x22d3ee);if(!player.car)toast('先抢一辆车！')}},
- {name:'偷跑车',start(){const n=randNode(150);const c=makeCar(n.x,n.z,0,{color:0xffe14d});c.driver=null;mission.car=c;mission.x=n.x;mission.z=n.z;mission.timer=0;mission.reward=6000;
+ {name:'偷跑车',start(){const n=randNode(150);const c=makeCar(n.x,n.z,0,{color:0xffc83d,kind:'sport'});c.driver=null;mission.car=c;mission.x=n.x;mission.z=n.z;mission.timer=0;mission.reward=6000;
    setM('找到那辆金色跑车并开走');beamMat.color.set(0xffe14d)}},
  {name:'甩掉追兵',start(){player.heat=Math.max(player.heat,2.5);mission.timer=0;mission.reward=5000;mission.esc=true;setM('警察来了！甩掉通缉');beamMat.visible=false}}
 ];
@@ -397,8 +592,10 @@ let camYaw=0;
 function angDiff(a,b){return((a-b)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI}
 function tryMove(dx,dz){if(!hit(player.x+dx,player.z,.6))player.x+=dx;if(!hit(player.x,player.z+dz,.6))player.z+=dz}
 for(let k=0;k<24;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
-{const c=makeCar(road(0)+6,road(2)+8,0,{color:0xff3d8b});c.driver=null}
+{const c=makeCar(road(0)+6,road(2)+8,0,{color:0x1fb5a8,kind:'sport'});c.driver=null}
 offerMission();cam.position.set(player.x,40,player.z-40);
+for(const[id,k]of[['pickF','heroF'],['pickM','heroM']])$(id).addEventListener('click',()=>{setHero(k);
+  for(const b of document.querySelectorAll('.hero')){const on=b.id===id;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)}});
 $('start').addEventListener('click',()=>{$('title').hidden=true;running=true;last=performance.now();
   try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}toast('出狱第一天');});
 step();
