@@ -1,7 +1,7 @@
 // Preview-only data layer: same interface as the Firebase layer in app.js, but everything
 // lives in this browser (localStorage). Used to try the site without a Firebase project.
 (() => {
-  const KEY = 'txgc-preview-v1', SKEY = 'txgc-preview-session';
+  const KEY = 'imperial-preview-v1', SKEY = 'txgc-preview-session';
   const day = 864e5;
   const at = (d, h, m = 0) => { const t = new Date(Date.now() + d * day); t.setHours(h, m, 0, 0); return t.toISOString(); };
   function seed() {
@@ -10,14 +10,14 @@
       accounts: { admin: { uid: 'u_admin', pw: '123456' }, '小明': { uid: 'u_xm', pw: '123456' }, '阿杰': { uid: 'u_aj', pw: '123456' } },
       admins: ['u_admin'],
       users: {
-        u_admin: { username: 'admin', phone: '+60 12-000 0000', gameId: 'TX-ADMIN', createdAt: now, updatedAt: now },
+        u_admin: { username: 'admin', phone: '+60 12-000 0000', gameId: 'IMP-ADMIN', createdAt: now, updatedAt: now },
         u_xm: { username: '小明', phone: '+60 12-345 6789', gameId: 'XM-88', createdAt: now, updatedAt: now },
         u_aj: { username: '阿杰', phone: '+60 19-876 5432', gameId: 'AJ-21', createdAt: now, updatedAt: now }
       },
       events: {
-        edemo1: { title: '周六晚 计时赛（示例）', game: '暮色公路', place: '线上', startAt: at(8, 20), durationMin: 120, deadline: '', capacity: 8, link: '', description: '这是预览用的示例活动。每人三次机会，取最快一圈。', createdAt: now, updatedAt: now },
-        edemo2: { title: '新手教学夜（示例）', game: '暮色公路', place: '线上语音', startAt: at(15, 21), durationMin: 90, deadline: '', capacity: 0, link: '', description: '这是预览用的示例活动。', createdAt: now, updatedAt: now },
-        edemo3: { title: '上周友谊赛（示例）', game: '暮色公路', place: '线下', startAt: at(-7, 19), durationMin: 120, deadline: '', capacity: 0, link: '', description: '', createdAt: now, updatedAt: now }
+        edemo1: { title: '周六晚 锦标赛（示例）', game: '无限注德州 · 盲注 1/2', place: '俱乐部牌室', startAt: at(8, 20), durationMin: 120, deadline: '', capacity: 8, link: '', description: '这是预览用的示例活动。买入 100，起始筹码 10,000，每 20 分钟升盲。', createdAt: now, updatedAt: now },
+        edemo2: { title: '新手教学夜（示例）', game: '无限注德州 · 低盲注', place: '俱乐部牌室', startAt: at(15, 21), durationMin: 90, deadline: '', capacity: 0, link: '', description: '这是预览用的示例活动。', createdAt: now, updatedAt: now },
+        edemo3: { title: '上周友谊局（示例）', game: '无限注德州 · 盲注 2/5', place: '俱乐部牌室', startAt: at(-7, 19), durationMin: 120, deadline: '', capacity: 0, link: '', description: '', createdAt: now, updatedAt: now }
       },
       rsvps: {
         edemo1: { u_xm: { status: 'yes', note: '可能晚到十分钟', updatedAt: now }, u_aj: { status: 'maybe', note: '', updatedAt: now } },

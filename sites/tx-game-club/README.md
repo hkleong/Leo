@@ -1,6 +1,8 @@
-# TX Game Club 会员活动网站
+# The Imperial Club 德州扑克俱乐部网站
 
-一个独立网站：会员注册 / 登入，查看俱乐部活动并报名；管理员可以发布活动、查看会员资料。
+正式网址：<https://the-imperial-club.web.app>（旧网址 <https://tx-game-club-d5ba4.web.app> 也指向同一个网站）
+
+一个独立网站：会员注册 / 登入，查看俱乐部的德州扑克牌局和锦标赛并报名；管理员可以发布活动、查看会员资料。
 账号和数据用 Google 的 **Firebase**（免费额度），网站本身是纯静态文件，可以放在任何免费托管上。
 
 ## 网站功能
@@ -28,7 +30,7 @@
 
 ### 1. 创建 Firebase 项目
 1. 用 Google 账号打开 <https://console.firebase.google.com>
-2. 点「创建项目」（Add project），名称填 `tx-game-club`
+2. 点「创建项目」（Add project），名称填 `tx-game-club`（已建好：`tx-game-club-d5ba4`）
 3. Google Analytics 可以关掉，点「创建」
 
 > 免费的 Spark 方案就够用，不需要绑定信用卡。

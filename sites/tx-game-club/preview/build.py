@@ -23,9 +23,9 @@ badge = '''<div class="pv" id="pv" role="note"><b>预览模式</b><span>数据�
 document.getElementById('pvReset').onclick = () => window.__TX_PREVIEW_RESET__ && window.__TX_PREVIEW_RESET__();
 document.getElementById('pvMin').onclick = e => { const p = document.getElementById('pv'); p.classList.toggle('min'); e.currentTarget.textContent = p.classList.contains('min') ? '+' : '–'; };
 </script>'''
-out = ('<title>TX Game Club 预览</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n'
+out = ('<title>The Imperial Club 预览</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n'
        '<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
-       '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Saira+Condensed:wght@500;700;800&family=ZCOOL+QingKe+HuangYou&display=swap">\n'
+       '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Noto+Serif+SC:wght@400;700&family=Saira+Condensed:wght@500;700;800&display=swap">\n'
        '<style>' + css + extra_css + '</style>\n' + body + badge +
        '\n<script>\n' + mock + '\n</script>\n<script type="module">\n' + app + '\n</script>\n')
 (root / 'preview' / 'index.html').write_text(out, encoding='utf8')

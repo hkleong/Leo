@@ -1,1 +1,17 @@
-{ "projects": { "default": "tx-game-club-d5ba4" } }
+{
+  "projects": {
+    "default": "tx-game-club-d5ba4"
+  },
+  "targets": {
+    "tx-game-club-d5ba4": {
+      "hosting": {
+        "imperial": [
+          "the-imperial-club"
+        ],
+        "main": [
+          "tx-game-club-d5ba4"
+        ]
+      }
+    }
+  }
+}

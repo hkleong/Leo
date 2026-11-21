@@ -1,4 +1,4 @@
-// TX Game Club — standalone site. Accounts and data live in Firebase (Auth + Firestore).
+// The Imperial Club — standalone site. Accounts and data live in Firebase (Auth + Firestore).
 import { firebaseConfig } from './firebase-config.js';
 
 const FB_VERSION = '10.12.2';
@@ -213,7 +213,7 @@ function render() {
   const cur = route.id ? events.get(route.id) : null;
   if (route.id && eventsLoaded && !cur) return missing('找不到这个活动', '它可能已经被管理员删除了。');
   if (route.view === 'event') { show('secEvent'); return renderEvent(); }
-  if (route.view === 'edit') { if (!isAdmin) return missing('只有管理员可以编辑活动', '如果你想办活动，请联系 TX Game Club 的管理员。'); show('secEdit'); return renderEdit(); }
+  if (route.view === 'edit') { if (!isAdmin) return missing('只有管理员可以编辑活动', '如果你想办牌局，请联系 The Imperial Club 的管理员。'); show('secEdit'); return renderEdit(); }
 }
 function missing(title, text) { show('secMissing'); $('missTitle').textContent = title; $('missText').textContent = text; }
 
@@ -312,7 +312,7 @@ function renderEvent() {
   const id = route.id, ev = events.get(id);
   renderTicket(id, ev);
   const sd = !!(ev && ev.description); $('descPanel').hidden = !sd; if (sd) $('desc').textContent = ev.description;
-  document.title = ev && ev.title ? ev.title + ' · TX Game Club' : 'TX Game Club';
+  document.title = ev && ev.title ? ev.title + ' · The Imperial Club' : 'The Imperial Club';
   const typing = document.activeElement && $('rsvpBody').contains(document.activeElement);
   if (!typing) renderRsvp(id, ev);
   renderRoster(id);
@@ -333,7 +333,7 @@ function renderTicket(id, ev) {
   const add = (k, v, small) => { const dd = el('dd', null, v); if (small) dd.append(el('small', null, small)); dl.append(el('dt', null, k), dd); return dd; };
   const end = new Date(endOf(ev));
   add('时间', fmtDate(ev.startAt), `约 ${Number(ev.durationMin) || 120} 分钟，到 ${pad(end.getHours())}:${pad(end.getMinutes())} 结束 · 按你的时区 ${tzLabel()} 显示`);
-  if (ev.game) add('游戏', ev.game);
+  if (ev.game) add('玩法', ev.game);
   if (ev.place) add('方式', ev.place);
   if (ev.link) {
     const dd = add('链接', ''), row = el('div', 'linkrow');
@@ -343,7 +343,7 @@ function renderTicket(id, ev) {
   }
   if (ev.deadline) add('报名截止', fmtDate(ev.deadline));
   const cap = Number(ev.capacity) || 0;
-  add('名额', cap > 0 ? `${cap} 人` : '不限');
+  add('座位', cap > 0 ? `${cap} 个` : '不限');
   main.append(dl);
   const c = counts(id);
   if (ph === 'open' || ph === 'closed') {
@@ -421,7 +421,7 @@ function renderRsvp(id, ev) {
 
 function syncTabs() { document.querySelectorAll('#tabs button').forEach(x => x.setAttribute('aria-selected', x.dataset.t === tab ? 'true' : 'false')); }
 document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { tab = b.dataset.t; syncTabs(); renderRoster(route.id); });
-const COLORS = ['#e3182a', '#8e0d18', '#ff3344', '#4a4446', '#b3121f', '#6b6466'];
+const COLORS = ['#c9a24a', '#e8c574', '#b08a3a', '#d8b35e', '#a8925f', '#cdbb8e'];
 function colorFor(id) { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; }
 function renderRoster(id) {
   const c = counts(id);
@@ -462,12 +462,12 @@ $('copyList').onclick = () => {
 function saveIcs(id, ev) {
   const f = iso => new Date(iso).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const esc = s => String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
-  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//tx-game-club//CN', 'BEGIN:VEVENT',
-    'UID:' + id + '@tx-game-club', 'DTSTAMP:' + f(new Date().toISOString()), 'DTSTART:' + f(ev.startAt), 'DTEND:' + f(new Date(endOf(ev)).toISOString()),
-    'SUMMARY:' + esc(ev.title), 'DESCRIPTION:' + esc([ev.game && '游戏：' + ev.game, ev.place && '方式：' + ev.place, ev.link, ev.description].filter(Boolean).join('\n')),
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//the-imperial-club//CN', 'BEGIN:VEVENT',
+    'UID:' + id + '@the-imperial-club', 'DTSTAMP:' + f(new Date().toISOString()), 'DTSTART:' + f(ev.startAt), 'DTEND:' + f(new Date(endOf(ev)).toISOString()),
+    'SUMMARY:' + esc(ev.title), 'DESCRIPTION:' + esc([ev.game && '玩法：' + ev.game, ev.place && '方式：' + ev.place, ev.link, ev.description].filter(Boolean).join('\n')),
     'LOCATION:' + esc(ev.place || ''), 'BEGIN:VALARM', 'TRIGGER:-PT30M', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(ev.title), 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
-  const a = el('a'); a.href = url; a.download = 'tx-game-club-event.ics'; document.body.append(a); a.click(); a.remove();
+  const a = el('a'); a.href = url; a.download = 'imperial-club-event.ics'; document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
@@ -539,7 +539,7 @@ $('regForm').addEventListener('submit', async e => {
   if (p1.length < 6) return msg('密码至少要 6 位。');
   if (p1 !== p2) return msg('两次输入的密码不一样。');
   busy = true; $('rBtn').disabled = true; msg('注册中…');
-  try { regPromise = api.register({ username, phone, gameId, password: p1 }); await regPromise; profile = { username, phone, gameId }; pub[me ? me.uid : ''] = { username }; msg(''); $('rPass').value = $('rPass2').value = ''; toast('注册成功，欢迎加入 TX Game Club！'); }
+  try { regPromise = api.register({ username, phone, gameId, password: p1 }); await regPromise; profile = { username, phone, gameId }; pub[me ? me.uid : ''] = { username }; msg(''); $('rPass').value = $('rPass2').value = ''; toast('注册成功，欢迎加入 The Imperial Club！'); }
   catch (er) { msg(errText(er)); }
   finally { busy = false; regPromise = null; $('rBtn').disabled = false; }
 });
@@ -591,7 +591,7 @@ function renderMembers() {
 }
 $('copyMembers').onclick = () => {
   const rows = [...members.values()].sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
-  copy(['TX Game Club 会员名单', '用户名\t电话号码\t游戏 ID', ...rows.map(m => `${m.username}\t${m.phone}\t${m.gameId}`)].join('\n'), '会员名单已复制');
+  copy(['The Imperial Club 会员名单', '用户名\t电话号码\t游戏 ID', ...rows.map(m => `${m.username}\t${m.phone}\t${m.gameId}`)].join('\n'), '会员名单已复制');
 };
 
 /* ---------- menu drawer ---------- */

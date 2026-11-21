@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0b">
-<title>TX Game Club</title>
-<meta name="description" content="TX Game Club 会员活动网站：注册会员、查看俱乐部活动并报名。">
+<meta name="theme-color" content="#0b0a08">
+<title>The Imperial Club</title>
+<meta name="description" content="The Imperial Club 德州扑克俱乐部：注册会员、查看牌局和锦标赛并报名。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Saira+Condensed:wght@500;700;800&family=ZCOOL+QingKe+HuangYou&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Noto+Serif+SC:wght@400;700&family=Saira+Condensed:wght@500;700;800&display=swap">
 <style>
 /* Layout: standalone member site, hash-routed views. Home = full-bleed black/red bands (hero → about → next event → join); app = event list, event ticket + RSVP desk, and the host editor. Deliberately single-theme red on black. */
 :root{
-  --bg:#0a0a0b; --paper:#141416; --sunk:#1c1c1f; --ink:#f4f1f0; --muted:#a39d9c; --line:#2d2a2b;
-  --accent:#e3182a; --accent-hot:#ff3344; --accent-ink:#ffffff; --accent-soft:#3a0d12;
-  --good:#ff3344; --good-soft:#3a0d12; --maybe:#ece6e4; --maybe-soft:#2a2829; --no:#8a8485; --no-soft:#1f1e20;
-  --danger:#ff5a66;
-  --f-mark:"Anton","Impact","Arial Narrow Bold",sans-serif;
-  --f-display:"ZCOOL QingKe HuangYou","PingFang SC","Microsoft YaHei",sans-serif;
+  --bg:#0b0a08; --paper:#15130f; --sunk:#1d1a15; --ink:#f5efe2; --muted:#a89f8c; --line:#2e2a21;
+  --accent:#c9a24a; --accent-hot:#e8c574; --accent-ink:#0b0a08; --accent-soft:#2a2213;
+  --good:#e8c574; --good-soft:#2a2213; --maybe:#e9e2d2; --maybe-soft:#26231d; --no:#8a8273; --no-soft:#1d1b17;
+  --danger:#ff7a6b;
+  --f-mark:"Cinzel","Trajan Pro","Times New Roman",serif;
+  --f-display:"Noto Serif SC","Songti SC","STSong","SimSun",serif;
   --f-num:"Saira Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
   --f-body:system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   --r:18px;
@@ -38,23 +38,35 @@ a{color:inherit}
 /* ---------- home ---------- */
 .nav{position:absolute;top:0;left:0;right:0;z-index:5}
 .nav .in{display:flex;align-items:center;justify-content:space-between;padding-block:18px}
-.mark{font-family:var(--f-mark);font-size:22px;letter-spacing:.04em;line-height:1;text-decoration:none;display:flex;align-items:center;gap:8px}
-.mark i{display:inline-block;width:12px;height:22px;background:var(--accent);transform:skewX(-14deg)}
+.mark{font-family:var(--f-mark);font-weight:700;font-size:19px;letter-spacing:.08em;line-height:1;text-decoration:none;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.mark i{font-style:normal;color:var(--accent);font-size:1.15em;line-height:1}
+@media (max-width:440px){.nav .mark .m-x{display:none}}
 .navlink{border:1px solid rgba(255,255,255,.28);background:transparent;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;letter-spacing:.08em}
 .host{border:none;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:800;letter-spacing:.06em;white-space:nowrap}
 .host::before{content:"主办方 · ";font-weight:600;opacity:.8}
 .topright{display:flex;align-items:center;gap:12px}
 @media (max-width:420px){.topright .mark{display:none}}
 .hero{position:relative;min-height:88svh;display:flex;align-items:flex-end;overflow:hidden;isolation:isolate;
-  background:radial-gradient(120% 80% at 85% 15%,#2a070c 0%,transparent 60%),var(--bg)}
-.hero::before{content:"";position:absolute;z-index:-1;right:-12%;top:-20%;width:62%;height:150%;background:linear-gradient(180deg,var(--accent-hot),var(--accent) 55%,#8e0d18);transform:skewX(-14deg)}
-@media (max-width:640px){.hero::before{width:44%;right:-20%}}
+  background:radial-gradient(120% 80% at 85% 15%,#241c0b 0%,transparent 60%),var(--bg)}
+.hero::before{content:"";position:absolute;z-index:-1;right:-14%;top:-20%;width:46%;height:150%;background:linear-gradient(180deg,#f1d892,var(--accent) 55%,#7d5e1f);transform:skewX(-14deg)}
+.cards{position:absolute;z-index:-1;right:3%;top:12%;width:min(26vw,300px);aspect-ratio:1/1}
+.pcard{position:absolute;width:58%;aspect-ratio:5/7;border-radius:12px;background:linear-gradient(160deg,#1b1812,#0b0a08);border:1.5px solid var(--accent);color:var(--accent-hot);font-family:var(--f-mark);font-weight:700;
+  box-shadow:0 24px 44px rgba(0,0,0,.65),inset 0 0 0 5px #0b0a08,inset 0 0 0 6px rgba(201,162,74,.5)}
+.pcard .r{position:absolute;left:10%;top:7%;font-size:clamp(15px,2.4vw,30px);line-height:1;text-align:center}
+.pcard .r i{display:block;font-style:normal;font-size:.8em;margin-top:2px}
+.pcard .r.b{left:auto;top:auto;right:10%;bottom:7%;transform:rotate(180deg)}
+.pcard .big{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(46px,8.5vw,112px);line-height:1}
+.c1{left:0;top:8%;transform:rotate(-12deg)}
+.c2{right:0;top:0;transform:rotate(9deg)}
+@media (max-width:640px){.hero::before{width:34%;right:-16%}.cards{right:5%;top:92px;width:min(48vw,220px)}}
+@media (max-height:560px) and (max-width:640px){.cards{display:none}}
 .hero::after{content:"";position:absolute;z-index:-1;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);pointer-events:none}
 .hero .in{width:100%;padding-block:110px 40px;display:flex;flex-direction:column;gap:18px}
 .eyebrow{font-size:12px;font-weight:700;letter-spacing:.32em;color:var(--muted)}
-.wordmark{margin:0;font-family:var(--f-mark);font-weight:400;font-size:clamp(68px,17vw,200px);line-height:.86;letter-spacing:.01em;text-transform:uppercase}
+.wordmark{margin:0;font-family:var(--f-mark);font-weight:900;font-size:clamp(42px,12.5vw,148px);line-height:.95;letter-spacing:.02em;text-transform:uppercase}
+.wordmark .the{font-size:.38em;letter-spacing:.42em;color:var(--accent-hot);margin-bottom:.2em}
 .wordmark span{display:block}
-.wordmark .o{color:transparent;-webkit-text-stroke:2px var(--ink)}
+.wordmark .o{color:transparent;-webkit-text-stroke:1.5px var(--accent-hot)}
 .headline{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(28px,5.4vw,46px);line-height:1.15;max-width:16ch;text-wrap:balance}
 .headline em{font-style:normal;color:var(--accent-hot);background:var(--bg);padding:0 .18em;border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .lede{margin:0;max-width:34em;color:#d8d2d1;font-size:16px}
@@ -70,7 +82,7 @@ a{color:inherit}
 .about p{margin:0 0 12px;color:#d8d2d1;max-width:36em}
 .steps{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 .steps li{display:grid;grid-template-columns:56px minmax(0,1fr);gap:14px;align-items:start;padding:16px;background:var(--paper);border-radius:14px;border-left:3px solid var(--accent)}
-.steps .n{font-family:var(--f-mark);font-size:30px;line-height:1;color:var(--accent-hot)}
+.steps .n{font-family:var(--f-mark);font-weight:700;font-size:28px;line-height:1;color:var(--accent-hot)}
 .steps b{display:block;font-size:16px}
 .steps span{font-size:14px;color:var(--muted)}
 .next{background:var(--paper)}
@@ -82,13 +94,13 @@ a{color:inherit}
 .next-num b{display:block;font-family:var(--f-num);font-weight:800;font-size:40px;line-height:1;color:var(--accent-hot);font-variant-numeric:tabular-nums}
 .next-num span{font-size:12px;color:var(--muted)}
 .join{position:relative;overflow:hidden;background:var(--accent);color:var(--accent-ink);isolation:isolate}
-.join::before{content:"TX";position:absolute;z-index:-1;right:-2%;bottom:-24%;font-family:var(--f-mark);font-size:clamp(200px,40vw,420px);line-height:1;color:rgba(0,0,0,.16)}
-.join h2 small{color:rgba(255,255,255,.75)}
+.join::before{content:"♠\FE0E";position:absolute;z-index:-1;right:-2%;bottom:-24%;font-family:var(--f-mark);font-size:clamp(200px,40vw,420px);line-height:1;color:rgba(0,0,0,.16)}
+.join h2 small{color:rgba(11,10,8,.62)}
 .join p{margin:0 0 26px;max-width:32em;font-size:16px}
 .enter{display:inline-flex;align-items:center;gap:14px;background:var(--bg);color:var(--ink);text-decoration:none;font-weight:800;font-size:18px;letter-spacing:.08em;padding:16px 26px;border-radius:999px;box-shadow:0 6px 0 rgba(0,0,0,.35);transition:transform .1s,box-shadow .1s}
 .enter:hover{transform:translateY(-2px)}
 .enter:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
-.enter i{font-style:normal;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff}
+.enter i{font-style:normal;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:var(--accent-ink)}
 .foot{padding-block:26px calc(26px + env(safe-area-inset-bottom,0px));color:var(--muted);font-size:12px;letter-spacing:.1em;border-top:1px solid var(--line)}
 
 /* ---------- sign-up view ---------- */
@@ -103,7 +115,7 @@ a{color:inherit}
 
 /* ticket */
 .ticket{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 190px;background:var(--paper);border-radius:var(--r);
-  box-shadow:0 0 0 1px var(--line),0 18px 40px -22px rgba(227,24,42,.45);overflow:hidden}
+  box-shadow:0 0 0 1px var(--line),0 18px 40px -22px rgba(201,162,74,.35);overflow:hidden}
 @media (max-width:560px){.ticket{grid-template-columns:minmax(0,1fr)}}
 .t-main{padding:26px 26px 24px;display:flex;flex-direction:column;gap:16px;min-width:0}
 .t-stub{position:relative;padding:24px 20px;background:var(--accent);color:var(--accent-ink);display:flex;flex-direction:column;gap:14px;justify-content:space-between}
@@ -178,7 +190,7 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
 .roster{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .roster li{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
 .roster li:first-child{border-top:none}
-.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:#fff;background:var(--accent)}
+.av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;color:var(--accent-ink);background:var(--accent)}
 .who{min-width:0}
 .who b{display:block;overflow-wrap:anywhere}
 .who span{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
@@ -200,7 +212,7 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
 .evlist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
 .evcard{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px;background:var(--paper);border-radius:16px;box-shadow:0 0 0 1px var(--line);text-decoration:none;transition:box-shadow .15s,transform .15s}
 .evcard:hover{box-shadow:0 0 0 1.5px var(--accent);transform:translateY(-1px)}
-.evdate{background:var(--accent);color:#fff;border-radius:12px;text-align:center;padding:10px 4px 8px;line-height:1}
+.evdate{background:var(--accent);color:var(--accent-ink);border-radius:12px;text-align:center;padding:10px 4px 8px;line-height:1}
 .evdate b{display:block;font-family:var(--f-num);font-weight:800;font-size:36px}
 .evdate span{display:block;font-size:12px;letter-spacing:.06em;margin-top:4px}
 .evinfo{min-width:0;display:flex;flex-direction:column;gap:4px}
@@ -253,7 +265,7 @@ label.f input:focus,label.f textarea:focus{border-color:var(--accent);outline:no
 .host::before{content:"管理员 · "}
 .navright{display:flex;align-items:center;gap:14px}
 .authbox{display:flex;align-items:center;gap:14px}
-.btn-login{display:inline-flex;align-items:center;background:var(--accent);color:#fff;border-radius:999px;padding:8px 18px;font-weight:800;font-size:14px;text-decoration:none;letter-spacing:.08em;white-space:nowrap}
+.btn-login{display:inline-flex;align-items:center;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:8px 18px;font-weight:800;font-size:14px;text-decoration:none;letter-spacing:.08em;white-space:nowrap}
 .btn-login:hover{background:var(--accent-hot)}
 .lnk-reg{color:var(--ink);text-decoration:none;font-weight:700;font-size:14px;white-space:nowrap}
 .lnk-reg:hover{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:5px}
@@ -285,16 +297,20 @@ label.f input[readonly]{opacity:.65}
 <div id="viewHome">
   <nav class="nav" aria-label="网站导航">
     <div class="in">
-      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a></div>
+      <div class="navleft"><button class="menubtn" type="button" data-menu aria-label="打开菜单" aria-controls="drawer" aria-expanded="false"><span></span></button><a class="mark" href="#home"><i aria-hidden="true">♠&#xFE0E;</i><span><span class="m-x">THE </span>IMPERIAL<span class="m-x"> CLUB</span></span></a></div>
       <div class="navright"><button class="navlink" type="button" id="toJoin">报名入口 ↓</button><div class="authbox" data-auth></div></div>
     </div>
   </nav>
   <header class="hero">
+    <div class="cards" aria-hidden="true">
+      <div class="pcard c1"><span class="r">A<i>♠&#xFE0E;</i></span><span class="big">♠&#xFE0E;</span><span class="r b">A<i>♠&#xFE0E;</i></span></div>
+      <div class="pcard c2"><span class="r">K<i>♠&#xFE0E;</i></span><span class="big">&#x265A;&#xFE0E;</span><span class="r b">K<i>♠&#xFE0E;</i></span></div>
+    </div>
     <div class="in">
-      <div class="eyebrow">TX GAME CLUB · 游戏俱乐部</div>
-      <h1 class="wordmark"><span>TX Game</span><span class="o">Club</span></h1>
+      <div class="eyebrow">THE IMPERIAL CLUB · 德州扑克俱乐部</div>
+      <h1 class="wordmark"><span class="the">The</span><span>Imperial</span><span class="o">Club</span></h1>
       <p class="headline">报名以参加<em>俱乐部活动</em></p>
-      <p class="lede">TX Game Club 的游戏活动都在这里发布。注册成为会员，看清时间和玩法，报个名，到点一起上线开玩。</p>
+      <p class="lede">The Imperial Club 的德州扑克牌局和锦标赛都在这里发布。注册成为会员，看清时间、玩法和座位，报个名，准时入座。</p>
       <div class="cue" aria-hidden="true"><b>↓</b>下拉找到报名入口</div>
     </div>
   </header>
@@ -303,13 +319,13 @@ label.f input[readonly]{opacity:.65}
     <div class="in about-grid">
       <div>
         <h2><small>ABOUT</small>关于这个网站</h2>
-        <p>这是 TX Game Club 的活动公告板。每次俱乐部办活动，管理员会把时间、游戏、玩法和名额发布在这里。</p>
+        <p>这是 The Imperial Club 的牌局公告板。每次开局或办锦标赛，管理员会把时间、玩法、盲注和座位数发布在这里。</p>
         <p>注册会员后就能查看活动和报名。其他会员只看得到你的用户名；你的电话号码和游戏 ID 只有管理员看得到。</p>
       </div>
       <ol class="steps">
         <li><span class="n">01</span><div><b>注册会员</b><span>填写用户名、电话号码、游戏 ID 和密码</span></div></li>
-        <li><span class="n">02</span><div><b>选择活动报名</b><span>选「参加」「可能来」或「来不了」，名单会实时更新</span></div></li>
-        <li><span class="n">03</span><div><b>准时上线</b><span>可以把活动加进日历，开始前 30 分钟提醒你</span></div></li>
+        <li><span class="n">02</span><div><b>选择牌局报名</b><span>选「参加」「可能来」或「来不了」，名单会实时更新</span></div></li>
+        <li><span class="n">03</span><div><b>准时入座</b><span>可以把牌局加进日历，开始前 30 分钟提醒你</span></div></li>
       </ol>
     </div>
   </section>
@@ -344,7 +360,7 @@ label.f input[readonly]{opacity:.65}
       <a class="enter" href="#events">进入报名页面 <i aria-hidden="true">→</i></a>
     </div>
   </section>
-  <footer class="foot"><div class="in">TX GAME CLUB</div></footer>
+  <footer class="foot"><div class="in">THE IMPERIAL CLUB · TEXAS HOLD'EM</div></footer>
 </div>
 
 <div id="viewApp" hidden>
@@ -367,7 +383,7 @@ label.f input[readonly]{opacity:.65}
     <div class="panel">
       <div class="lock" aria-hidden="true">🔒</div>
       <h2>会员才能查看</h2>
-      <p class="note">活动和报名只对 TX Game Club 会员开放。登入后会自动回到这个页面。</p>
+      <p class="note">牌局和报名只对 The Imperial Club 会员开放。登入后会自动回到这个页面。</p>
       <div class="actions"><a class="btn-login" href="#login">登入</a><a class="lnk-reg" href="#register">还没有账号？注册</a></div>
     </div>
   </section>
@@ -394,7 +410,7 @@ label.f input[readonly]{opacity:.65}
     <form id="regForm" class="panel" novalidate>
       <label class="f">用户名（其他会员会看到）<input id="rUser" autocomplete="username" maxlength="16" placeholder="2–16 个字：中文、英文、数字或下划线" required></label>
       <label class="f">电话号码<input id="rPhone" type="tel" autocomplete="tel" maxlength="20" placeholder="例如 +60 12-345 6789" required></label>
-      <label class="f">游戏 ID<input id="rGame" maxlength="40" placeholder="你在游戏里的 ID" required></label>
+      <label class="f">游戏 ID<input id="rGame" maxlength="40" placeholder="你在牌局 App 里的 ID" required></label>
       <div class="grid2">
         <label class="f">密码<input id="rPass" type="password" autocomplete="new-password" placeholder="至少 6 位" required></label>
         <label class="f">确认密码<input id="rPass2" type="password" autocomplete="new-password" required></label>
@@ -482,10 +498,10 @@ label.f input[readonly]{opacity:.65}
     <div class="panel">
       <h2><span id="editTitle">添加新活动</span> <span class="sub">只有管理员能看到这里</span></h2>
       <form id="editForm" class="col" style="gap:12px">
-        <label class="f">活动名称<input id="fTitle" maxlength="60" required placeholder="例如：周六晚上 计时赛"></label>
+        <label class="f">活动名称<input id="fTitle" maxlength="60" required placeholder="例如：周六晚 锦标赛"></label>
         <div class="grid2">
-          <label class="f">玩什么游戏<input id="fGame" maxlength="40" placeholder="例如：暮色公路"></label>
-          <label class="f">方式 / 地点<input id="fPlace" maxlength="60" placeholder="例如：线上，语音频道见"></label>
+          <label class="f">玩法 / 盲注<input id="fGame" maxlength="40" placeholder="例如：无限注德州 · 盲注 1/2"></label>
+          <label class="f">方式 / 地点<input id="fPlace" maxlength="60" placeholder="例如：俱乐部牌室"></label>
         </div>
         <div class="grid2">
           <label class="f">开始时间<input id="fStart" type="datetime-local" required></label>
@@ -493,10 +509,10 @@ label.f input[readonly]{opacity:.65}
         </div>
         <div class="grid2">
           <label class="f">报名截止（可不填）<input id="fDeadline" type="datetime-local"></label>
-          <label class="f">人数上限（0 表示不限）<input id="fCap" type="number" min="0" max="999" value="0"></label>
+          <label class="f">座位数（0 表示不限）<input id="fCap" type="number" min="0" max="999" value="0"></label>
         </div>
-        <label class="f">链接（可不填，比如游戏或语音房间的链接）<input id="fLink" type="url" maxlength="300" placeholder="https://"></label>
-        <label class="f">活动介绍<textarea id="fDesc" maxlength="2000" placeholder="规则、奖励、需要提前准备什么……"></textarea></label>
+        <label class="f">链接（可不填，比如牌局 App 房间链接）<input id="fLink" type="url" maxlength="300" placeholder="https://"></label>
+        <label class="f">活动介绍<textarea id="fDesc" maxlength="2000" placeholder="买入、筹码、盲注升级、奖励……"></textarea></label>
         <div class="actions">
           <button class="btn" type="submit" id="fSave">保存并公布</button>
           <a class="ghost" id="fCancel" href="#events" style="text-decoration:none">取消</a>
@@ -511,7 +527,7 @@ label.f input[readonly]{opacity:.65}
 <div class="scrim" id="scrim" hidden></div>
 <nav class="drawer" id="drawer" aria-label="网站菜单" aria-hidden="true">
   <div class="dhead">
-    <a class="mark" href="#home"><i aria-hidden="true"></i>TX GAME CLUB</a>
+    <a class="mark" href="#home"><i aria-hidden="true">♠&#xFE0E;</i><span><span class="m-x">THE </span>IMPERIAL<span class="m-x"> CLUB</span></span></a>
     <button class="dclose" type="button" id="dClose" aria-label="关闭菜单">×</button>
   </div>
   <div class="dlabel">MENU</div>
@@ -522,7 +538,7 @@ label.f input[readonly]{opacity:.65}
     <li><a href="#me" data-nav="me" id="dMeLink"><span><b id="dMeLabel">我的资料</b><small id="dMeSub"></small></span></a></li>
     <li id="dMembersItem" hidden><a href="#members" data-nav="members"><span><b>会员名单</b><small>管理员专用：电话和游戏 ID</small></span></a></li>
   </ul>
-  <div class="dfoot">TX GAME CLUB</div>
+  <div class="dfoot">THE IMPERIAL CLUB</div>
 </nav>
 <div id="toast" class="toast" hidden></div>
 <script type="module" src="app.js"></script>
