@@ -1,6 +1,6 @@
-// 霓虹湾离线缓存（自动生成，版本 b08039ee9c）
-const CACHE='neonbay-b08039ee9c';
-const FILES=["./", "index.html", "manifest.webmanifest", "vendor/three.min.js", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "art/hero_f.jpg", "art/hero_m.jpg", "art/title.jpg"];
+// 霓虹湾离线缓存（自动生成，版本 8f79b34216）
+const CACHE='neonbay-8f79b34216';
+const FILES=["./", "index.html", "manifest.webmanifest", "vendor/three.min.js", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "art/hero_f.jpg", "art/hero_m.jpg", "art/icon.png", "art/title.jpg"];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 // 页面优先走网络（拿到最新版），断网时用缓存；其他文件优先用缓存

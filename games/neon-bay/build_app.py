@@ -22,7 +22,14 @@ if not os.path.exists(THREE_LOCAL):
 # ---------- 图标：日落渐变 + 太阳 + 海面 + 椰子树 + “霓虹湾” ----------
 FONT = '/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc'
 
+ICON_SRC = os.path.join(HERE, 'art', 'icon.png')   # 有这张就用它（主角插画 + 霓虹湾字标）
+
 def make_icon(size, maskable=False):
+    if os.path.exists(ICON_SRC):
+        img = Image.open(ICON_SRC).convert('RGB').resize((1024, 1024), Image.LANCZOS)
+        if maskable:
+            bg = Image.new('RGB', (1024, 1024), (26, 8, 40)); bg.paste(img.resize((820, 820), Image.LANCZOS), (102, 102)); img = bg
+        return img.resize((size, size), Image.LANCZOS)
     W = 1024
     img = Image.new('RGB', (W, W))
     d = ImageDraw.Draw(img)
