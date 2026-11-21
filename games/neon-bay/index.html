@@ -1018,7 +1018,7 @@ function spawnPed(x,z,look){let onP=null;if(x===undefined){const i=(R()*N)|0,j=(
   const p={mesh:makePerson(look),x,z,rot:R()*6.28,t:R()*9,dead:0,flee:0,knock:0,wave:0,waved:0,danceT:0,pause:0};p.look=look;if(onP){p.bi=onP.i;p.bj=onP.j;p.s=onP.s;p.dir=R()<.5?1:-1;p.onPath=true}
   // 活动：按造型给固定活动，其余随机
   const fixed={selfie:'selfie',suit:'phone',courier:'pizza',skater8:'skate',tank:'jog'}[look];
-  if(fixed)p.act=fixed;else{const r=R();p.act=r<.5?'walk':r<.65?'talk':r<.75?'dance':r<.85?'idle':'sitwant'}
+  if(/^(cop|swat|detective)/.test(look))p.act='cop';else if(fixed)p.act=fixed;else{const r=R();p.act=r<.5?'walk':r<.65?'talk':r<.75?'dance':r<.85?'idle':'sitwant'}
   if(p.act==='sitwant'){const b=freeBench(x,z);if(b){b.used=p;p.bench=b;p.x=b.x;p.z=b.z;p.rot=b.rot;p.act='sit'}else p.act='walk'}
   if(p.act==='talk'&&!_noPair&&!look.startsWith('cop')){_noPair=true;const q=spawnPed(x+Math.sin(p.rot)*1.5,z+Math.cos(p.rot)*1.5);_noPair=false;
     if(q){q.act='talk';q.partner=p;p.partner=q;q.rot=p.rot+Math.PI}}
@@ -1318,14 +1318,15 @@ function startCut(type){if(cut)return;if(boarding){setDoor(boarding.car,0);board
   $('cutTxt').textContent=type==='dead'?'你倒下了':'被捕！';$('cutSub').textContent=type==='dead'?'正在送往医院…':'正在押往警察局…';
   if(type==='dead'){SFX.explode&&sweep&&ac&&sweep('sawtooth',300,60,.12,1.6)}else if(ac){sweep('square',880,660,.05,.25);sweep('square',880,660,.05,.25,.3)}}
 function updCut(dt){const c=cut;c.t+=dt;const T=c.t;
-  if(c.type==='dead'){const f=Math.min(1,T/.6);player.mesh.rotation.x=-Math.PI/2*f;player.mesh.position.set(player.x,.3*f,player.z);pose(player.mesh,'idle',0,0)}
+  if(c.done){player.mesh.rotation.x=0;player.mesh.position.set(player.x,0,player.z);player.mesh.rotation.y=player.rot;pose(player.mesh,'idle',T,0)}
+  else if(c.type==='dead'){const f=Math.min(1,T/.6);player.mesh.rotation.x=-Math.PI/2*f;player.mesh.position.set(player.x,.3*f,player.z);pose(player.mesh,'idle',0,0)}
   else{player.mesh.rotation.x=0;player.mesh.position.set(player.x,0,player.z);pose(player.mesh,'wave',T,0);const r=player.mesh.userData.rig;if(r){r.shs[0].rotation.z=-2.6;r.shs[1].rotation.z=2.6;r.els[0].rotation.x=r.els[1].rotation.x=-.35}}
   // 镜头：被捕时绕着人转，死亡时慢慢升高往下看
   const a=c.yaw+T*(c.type==='dead'?.25:.7),dist=c.type==='dead'?6+T*2:6.5,hy=c.type==='dead'?3+T*3.5:2.8;
   cam.position.set(player.x-Math.sin(a)*dist,hy,player.z-Math.cos(a)*dist);cam.lookAt(player.x,c.type==='dead'?.5:1.8,player.z);sky.position.copy(cam.position);
   $('fade').style.opacity=T<2.2?0:T<2.8?(T-2.2)/.6:Math.max(0,1-(T-2.9)/.5);
   if(T>=2.8&&!c.done){c.done=true;respawnAt(c.type)}
-  if(T>=3.4){$('cut').classList.remove('on');setTimeout(()=>{if(!cut)$('cut').hidden=true},400);$('fade').style.opacity=0;cut=null}}
+  if(T>=3.4){player.mesh.rotation.x=0;player.mesh.position.y=0;$('cut').classList.remove('on');setTimeout(()=>{if(!cut)$('cut').hidden=true},400);$('fade').style.opacity=0;cut=null}}
 function respawnAt(type){const fee=Math.floor(player.money*.1),P0=type==='dead'?hospital:station;player.money-=fee;player.heat=0;player.wanted=0;player.hp=100;player.dispatch=0;player.bustT=0;
   player.x=P0.x+rr(0,3);player.z=P0.z+24;player.rot=0;player.y=0;player.vy=0;camYaw=Math.PI;player.mesh.rotation.x=0;player.mesh.visible=true;
   for(const c of cars.filter(c=>c.police&&!c.patrol))removeCar(c);for(const q of[...peds])if(q.cop)dropPed(q);if(heli){scene.remove(heli.g,heli.cone,heli.spot);heli=null}
@@ -1374,8 +1375,11 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   if(player.hp<=0&&!cut)startCut('dead');else if(!player.car&&player.wanted===0)player.hp=Math.min(100,player.hp+dt*2);
   // 逮捕判定：有通缉时，警员贴身（步行时 2 米内且没在跑）或你的车停下、警员在 6 米内，持续一会儿就被捕
   if(!cut&&player.wanted>0){let near=false;for(const q of peds)if(q.cop&&!q.dead&&!(q.knock>0)){const d=Math.hypot(q.x-player.x,q.z-player.z);
-      if(player.car?(Math.abs(player.car.speed)<2&&d<6.5):(d<2.2&&!(keys.ShiftLeft||keys.ShiftRight||tb_.Run)))near=true}
-    player.bustT=near?(player.bustT||0)+dt:Math.max(0,(player.bustT||0)-dt*2);if(player.bustT>(player.car?2.2:1.1))startCut('arrest')}else player.bustT=0;
+      if(player.car?(Math.abs(player.car.speed)<1&&d<6.5):(d<2.4))near=true}
+    const still=player.car?Math.abs(player.car.speed)<1:(Math.hypot(ax,ay)<.15&&player.y<=.01);
+    if(near&&still){player.bustT=(player.bustT||0)+dt;if(player.bustT>.4&&!player.bustWarn){player.bustWarn=1;toast('警察正在逮捕你！快跑')}}
+    else{player.bustT=Math.max(0,(player.bustT||0)-dt*3);if(player.bustT===0)player.bustWarn=0}
+    if(player.bustT>(player.car?3.5:2.5))startCut('arrest')}else{player.bustT=0;player.bustWarn=0}
   // 相机
   { // 车上：镜头紧跟车头；步行：只在往前/侧走时慢慢转到人物身后，往后走不转镜头
     const d=angDiff(player.rot,camYaw);let rate=3;
