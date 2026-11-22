@@ -638,6 +638,17 @@ for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){
   BTYPE[i+','+j]=t;if(t==='park'||t==='diag')parkSpots.push([cx,cz]);
   JOBS.push({kind:'block',i,j,x:cx,z:cz,r:Math.hypot(W,D)/2});
 }
+// 主角的家：出生点附近住宅区的第一户（街区生成时在那里盖带车库的家）
+const HOME={blk:null,x:0,z:0,face:1,car:null,door:null,pad:null};
+{let best=null,bd=1e9;for(const[i,j]of VALID){if(BTYPE[i+','+j]!=='houses')continue;const c=bcen(i,j),d=Math.hypot(c.x-SPN.x,c.z-SPN.z);if(d<bd){bd=d;best=[i,j]}}
+ if(best){const[i,j]=best,c=bcen(i,j),W=bW(i),D=bD(j),nx=Math.max(1,Math.round(W/38)),nz=Math.max(1,Math.round(D/36));HOME.blk=i+','+j;HOME.lw=W/nx;HOME.ld=D/nz;HOME.x=c.x-W/2+HOME.lw*.5;HOME.z=c.z-D/2+HOME.ld*.5;HOME.face=nz===1?1:-1}}
+function addHome(x,z,face,lw,ld){addHouse(x,z,face,lw,ld);const gx=x+lw/2-6.2,gz=z-face*1.5;
+  const gb=box(7,4.2,8,0xd8d0c4);gb.position.set(gx,2.1,gz);scene.add(gb);const rf=box(7.6,.35,8.6,0x5a5a60);rf.position.set(gx,4.35,gz);scene.add(rf);
+  const gd=box(5.6,3.4,.12,0xb8bcc4);gd.position.set(gx,1.75,gz+face*4.03);scene.add(gd);for(let k=0;k<6;k++){const ln=box(5.6,.05,.14,0x8a8e96);ln.position.set(gx,.4+k*.55,gz+face*4.06);scene.add(ln)}
+  const pad=tPlane(5.6,7,groundMat('stone',0x9a9690));pad.rotation.x=-Math.PI/2;pad.position.set(gx,.11,gz+face*7.6);scene.add(pad);
+  const sg=plainSign('家  HOME','#ffffff','#2a6fd0',3,.8);sg.position.set(x-2.6,3.6,z-face*2.5+face*8.2);sg.rotation.y=face>0?0:Math.PI;scene.add(sg);
+  solids.push({x0:gx-3.5,x1:gx+3.5,z0:gz-4,z1:gz+4});
+  HOME.door={x,z:z-face*2.5+face*10.5};HOME.pad={x:gx,z:gz+face*7.6,h:face>0?0:Math.PI}}
 function buildBlock(i,j){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),t=BTYPE[i+','+j];R=seedR(2,i,j);
   if(t==='diag'){const[x0,z0,x1,z1]=diagSeg(i+','+j,DIAG.get(i+','+j));
     const g=tPlane(W-4,D-4,groundMat('grass'));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
@@ -658,7 +669,7 @@ function buildBlock(i,j){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),t=BTYPE[i+',
     put(cylG(.1,.1,4),0x6a6a72,cx-W/2+3,2,cz-D/2+3);palm(cx-W/2+3,cz+D/2-3);palm(cx+W/2-3,cz-D/2+3);palm(cx+W/2-3,cz+D/2-3);return}
   if(t==='houses'){ // 平房住宅区：按街区大小分成若干户，每户朝向最近的街道
     const nx=Math.max(1,Math.round(W/38)),nz=Math.max(1,Math.round(D/36)),lw=W/nx,ld=D/nz;
-    for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){const hx=cx-W/2+lw*(a+.5),hz=cz-D/2+ld*(b+.5);if(R()<.12){palm(hx,hz);continue}addHouse(hx,hz,nz===1?(R()<.5?1:-1):(b<nz/2?-1:1),lw,ld)}
+    for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){const hx=cx-W/2+lw*(a+.5),hz=cz-D/2+ld*(b+.5);if(HOME.blk===i+','+j&&a===0&&b===0){addHome(hx,hz,HOME.face,lw,ld);continue}if(R()<.12){palm(hx,hz);continue}addHouse(hx,hz,nz===1?(R()<.5?1:-1):(b<nz/2?-1:1),lw,ld)}
     return}
   // 楼房：大街区分成多块地，部分空着当小广场
   const nx=W>104?3:W>64?2:1,nz=D>104?3:D>64?2:1,lw=W/nx,ld=D/nz;
@@ -1034,13 +1045,16 @@ const LINES={
   cop:['站住！警察！','趴下！','别动！','你被包围了！'],
   phone:['喂？在开会呢','我马上到','合同签了吗？','回头再说'],
   selfie:['茄子～','再来一张','这个角度好看'],
+  wave_grumpy:['看什么看','走开','烦不烦','别挡道'],wave_timid:['啊…你、你好','嗯…','（小声）你好'],wave_tough:['哟','有事？','小子，混哪的？'],
+  talk_grumpy:['这破天气','房租又涨了，烦死','现在的年轻人啊…'],talk_timid:['我、我也不知道…','嗯嗯','对不起…'],talk_tough:['昨天又打了一架','谁敢惹我？','走，喝两杯'],
+  vend:['热狗！新鲜热狗！','冰镇椰子水～','烤串，三块一串！','来看看，便宜卖！'],busk:['♪ ♫ ♪','谢谢捧场！','点首歌吗？'],work:['小心头顶！','这里施工，绕行！','再加把劲！'],sweep:['让一让','又是一地垃圾…','今天风真大'],
   thug:['找死啊？','你谁啊？','上！','滚开！','活腻了？'],
   pizza:['披萨到了！','让一让，外卖！','要迟到了…'],
 };
 const bubbles=[];
 function say(p,kind,txt){if(!p||p.dead)return;const pd=Math.hypot(p.x-player.x,p.z-player.z);if(pd>40)return;
   const L=LOOKS[p.look]||{};p.voice=p.voice||((L.fem?230:125)*rr(.85,1.2));
-  txt=txt||LINES[kind][(R()*LINES[kind].length)|0];p.lastSay=performance.now();
+  {const LL=LINES[kind+'_'+p.pers]||LINES[kind];txt=txt||LL[(R()*LL.length)|0]}p.lastSay=performance.now();
   SFX.talk(p.voice,clamp(1-pd/32,0,1),kind==='flee'?1:0,kind==='flee'&&txt.includes('啊'));
   let b=bubbles.find(x=>x.p===p);if(!b){if(bubbles.length>=4){const o=bubbles.shift();o.el.remove()}const el=document.createElement('div');el.className='bub';$('hud').appendChild(el);b={p,el,t:0};bubbles.push(b)}
   b.el.textContent=txt;b.t=2.4;b.el.classList.toggle('alert',kind==='flee'||kind==='cop'||kind==='hurt')}
@@ -1149,6 +1163,12 @@ const LOOKS={
  detective:{lapels:1,collar:1,shirt:0x6a6e78,jacket:0x1e1f26,sleeve:'long',pants:0x1e1f26,shoes:0x1a1a1a,badgeNeck:1,hair:'short',hairCol:0x9a9a9a,skin:0xd9a17a,coffee:1},
 };
 const NPC_KEYS=['chef','suit','biker','courier','selfie','tourist','skater8','elder','skater','tank','sundress'];
+// 有职业的路人：小贩、清洁工、施工工人、街头艺人
+Object.assign(LOOKS,{vendor:{apron:0xf4f4f4,shirt:0xd84a3a,sleeve:'short',pants:0x2a2f3a,shoes:0x3a2a1a,hat:'capBack',hatCol:0xf4f4f4,hair:'short',hairCol:0x1a1a1a},
+  sweeper:{shirt:0xff8a1a,vest:0xffb02a,sleeve:'long',pants:0x2a4a6a,shoes:0x1a1a1a,boots:1,hat:'capBack',hatCol:0xff8a1a,hair:'short',hairCol:0x3a2a1a},
+  worker:{shirt:0x8aa0b8,vest:0xffd21f,sleeve:'roll',pants:0x3a4a6a,shoes:0x6a4a2a,boots:1,hat:'helmet',hatCol:0xffd21f,hair:'buzz',hairCol:0x2a1a12,gloves:1},
+  busker:{shirt:0x6a4a8a,sleeve:'long',pants:0x2a2a2e,shoes:0x2a1a12,hat:'fedora',hatCol:0x3a2a1a,hair:'long',hairCol:0x4a2e1a,beard:1,beardCol:0x4a2e1a}});
+const JOB_KEYS=['vendor','sweeper','worker','busker'];
 
 // 脸部贴图覆盖头部球体的这一片：经度 FPHI（弧度，正对前方），纬度 FT0~FT0+FTL
 const FPHI=2.1,FT0=Math.PI*.27,FTL=Math.PI*.62,faceCache={};
@@ -1394,9 +1414,9 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
     if(REAL)var _elbowCol=armCol(0,-EL+.01,0);
     const el=new THREE.Group();el.position.y=-EL;sh.add(el);
     const FB=new Bld();if(!REAL)FB.add(capsule(.064,.056,.43,10),(x,y,z)=>armCol(x,y-EL,z));{const hc=L.gloves?0x111111:skin;if(REAL){// 方形手掌 + 向前弯曲的四指 + 拇指，侧面看成 C 形
-      FB.add(rgeo(.13,.13,.07,.4),handMat(hc),[0,-.5,.01]);
-      FB.add(rgeo(.125,.11,.06,.42),handMat(hc),[0,-.59,.052],[-1.0,0,0]);
-      FB.add(capsule(.026,.021,.085,8),hc,[sd*-.07,-.52,.045],[-.9,0,sd*.45])}
+      FB.add(rgeo(.07,.13,.13,.4),handMat(hc),[0,-.5,.01]);
+      FB.add(rgeo(.06,.11,.125,.42),handMat(hc),[-sd*.045,-.59,.01],[0,0,-sd*1.0]);
+      FB.add(capsule(.026,.021,.085,8),hc,[-sd*.02,-.52,.075],[-.6,0,0])}
     else{FB.add(rgeo(.1,.11,.05,.45),hc,[0,-.5,.005]);FB.add(rgeo(.092,.075,.045,.5),hc,[0,-.585,.012],[.25,0,0]);for(let k=0;k<3;k++)FB.add(rgeo(.004,.07,.046,.2),new THREE.Color(hc).multiplyScalar(.75).getHex(),[-.023+k*.023,-.585,.013],[.25,0,0]);FB.add(capsule(.022,.018,.07,10),hc,[sd*-.055,-.47,.02],[.3,0,sd*.6])}}
     if(L.watch&&sd>0)FB.add(cyl(.062,.062,.04,14),L.shirt===0xd4ff3a?0xff3d8b:0x1a1a1a,[0,-.4,0]);
     if(REAL);else if((L.jacketMat||L.shirtMat)&&L.sleeve==='long')FB.add(capsule(.084,.078,.4,10),L.jacketMat??L.shirtMat);
@@ -1425,7 +1445,7 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
     const T=(y,r,wf=1,df=1,cz=0)=>[y-1.38,r*sx*wf,r*PZ*df*(fem?1:1.02),cz];
     // 骨盆（裤子）+ 上身
     addLoft(spine,[T(1.25,.17,hipF*.85),T(1.33,.235,hipF,1.05),T(1.43,.255,hipF,1.08,-.01),T(1.52,.24,(hipF+1)/2,1.02)],(x,y,z)=>tcol(x,y+1.38,z),L.dress?null:pm,[['rg_0_0',.0-.07,-.15,.3,-1],['rg_0_1',-.07,-.15,.3,1]]);
-    addLoft(spine,[T(1.49,.24,(hipF+1)/2),T(1.6,.225,waistF+.06),T(1.7,.215,waistF),T(1.82,.24,chestF*.97,1.05,.01),T(1.94,.27,chestF,1.12,.02),T(2.03,.3,chestF*1.04,1.04,.01),T(2.1,.31,chestF*1.04,.94),T(2.16,.27,chestF,.82),T(2.21,.17,1,.85),T(2.25,.1,1,.95)],
+    addLoft(spine,[T(1.49,.24,(hipF+1)/2),T(1.6,.225,waistF+.06),T(1.7,.215,waistF),T(1.82,.24,chestF*.97,fem?1.3:1.05,fem?.05:.01),T(1.92,.27,chestF,fem?1.5:1.12,fem?.08:.02),T(2.02,.3,chestF*1.04,fem?1.18:1.04,fem?.04:.01),T(2.1,.31,chestF*1.04,.94),T(2.16,.27,chestF,.82),T(2.21,.17,1,.85),T(2.25,.1,1,.95)],
       (x,y,z)=>tcol(x,y+1.38,z),topM,[['rg_2_0',.62,.74,.3,-1,.2],['rg_2_1',.62,.74,.3,1,.2]]);
     addLoft(spine,[[2.14-1.38,.075,.075,-.01],[2.3-1.38,.068,.07,-.01],[2.46-1.38,.064,.066,-.01]],()=>skin,null,[]); // 脖子
     // 手臂：上臂（肩→肘）+ 前臂（肘→腕），在肘部共用一圈
@@ -1438,7 +1458,7 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
       addLoft(hp,[[.1,lr*.95,lr*.9],[0,lr*1.05,lr],[-.18,lr*.98,lr*.95],[-.42,lr*.8,lr*.78],[-KN,lr*.6,lr*.6]],legCol,pm,[['rg_spine',-.12,.1,.35],['rg_1_'+k,-KN+.1,-KN,.5]]);
       addLoft(kn,[[0,lr*.6,lr*.6],[-.1,lr*.66,lr*.68,-.01],[-.26,lr*.6,lr*.62,-.015],[-.48,lr*.44,lr*.44],[-SH+.02,lr*.38,lr*.38]],(x,y,z)=>legCol(x,y-KN,z),L.shorts?null:pm,[['rg_0_'+k,-.1,0,.5]])}}
   skinPerson(g);
-  g.userData.look=lookKey;scene.add(g);return g}
+  g.userData.look=lookKey;if(lookKey==='heroF'||lookKey==='heroM')bodyVar(g,1);scene.add(g);return g}
 const PCACHE={};
 function rigOf(g,carry,look){const n=x=>g.getObjectByName(x),arr=a=>[0,1].map(k=>n('rg_'+a+'_'+k));
   const rig={spine:n('rg_spine'),hips:arr(0),knees:arr(1),shs:arr(2),els:arr(3),hands:arr(4)};g.userData={rig,limbs:[rig.hips[0],rig.hips[1],rig.shs[0],rig.shs[1]],carry,look};extraRig(g)}
@@ -1446,7 +1466,9 @@ function makePerson(look){if(typeof look!=='string'||look==='heroF'||look==='her
   const key=look+'#'+((Math.random()*2)|0);let t=PCACHE[key];
   if(!t){t=buildPerson(look);scene.remove(t);t.traverse(o=>{if(o.geometry)o.geometry.userData.own=false});PCACHE[key]=t}
   const ud=t.userData;t.userData={};const g=t.clone(true);t.userData=ud;rebindSkins(g);rigOf(g,ud.carry,ud.look);
-  g.traverse(o=>{if(o.isMesh)o.matrixAutoUpdate=true});scene.add(g);return g}
+  g.traverse(o=>{if(o.isMesh)o.matrixAutoUpdate=true});bodyVar(g,Math.random()*1e9|0);scene.add(g);return g}
+// 体型差异：身高 0.92~1.08、胖瘦 0.88~1.16（主角固定）
+function bodyVar(g,seed){const r=mulberry(seed),h=g.userData.look==='heroM'?1.04:g.userData.look==='heroF'?.97:.92+r()*.16,w=g.userData.look==='heroM'||g.userData.look==='heroF'?1:.88+r()*.28;g.scale.set(w,h,w*(.92+.08*w));g.userData.bs=g.scale.clone()}
 
 // ===== 动作：每帧根据状态摆姿势 =====
 // st：idle 站立 / walk 走 / run 跑 / jump 跳 / punch 出拳 / aim 举枪 / dance 跳舞 / phone 打电话 / selfie 自拍 /
@@ -1946,15 +1968,16 @@ function driveAI(c,dt){let ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj);
 const peds=[];const shirts=[0x22d3ee,0xffe14d,0x9cffd0,0xffffff,0xff7a2f,0x8a5cff];
 function spawnPed(x,z,look){let onP=null;if(x===undefined){const i=(R()*NX)|0,j=(R()*NZ)|0;if(!blockOK(i,j))return;const sp0=R()*perim(bdim(i,j)),pt=sidePt(i,j,sp0);x=pt.x;z=pt.z;onP={i,j,s:sp0};
   if(Math.hypot(x-player.x,z-player.z)<40)return}
-  look=look??(gameHour>8&&gameHour<18&&!(self.__rain>.3)&&R()<.15?(R()<.6?'walker':'walker2'):NPC_KEYS[(R()*NPC_KEYS.length)|0]);
+  look=look??(R()<.2?JOB_KEYS[(R()*JOB_KEYS.length)|0]:null)??(gameHour>8&&gameHour<18&&!(self.__rain>.3)&&R()<.15?(R()<.6?'walker':'walker2'):NPC_KEYS[(R()*NPC_KEYS.length)|0]);
   const p={mesh:makePerson(look),x,z,rot:R()*6.28,t:R()*9,dead:0,flee:0,knock:0,wave:0,waved:0,danceT:0,pause:0};p.look=look;if(onP){p.bi=onP.i;p.bj=onP.j;p.s=onP.s;p.dir=R()<.5?1:-1;p.onPath=true}
   // 活动：按造型给固定活动，其余随机
-  const fixed={walker:'walk',walker2:'walk',selfie:'selfie',suit:'phone',courier:'pizza',skater8:'skate',tank:'jog',skater:'board'}[look];
+  const fixed={vendor:'vjob',worker:'vjob',busker:'vjob',sweeper:'walk',walker:'walk',walker2:'walk',selfie:'selfie',suit:'phone',courier:'pizza',skater8:'skate',tank:'jog',skater:'board'}[look];
   if(/^(cop|swat|detective)/.test(look))p.act='cop';else if(fixed)p.act=fixed;else{const r=R();p.act=r<.5?'walk':r<.65?'talk':r<.75?'dance':r<.85?'idle':'sitwant'}
   if(p.act==='sitwant'){const b=freeBench(x,z);if(b){b.used=p;p.bench=b;p.x=b.x;p.z=b.z;p.rot=b.rot;p.act='sit'}else p.act='walk'}
   if(p.act==='talk'&&!_noPair&&!look.startsWith('cop')){_noPair=true;const q=spawnPed(x+Math.sin(p.rot)*1.5,z+Math.cos(p.rot)*1.5);_noPair=false;
     if(q){q.act='talk';q.partner=p;p.partner=q;q.rot=p.rot+Math.PI}}
   if(look==='selfie'&&R()<.5)p.act='walk';
+  p.pers=['friendly','grumpy','timid','tough'][(R()*4)|0];if(JOB_KEYS.includes(look)){p.job=look;p.partner=null;jobProps(p)}
   peds.push(p);return p}
 // 移除路人：从场景拿掉并释放它独有的几何体（共享的缓存几何体不动）
 function dropPed(p){scene.remove(p.mesh);p.mesh.traverse(o=>{if(o.geometry&&o.geometry.userData.own)o.geometry.dispose()});const i=peds.indexOf(p);if(i>=0)peds.splice(i,1);if(p.bench)p.bench.used=null}
@@ -1974,10 +1997,11 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
     p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.rot;pose(p.mesh,cst,p.t*1.2,ck);return}
   // 被打倒：躺 3 秒后爬起来逃跑
   if(p.knock>0){if(p.thug)p.beaten=1;if(p.robber)p.caught=1;p.knock-=dt;p.mesh.rotation.x=-Math.PI/2;p.mesh.position.set(p.x,.35,p.z);pose(p.mesh,'idle',p.t,0);
-    if(p.knock<=0){p.mesh.rotation.x=0;p.flee=6;p.thug=0;if(p.bench){p.bench.used=null;p.bench=null}p.act='walk'}return}
+    if(p.knock<=0){p.mesh.rotation.x=0;p.flee=p.pers==='timid'?14:6;p.thug=0;if(p.pers==='tough'&&!p.cop&&!p.robber){p.thug=1;p.thugT=10;p.flee=0;say(p,'thug','你找死！')}else if(p.pers==='grumpy')say(p,'hurt','你等着！');if(p.bench){p.bench.used=null;p.bench=null}p.act='walk'}return}
   const pd=Math.hypot(player.x-p.x,player.z-p.z);
   for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.abs(c.x-p.x)<14&&Math.abs(c.z-p.z)<14&&carDist(c,p.x,p.z)<.45){killPed(p,c===player.car);return}
   // 主线里的混混：靠近就冲上来打你
+  if(p.thug&&p.thugT!==undefined&&(p.thugT-=dt)<=0){p.thug=0;p.thugT=undefined;p.act='walk';p.flee=4}
   if(p.thug){const dx=player.x-p.x,dz=player.z-p.z,d=Math.hypot(dx,dz);let st='idle',k=0,ex=0;p.rot=Math.atan2(dx,dz);
     if(d<20&&!player.car){if(d>1.5){const sp=5.6*dt,nx=p.x+dx/d*sp,nz=p.z+dz/d*sp;if(!hit(nx,p.z,.6))p.x=nx;if(!hit(p.x,nz,.6))p.z=nz;st='run';k=1}
       else{p.hitT=(p.hitT??.5)-dt;st='punch';ex=1-Math.max(0,p.hitT)/1.1;if(p.hitT<=0){p.hitT=1.1;if(!cut){player.hp-=6;flashHurt();SFX.punch()}}}
@@ -1993,6 +2017,7 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
   else switch(p.act){
     case'sit':st='sit';break;
     case'warm':st='talk';break;
+    case'vjob':st=p.job==='vendor'?'talk':'idle';break;
     case'talk':st='talk';if(pd<16&&performance.now()-(p.lastSay||0)>(p.gap||(p.gap=rr(2600,5200)))&&(!p.partner||performance.now()-(p.partner.lastSay||0)>1400)){p.gap=0;say(p,'talk')}if(p.partner&&peds.includes(p.partner)&&!p.partner.dead)p.rot=Math.atan2(p.partner.x-p.x,p.partner.z-p.z);else p.act='walk';break;
     case'selfie':case'idle':st=p.act;if(p.act==='selfie'&&pd<12&&R()<dt*.3)say(p,'selfie');if(R()<.0015)p.act='walk';break;
     case'skate':st='skate';sp=6;k=1;break;
@@ -2000,12 +2025,12 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
     case'jog':st='jog';sp=5;k=1;break;
     default: // walk / phone / pizza / coffee：边走边做，偶尔停下来
       if(p.pause>0){st=p.act==='walk'?'idle':p.act;k=0}
-      else{st=p.act==='walk'?'walk':p.act;k=1;if((p.act==='phone'||p.act==='pizza')&&pd<12&&R()<dt*.25)say(p,p.act);sp=(p.act==='pizza'?2.6:2)*(self.__rain>.4&&!p.umb?1.8:1);if(R()<.002)p.pause=rr(1.5,4)}
+      else{st=p.act==='walk'?'walk':p.act;k=1;if((p.act==='phone'||p.act==='pizza')&&pd<12&&R()<dt*.25)say(p,p.act);sp=(p.act==='pizza'?2.6:2)*(p.job==='sweeper'?.5:1)*(self.__rain>.4&&!p.umb?1.8:1);if(R()<.002)p.pause=rr(1.5,4)}
   }
   if(sp>0){if(p.flee>0||!(p.onPath||pedSnap(p))){p.onPath=false;p.cross=null;if(R()<.005&&p.flee<=0)p.rot+=rr(-1.5,1.5);
       const nx=p.x+Math.sin(p.rot)*sp*dt,nz=p.z+Math.cos(p.rot)*sp*dt;if(hit(nx,nz,.6))p.rot+=Math.PI*.7;else{p.x=nx;p.z=nz}}
     else if(pedWalk(p,sp,dt)==='wait'){st=st==='walk'||st==='jog'||st==='skate'?'idle':st;k=0}}
-  p.mesh.position.set(p.x,st==='boardride'?.16:0,p.z);p.mesh.rotation.y=p.rot;pose(p.mesh,st,p.t,k);
+  p.mesh.position.set(p.x,st==='boardride'?.16:0,p.z);p.mesh.rotation.y=p.rot;pose(p.mesh,st,p.t,k);if(p.job&&!(p.flee>0)&&p.wave<=0)jobPose(p,pd,dt);
   if(p.umb){const r=p.mesh.userData.rig;if(r){r.shs[1].rotation.x=-.95;r.els[1].rotation.x=-1.2}}}
 // 把行人吸附到最近的人行道路线上
 function pedSnap(p){const[i,j]=cellOf(p.x,p.z);if(!blockOK(i,j))return false;
@@ -2223,7 +2248,7 @@ function boardEffects(best){if(best.driver==='ai'||best.driver==='cop')STATS.sto
   if((best.driver==='ai'||best.police)&&seen)setTimeout(()=>toast('被警察看到了！'),600);
   if(best.driver==='ai'||best.driver==='cop')best.driver=null}
 function exitCar(force){const c=player.car;if(!c)return;if(!force&&Math.abs(c.speed)>6)return;
-  c.driver=null;player.car=null;player.mesh.scale.setScalar(1);player.mesh.rotation.set(0,c.h,0);if(player.wMesh)player.wMesh.visible=true;
+  c.driver=null;player.car=null;if(player.mesh.userData.bs)player.mesh.scale.copy(player.mesh.userData.bs);else player.mesh.scale.setScalar(1);player.mesh.rotation.set(0,c.h,0);if(player.wMesh)player.wMesh.visible=true;
   if(!force&&c.mesh.userData.doorZ!==undefined){c.hold=1;c.speed=0;const se=seatPt(c);player.x=se.x;player.z=se.z;player.rot=c.h;boarding={car:c,mode:'out',t:0};SFX.doorOpen();return}
   player.mesh.visible=true;
   player.x=c.x+Math.cos(c.h)*4.2;player.z=c.z-Math.sin(c.h)*4.2;if(hit(player.x,player.z,.6)){player.x=c.x-Math.cos(c.h)*4.2;player.z=c.z+Math.sin(c.h)*4.2}player.rot=c.h}
@@ -2390,7 +2415,7 @@ function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),Wc=cv.c
   const fs=Math.round(13*dpr),label=(x,z,txt,col)=>{const[X,Y]=S(x,z);g.fillStyle=col;g.strokeStyle='#000';g.lineWidth=2*dpr;g.beginPath();g.arc(X,Y,6*dpr,0,7);g.fill();g.stroke();
     g.font=`700 ${fs}px Rubik,system-ui,sans-serif`;g.textAlign='center';g.lineWidth=3.5*dpr;g.strokeText(txt,X,Y-10*dpr);g.fillStyle='#fff';g.fillText(txt,X,Y-10*dpr)};
   const dot=(x,z,r,col)=>{const[X,Y]=S(x,z);g.fillStyle=col;g.beginPath();g.arc(X,Y,r*dpr,0,7);g.fill()};
-  label(villa.x,villa.z,'海边别墅','#fff');label(station.x,station.z,'警察局','#4a7ab0');label(hospital.x,hospital.z,'医院','#ff2a3a');for(const sh of SHOPS)label(sh.x,sh.z,sh.kind==='gun'?'枪店':'喷漆店',sh.kind==='gun'?'#ff3d3d':'#22d3ee');label(LOT.x,LOT.z,'停车场','#22d3ee');for(const pr of PROPS)if(pr.pad)label(pr.x,pr.z,(OWNP[pr.id]?'✓ ':'')+pr.name,OWNP[pr.id]?'#5cff7a':'#ffe14d');if(sBeam.visible)label(STORY.x,STORY.z,'主线','#ffc83d');if(EVT&&eBeam.visible)label(EVT.x,EVT.z,EVT.name,'#ff9a3d');
+  label(villa.x,villa.z,'海边别墅','#fff');label(station.x,station.z,'警察局','#4a7ab0');label(hospital.x,hospital.z,'医院','#ff2a3a');for(const sh of SHOPS)label(sh.x,sh.z,sh.kind==='gun'?'枪店':'喷漆店',sh.kind==='gun'?'#ff3d3d':'#22d3ee');label(LOT.x,LOT.z,'停车场','#22d3ee');label(HOME.x,HOME.z,'我的家','#2a6fd0');for(const pr of PROPS)if(pr.pad)label(pr.x,pr.z,(OWNP[pr.id]?'✓ ':'')+pr.name,OWNP[pr.id]?'#5cff7a':'#ffe14d');if(sBeam.visible)label(STORY.x,STORY.z,'主线','#ffc83d');if(EVT&&eBeam.visible)label(EVT.x,EVT.z,EVT.name,'#ff9a3d');
   for(const k of cash)dot(k.x,k.z,2.5,'#5cff7a');
   for(const c of cars)if(c.police&&!c.dead)dot(c.x,c.z,4,'#ff2a3a');
   if(heli)dot(heli.x,heli.z,6,'#ff2a3a');
@@ -2433,6 +2458,7 @@ function drawMini(){const s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?playe
   drawRoute(mini,(x,z)=>[x*s,z*s],3.2);if(NAV.on){mini.fillStyle='#c77dff';mini.beginPath();mini.arc(NAV.x*s,NAV.z*s,5,0,7);mini.fill()}
   if(beamMat.visible){mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(mission.x*s,mission.z*s,6,0,7);mini.fill()}
   if(EVT&&eBeam.visible){mini.fillStyle='#ff9a3d';mini.beginPath();mini.arc(EVT.x*s,EVT.z*s,5,0,7);mini.fill()}
+  if(HOME.door){mini.fillStyle='#2a6fd0';mini.strokeStyle='#fff';mini.lineWidth=1.5;mini.beginPath();mini.moveTo(HOME.door.x*s,HOME.door.z*s-7);mini.lineTo(HOME.door.x*s+6,HOME.door.z*s);mini.lineTo(HOME.door.x*s-6,HOME.door.z*s);mini.closePath();mini.fill();mini.stroke();mini.fillRect(HOME.door.x*s-4,HOME.door.z*s,8,5)}
   if(sBeam.visible){mini.fillStyle='#ffc83d';mini.strokeStyle='#000';mini.lineWidth=1.5;mini.beginPath();mini.arc(STORY.x*s,STORY.z*s,7,0,7);mini.fill();mini.stroke()}
   mini.restore();
   // 屏外目标箭头
@@ -2482,6 +2508,7 @@ function step(){requestAnimationFrame(step);try{frame()}catch(e){console.error(e
 function frame(){const te=document.getElementById('touch'),tm=layoutOn?te.dataset.mode:player.car?'drive':'foot';if(te.dataset.mode!==tm){te.dataset.mode=tm;for(const k in tb_)tb_[k]=false;te.querySelectorAll('.tb.on').forEach(e=>e.classList.remove('on'));if(STEER!=='stick'){stick.x=stick.y=0;document.getElementById('knob').style.transform=''}}
 const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running||mapOpen||shopOpen||phoneOpen||dlg||layoutOn){renderMain();return}
   const{ x:ax,y:ay}=axis();
+  if(INSIDE){updRoom(dt,ax,ay);hud(dt);renderMain();return}
   if(act.enter){act.enter=0;if(PROMPT&&!boarding&&!cut)usePrompt();else if(!boarding)player.car?exitCar(false):enterCar()}
   player.cool=(player.cool||0)-dt;{const w=WEAPONS[wIdx],held=keys.KeyF||tb_.Fire;
     if(!player.car&&!boarding&&!player.swim&&player.cool<=0&&(act.fire||(w.auto&&held))){attack();player.cool=w.cool}act.fire=0}
@@ -2757,7 +2784,8 @@ function callCar(k){const g=GARAGE[k];if(!g||player.money<200||player.car)return
 function updProps(dt){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;let near=null;
   for(const pr of PROPS){if(!pr.pad)continue;pr.pad.material.opacity=.35+.25*Math.sin(performance.now()/300);
     if(Math.hypot(pr.x-px,pr.z-pz)<(pr.garage&&player.car?6:2.8)&&(!player.car||Math.abs(player.car.speed)<4))near=pr}
-  if(near&&!near.entered&&!boarding){near.entered=true;openProp(near)}for(const pr of PROPS)if(pr!==near)pr.entered=false;
+  if(near&&player.car&&near.garage&&!near.entered&&!boarding){near.entered=true;openProp(near)}
+  if(near&&!player.car&&!boarding)setPrompt('进入 '+near.name+(near.id==='club'&&!OWNP.club?'（门票 $50）':''),()=>enterRoom(near.id,near.x,near.z+3.2,0,near));for(const pr of PROPS)if(pr!==near)pr.entered=false;
   if(PROP_H!==null&&PROP_H<8&&gameHour>=8){const inc=dayIncome();if(inc){player.money+=inc;toast('💰 物业收入 +$'+inc.toLocaleString());beep(1200,.08,'sine',.08)}}
   PROP_H=gameHour}
 
@@ -3072,7 +3100,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.21.1';
+const VERSION='v0.22.0';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3097,8 +3125,8 @@ const compM=pmat({tS:{value:null},tB1:{value:null},tB2:{value:null},tR:{value:nu
    c=c*uMul+uAdd;float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);c=(c-.5)*uCon+.5;vec2 q=vUv-.5;c*=1.-uVig*dot(q,q)*1.7;gl_FragColor=vec4(clamp(c,0.,1.),1.);}`);
 function pass(m,target){fsQuad.material=m;ren.setRenderTarget(target);ren.render(fsScene,fsCam)}
 const _sunV=new THREE.Vector3();
-function renderMain(){if(!POST.on){ren.setRenderTarget(null);ren.render(scene,cam);return}postSize();
-  ren.setRenderTarget(rtMain);ren.render(scene,cam);
+function renderMain(){const SC=INSIDE?INSIDE.r.scene:scene;if(!POST.on){ren.setRenderTarget(null);ren.render(SC,cam);return}postSize();
+  ren.setRenderTarget(rtMain);ren.render(SC,cam);
   brightM.uniforms.tD.value=rtMain.texture;pass(brightM,rtA);
   // 体积光
   const rayK=compM.uniforms.uRay.value;if(rayK>.01){raysM.uniforms.tD.value=rtA.texture;pass(raysM,rtD)}
@@ -3238,6 +3266,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
+ ['v0.22','生活',[['0.22.0','左右手掌方向修正（掌心朝身体）；每个人身高、胖瘦不同，女性胸部更明显；路人有不同性格（友善、暴躁、胆小、强硬：说话和被打后的反应不同）；新增职业路人：小贩（推车叫卖）、清洁工（扫地）、施工工人（打钻、摆路锥）、街头艺人（弹吉他、有琴盒）；可以进入建筑：主角的家（睡觉存档、吃东西、看电视、换主角，带一个能保存的车库）、海边别墅（购买后可进入）、便利店、酒吧、夜店、车库（不用买也能进去，花钱买东西；买下后免费）']]],
  ['v0.21','人物重建',[['0.21.1','手臂调整：更粗、加圆形肩头和三角肌、肘部不再过细、前臂上粗下细；上身肩部加宽，手臂从肩角长出来'],['0.21.0','写实人物身体重做：不再用胶囊、球体拼接，改为按真人比例放样的连续低多边形网格（骨盆、上身、脖子、上臂、前臂、大腿、小腿），节与节在关节处共用一圈顶点，蒙皮权重在关节处各占一半，弯曲时自然衔接；保留原创的服装配色和图案']]],
  ['v0.20','骨骼与转向',[['0.20.8','写实人物的手改为方形手掌 + 向前弯曲的四指 + 拇指，侧面看成 C 形，手掌和手指带细节贴图；修复建筑贴图集装满后部分外墙显示错贴图（容量翻倍）'],['0.20.7','写实人物的手改成 C 形（圆环开口朝前，像能握住东西的夹子），加一小段手腕'],['0.20.6','写实人物的手和鞋改成圆角方块；手的贴图加柔和的指缝、指节高光和指甲，另加一个小拇指凸起'],['0.20.5','写实人物的手简化成一个方块，不再画出每根手指，也去掉单独的拇指'],['0.20.4','写实人物的手和鞋改成“方块 + 纹理”：手是一个方块，手指缝、指节、指甲画在贴图上（另有拇指）；鞋是一个方块，鞋底、鞋带、缝线画在贴图上'],['0.20.3','写实人物的手（手掌和手指）放大约 1.3 倍，鞋子加宽加长约 1.2~1.3 倍'],['0.20.2','写实人物细节：锁骨、肩胛骨、肘尖、膝盖骨；手加四根手指和指节；脚加脚跟和脚踝；男女体型差异拉大（男性肩更宽、胸更厚，女性腰更细胯更宽）'],['0.20.1','卡通画风也改用骨骼蒙皮（描边跟着一起弯曲）；写实人物身体轮廓更像真人：收腰、胸部前凸、臀部后凸、骨盆略宽、背部更平'],['0.20.0','写实人物改用骨骼蒙皮：身体各部件合并成一整块会随骨骼弯曲的模型，肩、肘、髋、膝处平滑弯曲，没有接缝；汽车和摩托转向时前轮会跟着转']]],
  ['v0.19','C VI',[['0.19.0','游戏改名为 C VI（C 代表 Claude），新图标；写实人物加肘、膝、髋关节过渡和斜方肌，四肢和身体衔接更自然；轿车、出租车、警车、跑车重新设计车身轮廓（引擎盖、后备厢更有层次），所有汽车车窗以上向内收、车底内收，截面更像真车']]],
@@ -3270,18 +3299,136 @@ function setPrompt(label,fn){PROMPT={label,fn,t:last};const el=$('prompt');if(el
 function usePrompt(){if(!PROMPT)return;const f=PROMPT.fn;PROMPT=null;$('prompt').hidden=true;beep(720,.05,'triangle',.05);f()}
 $('prompt').addEventListener('click',usePrompt);$('prompt').addEventListener('touchend',e=>{e.preventDefault();usePrompt()});
 addEventListener('touchstart',()=>document.body.classList.add('touch'),{once:true});
+// =====================================================================
+// 职业路人的道具和动作
+// =====================================================================
+function jobProps(p){const m=p.mesh,r=m.userData.rig;if(!r)return;
+  if(p.job==='vendor'){const c=new Bld();c.add(rgeo(1.6,.9,.8,.2),0xd8d0c4,[0,.75,1.15]);c.add(rgeo(1.7,.08,.9,.2),0x9a9288,[0,1.22,1.15]);for(const sd of[-1,1])c.add(cyl(.14,.14,.08,10),0x222222,[sd*.62,.15,1.15],[0,0,Math.PI/2]);
+    c.add(cyl(.03,.03,1.7),0x888888,[0,2,1.15]);c.add(new THREE.ConeGeometry(1.1,.45,10),0xd84a3a,[0,2.9,1.15]);for(let k=0;k<4;k++)c.add(rgeo(.22,.1,.14,.3),[0xc8782a,0xe8c860,0x8a3a2a,0xf4e0b0][k],[-.5+k*.33,1.32,1.15]);
+    const g=c.build(vcMat,OL_C);m.add(g)}
+  if(p.job==='sweeper'){const b=new Bld();b.add(cyl(.022,.022,1.5,6),0xb08a5a,[0,-.35,.18],[.5,0,0]);b.add(rgeo(.4,.12,.14,.3),0x3a3a3a,[0,-1.0,.55],[.5,0,0]);r.hands[1].add(b.build(vcMat,OL_P))}
+  if(p.job==='worker'){const c=new Bld();for(const[x,z]of[[-1.3,.9],[1.3,.9],[0,1.6]]){c.add(new THREE.ConeGeometry(.22,.7,10),0xff7a1a,[x,.35,z]);c.add(cyl(.17,.17,.08,10),0xf4f4f4,[x,.42,z])}
+    m.add(c.build(vcMat,OL_C));const d=new Bld();d.add(cyl(.06,.06,.7,8),0x3a3a40,[0,-.35,.08]);d.add(rgeo(.3,.12,.12,.3),0xffd21f,[0,0,.08]);d.add(cyl(.015,.015,.3,6),0x888888,[0,-.8,.08]);r.hands[1].add(d.build(vcMat,OL_P))}
+  if(p.job==='busker'){const gt=new Bld();gt.add(sph(.22,10,8),0xb06a2a,[0,0,0],[1,1.2,.35]);gt.add(rgeo(.06,.55,.04,.3),0x3a2412,[0,.42,0]);gt.add(cyl(.05,.05,.02,10),0x1a1a1a,[0,.05,.08],[Math.PI/2,0,0]);
+    const gg=gt.build(vcMat,OL_P);gg.position.set(.05,-.55,.2);gg.rotation.set(0,0,-.9);r.spine.add(gg);
+    const cs=new Bld();cs.add(rgeo(.9,.12,.4,.3),0x2a1a12,[0,.06,.9]);cs.add(rgeo(.8,.02,.32,.3),0x8a2a3a,[0,.13,.9]);for(let k=0;k<5;k++)cs.add(cyl(.03,.03,.01,8),0xd9a93a,[-.3+k*.15,.14,.88+((k%2)?.06:-.05)]);m.add(cs.build(vcMat,OL_C))}}
+const PENTA=[523,587,659,784,880,1047];
+function jobPose(p,pd,dt){const r=p.mesh.userData.rig;if(!r)return;const t=p.t,{shs,els,spine}=r;
+  if(p.job==='vendor'){if(pd<26&&R()<dt*.12)say(p,'vend')}
+  else if(p.job==='sweeper'){const s=Math.sin(t*4);for(const k of[0,1]){shs[k].rotation.x=-.55+s*.25;els[k].rotation.x=-.6}shs[0].rotation.z=.25;spine.rotation.x=.18;spine.rotation.y=s*.25;if(pd<20&&R()<dt*.03)say(p,'sweep')}
+  else if(p.job==='worker'){for(const k of[0,1]){shs[k].rotation.x=-.5;els[k].rotation.x=-.55}shs[0].rotation.z=.3;spine.rotation.x=.35;spine.position.y+=Math.sin(t*70)*.012;if(pd<25&&R()<dt*.03)say(p,'work')}
+  else if(p.job==='busker'){shs[1].rotation.x=-.35+Math.sin(t*11)*.15;els[1].rotation.x=-1.3;shs[0].rotation.x=-.9;shs[0].rotation.z=.45;els[0].rotation.x=-1.5;
+    if(pd<14&&R()<dt*2.2)beep(PENTA[(R()*PENTA.length)|0]*(R()<.3?.5:1),.18,'triangle',.025*(1-pd/14));if(pd<24&&R()<dt*.05)say(p,'busk')}}
+
+// =====================================================================
+// 可进入的室内：家、海边别墅、便利店、酒吧、夜店、车库（每个房间是单独的场景）
+// =====================================================================
+let INSIDE=null;const ROOMS={};
+function floorMat(kind,tint){const m=new THREE.MeshToonMaterial({map:groundTex(kind),color:tint||0xffffff,gradientMap:toonGrad});m.userData.unit=GUNIT[kind];return m}
+function roomBase(name,w,d,h,wallCol,fk,ft,lightCol=0xfff0d8){const sc=new THREE.Scene();sc.background=new THREE.Color(0x0a0a10);
+  sc.add(new THREE.HemisphereLight(0xfff4e8,0x40382f,.85));for(const x of[-w/4,w/4]){const pl=new THREE.PointLight(lightCol,.9,w*1.6,1.5);pl.position.set(x,h-.5,0);sc.add(pl)}
+  const R0={name,scene:sc,b:{x0:-w/2,x1:w/2,z0:-d/2,z1:d/2},solids:[],spots:[],npcs:[],anim:[],h};
+  const add=(m,x,y,z,ry=0)=>{m.position.set(x,y,z);m.rotation.y=ry;sc.add(m);return m};R0.add=add;
+  const fl=tPlane(w,d,floorMat(fk,ft));fl.rotation.x=-Math.PI/2;sc.add(fl);
+  const wm=M(wallCol);for(const[ww,dd,x,z]of[[w,.3,0,-d/2-.15],[w,.3,0,d/2+.15],[.3,d,-w/2-.15,0],[.3,d,w/2+.15,0]]){const m=new THREE.Mesh(new THREE.BoxGeometry(ww,h,dd),wm);m.position.set(x,h/2,z);sc.add(m)}
+  add(box(w,.3,d,0xe8e4dc),0,h+.15,0);for(const x of[-w/4,w/4])add(new THREE.Mesh(new THREE.BoxGeometry(1.6,.06,.6),new THREE.MeshBasicMaterial({color:0xfff4d8})),x,h-.05,0);
+  add(box(w,.2,.12,0x3a3430),0,.1,-d/2+.06); // 踢脚线
+  // 门：在 +z 那面墙中间
+  add(box(1.6,2.6,.1,0x5a3a2a),0,1.3,d/2+.02);add(box(.1,.1,.1,0xd9a93a),.55,1.3,d/2-.05);
+  R0.solid=(x,z,w2,d2)=>R0.solids.push({x0:x-w2/2,x1:x+w2/2,z0:z-d2/2,z1:z+d2/2});
+  R0.spawn={x:0,z:d/2-1.4,rot:Math.PI};R0.spot=(x,z,r,label,fn)=>R0.spots.push({x,z,r,label,fn});
+  R0.spot(0,d/2-.6,1.1,'离开',exitRoom);
+  R0.npc=(look,x,z,rot,st)=>{const m=makePerson(look);sc.add(m);m.position.set(x,0,z);m.rotation.y=rot;R0.npcs.push({m,st,off:R()*9});return m};
+  return R0}
+const winPanel=(col)=>new THREE.Mesh(new THREE.BoxGeometry(1,1,.05),new THREE.MeshBasicMaterial({color:col}));
+function sleepTo8(){const h=gameHour;gameHour=8;updDayNight(0);player.hp=100;saveGame();$('fade').style.opacity=1;setTimeout(()=>{$('fade').style.opacity=0},600);toast(h<8||h>=20?'睡了一觉，早上 8 点  已存档':'睡到第二天早上 8 点  已存档')}
+function payOr(price,owned,fn,what){if(owned){fn();return}if(player.money<price){toast('钱不够');return}player.money-=price;STATS.spent+=price;fn();toast(what+'  -$'+price)}
+function makeRoom(kind,pr){let r;
+  if(kind==='home'){r=roomBase('我的家',12,10,3.4,0xe8dcc8,'stone',0xb89068);
+    r.add(rbox(2.4,.55,3.2,0x3a4a6a,.2),-4.2,.35,-2.8);r.add(rbox(2.2,.18,.6,0xf4f4f4,.4),-4.2,.72,-4.1);r.add(box(2.6,1.1,.2,0x5a3a2a),-4.2,.6,-4.45);r.solid(-4.2,-2.8,2.6,3.6);
+    r.add(rbox(3.2,.55,1.1,0x8a5a3a,.3),3,.3,-2.2);r.add(rbox(3.2,.8,.3,0x8a5a3a,.3),3,.75,-2.75);r.solid(3,-2.4,3.4,1.4);
+    r.add(box(2.4,.6,.5,0x2a2a2e),3,.3,-4.6);const tv=r.add(winPanel(0x3a8aff),3,1.35,-4.75);tv.scale.set(2.2,1.2,1);r.anim.push(t=>tv.material.color.setHSL((t*.05)%1,.6,.45+Math.sin(t*7)*.05));r.solid(3,-4.6,2.6,.8);
+    r.add(box(1,2,.9,0xe8e8ec),-5.4,1,2.6);r.solid(-5.4,2.6,1.1,1);r.add(box(1.4,2.2,.6,0x7a5a3a),5.5,1.1,1.6);r.solid(5.5,1.6,.8,1.5);
+    r.add(tPlane(3,2,floorMat('stone',0x8a3a3a)),0,.02,0).rotation.x=-Math.PI/2;
+    for(const x of[-2,2]){const f=r.add(winPanel(0x9fd0ff),x,1.8,-4.83);f.scale.set(1.4,1,1)}
+    r.spot(-3.2,-1,1.4,'睡觉（睡到早上 8 点、回满血、存档）',sleepTo8);r.spot(-4.6,2.6,1.2,'吃点东西（回血）',()=>{player.hp=Math.min(100,player.hp+40);toast('吃饱了')});
+    r.spot(3,-1.2,1.3,'看电视',()=>toast(['📺 新闻：海滨大道今晚交通管制','📺 天气：明天有雨，记得带伞','📺 广告：霓虹夜店，周末狂欢','📺 新闻：警方加强夜间巡逻'][(R()*4)|0]));
+    r.spot(4.8,1.6,1.2,'换主角',()=>{const k=heroLook==='heroF'?'heroM':'heroF';pickHeroUI(k);r.scene.add(player.mesh);toast('换成了 '+heroName())})}
+  else if(kind==='villa'){r=roomBase('海边别墅',18,14,4.2,0xf2ede4,'stone',0xe8dcc8);
+    const gl=r.add(winPanel(0x6ac8e8),0,2.1,-6.95);gl.scale.set(16,3.6,1);r.anim.push(t=>gl.material.color.copy(SKYU.uHor.value).lerp(SKYU.uMid.value,.4));
+    r.add(rbox(5,.6,1.4,0xe8e4dc,.3),-3,.35,-3);r.add(rbox(5,.9,.4,0xe8e4dc,.3),-3,.8,-3.6);r.solid(-3,-3.2,5.2,1.6);r.add(box(2,.4,1,0x6a4a3a),-3,.25,-1.4);
+    r.add(rbox(3,.6,3.4,0xf4f4f4,.2),5.5,.38,-4);r.add(box(3.2,1.2,.25,0x5a4a3a),5.5,.7,-5.8);r.solid(5.5,-4.2,3.2,3.8);
+    r.add(box(4,1.1,.8,0x2a2a2e),-5.5,.55,3.5);r.add(box(4.2,.08,1,0xd8d0c4),-5.5,1.12,3.5);r.solid(-5.5,3.5,4.2,1);for(let k=0;k<6;k++)r.add(box(.25,.4,.25,[0x3a7a4a,0x8a2a3a,0xd8a83a][k%3]),-7.2+k*.7,1.9,4.8);r.add(box(4.4,.08,.5,0x5a4a3a),-5.5,1.65,4.8);
+    r.spot(5.5,-1.8,1.6,'睡觉（睡到早上 8 点、回满血、存档）',sleepTo8);r.spot(-5.5,2.5,1.5,'调一杯酒（回血）',()=>{player.hp=Math.min(100,player.hp+30);toast('🍹 海风特调')});
+    r.spot(0,-5.6,1.8,'看海',()=>toast('🌊 落地窗外就是海'))}
+  else if(kind==='store'){r=roomBase('24 小时便利店',14,10,3.4,0xf4f4f0,'stone',0xe8e8e8,0xf0f8ff);
+    for(const z of[-2.5,.5])for(const x of[-4,-.5]){r.add(box(2.6,1.6,.7,0xd8d8dc),x,.8,z);r.solid(x,z,2.8,.9);for(let k=0;k<8;k++)r.add(box(.25,.3,.2,[0xd84a3a,0x2a6fd0,0xffd21f,0x3aa85a][k%4]),x-1.1+k*.3,1.3,z+.3);for(let k=0;k<8;k++)r.add(box(.25,.3,.2,[0xff8a3a,0x8a5cff,0xf4f4f4,0x2fb5c0][k%4]),x-1.1+k*.3,.75,z+.3)}
+    r.add(box(3,1.1,1,0x8a6a4a),4,.55,-2);r.solid(4,-2,3.2,1.2);r.add(box(.5,.3,.4,0x1a1a1a),4.6,1.25,-2);r.npc('suit',4,-3.2,0,'idle');
+    r.add(box(1.2,2,.8,0xe8f4ff),-6.2,1,-4.2);r.solid(-6.2,-4.2,1.3,.9);
+    r.spot(4,-.8,1.4,()=>OWNP.store?'拿零食（自家店，免费）':'买零食 $20（回血 35）',()=>payOr(20,OWNP.store,()=>{player.hp=Math.min(100,player.hp+35)},'买了零食'));
+    r.spot(-6.2,-3.3,1.2,()=>OWNP.store?'拿能量饮料（免费）':'买能量饮料 $40（回满血）',()=>payOr(40,OWNP.store,()=>{player.hp=100},'买了能量饮料'))}
+  else if(kind==='bar'){r=roomBase('海风酒吧',14,10,3.4,0x4a3428,'stone',0x6a4a3a,0xffc88a);
+    r.add(box(6,1.15,1,0x5a3a26),0,.58,-3);r.add(box(6.2,.08,1.2,0x2a1a12),0,1.18,-3);r.solid(0,-3,6.2,1.2);for(let k=0;k<8;k++){const b=r.add(new THREE.Mesh(cylG(.08,.08,.4,8),new THREE.MeshBasicMaterial({color:[0x3a8a5a,0xd8a83a,0x8a2a3a,0x6a9ad8][k%4]})),-2.6+k*.75,2,-4.7)}
+    r.add(box(6,.08,.4,0x2a1a12),0,1.75,-4.75);for(let k=0;k<4;k++){r.add(new THREE.Mesh(cylG(.25,.25,.08,12),M(0x8a2a2a)),-2.2+k*1.5,.75,-2);r.add(new THREE.Mesh(cylG(.04,.04,.7,6),M(0x2a2a2e)),-2.2+k*1.5,.35,-2)}
+    r.npc('chef',0,-4,0,'talk');r.npc('biker',-4.5,1.5,1.2,'talk');r.npc('tourist',-3.5,2.4,-2,'talk');
+    r.spot(0,-1.6,1.6,()=>OWNP.bar?'来一杯（自家店，免费）':'来一杯 $30（回血 20）',()=>payOr(30,OWNP.bar,()=>{player.hp=Math.min(100,player.hp+20)},'🍺 喝了一杯'))}
+  else if(kind==='club'){r=roomBase('霓虹夜店',18,14,4.6,0x14101c,'stone',0x2a2440,0xc86aff);
+    const tiles=[];for(let a=-3;a<=3;a++)for(let b=-2;b<=2;b++){const m=r.add(new THREE.Mesh(new THREE.BoxGeometry(1.15,.05,1.15),new THREE.MeshBasicMaterial({color:0xff3d8b})),a*1.2,.03,b*1.2-1);tiles.push(m)}
+    r.anim.push(t=>tiles.forEach((m,k)=>m.material.color.setHSL(((t*.3+k*.07)%1),.9,.35+.2*Math.max(0,Math.sin(t*6+k)))));
+    r.add(box(4,1.3,1.4,0x1a1a22),0,.65,-6);r.solid(0,-6,4.2,1.6);r.add(box(1,.15,.6,0x3a3a44),-.8,1.38,-6);r.add(box(1,.15,.6,0x3a3a44),.8,1.38,-6);r.npc('skater',0,-6.9,0,'dance');
+    for(let k=0;k<5;k++)r.npc(['sundress','tourist','biker','selfie','suit'][k],-3+k*1.5,(k%2?.4:-1.8),R()*6,'dance');
+    r.add(box(4,1.1,.8,0x2a2a34),6.5,.55,3.5);r.solid(6.5,3.5,4.2,1);
+    r.spot(0,1,2.2,'跳舞',()=>{player.danceT=5;toast('💃 跳起来！')});
+    r.spot(6.5,2.6,1.4,()=>OWNP.club?'饮料（自家店，免费）':'饮料 $20（回血 15）',()=>payOr(20,OWNP.club,()=>{player.hp=Math.min(100,player.hp+15)},'🥤 喝了饮料'))}
+  else if(kind==='garage'){r=roomBase('阿杰车库',16,12,4.4,0x8a8a86,'asphalt',0x9a9a9a);
+    r.add(box(3.2,.2,5.5,0xd8a83a),-3,1.2,-1);for(const x of[-4.4,-1.6])r.add(box(.3,2.4,.3,0x3a3a40),x,1.2,-3.6);r.solid(-3,-1,3.4,5.8);
+    for(let k=0;k<4;k++){r.add(box(1.2,1.8,.6,0xd84a3a),3+k*1.25,.9,-5.5);r.solid(3+k*1.25,-5.5,1.3,.7)}for(let k=0;k<3;k++)r.add(new THREE.Mesh(tor(.35,.14),M(0x1a1a1a)),5.5,.5+k*.3,2.5).rotation.x=Math.PI/2;r.solid(5.5,2.5,1,1);
+    r.npc('biker',1,-3,-.5,'idle');
+    r.spot(1,-1.8,1.6,'存车 / 取车',()=>{const g=PROPS.find(q=>q.id==='garage');if(!OWNP.garage){toast('先买下车库才能存车');return}openProp(g)})}
+  if(pr)r.spot(pr.id==='club'?-6.5:pr.id==='garage'?-5.5:-5,r.b.z1-1.6,1.3,()=>OWNP[pr.id]?'这里已经是你的了（每天收入 $'+pr.inc+'）':'买下这里 $'+pr.price.toLocaleString(),()=>{if(!OWNP[pr.id])propAct(pr,'buy')});
+  return r}
+function enterRoom(kind,ex,ez,erot,pr){if(player.car||cut)return;if(player.wanted>0){toast('被通缉时进不去');return}
+  if(kind==='club'&&!OWNP.club){if(player.money<50){toast('门票 $50，钱不够');return}player.money-=50;STATS.spent+=50;toast('门票 -$50')}
+  const r=ROOMS[kind]||(ROOMS[kind]=makeRoom(kind,pr));INSIDE={r,ex,ez,erot};r.scene.add(player.mesh);toggleAim(false);
+  player.ix=r.spawn.x;player.iz=r.spawn.z;player.rot=r.spawn.rot;camYaw=player.rot;player.danceT=0;$('fade').style.opacity=1;setTimeout(()=>$('fade').style.opacity=0,250);beep(520,.06,'triangle',.05);setTimeout(()=>toast(r.name),300)}
+function exitRoom(){const I=INSIDE;if(!I)return;scene.add(player.mesh);player.x=I.ex;player.z=I.ez;player.rot=I.erot;camYaw=player.rot;player.mesh.position.set(player.x,0,player.z);INSIDE=null;PROMPT=null;$('prompt').hidden=true;
+  $('fade').style.opacity=1;setTimeout(()=>$('fade').style.opacity=0,250);last=performance.now()}
+function roomHit(r,x,z){if(x<r.b.x0+.45||x>r.b.x1-.45||z<r.b.z0+.45||z>r.b.z1-.45)return true;for(const s0 of r.solids)if(x>s0.x0-.35&&x<s0.x1+.35&&z>s0.z0-.35&&z<s0.z1+.35)return true;return false}
+function updRoom(dt,ax,ay){const r=INSIDE.r,mag=Math.min(1,Math.hypot(ax,ay)),moving=mag>.15&&!(player.danceT>0);player.t+=dt;
+  if(moving){const want=camYaw-Math.atan2(ax,ay);player.rot+=angDiff(want,player.rot)*Math.min(1,dt*12);const sp=(keys.ShiftLeft||tb_.Run?6:3.6)*(touchMode?Math.max(.4,mag):1),nx=player.ix+Math.sin(want)*sp*dt,nz=player.iz+Math.cos(want)*sp*dt;
+    if(!roomHit(r,nx,player.iz))player.ix=nx;if(!roomHit(r,player.ix,nz))player.iz=nz}
+  player.danceT=(player.danceT||0)-dt;const m=player.mesh;m.position.set(player.ix,0,player.iz);m.rotation.set(0,player.rot,0);pose(m,player.danceT>0?'dance':moving?'walk':'idle',player.t,moving?1:0);holdPose(moving?'walk':'idle');
+  for(const n of r.npcs)pose(n.m,n.st,player.t+n.off,0);for(const f of r.anim)f(player.t);
+  if(moving&&camHold<=0)camYaw+=angDiff(player.rot,camYaw)*Math.min(1,dt*2.2);camHold-=dt;
+  const cd=3.4;let cx=player.ix-Math.sin(camYaw)*cd,cz=player.iz-Math.cos(camYaw)*cd;cx=clamp(cx,r.b.x0+.3,r.b.x1-.3);cz=clamp(cz,r.b.z0+.3,r.b.z1-.3);
+  cam.position.set(cx,Math.min(r.h-.3,2.4+camPitch*1.5),cz);if(Math.abs(cam.fov-65)>.1){cam.fov=65;cam.updateProjectionMatrix()}cam.lookAt(player.ix,1.4,player.iz);
+  let best=null;for(const s0 of r.spots)if(Math.hypot(s0.x-player.ix,s0.z-player.iz)<s0.r){best=s0;break}
+  if(best)setPrompt(typeof best.label==='function'?best.label():best.label,best.fn);else{PROMPT=null;$('prompt').hidden=true}
+  if(act.enter){act.enter=0;if(PROMPT)usePrompt()}act.jump=act.fire=0}
+
+// —— 室外：家门口 / 车库 / 海边别墅门口的提示
+function villaDoor(){const HD=bD(VB[1])/2-3;return{x:villa.x+4,z:villa.z-HD+15+9.6}}
+function updInteract(){if(cut||boarding)return;const pc=player.car;
+  if(HOME.door&&!pc&&Math.hypot(HOME.door.x-player.x,HOME.door.z-player.z)<3.2)setPrompt('回家',()=>enterRoom('home',HOME.door.x,HOME.door.z+HOME.face*.8,HOME.face>0?0:Math.PI));
+  if(HOME.pad){const d=Math.hypot(HOME.pad.x-(pc?pc.x:player.x),HOME.pad.z-(pc?pc.z:player.z));
+    if(pc&&d<5&&Math.abs(pc.speed)<3)setPrompt(HOME.car?'车库里已经有一辆车了':'把车停进车库（会保存）',()=>{if(HOME.car)return;HOME.car={kind:pc.kind,col:pc.col};exitCar(true);removeCar(pc);saveGame();toast('车已停进车库')});
+    else if(!pc&&d<4.5&&HOME.car)setPrompt('从车库开出 '+(CAR_NAME[HOME.car.kind]||'车'),()=>{const c=spawnOwned(HOME.car,HOME.pad.x,HOME.pad.z,HOME.pad.h);HOME.car=null;saveGame();toast('车开出来了')})}
+  if(villa&&!pc){const vd=villaDoor();if(Math.hypot(vd.x-player.x,vd.z-player.z)<3.5){
+    if(OWNP.villa||finished)setPrompt('进入海边别墅',()=>enterRoom('villa',vd.x,vd.z+1,0));
+    else setPrompt('买下海边别墅 $30,000',()=>{if(player.money<30000){toast('还差 $'+(30000-player.money).toLocaleString());return}player.money-=30000;STATS.spent+=30000;OWNP.villa=1;if(!won){won=true}toast('🏝 海边别墅是你的了！');saveGame()})}}}
+
 function updExtra(dt){const e=Math.sin((gameHour-6)/24*Math.PI*2);NIGHT=clamp((-e+.12)/.3,0,1);
-  updStory(dt);updProps(dt);updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updGfx(dt);updPerf();
+  updStory(dt);updProps(dt);updInteract();updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updGfx(dt);updPerf();
   if(PROMPT&&(PROMPT.t!==last||cut||boarding)){PROMPT=null;$('prompt').hidden=true}
   if((umbT-=dt)<=0){umbT=1;updUmbrellas()}}
 
 // ===== 存档：每 5 秒、切到后台时自动保存（钱、主角、武器、位置、是否通关），页面刷新后可以接着玩 =====
 const SAVE_KEY='neonbay-save-v1';
-function snapshotState(){return{own:OWN,stats:STATS,ach:ACH_DONE,radio:radioIdx,hour:gameHour,money:player.money,hero:heroLook,w:wIdx,won,finished,x:player.car?player.car.x:player.x,z:player.car?player.car.z:player.z,story:{ch:STORY.ch,done:STORY.done},ownp:OWNP,garage:GARAGE,wx:WX.kind}}
+function snapshotState(){return{own:OWN,stats:STATS,ach:ACH_DONE,radio:radioIdx,hour:gameHour,money:player.money,hero:heroLook,w:wIdx,won,finished,x:player.car?player.car.x:player.x,z:player.car?player.car.z:player.z,story:{ch:STORY.ch,done:STORY.done},home:HOME.car,ownp:OWNP,garage:GARAGE,wx:WX.kind}}
 function saveGame(){if(!running)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshotState()))}catch(e){}}
 function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'null')}catch(e){return null}}
 function pickHeroUI(k){setHero(k);for(const b of document.querySelectorAll('.hero')){const on=b.id===(k==='heroM'?'pickM':'pickF');b.classList.toggle('on',on);b.setAttribute('aria-checked',on)}}
-function applyState(st){if(!st)return;if(st.own)Object.assign(OWN,st.own);if(st.stats)Object.assign(STATS,st.stats);if(st.ach)Object.assign(ACH_DONE,st.ach);if(Number.isFinite(st.radio))radioIdx=st.radio;if(Number.isFinite(st.hour))gameHour=st.hour;if(Number.isFinite(st.x))ensureAround(st.x,st.z);player.money=st.money|0;won=!!st.won;finished=!!st.finished;if(st.hero)pickHeroUI(st.hero);if(st.story){STORY.ch=st.story.ch|0;STORY.done=!!st.story.done;if(STORY.done)$('storyBox').hidden=true}if(st.ownp)Object.assign(OWNP,st.ownp);if(Array.isArray(st.garage)){GARAGE.length=0;GARAGE.push(...st.garage.slice(0,4))}if(st.wx&&WKINDS[st.wx])setWeather(st.wx,true);PROPS.forEach(propRefresh);
+function applyState(st){if(!st)return;if(st.own)Object.assign(OWN,st.own);if(st.stats)Object.assign(STATS,st.stats);if(st.ach)Object.assign(ACH_DONE,st.ach);if(Number.isFinite(st.radio))radioIdx=st.radio;if(Number.isFinite(st.hour))gameHour=st.hour;if(Number.isFinite(st.x))ensureAround(st.x,st.z);player.money=st.money|0;won=!!st.won;finished=!!st.finished;if(st.hero)pickHeroUI(st.hero);if(st.story){STORY.ch=st.story.ch|0;STORY.done=!!st.story.done;if(STORY.done)$('storyBox').hidden=true}if(st.ownp)Object.assign(OWNP,st.ownp);if(st.home&&st.home.kind)HOME.car=st.home;if(Array.isArray(st.garage)){GARAGE.length=0;GARAGE.push(...st.garage.slice(0,4))}if(st.wx&&WKINDS[st.wx])setWeather(st.wx,true);PROPS.forEach(propRefresh);
   if(Number.isFinite(st.x)&&onIsland(st.x,st.z,8)&&!hit(st.x,st.z,1)){player.x=st.x;player.z=st.z}setWeapon(st.w|0)}
 function beginPlay(msg){$('title').hidden=true;running=true;last=performance.now();if(ac)ac.resume&&ac.resume();toast(msg)}
 setInterval(saveGame,5000);addEventListener('visibilitychange',()=>{if(document.hidden)saveGame()});addEventListener('pagehide',saveGame);
