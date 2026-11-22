@@ -570,10 +570,71 @@ buildHospital(hospital);
  const badge=new THREE.Mesh(new THREE.PlaneGeometry(6,6),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(bc),transparent:true}));badge.position.set(S.x,15.5,S.z+9.62);scene.add(badge);
  const sg=new THREE.Mesh(new THREE.PlaneGeometry(14,2.2),signMat('POLICE',0x22d3ee));sg.position.set(S.x,6.9,S.z+15.05);scene.add(sg);
  solids.push({x0:S.x-21,x1:S.x+21,z0:S.z-18,z1:S.z+10});}
-// 别墅
-{const v=box(30,12,22,0xffffff);v.position.set(villa.x,6,villa.z);scene.add(v);
- const pool=new THREE.Mesh(new THREE.PlaneGeometry(16,8),new THREE.MeshBasicMaterial({color:0x37e0ff}));pool.rotation.x=-Math.PI/2;pool.position.set(villa.x,.1,villa.z+18);scene.add(pool);
- solids.push({x0:villa.x-15,x1:villa.x+15,z0:villa.z-11,z1:villa.z+11});}
+// 海边别墅：现代装饰艺术风两层白色大宅 + 圆角玻璃塔 + 悬挑屋檐 + 露台，前面是泳池、日光浴平台、车库和车道
+{const V=villa,HW=bW(VB[0])/2-3,HD=bD(VB[1])/2-3,X=x=>V.x+x,Z=z=>V.z+z;
+ const WH=0xfbf8f2,TEAL=0x2fb5c0,PINK=0xff6fa0,STONE=0xe8dccb,WOOD=0xb07a4a;
+ const glassV=new THREE.MeshPhongMaterial({color:0x9fd8ff,transparent:true,opacity:.45,shininess:120,specular:0xffffff});
+ const pl=(w,d,col,x,z,y=.06)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),typeof col==='number'?M(col):col);m.rotation.x=-Math.PI/2;m.position.set(X(x),y,Z(z));m.receiveShadow=true;scene.add(m);return m};
+ const bx=(w,h,d,col,x,y,z,round=0)=>{const m=round?rbox(w,h,d,col,round):box(w,h,d,col);m.position.set(X(x),y,Z(z));scene.add(m);return m};
+ const roundShape=(w,d,r)=>{const sh=new THREE.Shape(),a=w/2,b=d/2;sh.moveTo(-a+r,-b);sh.lineTo(a-r,-b);sh.quadraticCurveTo(a,-b,a,-b+r);sh.lineTo(a,b-r);sh.quadraticCurveTo(a,b,a-r,b);sh.lineTo(-a+r,b);sh.quadraticCurveTo(-a,b,-a,b-r);sh.lineTo(-a,-b+r);sh.quadraticCurveTo(-a,-b,-a+r,-b);return sh};
+ // 地面：草坪 + 石材平台 + 车道
+ pl(HW*2,HD*2,0x6fc070,0,0,.08);pl(40,26,STONE,4,7,.1);pl(10,HD+4,0xb8b0bc,-HW+6,HD/2-2,.09);
+ // 围墙：白色矮墙 + 树篱，前面左侧留车道口，前面中间留步行门
+ const wallH=1.6;const walls=[[-HW,HW,-HD,-HD],[-HW,-HW,-HD,HD],[HW,HW,-HD,HD],[-HW+11,-4,HD,HD],[4,HW,HD,HD]];
+ for(const[x0,x1,z0,z1]of walls){const w=Math.max(.6,x1-x0),d=Math.max(.6,z1-z0);bx(w,wallH,d,WH,(x0+x1)/2,wallH/2,(z0+z1)/2);bx(w+.1,.9,d+.1,0x2f7a4a,(x0+x1)/2,wallH+.45,(z0+z1)/2,.4);
+   solids.push({x0:X(x0)-.3,x1:X(x1)+.3,z0:Z(z0)-.3,z1:Z(z1)+.3})}
+ for(const gx of[-4,4,-HW+11,-HW+1])for(const k of[0]){bx(1.2,2.8,1.2,WH,gx,1.4,HD);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.4,10,8),lampMat);lamp.position.set(X(gx),3.1,Z(HD));scene.add(lamp)}
+ // ---- 主楼一层：宽大的白色体量，正面整面落地玻璃 ----
+ const hz=-HD+15;
+ bx(34,6.4,16,WH,2,3.2,hz);
+ const g1=new THREE.Mesh(new THREE.BoxGeometry(26,4.6,.2),glassV);g1.position.set(X(4),2.6,Z(hz+8.05));scene.add(g1);
+ for(let k=-13;k<=13;k+=4.33)bx(.25,4.8,.3,0x3a3a44,4+k,2.6,hz+8.1);
+ const inner=new THREE.Mesh(new THREE.BoxGeometry(25.6,4.4,.1),winWarm);inner.position.set(X(4),2.6,Z(hz+6.5));scene.add(inner);
+ bx(38,.5,20,WH,3,6.65,hz+1.5);bx(38.2,.25,20.2,TEAL,3,6.95,hz+1.5);
+ // ---- 二层：后退的体量 + 带玻璃栏杆的大露台 ----
+ bx(24,5.4,12,WH,5,9.6,hz-2);
+ const g2=new THREE.Mesh(new THREE.BoxGeometry(18,3.8,.2),glassV);g2.position.set(X(7),9.4,Z(hz+4.05));scene.add(g2);
+ const inner2=new THREE.Mesh(new THREE.BoxGeometry(17.6,3.6,.1),winWarm);inner2.position.set(X(7),9.4,Z(hz+3));scene.add(inner2);
+ const rail=new THREE.Mesh(new THREE.BoxGeometry(37,1.1,.08),glassV);rail.position.set(X(3),7.7,Z(hz+11.4));scene.add(rail);
+ for(const sd of[-1,1]){const r2=new THREE.Mesh(new THREE.BoxGeometry(.08,1.1,7.5),glassV);r2.position.set(X(3+sd*18.4),7.7,Z(hz+7.7));scene.add(r2)}
+ bx(30,.45,16,WH,6,12.5,hz-1);bx(30.2,.22,16.2,PINK,6,12.8,hz-1);   // 悬挑屋檐 + 粉色檐边
+ // 楼顶：遮阳棚架 + 躺椅
+ for(let k=0;k<7;k++)bx(.3,.3,9,WOOD,-2+k*2.2,14.6,hz-1);for(const sd of[-1,1])bx(.35,2,.35,WOOD,(sd<0?-2:11.2),13.8,hz-1+sd*4);
+ // ---- 圆角玻璃塔（左前角，3 层高）----
+ {const tx=X(-15),tz=Z(hz+4),r=5;const tw=new THREE.Mesh(new THREE.CylinderGeometry(r,r,15,28),M(WH));tw.position.set(tx,7.5,tz);tw.castShadow=true;scene.add(tw);
+  for(const y of[2.8,7.6,12.2]){const gb=new THREE.Mesh(new THREE.CylinderGeometry(r+.06,r+.06,2.8,28,1,true),glassV);gb.position.set(tx,y,tz);scene.add(gb);
+    const ib=new THREE.Mesh(new THREE.CylinderGeometry(r-.3,r-.3,2.6,28,1,true),winWarm);ib.position.set(tx,y,tz);scene.add(ib);
+    const ey=new THREE.Mesh(new THREE.CylinderGeometry(r+.8,r+.8,.3,28),M(TEAL));ey.position.set(tx,y+1.75,tz);scene.add(ey)}
+  const cap=new THREE.Mesh(new THREE.CylinderGeometry(r*.7,r+.4,1.2,28),M(WH));cap.position.set(tx,15.6,tz);scene.add(cap);
+  const sp=new THREE.Mesh(new THREE.CylinderGeometry(.12,.4,5,8),M(0xdde2ea));sp.position.set(tx,18.6,tz);scene.add(sp);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.6,.18,6,20),new THREE.MeshBasicMaterial({color:PINK}));ring.rotation.x=Math.PI/2;ring.position.set(tx,17.2,tz);scene.add(ring);
+  solids.push({x0:tx-r,x1:tx+r,z0:tz-r,z1:tz+r})}
+ // 正面竖向装饰鳍 + 霓虹名字
+ bx(1.2,15,1,TEAL,-9,7.5,hz+8.4);const nm=new THREE.Mesh(new THREE.PlaneGeometry(1.1,7),signMatV('VILLA',PINK));nm.position.set(X(-9),8,Z(hz+8.95));scene.add(nm);
+ // 车库（左侧）+ 停着的跑车
+ bx(12,5,12,WH,-HW+7,2.5,hz-1);bx(9,4,.2,0xd8d2c8,-HW+7,2,hz+5.05);for(let k=0;k<5;k++)bx(9,.08,.25,0xb8b2a8,-HW+7,.6+k*.8,hz+5.15);bx(13,.4,13,TEAL,-HW+7,5.2,hz-1);
+ villa.carSpot={x:X(-HW+7),z:Z(hz+11)};
+ // ---- 泳池：圆角池 + 池边石材 + 按摩池 ----
+ const poolZ=hz+20.5,poolX=6;
+ const coping=new THREE.Mesh(new THREE.ShapeGeometry(roundShape(25,11,3),6),M(0xf4f0e6));coping.rotation.x=-Math.PI/2;coping.position.set(X(poolX),.12,Z(poolZ));scene.add(coping);
+ const water=new THREE.Mesh(new THREE.ShapeGeometry(roundShape(23,9,2.4),6),new THREE.MeshBasicMaterial({color:0x37e0ff}));water.rotation.x=-Math.PI/2;water.position.set(X(poolX),.14,Z(poolZ));scene.add(water);
+ const deep=new THREE.Mesh(new THREE.ShapeGeometry(roundShape(14,5,2),6),new THREE.MeshBasicMaterial({color:0x1fb0d8}));deep.rotation.x=-Math.PI/2;deep.position.set(X(poolX+3),.15,Z(poolZ));scene.add(deep);
+ const spa=new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.6,.5,24),M(0xf4f0e6));spa.position.set(X(poolX+14.5),.25,Z(poolZ-3));scene.add(spa);
+ const spw=new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.1,.52,24),new THREE.MeshBasicMaterial({color:0x7ff0ff}));spw.position.set(X(poolX+14.5),.27,Z(poolZ-3));scene.add(spw);
+ // 泳池扶梯
+ for(const sd of[-1,1]){const t=new THREE.Mesh(new THREE.TorusGeometry(.5,.06,6,12,Math.PI),M(0xdde2ea));t.position.set(X(poolX-9+sd*.5),.6,Z(poolZ-4.6));t.rotation.y=Math.PI/2;scene.add(t)}
+ // 日光浴躺椅 + 毛巾 + 遮阳伞
+ [[-6,0],[-2,0],[13,0],[17,0]].forEach(([dx],k)=>{const lx=poolX+dx-6,lz=poolZ+7.5;bx(1.6,.5,4,0xffffff,lx,.4,lz,.3);const back=bx(1.6,.25,1.6,0xffffff,lx,.9,lz-1.9,.3);back.rotation.x=-.6;
+   bx(1.2,.06,2.6,[PINK,TEAL,0xffd166,0xff9a3d][k],lx,.7,lz+.3)});
+ for(const ux of[poolX-6,poolX+9]){const pole=new THREE.Mesh(cylG(.08,.08,3.6),M(0xdde2ea));pole.position.set(X(ux),1.8,Z(poolZ+8.5));scene.add(pole);
+   const um=new THREE.Mesh(new THREE.ConeGeometry(2.6,1,10),M(ux<poolX?PINK:TEAL));um.position.set(X(ux),3.9,Z(poolZ+8.5));um.castShadow=true;scene.add(um)}
+ // 户外餐桌
+ bx(3,.15,1.6,WOOD,-4,1,hz+14);for(const sd of[-1,1])bx(3,.12,.5,WOOD,-4,.55,hz+14+sd*1.4);
+ // 椰子树和花丛
+ for(const[px,pz]of[[-HW+3,-HD+3],[HW-3,-HD+3],[HW-3,HD-4],[-2,HD-4],[HW-6,hz+12],[-HW+15,HD-4]])palm(X(px),Z(pz));
+ for(let k=0;k<8;k++){const bu=new THREE.Mesh(new THREE.SphereGeometry(1.1,8,6),M(k%2?0x3b9a57:0x2f7a4a));bu.position.set(X(-HW+14+k*4),.8,Z(-HD+1.8));scene.add(bu);
+   const fl=new THREE.Mesh(new THREE.SphereGeometry(.35,6,5),M([PINK,0xffd166,0xffffff][k%3]));fl.position.set(X(-HW+14.4+k*4),1.6,Z(-HD+2.2));scene.add(fl)}
+ solids.push({x0:X(-15),x1:X(19),z0:Z(hz-8),z1:Z(hz+8)},{x0:X(-HW+1),x1:X(-HW+13),z0:Z(hz-7),z1:Z(hz+5)})}
 for(let a=0;a<Math.PI*2;a+=.045){const r=ISL(a)-rr(9,16);if(R()<.75)palm(Math.cos(a)*r,Math.sin(a)*r)}
 function palm(x,z){if(guard('palm',x,z,1.2))return;const lean=rr(-.12,.12),lz=rr(-.12,.12);let tx=x,tz=z;
   for(let k=0;k<5;k++){const t=rbox(.75-k*.06,2.1,.75-k*.06,0x8a5a3b,.45);tx+=lean*1.6*k*.3;tz+=lz*1.6*k*.3;t.position.set(tx,1+k*1.9,tz);scene.add(t)}
@@ -1832,6 +1893,7 @@ function tryMove(dx,dz){if(!hit(player.x+dx,player.z,.6))player.x+=dx;if(!hit(pl
 R=Math.random;
 for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
 {const c=makeCar(SPN.x+6,SPN.z+8,0,{color:0x1fb5a8,kind:'wedge'});c.driver=null}
+{const{g}=carMesh('wedge',0xff3d8b);g.position.set(villa.carSpot.x,0,villa.carSpot.z);g.rotation.y=Math.PI;scene.add(g)}
 // 海滩停车场：六种车停成一排（东侧沙滩，空车可直接开走）
 {const px=LOT.x-4,pz0=LOT.z-27;const lot=new THREE.Mesh(new THREE.PlaneGeometry(22,62),M(0x3a3348));lot.rotation.x=-Math.PI/2;lot.position.set(px,.04,pz0+25);lot.receiveShadow=true;scene.add(lot);
  const lm=new THREE.MeshBasicMaterial({color:0xf4f0e6});for(let k=0;k<=6;k++){const l=new THREE.Mesh(new THREE.PlaneGeometry(10,.25),lm);l.rotation.x=-Math.PI/2;l.position.set(px+4,.06,pz0+k*8.5-2);scene.add(l)}
