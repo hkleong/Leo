@@ -1223,8 +1223,9 @@ function skinPerson(g){g.updateMatrixWorld(true);const bones=BONE_NAMES.map(n=>g
   const bi=new Map(bones.map((b,i)=>[b,i])),inv=new THREE.Matrix4().copy(g.matrixWorld).invert(),org=bones.map(b=>new THREE.Vector3().setFromMatrixPosition(b.matrixWorld).applyMatrix4(inv));
   const kids=BONE_NAMES.map(n=>BONE_NAMES.filter(c=>BONE_PARENT[c]===n).map(c=>BONE_NAMES.indexOf(c)));
   const groups=new Map(),drop=[];
-  g.traverse(o=>{if(!o.isMesh||!o.geometry||o.isSkinnedMesh)return;const m=o.material;if(Array.isArray(m)||m===OL_P||m===OL_C||m.transparent)return;
+  g.traverse(o=>{if(!o.isMesh||!o.geometry||o.isSkinnedMesh)return;const m=o.material;if(Array.isArray(m)||m.transparent)return;
     let a=o.parent,bone=null,ok=true;while(a&&a!==g){if(bi.has(a)&&!bone)bone=a;if(a.name&&!a.name.startsWith('rg_'))ok=false;a=a.parent}if(!bone||!ok)return;
+    if(m===OL_P||m===OL_C){drop.push(o);return}
     if(!groups.has(m))groups.set(m,[]);groups.get(m).push([o,bi.get(bone)]);drop.push(o)});
   const v=new THREE.Vector3(),nm=new THREE.Matrix3();
   for(const[mat,list]of groups){const pos=[],nor=[],col=[],uv=[],si=[],sw=[];let hasCol=false,hasUv=false;
@@ -1242,11 +1243,12 @@ function skinPerson(g){g.updateMatrixWorld(true);const bones=BONE_NAMES.map(n=>g
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));
     if(hasCol)G.setAttribute('color',new THREE.Float32BufferAttribute(col,3));if(hasUv)G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
     G.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(si,4));G.setAttribute('skinWeight',new THREE.Float32BufferAttribute(sw,4));G.userData.own=1;
-    mat.skinning=true;const sm=new THREE.SkinnedMesh(G,mat);sm.castShadow=true;sm.receiveShadow=true;sm.frustumCulled=false;sm.name='skin';g.add(sm);sm.bind(new THREE.Skeleton(bones),sm.matrixWorld)}
+    mat.skinning=true;const sk=new THREE.Skeleton(bones),sm=new THREE.SkinnedMesh(G,mat);sm.castShadow=true;sm.receiveShadow=true;sm.frustumCulled=false;sm.name='skin';g.add(sm);sm.bind(sk,sm.matrixWorld);
+    if(!REAL){OL_P.skinning=true;const ol=new THREE.SkinnedMesh(G,OL_P);ol.frustumCulled=false;ol.name='skinOL';g.add(ol);ol.bind(sk,ol.matrixWorld)}}
   for(const o of drop)o.parent.remove(o)}
 // 克隆出来的人：蒙皮网格要重新绑到克隆体自己的骨头上
 function rebindSkins(g){const bones=BONE_NAMES.map(n=>g.getObjectByName(n));if(bones.some(b=>!b))return;g.updateMatrixWorld(true);
-  g.traverse(o=>{if(o.isSkinnedMesh)o.bind(new THREE.Skeleton(bones,o.skeleton.boneInverses.map(m=>m.clone())),o.bindMatrix)})}
+  const sks=new Map();g.traverse(o=>{if(!o.isSkinnedMesh)return;const k=o.skeleton;if(!sks.has(k))sks.set(k,new THREE.Skeleton(bones,k.boneInverses.map(m=>m.clone())));o.bind(sks.get(k),o.bindMatrix)})}
 function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=typeof look==='string'?LOOKS[look]:look;const fem=!!L.fem;
   L=Object.assign({},L);const RM=v=>v==='leather'?patMat('leather'):v==='sequin'?patMat('sequin'):v==='graphic'?patMat('graphic'):v==='denimDark'?patMat('denim',{col:0x34465e}):v;
   L.jacketMat=RM(L.jacketMat);L.shirtMat=RM(L.shirtMat);
@@ -1332,7 +1334,11 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
   const spine=new THREE.Group();spine.position.y=1.38+LEGX;g.add(spine);
   const body=B.build(vcPersonMat);body.position.y=-1.38;spine.add(body);
   const HK=REAL?.9:1,HP=2.3,HC=HP+(hy-HP)*HK;
-  const hw=(x,y,z)=>{if(y<HP-.06)return[x,y,y>1.3?z*1.14:z];const f=1-(1-HK)*clamp((y-HP+.06)/.14,0,1);let X=x*f,Y=HP+(y-HP)*f,Z=z*f;
+  const hw=(x,y,z)=>{if(y<HP-.06){let X=x,Z=y>1.3?z*1.14:z;const G2=(c,w)=>Math.exp(-(((y-c)/w)**2));
+      const wa=G2(1.68,.1);X*=1-.09*wa;Z*=1-.05*wa;X*=1+.045*G2(1.45,.1);
+      if(Z>0){const ch=G2(1.97,.12);Z+=(fem?.065*Math.exp(-(((Math.abs(X)-.09)/.07)**2)):.035*Math.exp(-(((Math.abs(X)-.08)/.1)**2)))*ch}
+      else{Z-=.045*G2(1.42,.09)*Math.exp(-(((Math.abs(X)-.08)/.09)**2));if(y>1.75&&y<2.12)Z*=.93}
+      return[X,y,Z]}const f=1-(1-HK)*clamp((y-HP+.06)/.14,0,1);let X=x*f,Y=HP+(y-HP)*f,Z=z*f;
     const b=clamp((Y-HP-.02)/.1,0,1);if(b>0){const lo=clamp((HC-Y)/.2,0,1);X*=1-b*(.13+.15*lo);Z*=1-b*(.03+.07*lo);Y=HC+(Y-HC)*(1+.12*b)-.035*b}return[X,Y,Z]};
   if(REAL){const G=body.children[0].geometry,P=G.attributes.position;for(let i=0;i<P.count;i++){const[X,Y,Z]=hw(P.getX(i),P.getY(i),P.getZ(i));P.setXYZ(i,X,Y,Z)}P.needsUpdate=true;G.computeBoundingSphere()}
   {const fm=faceMat({skin,brow:L.hairCol??(L.beardCol||0x2a1a12),fem,beard:L.beard?(L.stubble?'stub':'full'):0,beardCol:L.beardCol??hairC,must:!!L.mustache,iris:IRIS[(fr()*IRIS.length)|0],lip:LIPS[(fr()*LIPS.length)|0]});
@@ -1404,7 +1410,7 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
   spine.name='rg_spine';[hips,knees,shs,els,hands].forEach((arr,a)=>arr.forEach((o,k)=>o.name='rg_'+a+'_'+k));
   const rig={spine,hips,knees,shs,els,hands};
   g.userData.rig=rig;extraRig(g);g.userData.limbs=[hips[0],hips[1],shs[0],shs[1]];g.userData.carry=L.carry||(L.phone?'phone':L.coffee?'coffee':null);
-  if(REAL)skinPerson(g);
+  skinPerson(g);
   g.userData.look=lookKey;scene.add(g);return g}
 const PCACHE={};
 function rigOf(g,carry,look){const n=x=>g.getObjectByName(x),arr=a=>[0,1].map(k=>n('rg_'+a+'_'+k));
@@ -1412,7 +1418,7 @@ function rigOf(g,carry,look){const n=x=>g.getObjectByName(x),arr=a=>[0,1].map(k=
 function makePerson(look){if(typeof look!=='string'||look==='heroF'||look==='heroM')return buildPerson(look);
   const key=look+'#'+((Math.random()*2)|0);let t=PCACHE[key];
   if(!t){t=buildPerson(look);scene.remove(t);t.traverse(o=>{if(o.geometry)o.geometry.userData.own=false});PCACHE[key]=t}
-  const ud=t.userData;t.userData={};const g=t.clone(true);t.userData=ud;if(REAL)rebindSkins(g);rigOf(g,ud.carry,ud.look);
+  const ud=t.userData;t.userData={};const g=t.clone(true);t.userData=ud;rebindSkins(g);rigOf(g,ud.carry,ud.look);
   g.traverse(o=>{if(o.isMesh)o.matrixAutoUpdate=true});scene.add(g);return g}
 
 // ===== 动作：每帧根据状态摆姿势 =====
@@ -3039,7 +3045,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.20.0';
+const VERSION='v0.20.1';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3205,7 +3211,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.20','骨骼与转向',[['0.20.0','写实人物改用骨骼蒙皮：身体各部件合并成一整块会随骨骼弯曲的模型，肩、肘、髋、膝处平滑弯曲，没有接缝；汽车和摩托转向时前轮会跟着转']]],
+ ['v0.20','骨骼与转向',[['0.20.1','卡通画风也改用骨骼蒙皮（描边跟着一起弯曲）；写实人物身体轮廓更像真人：收腰、胸部前凸、臀部后凸、骨盆略宽、背部更平'],['0.20.0','写实人物改用骨骼蒙皮：身体各部件合并成一整块会随骨骼弯曲的模型，肩、肘、髋、膝处平滑弯曲，没有接缝；汽车和摩托转向时前轮会跟着转']]],
  ['v0.19','C VI',[['0.19.0','游戏改名为 C VI（C 代表 Claude），新图标；写实人物加肘、膝、髋关节过渡和斜方肌，四肢和身体衔接更自然；轿车、出租车、警车、跑车重新设计车身轮廓（引擎盖、后备厢更有层次），所有汽车车窗以上向内收、车底内收，截面更像真车']]],
  ['v0.18','写实化收尾',[['0.18.1','修复马路贴图盖到人行道上、积水和人行道重叠：路面去掉会随视角变化的深度偏移，积水只生成在离路边 0.8 米以内的路面上'],['0.18.0','写实画风下其余部分全部重做：远山改为灰蓝远山和灰岩绿坡、椰子树叶改成自然的橄榄绿；海边别墅去掉粉色青色饰边；郊区平房加排水槽、落水管、空调外机、门廊灯、垃圾桶、卫星锅和车道；汽车加轮拱眉、引擎盖和后备厢缝、引擎盖中线；警用直升机加尾桨、侧窗和白色腰带']]],
  ['v0.17','载具与建筑重做',[['0.17.7','写实画风下医院和警察局重做：医院改为米色混凝土主楼 + 砖砌两翼、层间腰线、厚檐口、混凝土急诊雨棚和钢柱、普通灯箱招牌，楼顶停机坪旁加设备；警察局改为红砖主楼和两翼 + 石材入口楼、方形石柱、台阶、蓝色招牌和门灯、楼顶天线'],['0.17.6','写实画风下楼的外形重做：去掉装饰艺术风格的圆角塔、竖鳍和阶梯楼顶，改为方正的砖砌公寓、商住楼和带裙楼、退台的办公楼；加檐口、腰线、窗式空调、楼顶楼梯间、机房和天线'],['0.17.5','建筑写实化：外墙、房屋和地面配色降低饱和度；外墙贴图加污渍、雨水痕和墙脚发黑；楼顶加空调外机、水箱、天线、通风管；砖楼加消防梯；高楼顶部霓虹环换成天线红灯。修复车灯有时消失：车灯、尾灯、保险杠、格栅、车牌原来被埋在车身倒角里，现在移到车身表面；车灯光晕按车身真实长度放置。修复贴图闪烁：提高远处深度精度，路面、标线、斑马线加偏移，不再互相闪烁'],['0.17.0','写实画风下所有载具重做细节：车身下部压暗、门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、加油口、转向灯和倒车灯、大灯镀铬框、车轮螺母；皮卡/面包车/巴士加挡泥板；巴士加折叠门、路牌灯箱、车窗立柱；面包车加侧滑门和后门缝、滑轨；摩托车加前后挡泥板、后视镜、发动机散热片、刹车盘、车牌、脚踏；踏板车加后货架、脚踏板、车牌、后视镜']]],
