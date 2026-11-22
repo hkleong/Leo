@@ -1500,7 +1500,7 @@ let won=false,finished=false;
 function fail(msg){toast(msg);mission.stage='done';beamMat.visible=false;setTimeout(offerMission,2500)}
 function updMission(dt){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z,d=Math.hypot(mission.x-px,mission.z-pz);
   beam.position.set(mission.x,30,mission.z);
-  if(won&&!finished&&Math.hypot(villa.x-px,villa.z-pz)<30){finished=true;toast('🏝 别墅到手，你赢了！');setM('你已经是霓虹湾的传奇。继续自由逛吧。')}
+  if(won&&!finished&&Math.hypot(villa.x-px,villa.z-pz)<30){finished=true;toast('🏝 别墅到手，你赢了！');setM('你已经是这座城市的传奇。继续自由逛吧。')}
   if(mission.stage==='offer'){beamMat.visible=true;if(d<5){mission.stage='run';const j=jobs[(R()*jobs.length)|0];mission.type=j;toast(j.name);beamMat.visible=true;j.start()}return}
   if(mission.stage!=='run')return;
   const t=mission.type.name;
