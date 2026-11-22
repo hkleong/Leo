@@ -245,7 +245,7 @@ const sky=new THREE.Mesh(new THREE.SphereGeometry(800,32,20),new THREE.ShaderMat
    float md=distance(vP,-uSun);c+=uNight*(vec3(.95,.95,1.)*smoothstep(.045,.035,md)+vec3(.4,.45,.7)*.25*smoothstep(.35,.0,md));
    c=mix(c,vec3(dot(c,vec3(.3,.5,.2)))*.78,uCover*.55);gl_FragColor=vec4(c,1.);}`}));
 sky.renderOrder=-1;scene.add(sky);
-const cam=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.5,3200);
+const cam=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,1,3200);
 const ren=new THREE.WebGLRenderer({antialias:true});
 const MOBILE=matchMedia('(pointer:coarse)').matches;
 const QUALITY={low:{name:'流畅',pr:1,shadow:0,load:320,peds:24,traffic:9,lod:70},mid:{name:'标准',pr:1.5,shadow:1024,load:430,peds:38,traffic:13,lod:100},high:{name:'高清',pr:2,shadow:2048,load:520,peds:48,traffic:17,lod:140}};
@@ -310,10 +310,10 @@ const flat=(sh,col,y)=>{const m=new THREE.Mesh(new THREE.ShapeGeometry(sh,2),typ
 const shallowSea=flat(islandShape(-6),'water',-.35); // 浅水
 flat(islandShape(0),'sand',0);       // 沙滩
 flat(islandShape(26),'grassD',.01);    // 草地
-const asphalt=groundMat('asphalt');
-const lineMat=new THREE.MeshBasicMaterial({color:0xf2c14e});
+const asphalt=groundMat('asphalt');Object.assign(asphalt,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2});
+const lineMat=new THREE.MeshBasicMaterial({color:0xf2c14e,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});
 const roadPlane=(x,z,w,d)=>{const m=tPlane(w,d,asphalt);m.rotation.x=-Math.PI/2;m.position.set(x,.02,z);m.receiveShadow=true;scene.add(m)};
-const whiteMat=new THREE.MeshBasicMaterial({color:0xf4f0e6});
+const whiteMat=new THREE.MeshBasicMaterial({color:0xf4f0e6,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});
 const edgeLine=(x,z,w,d)=>{const a=new THREE.Mesh(new THREE.PlaneGeometry(w,d),whiteMat);a.rotation.x=-Math.PI/2;a.position.set(x,.03,z);scene.add(a)};
 const dash=(x,z,w,d)=>{const a=new THREE.Mesh(new THREE.PlaneGeometry(w,d),lineMat);a.rotation.x=-Math.PI/2;a.position.set(x,.03,z);scene.add(a)};
 for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!degAll(i,j))continue;roadPlane(rx(i),rz(j),RD,RD);
@@ -687,7 +687,7 @@ function sidePt(i,j,s){const b=bdim(i,j),P4=perim(b);s=((s%P4)+P4)%P4;let k=0;wh
   const L=sideLen(b,k),f=Math.min(s,L),a=CORN[k],c=CORN[(k+1)%4];return{x:b.x+(a[0]+(c[0]-a[0])*f/L)*b.hx,z:b.z+(a[1]+(c[1]-a[1])*f/L)*b.hz,k,f,L}}
 // 第 k 条边跨过的那段路是否存在（存在才画斑马线）
 const sideEdge=(i,j,k)=>k===0?edgeOK(i,j,1):k===1?edgeOK(i+1,j,0):k===2?edgeOK(i,j+1,1):edgeOK(i,j,0);
-const zebraMat=new THREE.MeshBasicMaterial({color:0xf4f0e6});
+const zebraMat=new THREE.MeshBasicMaterial({color:0xf4f0e6,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});
 for(const[i,j]of VALID)for(const k of[1,2]){const ni=i+NB[k][0],nj=j+NB[k][1];if(!blockOK(ni,nj)||!sideEdge(i,j,k))continue;const L=sideLen(bdim(i,j),k);
   for(const fc of[CR,L-CR]){const a=sidePt(i,j,sOf(i,j,k,fc)),b=sidePt(ni,nj,sOf(ni,nj,(k+2)%4,L-fc));
     const len=Math.hypot(b.x-a.x,b.z-a.z),ux=(b.x-a.x)/len,uz=(b.z-a.z)/len;
@@ -1545,7 +1545,7 @@ function buildCar(kind,col){const BC=REAL?aoCol(col,CAR[kind].gr):col;const d=CA
     const roofY=Math.max(...cab.map(q=>q[1]));seat={x:W*.22,y:seatTop,z:seatZ,k:Math.min(.86,((roofY-seatTop)*CS-.2)/1.62)}}
   else{B.add(extrude(sideShape(d,chaikin(d.top,2)),W,.16),BC);seat={x:.52,y:1.16,z:-.25,k:.86}}
   const beltY=d.top.find(p=>p[0]>0&&p[1]<d.top[4][1])?.[1]??1;
-  const front=L1,rear=L0,mid=(d.gr+beltY)/2;
+  const BEV=.13,front=L1+BEV,rear=L0-BEV,mid=(d.gr+beltY)/2; // 部件放在倒角外的真实车身表面上
   // —— 车型细节
   if(kind==='wedge'){ // 楔形超跑：侧进气、大尾翼、斜条纹、弹出式大灯、尾部百叶
     for(const sd of[-1,1]){B.add(rgeo(.04,.28,.9,.3),0x111114,[sd*(W/2+.01),.72,-.75]);
@@ -1687,8 +1687,8 @@ const DIM={};
 function carDim(c){let d=DIM[c.kind];if(!d){const m=c.mesh,ry=m.rotation.y,rz=m.rotation.z,p=m.position.clone();m.rotation.set(0,0,0);m.position.set(0,0,0);m.updateMatrixWorld(true);
     const b=new THREE.Box3();m.traverse(o=>{if(o.isMesh&&o.geometry&&!o.material.transparent){if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();b.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld))}});
     m.rotation.set(0,ry,rz);m.position.copy(p);m.updateMatrixWorld(true);
-    const bike=!!m.userData.bike;d=DIM[c.kind]={hw:Math.max(.3,(b.max.x-b.min.x)/2*(bike?.75:.9)),hl:Math.max(.8,(b.max.z-b.min.z)/2*.94),cz:(b.max.z+b.min.z)/2}}
-  c.hw=d.hw;c.hl=d.hl;c.cz=d.cz}
+    const bike=!!m.userData.bike;d=DIM[c.kind]={hw:Math.max(.3,(b.max.x-b.min.x)/2*(bike?.75:.9)),hl:Math.max(.8,(b.max.z-b.min.z)/2*.94),hlr:(b.max.z-b.min.z)/2,hwr:(b.max.x-b.min.x)/2,cz:(b.max.z+b.min.z)/2}}
+  c.hw=d.hw;c.hl=d.hl;c.hlr=d.hlr;c.hwr=d.hwr;c.cz=d.cz}
 function capSeg(c,x=c.x,z=c.z){if(c.hw===undefined)carDim(c);const fx=Math.sin(c.h),fz=Math.cos(c.h),a=Math.max(0,c.hl-c.hw),cx=x+fx*c.cz,cz=z+fz*c.cz;return[cx-fx*a,cz-fz*a,cx+fx*a,cz+fz*a,c.hw]}
 // 两条线段之间最近的两点
 function segSeg(ax,az,bx,bz,cx,cz,dx,dz){const d1x=bx-ax,d1z=bz-az,d2x=dx-cx,d2z=dz-cz,rx=ax-cx,rz=az-cz,a=d1x*d1x+d1z*d1z,e=d2x*d2x+d2z*d2z,f=d2x*rx+d2z*rz;let s,t;
@@ -2386,7 +2386,7 @@ for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
 {const{g}=carMesh('wedge',0xff3d8b);g.position.set(villa.carSpot.x,0,villa.carSpot.z);g.rotation.y=Math.PI;scene.add(g)}
 // 海滩停车场：六种车停成一排（东侧沙滩，空车可直接开走）
 {const px=LOT.x-4,pz0=LOT.z-27;const lot=tPlane(22,62,asphalt);lot.rotation.x=-Math.PI/2;lot.position.set(px,.04,pz0+25);lot.receiveShadow=true;scene.add(lot);
- const lm=new THREE.MeshBasicMaterial({color:0xf4f0e6});for(let k=0;k<=6;k++){const l=new THREE.Mesh(new THREE.PlaneGeometry(10,.25),lm);l.rotation.x=-Math.PI/2;l.position.set(px+4,.06,pz0+k*8.5-2);scene.add(l)}
+ const lm=whiteMat;for(let k=0;k<=6;k++){const l=new THREE.Mesh(new THREE.PlaneGeometry(10,.25),lm);l.rotation.x=-Math.PI/2;l.position.set(px+4,.06,pz0+k*8.5-2);scene.add(l)}
  const sg=new THREE.Mesh(new THREE.PlaneGeometry(10,3.75),signMat('PARK',0x22d3ee));sg.position.set(px-12,5,pz0+25);sg.rotation.y=-Math.PI/2;scene.add(sg);
  [['wedge',0x1fb5a8],['convertible',0xf4f0e6],['pickup',0x15151a],['sedan',0x8a3fc8],['taxi',0xffd21f],['coupe',0xc8ccd4],['moto',0x22d3ee]].forEach(([k,col],i)=>{
    const c=makeCar(px+4,pz0+i*8.5+2.25,-Math.PI/2,{kind:k,color:col});c.driver=null;c.parked=1});}
@@ -2894,7 +2894,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.18.0';
+const VERSION='v1.17.5';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -2976,7 +2976,7 @@ function updCarLights(){let n=0;const cx=cam.position.x,cz=cam.position.z,L=Math
   for(const c of cars){if(c.dead||Math.abs(c.x-cx)>130||Math.abs(c.z-cz)>130)continue;if(!c.driver&&c!==player.car)continue;if(c.hw===undefined)carDim(c);
     const brk=c.brk&&Math.abs(c.speed)>.5||c.brkT>0;c.brkT=brk?.25:(c.brkT||0)-.016;if(!brk&&L<.05)continue;
     const fx=Math.sin(c.h),fz=Math.cos(c.h),rx=Math.cos(c.h),rz=-Math.sin(c.h),bike=!!c.mesh.userData.bike,big=c.kind==='bus'||c.kind==='van';
-    const y=(c.y||0)+(bike?1.15:big?1.35:1.05),hw=bike?0:c.hw*.78,back=c.cz-c.hl*.97,front=c.cz+c.hl*.97;
+    const y=(c.y||0)+(bike?1.15:big?1.35:1.05),hw=bike?0:c.hwr*.7,back=c.cz-c.hlr+.04,front=c.cz+c.hlr-.04;
     _lc.setRGB(1,.12,.08).multiplyScalar(brk?1:.45);for(const sd of bike?[0]:[-1,1])add(c.x+fx*back+rx*hw*sd,y,c.z+fz*back+rz*hw*sd,brk?1.25:.9,_lc);
     if(L>.05){_lc.setRGB(1,.95,.8).multiplyScalar(.6+.4*L);for(const sd of bike?[0]:[-1,1])add(c.x+fx*front+rx*hw*sd,y-.1,c.z+fz*front+rz*hw*sd,1.3,_lc)}}
   lgt.count=n;lgt.instanceMatrix.needsUpdate=true;if(lgt.instanceColor)lgt.instanceColor.needsUpdate=true}
@@ -3060,6 +3060,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
+ ['v1.17','修复',[['1.17.5','修复车灯有时消失：车灯、尾灯、保险杠、格栅、车牌原来被埋在车身倒角里，现在移到车身表面；车灯光晕按车身真实长度放置。修复贴图闪烁：提高远处深度精度，路面、标线、斑马线加偏移，不再互相闪烁。版本号改为 v1.17.5']]],
  ['v0.18','建筑写实化',[['0.18.0','写实画风下建筑重做：外墙、房屋和地面（人行道、广场）配色降低饱和度、更沉稳；所有外墙贴图加污渍、雨水痕和墙脚发黑；楼顶加空调外机、水箱、天线、通风管；砖楼加消防梯；高楼顶部的霓虹环换成天线红灯']]],
  ['v0.17','载具重做',[['0.17.0','写实画风下所有载具重做细节：车身下部压暗、门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、加油口、转向灯和倒车灯、大灯镀铬框、车轮螺母；皮卡/面包车/巴士加挡泥板；巴士加折叠门、路牌灯箱、车窗立柱；面包车加侧滑门和后门缝、滑轨；摩托车加前后挡泥板、后视镜、发动机散热片、刹车盘、车牌、脚踏；踏板车加后货架、脚踏板、车牌、后视镜']]],
  ['v0.16','写实画风',[['0.16.3','走近任务时弹出选项（接活 / 对话 / 接听电话 / 接受赛车挑战），按 E 或点击按钮才开始'],['0.16.2','写实人物：脸改为椭圆、下巴收窄；脖子更粗更短；四肢按肌肉形状粗细变化（肩头、上臂、前臂、大腿、小腿肚）；持枪动作重做：手枪平时举在胸前，瞄准时双手握枪，步枪平时低位双手持、瞄准时抵肩'],['0.16.1','写实人物比例改为结实型：肩更宽、躯干更厚、四肢更粗，腿不再过长，头部比例调整'],['0.16.0','新增“写实”画风（默认），参考老式 3D 游戏“低多边形 + 写实光影”的做法，人物和车辆仍是原创设计：去掉卡通描边和色阶，改为平滑光照与高光；人物头部缩小、腿加长，身材接近真人比例，加立体鼻子和下巴，脸部画上眼窝、鼻梁、颧骨、下颌的明暗，五官缩小；衣服加褶皱；车身更方正，加白边轮胎、镀铬轮毂盖、镀铬保险杠和侧面腰线、前格栅、车身下沿裙边；整体颜色更沉稳。主页和手机设置可切回“卡通”画风']]],
