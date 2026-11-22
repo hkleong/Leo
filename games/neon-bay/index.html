@@ -47,6 +47,7 @@ canvas{display:block}
 #touch .pill{height:124px;border-radius:42px}
 #touch .hot{border-color:var(--hot);background:rgba(255,61,139,.35)}
 #touch[data-mode="foot"] .drive,#touch[data-mode="drive"] .foot{display:none}
+#touch[data-mode="drive"][data-steer="stick"] #stick{display:block}#touch[data-steer="stick"] #bL,#touch[data-steer="stick"] #bR{display:none!important}
 .bm-top{display:flex;justify-content:space-between;align-items:center;width:min(94vw,1200px);font-family:var(--disp);color:var(--sun);font-size:18px}
 #bigmap{position:fixed;inset:0;z-index:6;background:rgba(10,8,24,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 #bigmap[hidden]{display:none}
@@ -80,6 +81,7 @@ canvas{display:block}
 #statsPanel{position:absolute;inset:60px 24px 60px;max-width:560px;margin:auto;background:rgba(10,8,24,.95);border:2px solid var(--hot);border-radius:14px;padding:16px;overflow:auto;color:#fff;z-index:2}#statsPanel[hidden]{display:none}
 .st-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}.st-grid div{background:rgba(255,255,255,.06);border-radius:8px;padding:8px}.st-grid span{display:block;font-size:12px;opacity:.7}.st-grid b{font-size:18px;color:var(--sun);font-variant-numeric:tabular-nums}
 #statsPanel h3{margin:14px 0 8px;font-family:var(--disp);color:var(--hot);font-size:16px}.ach{list-style:none;margin:0;padding:0;display:grid;gap:6px}.ach li{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.04);opacity:.55;font-size:13px}.ach li.on{opacity:1;background:rgba(255,179,71,.15)}.ach span{opacity:.75}
+@media (max-height:460px){#title{gap:8px}#title p{display:none}#title h1{font-size:clamp(30px,13vh,60px)}.hero{width:104px;padding:4px}.hero img{height:84px}.hero small{display:none}#title .keys{display:none}.qrow button{padding:3px 10px}#start{padding:10px 28px;font-size:18px}}
 #hurt{position:absolute;inset:0;background:radial-gradient(transparent 40%,rgba(255,0,40,.8));opacity:0;transition:opacity .15s;pointer-events:none}
 #newGame{pointer-events:auto;background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;cursor:pointer;opacity:.85}
 #cut{position:absolute;inset:0;pointer-events:none}
@@ -99,6 +101,7 @@ canvas{display:block}
     <button class="hero on" id="pickF" role="radio" aria-checked="true"><img src="art/hero_f.jpg" alt=""><span>玛雅</span><small>花衬衫 · 破洞牛仔裤</small></button>
     <button class="hero" id="pickM" role="radio" aria-checked="false"><img src="art/hero_m.jpg" alt=""><span>科尔</span><small>牛仔夹克 · 工装靴</small></button>
   </div>
+  <div class="qrow" id="steerRow" role="radiogroup" aria-label="手机驾驶"><span>开车转向</span><button data-s="btn">按钮</button><button data-s="stick">摇杆</button></div>
   <div class="qrow" role="radiogroup" aria-label="画质"><span>画质</span><button data-q="low">流畅</button><button data-q="mid">标准</button><button data-q="high">高清</button></div>
   <button id="start">开始游戏</button>
   <button id="newGame" hidden>放弃存档，重新开始</button>
@@ -125,7 +128,7 @@ canvas{display:block}
   <div class="tb drive big" id="bB" style="right:calc(112px + env(safe-area-inset-right,0px));bottom:calc(36px + env(safe-area-inset-bottom,0px));font-size:15px">刹车</div>
   <div class="tb drive" id="bS" style="right:calc(122px + env(safe-area-inset-right,0px));bottom:calc(132px + env(safe-area-inset-bottom,0px))">手刹</div>
   <div class="tb drive sm" id="bH" style="left:calc(124px + env(safe-area-inset-left,0px));bottom:calc(140px + env(safe-area-inset-bottom,0px))">喇叭</div>
-  <div class="tb drive sm" id="bRadio" style="left:calc(124px + env(safe-area-inset-left,0px));bottom:calc(204px + env(safe-area-inset-bottom,0px))">电台</div>
+  <div class="tb drive sm" id="bRadio" style="right:calc(206px + env(safe-area-inset-right,0px));bottom:calc(150px + env(safe-area-inset-bottom,0px))">电台</div>
   <div class="tb drive sm" id="bE" style="right:calc(30px + env(safe-area-inset-right,0px));bottom:calc(176px + env(safe-area-inset-bottom,0px))">下车</div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -589,7 +592,7 @@ function toggleAim(v){if(player.car){aimOn=false;return}aimOn=v??!aimOn;document
 addEventListener('mousedown',e=>{if(e.button===2&&running)toggleAim()});addEventListener('keydown',e=>{if(e.code==='KeyR'&&!e.repeat&&running)toggleAim()});addEventListener('contextmenu',e=>e.preventDefault());
 function axis(){let x=0,y=0;
   if(keys.KeyW||keys.ArrowUp)y+=1;if(keys.KeyS||keys.ArrowDown)y-=1;if(keys.KeyA||keys.ArrowLeft)x-=1;if(keys.KeyD||keys.ArrowRight)x+=1;
-  if(touchMode&&player.car){x=(tb_.R?1:0)-(tb_.L?1:0)||x;y=(tb_.G?1:0)-(tb_.B?1:0)||y}
+  if(touchMode&&player.car){x=STEER==='stick'?(Math.abs(stick.x)>.08?stick.x:0):((tb_.R?1:0)-(tb_.L?1:0)||x);y=(tb_.G?1:0)-(tb_.B?1:0)||y}
   else if(touchMode&&(stick.x||stick.y)){x=stick.x;y=stick.y}return{x,y}}
 const tb_={};const brakeHeld=()=>keys.Space||tb_.S;
 (function(){const st=document.getElementById('stick'),kn=document.getElementById('knob');let id=null;
@@ -1416,11 +1419,12 @@ function copShoot(p,d){if(cut)return;const f=p.gun&&p.gun.userData.flash;if(f){f
   const tx=player.x+(miss?rr(-2.5,2.5):0),tz=player.z+(miss?rr(-2.5,2.5):0);
   const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(p.x,2.2,p.z),new THREE.Vector3(tx,1.6,tz)]);const l=new THREE.Line(g,new THREE.LineBasicMaterial({color:0xffe14d}));scene.add(l);tracers.push({l,t:.07});
   if(!miss){if(player.car)player.car.hp-=6;else{player.hp-=8;flashHurt()}}}
-function flashHurt(){const h=document.getElementById('hurt');if(!h)return;h.style.opacity=.55;setTimeout(()=>h.style.opacity=0,120)}
+const buzz=ms=>{try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}};
+function flashHurt(){buzz(60);const h=document.getElementById('hurt');if(!h)return;h.style.opacity=.55;setTimeout(()=>h.style.opacity=0,120)}
 function driveAI2(c,dt){c.speed*=1-dt;carPhysics(c,0,0,true,dt)}
 function removeCar(c){if(c.driverMesh)c.driverMesh.traverse(o=>{if(o.geometry&&o.geometry.userData.own)o.geometry.dispose()});scene.remove(c.mesh);if(c.siren)for(const sr of c.siren)sr&&sr.material.dispose();const i=cars.indexOf(c);if(i>=0)cars.splice(i,1);if(c===player.car)exitCar(true)}
 const fxs=[];
-function crashFx(c){if(Math.hypot(c.x-player.x,c.z-player.z)<60)SFX.crash(c===player.car?1:.5)}
+function crashFx(c){if(c===player.car)buzz(Math.min(120,Math.abs(c.speed)*4|0));if(Math.hypot(c.x-player.x,c.z-player.z)<60)SFX.crash(c===player.car?1:.5)}
 function explode(c){if(c.dead)return;c.dead=true;c.speed=0;c.mesh.traverse(o=>{if(o.material)o.material=M(0x1a1a1a)});
   const f=new THREE.Mesh(new THREE.SphereGeometry(4,10,8),new THREE.MeshBasicMaterial({color:0xff8a2f,transparent:true,opacity:.9}));
   f.position.set(c.x,2,c.z);scene.add(f);fxs.push({m:f,t:0});if(Math.hypot(c.x-player.x,c.z-player.z)<120)SFX.explode();
@@ -1431,7 +1435,7 @@ function explode(c){if(c.dead)return;c.dead=true;c.speed=0;c.mesh.traverse(o=>{i
 
 // ===== 开枪 =====
 const tracers=[];
-function fire(w=WEAPONS[2]){player.aimT=.35;muzzle();let fx=Math.sin(player.rot),fz=Math.cos(player.rot);
+function fire(w=WEAPONS[2]){buzz(w.id==='rifle'?15:30);player.aimT=.35;muzzle();let fx=Math.sin(player.rot),fz=Math.cos(player.rot);
   if(player.aiming&&aimLock){const dx=aimLock.x-player.x,dz=aimLock.z-player.z,d=Math.hypot(dx,dz)||1;fx=dx/d;fz=dz/d}w.id==='rifle'?SFX.rifle():SFX.gun();
   let best=null,bd=w.range;
   for(const t of[...peds.filter(p=>!p.dead),...cars.filter(c=>!c.dead&&c!==player.car)]){const dx=t.x-player.x,dz=t.z-player.z,f=dx*fx+dz*fz,s=Math.abs(dx*fz-dz*fx);
@@ -1747,7 +1751,7 @@ function respawnAt(type){if(type==='dead')STATS.deaths++;else STATS.busted++;con
   if(mission.stage==='run')fail('任务失败');
   setTimeout(()=>toast(type==='dead'?`出院了  医药费 -$${fee}`:`保释出来了  罚款 -$${fee}`),500)}
 function step(){requestAnimationFrame(step);try{frame()}catch(e){console.error(e)}}
-function frame(){const tm=player.car?'drive':'foot',te=document.getElementById('touch');if(te.dataset.mode!==tm){te.dataset.mode=tm;for(const k in tb_)tb_[k]=false;te.querySelectorAll('.on').forEach(e=>e.classList.remove('on'));stick.x=stick.y=0;document.getElementById('knob').style.transform=''}
+function frame(){const tm=player.car?'drive':'foot',te=document.getElementById('touch');if(te.dataset.mode!==tm){te.dataset.mode=tm;for(const k in tb_)tb_[k]=false;te.querySelectorAll('.tb.on').forEach(e=>e.classList.remove('on'));if(STEER!=='stick'){stick.x=stick.y=0;document.getElementById('knob').style.transform=''}}
 const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running||mapOpen||shopOpen){ren.render(scene,cam);return}
   const{ x:ax,y:ay}=axis();
   if(act.enter){act.enter=0;if(!boarding)player.car?exitCar(false):enterCar()}
@@ -1870,14 +1874,17 @@ function updStream(){const px=player.car?player.car.x:player.x,pz=player.car?pla
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
     const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;scene.add(m)}})();
 // 开局分批生成出生点附近的城市，开始按钮显示进度
+let STEER='btn';try{STEER=localStorage.getItem('nby-steer')||'btn'}catch(e){}
+function setSteer(v){STEER=v;try{localStorage.setItem('nby-steer',v)}catch(e){}$('touch').dataset.steer=v;for(const b of document.querySelectorAll('#steerRow button')){b.classList.toggle('on',b.dataset.s===v);b.setAttribute('aria-checked',b.dataset.s===v)}}
 let cityReady=false;updDayNight(0);
 (function bootCity(){const st=$('start'),label=st.textContent;st.disabled=true;
   const todo=JOBS.filter(j=>Math.hypot(j.x-SPN.x,j.z-SPN.z)-j.r<Math.min(LOAD_R,300)).sort((a,b)=>Math.hypot(a.x-SPN.x,a.z-SPN.z)-Math.hypot(b.x-SPN.x,b.z-SPN.z));let k=0;
   (function step(){const t0=performance.now();while(k<todo.length&&performance.now()-t0<40)buildJob(todo[k++]);
     st.textContent=`正在生成城市 ${Math.round(k/Math.max(1,todo.length)*100)}%`;
     if(k<todo.length)requestAnimationFrame(step);else{st.textContent=st.dataset.label||label;st.disabled=false;cityReady=true}})()})();
-for(const b of document.querySelectorAll('.qrow button')){b.classList.toggle('on',b.dataset.q===QK);b.setAttribute('aria-checked',b.dataset.q===QK);
-  b.addEventListener('click',()=>{applyQuality(b.dataset.q);for(const x of document.querySelectorAll('.qrow button')){x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)}})}
+for(const b of document.querySelectorAll('.qrow button[data-q]')){b.classList.toggle('on',b.dataset.q===QK);b.setAttribute('aria-checked',b.dataset.q===QK);
+  b.addEventListener('click',()=>{applyQuality(b.dataset.q);for(const x of document.querySelectorAll('.qrow button[data-q]')){x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)}})}
+for(const b of document.querySelectorAll('#steerRow button'))b.addEventListener('click',()=>setSteer(b.dataset.s));setSteer(STEER);
 $('shopClose').addEventListener('click',closeShop);$('bmStats').addEventListener('click',()=>{const sp=$('statsPanel');sp.hidden=!sp.hidden;if(!sp.hidden)renderStats()});
 $('wpn').addEventListener('click',nextWeapon);$('wpn').addEventListener('touchend',e=>{e.preventDefault();nextWeapon()});setWeapon(0);
 offerMission();cam.position.set(player.x,40,player.z-40);
