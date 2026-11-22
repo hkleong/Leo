@@ -1582,7 +1582,7 @@ function carPhysics(c,thr,steer,brake,dt){
   for(const o of cars)if(o!==c&&!o.dead){const dx=o.x-c.x,dz=o.z-c.z,d=Math.hypot(dx,dz);
     if(d<5.2&&d>0){const p=(5.2-d)/2;c.x-=dx/d*p;c.z-=dz/d*p;o.x+=dx/d*p;o.z+=dz/d*p;
       if(Math.abs(c.speed)>10){const ms=(SPECS[c.kind]||SPECS.sedan).mass/((SPECS[o.kind]||SPECS.sedan).mass);o.speed=c.speed*.5*ms;c.speed*=Math.min(.9,.4*ms);if(c===player.car)SFX.crash(.7)}}}
-  c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;if(c.mesh.userData.bike){c.lean=(c.lean||0)+(steer*clamp(Math.abs(c.speed)/18,0,1)*.4-(c.lean||0))*Math.min(1,dt*6);c.mesh.rotation.z=c.lean}for(const w of c.mesh.userData.wheels)w.rotation.x+=c.speed*dt/.55;
+  c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;if(c.mesh.userData.bike){c.lean=(c.lean||0)+(-steer*Math.sign(c.speed||1)*clamp(Math.abs(c.speed)/18,0,1)*.4-(c.lean||0))*Math.min(1,dt*6);c.mesh.rotation.z=c.lean}for(const w of c.mesh.userData.wheels)w.rotation.x+=c.speed*dt/.55;
   if(c.hp<=0)explode(c)}
 
 // ===== 交通 AI =====
