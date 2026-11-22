@@ -604,7 +604,7 @@ const keys={};let touchMode=false;const stick={x:0,y:0};
 addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='KeyE')act.enter=1;if(e.code==='KeyF')act.fire=1;if(e.code==='Space'&&!e.repeat)act.jump=1;if(e.code==='KeyQ'&&!e.repeat)nextWeapon();if(/^Digit[1-4]$/.test(e.code))setWeapon(+e.code[5]-1);if(e.code==='KeyH'&&player.car&&!e.repeat)SFX.horn();if(e.code==='KeyG'&&!e.repeat)nextRadio();if(e.code==='KeyM')toggleMute();if(e.code.startsWith('Arrow')||e.code==='Space')e.preventDefault()});
 addEventListener('keyup',e=>keys[e.code]=false);
 const act={enter:0,fire:0,jump:0};let aimOn=false;
-function toggleAim(v){if(player.car){aimOn=false;return}aimOn=v??!aimOn;document.getElementById('bA').classList.toggle('on',aimOn)}
+function toggleAim(v){if(player.car){aimOn=false;return}aimOn=v??!aimOn;if(aimOn&&typeof aimY!=='undefined')aimY=.46;document.getElementById('bA').classList.toggle('on',aimOn)}
 addEventListener('mousedown',e=>{if(e.button===2&&running)toggleAim()});addEventListener('keydown',e=>{if(e.code==='KeyR'&&!e.repeat&&running)toggleAim()});addEventListener('contextmenu',e=>e.preventDefault());
 function axis(){let x=0,y=0;
   if(keys.KeyW||keys.ArrowUp)y+=1;if(keys.KeyS||keys.ArrowDown)y-=1;if(keys.KeyA||keys.ArrowLeft)x-=1;if(keys.KeyD||keys.ArrowRight)x+=1;
@@ -989,6 +989,7 @@ function attachWeapon(){const r=player.mesh.userData.rig;if(!r)return;if(player.
   player.wMesh=weaponMesh(WEAPONS[wIdx].id);r.hands[1].add(player.wMesh)}
 // 持握姿势：在基础姿势之上叠加
 function holdPose(st){const r=player.mesh.userData.rig;if(!r)return;const{shs,els}=r;const w=WEAPONS[wIdx].id;
+  if(st==='aim'&&player.aiming){const k=(aimY-.46)*2.2;shs[1].rotation.x+=k;if(w==='rifle')shs[0].rotation.x+=k}
   if(st==='aim'&&w==='rifle'){shs[0].rotation.x=-1.45;shs[0].rotation.z=.5;els[0].rotation.x=-.55}
   if(st==='aim'||st==='punch'||st==='swing'||st==='jump')return;
   if(w==='rifle'){shs[1].rotation.x=-.45;els[1].rotation.x=-1.35;shs[0].rotation.x=-.95;shs[0].rotation.z=.45;els[0].rotation.x=-1.25}
@@ -1474,7 +1475,8 @@ function copWitness(x,z){for(const c of cars)if(c.police&&!c.dead&&c!==player.ca
 // 瞄准锁定：准星方向 12° 以内、50 米内最近的人或车
 let aimLock=null;
 const _av=new THREE.Vector3();
-function updAimLock(){aimLock=null;let best=9;const cy=1-2*.46;
+let aimY=.46; // 准星在屏幕上的高度（0=顶部，1=底部）
+function updAimLock(){aimLock=null;let best=9;const cy=1-2*aimY;
   for(const t of[...peds.filter(p=>!p.dead),...cars.filter(c=>!c.dead&&c!==player.car)]){const d=Math.hypot(t.x-player.x,t.z-player.z);if(d>55||d<.6)continue;
     // 目标从脚到头的屏幕范围：准星高度落在范围内就算对准，主要看左右偏差（瞄准时镜头只能左右转）
     _av.set(t.x,.2,t.z).project(cam);if(_av.z>1||_av.z<-1)continue;const y0=_av.y,x0=_av.x;_av.set(t.x,t.kind?2.2:2.9,t.z).project(cam);const y1=_av.y;
@@ -1828,13 +1830,14 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   const tf=aimC?50:65;if(Math.abs(cam.fov-tf)>.1){cam.fov+=(tf-cam.fov)*Math.min(1,dt*10);cam.updateProjectionMatrix()}
   if(aimC)camLook.set(player.x+Math.sin(camYaw)*12-Math.cos(camYaw)*sh,2.3,player.z+Math.cos(camYaw)*12+Math.sin(camYaw)*sh);else camLook.set(player.x,player.car?1.5:2,player.z);
   if(!cut){sky.position.copy(cam.position);cam.lookAt(camLook)}
-  $('xh').hidden=!aimC;$('xh').classList.toggle('lock',!!(aimC&&aimLock));
+  $('xh').hidden=!aimC;if(aimC)$('xh').style.top=(aimY*100)+'%';$('xh').classList.toggle('lock',!!(aimC&&aimLock));
   {const L=SUN_DIR.y>-.05?SUN_DIR.clone():SUN_DIR.clone().negate();const d=L.y<.15?L.setY(.15).normalize():L;sun.position.set(player.x+d.x*220,d.y*220,player.z+d.z*220);sun.target.position.set(player.x,0,player.z)}
   hud(dt);ren.render(scene,cam)}
 let camYaw=0,camPitch=0,camHold=0;
 // 拖动屏幕旋转视角：手指在空白处拖（不影响摇杆和按钮），电脑按住鼠标左键拖
 (function(){const el=ren.domElement;let lookId=null,lx=0,ly=0,md=false;
-  const move=(x,y)=>{const dx=x-lx,dy=y-ly;lx=x;ly=y;if(mapOpen||!running)return;camYaw-=dx*.0065;camPitch=clamp(camPitch+dy*.004,-.3,1);camHold=1.5};
+  const move=(x,y)=>{const dx=x-lx,dy=y-ly;lx=x;ly=y;if(mapOpen||!running)return;camYaw-=dx*.0065;
+    if(player.aiming&&!player.car)aimY=clamp(aimY+dy/innerHeight*1.1,.16,.8);else camPitch=clamp(camPitch+dy*.004,-.3,1);camHold=1.5};
   el.addEventListener('touchstart',e=>{if(lookId!==null)return;const t=e.changedTouches[0];lookId=t.identifier;lx=t.clientX;ly=t.clientY},{passive:true});
   el.addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===lookId)move(t.clientX,t.clientY);e.preventDefault()},{passive:false});
   const end=e=>{for(const t of e.changedTouches)if(t.identifier===lookId)lookId=null};el.addEventListener('touchend',end);el.addEventListener('touchcancel',end);
