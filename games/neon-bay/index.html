@@ -226,7 +226,7 @@ function rgeo(w,h,d,k){const key=[w,h,d,k].map(v=>+v.toFixed(3)).join();if(geoCa
   return geoCache[key]=g}
 const rbox=(w,h,d,c,k=.42)=>{const m=new THREE.Mesh(rgeo(w,h,d,k),typeof c==='number'?M(c):c);m.castShadow=m.receiveShadow=true;return m};
 const leafGeo=(()=>{const g=rgeo(6,.25,1.6,.45).clone();g.translate(3,0,0);const p=g.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i);p.setY(i,p.getY(i)-x*x*.06)}g.computeVertexNormals();return g})();
-const box=(w,h,d,c)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof c==='number'?M(c):c);m.castShadow=m.receiveShadow=true;return m};
+const box=(w,h,d,c)=>{if(c&&c.atlas)return atlasMesh(new THREE.BoxGeometry(w,h,d),c);const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),typeof c==='number'?M(c):c);m.castShadow=m.receiveShadow=true;return m};
 
 // ===== 城市 =====
 const solids=[]; // {x0,x1,z0,z1}
@@ -381,6 +381,23 @@ function storefront(ox,oz,w,d,col,trim,face){const g=tiledBox(w+.12,4.4,d+.12,sh
 // 立面贴图 = 4 开间 × 2 层（16 × 10 米），平铺到楼体；另画一张低分辨率“亮窗”遮罩当自发光贴图，夜里窗户亮
 const FAC_W=16,FAC_H=10,FACADE_MATS=[],facCache={},TEXQ=MOBILE?.5:1;
 const hexOf=c=>'#'+new THREE.Color(c).getHexString();
+// 贴图集：8×6 格，每格 512×320（手机减半）。立面、店面、墙面、屋顶、门窗各占一格
+const ATL=(()=>{const cw=512*TEXQ|0,ch=320*TEXQ|0,cols=8,rows=6,c=document.createElement('canvas'),e=document.createElement('canvas');c.width=cols*cw;c.height=rows*ch;e.width=c.width/2;e.height=c.height/2;
+  const eg=e.getContext('2d');eg.fillStyle='#000';eg.fillRect(0,0,e.width,e.height);const tex=new THREE.CanvasTexture(c),etex=new THREE.CanvasTexture(e);tex.anisotropy=8;etex.anisotropy=4;
+  return{cw,ch,cols,rows,c,e,g:c.getContext('2d'),eg,n:0,tex,etex}})();
+function atlasAdd(cv,em){let k=ATL.n++;if(k>=ATL.cols*ATL.rows){console.warn('atlas full');k=ATL.cols*ATL.rows-1}
+  const x=(k%ATL.cols)*ATL.cw,y=((k/ATL.cols)|0)*ATL.ch,W=ATL.c.width,H=ATL.c.height,pad=2;ATL.g.drawImage(cv,x,y,ATL.cw,ATL.ch);if(em)ATL.eg.drawImage(em,x/2,y/2,ATL.cw/2,ATL.ch/2);
+  ATL.tex.needsUpdate=true;ATL.etex.needsUpdate=true;return{atlas:1,rect:[(x+pad)/W,1-(y+ATL.ch-pad)/H,(ATL.cw-2*pad)/W,(ATL.ch-2*pad)/H]}}
+// 共用材质：UV 仍按米平铺，着色器里用 fract 把它折回贴图集里对应的那一格（用原始 UV 的导数选 mip，避免接缝）
+const ATLAS_MAT=new THREE.MeshToonMaterial({map:ATL.tex,emissiveMap:ATL.etex,emissive:0xffffff,emissiveIntensity:.15,gradientMap:toonGrad});
+ATLAS_MAT.onBeforeCompile=sh=>{
+  sh.vertexShader=sh.vertexShader.replace('#include <uv_pars_vertex>','#include <uv_pars_vertex>\nattribute vec4 tileR;varying vec4 vTile;varying vec2 vRep;').replace('#include <uv_vertex>','#include <uv_vertex>\nvTile=tileR;vRep=uv;');
+  sh.fragmentShader=sh.fragmentShader.replace('#include <uv_pars_fragment>','#include <uv_pars_fragment>\nvarying vec4 vTile;varying vec2 vRep;\nvec4 atl(sampler2D t){vec2 a=vTile.xy+fract(vRep)*vTile.zw;\n#if __VERSION__>=300\nreturn textureGrad(t,a,dFdx(vRep)*vTile.zw,dFdy(vRep)*vTile.zw);\n#else\nreturn texture2D(t,a);\n#endif\n}')
+    .replace('#include <map_fragment>','vec4 texelColor=atl(map);texelColor=mapTexelToLinear(texelColor);diffuseColor*=texelColor;')
+    .replace('#include <emissivemap_fragment>','vec4 emissiveColor=atl(emissiveMap);emissiveColor.rgb=emissiveMapTexelToLinear(emissiveColor).rgb;totalEmissiveRadiance*=emissiveColor.rgb;')};
+ATLAS_MAT.customProgramCacheKey=()=>'atlas1';FACADE_MATS.push(ATLAS_MAT);
+function atlasMesh(geo,ent){const n=geo.attributes.position.count,a=new Float32Array(n*4);for(let i=0;i<n;i++)a.set(ent.rect,i*4);geo.setAttribute('tileR',new THREE.BufferAttribute(a,4));
+  const m=new THREE.Mesh(geo,ATLAS_MAT);m.castShadow=m.receiveShadow=true;return m}
 // 抹灰墙：底色 + 斑驳色块 + 细颗粒 + 竖向雨水污渍（贴图上下可平铺）
 function paintStucco(g,W,H,col,rnd,dirt=1){g.fillStyle=hexOf(col);g.fillRect(0,0,W,H);
   for(let k=0;k<W*H/1400;k++){const r=10+rnd()*40,x=rnd()*W,y=rnd()*H,gr=g.createRadialGradient(x,y,0,x,y,r),cc=rnd()<.5?'255,255,255':'70,50,40';gr.addColorStop(0,`rgba(${cc},${.03+rnd()*.03})`);gr.addColorStop(1,`rgba(${cc},0)`);g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2)}
@@ -431,8 +448,7 @@ function facadeMat(style,col){const key=style+col;if(facCache[key])return facCac
       else if(style==='brick'||style==='brickTan'){const ww=BW*.38,wh=FP*.55,wx=x0+(BW-ww)/2,wy=y0+FP*.2;windowUnit(g,ge,wx,wy,ww,wh,'#f4f1ea',lit,rnd,{panes:true,lintel:true,curtain:rnd()<.5})}
       else if(style==='clinic'){const ww=BW*.78,wh=FP*.42,wx=x0+(BW-ww)/2,wy=y0+FP*.24;windowUnit(g,ge,wx,wy,ww,wh,'#c8ced6',lit,rnd,{sill:false});g.fillStyle='#c8ced6';g.fillRect(wx+ww/3,wy,3,wh);g.fillRect(wx+ww*2/3,wy,3,wh)}}}
   // 底部（墙根）略脏
-  const t=new THREE.CanvasTexture(c),te=new THREE.CanvasTexture(e);for(const x of[t,te]){x.wrapS=x.wrapT=THREE.RepeatWrapping;x.anisotropy=4}
-  const m=new THREE.MeshToonMaterial({map:t,emissiveMap:te,emissive:0xffffff,emissiveIntensity:.15,gradientMap:toonGrad});FACADE_MATS.push(m);return facCache[key]=m}
+  return facCache[key]=atlasAdd(c,e)}
 // 平铺用的普通材质：墙面（抹灰 / 木挂板 / 砖）、屋顶（沥青瓦 / 陶土筒瓦）、店面、楼顶
 const surfCache={};
 function surfMat(kind,col,unit=4){const key=kind+col;if(surfCache[key])return surfCache[key];const S=256,c=document.createElement('canvas');c.width=c.height=S;const g=c.getContext('2d'),rnd=mulberry(key.length*977+col);
@@ -445,18 +461,18 @@ function surfMat(kind,col,unit=4){const key=kind+col;if(surfCache[key])return su
   else if(kind==='tile'){g.fillStyle=hexOf(col);g.fillRect(0,0,S,S);for(let x=0;x<S;x+=21){const gr=g.createLinearGradient(x,0,x+21,0);gr.addColorStop(0,'rgba(0,0,0,.35)');gr.addColorStop(.45,'rgba(255,255,255,.22)');gr.addColorStop(1,'rgba(0,0,0,.4)');g.fillStyle=gr;g.fillRect(x,0,21,S)}
       for(let y=0;y<S;y+=32){g.fillStyle='rgba(0,0,0,.32)';g.fillRect(0,y+28,S,4);g.fillStyle='rgba(255,255,255,.12)';g.fillRect(0,y,S,3)}for(let k=0;k<400;k++){g.fillStyle=`rgba(0,0,0,${rnd()*.08})`;g.fillRect(rnd()*S,rnd()*S,3,3)}}
   else if(kind==='roofTop'){g.fillStyle='#8a8580';g.fillRect(0,0,S,S);for(let k=0;k<5000;k++){g.fillStyle=`rgba(${rnd()<.5?'255,255,255':'0,0,0'},${rnd()*.15})`;g.fillRect(rnd()*S,rnd()*S,2,2)}}
-  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;const m=new THREE.MeshToonMaterial({map:t,gradientMap:toonGrad,color:kind==='brick'?0xffffff:0xffffff});m.userData.unit=unit;return surfCache[key]=m}
+  return surfCache[key]=atlasAdd(c,null)}
 // 平房的窗（上下推拉窗：白色窗框、四格玻璃、窗帘，夜里亮灯）和门（木纹嵌板门）
 const houseWinMat=(()=>{const c=document.createElement('canvas'),e=document.createElement('canvas');c.width=e.width=128;c.height=e.height=104;const g=c.getContext('2d'),ge=e.getContext('2d'),rnd=mulberry(55);
   g.fillStyle='#f4f1ea';g.fillRect(0,0,128,104);ge.fillStyle='#000';ge.fillRect(0,0,128,104);
   for(const[x,y]of[[10,10],[66,10],[10,56],[66,56]]){paintGlass(g,{set fillStyle(v){},fillRect(){}},x,y,52,38,0,rnd,false)}
   g.fillStyle='rgba(240,220,190,.7)';g.fillRect(10,10,16,84);g.fillRect(102,10,16,84);g.fillStyle='rgba(0,0,0,.25)';g.fillRect(8,50,112,4);
   ge.fillStyle='#ffcf8a';ge.fillRect(10,10,108,84);
-  const t=new THREE.CanvasTexture(c),te=new THREE.CanvasTexture(e);const m=new THREE.MeshToonMaterial({map:t,emissiveMap:te,emissive:0xffffff,emissiveIntensity:.1,gradientMap:toonGrad});FACADE_MATS.push(m);return m})();
+  return atlasAdd(c,e)})();
 const houseDoorMat=(()=>{const c=document.createElement('canvas');c.width=64;c.height=128;const g=c.getContext('2d'),rnd=mulberry(66);g.fillStyle='#7a4a2e';g.fillRect(0,0,64,128);
   for(let k=0;k<60;k++){g.fillStyle=`rgba(${rnd()<.5?'40,20,10':'160,110,70'},${.1+rnd()*.15})`;g.fillRect(rnd()*64,0,1+rnd()*2,128)}
   g.fillStyle='rgba(0,0,0,.3)';for(const[x,y,w,h]of[[8,8,20,46],[36,8,20,46],[8,64,20,56],[36,64,20,56]]){g.fillRect(x,y,w,h);g.fillStyle='rgba(255,220,180,.15)';g.fillRect(x+2,y+2,w-4,h-4);g.fillStyle='rgba(0,0,0,.3)'}
-  g.fillStyle='#d9a93a';g.beginPath();g.arc(52,70,3,0,7);g.fill();const t=new THREE.CanvasTexture(c);return new THREE.MeshToonMaterial({map:t,gradientMap:toonGrad})})();
+  g.fillStyle='#d9a93a';g.beginPath();g.arc(52,70,3,0,7);g.fill();return atlasAdd(c,null)})();
 // 店面：大橱窗 + 门 + 货架剪影 + 招牌底板（有亮灯遮罩）
 const shopCache={};
 function shopMat(v){if(shopCache[v])return shopCache[v];const W=512*TEXQ|0,H=144*TEXQ|0,c=document.createElement('canvas'),e=document.createElement('canvas');c.width=e.width=W;c.height=e.height=H;
@@ -469,20 +485,23 @@ function shopMat(v){if(shopCache[v])return shopCache[v];const W=512*TEXQ|0,H=144
     const gr=g.createLinearGradient(x,14,x+116,114);gr.addColorStop(0,'rgba(255,255,255,.28)');gr.addColorStop(.4,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(x,14,116,isDoor?126:100);
     g.fillStyle='#22222a';g.fillRect(x-4,10,4,134);if(isDoor){g.fillRect(x+56,14,4,126);g.fillStyle='#c8c8c8';g.fillRect(x+48,70,3,20);g.fillRect(x+66,70,3,20)}else{g.fillStyle='#55525a';g.fillRect(x,114,116,30)}}
   g.fillStyle='#22222a';g.fillRect(0,0,512,12);
-  const t=new THREE.CanvasTexture(c),te=new THREE.CanvasTexture(e);for(const x of[t,te]){x.wrapS=x.wrapT=THREE.RepeatWrapping}
-  const m=new THREE.MeshToonMaterial({map:t,emissiveMap:te,emissive:0xffffff,emissiveIntensity:.3,gradientMap:toonGrad});FACADE_MATS.push(m);return shopCache[v]=m}
+  return shopCache[v]=atlasAdd(c,e)}
 // 按米平铺的盒子：侧面 UV 按面宽 / 单位长度；可单独给顶面材质
 function tiledBox(w,hgt,d,mat,uw,uh,topMat){const geo=new THREE.BoxGeometry(w,hgt,d),uv=geo.attributes.uv;const faces=[[d,hgt],[d,hgt],[w,d],[w,d],[w,hgt],[w,hgt]];
   for(let f=0;f<6;f++)for(let k=0;k<4;k++){const i=f*4+k,[fw,fh]=faces[f];uv.setXY(i,uv.getX(i)*fw/uw,uv.getY(i)*fh/uh)}
+  if(mat&&mat.atlas)return atlasMesh(geo,mat);
   if(topMat){geo.clearGroups();for(let f=0;f<6;f++)geo.addGroup(f*6,6,f===2?1:0)}
   const m=new THREE.Mesh(geo,topMat?[mat,topMat]:mat);m.castShadow=m.receiveShadow=true;return m}
 const facadeBox=(w,hgt,d,style,col)=>tiledBox(w,hgt,d,facadeMat(style,col),FAC_W,FAC_H);
 const surfBox=(w,hgt,d,kind,col,unit=4)=>tiledBox(w,hgt,d,surfMat(kind,col),unit,unit);
 // 圆柱楼体也贴立面
 function facadeCyl(r,hgt,style,col,seg=24){const geo=new THREE.CylinderGeometry(r,r,hgt,seg,1,true),uv=geo.attributes.uv,circ=Math.PI*2*r;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*circ/FAC_W,uv.getY(i)*hgt/FAC_H);
-  const m=new THREE.Mesh(geo,facadeMat(style,col));m.castShadow=true;return m}
+  return atlasMesh(geo,facadeMat(style,col))}
 const FAC_STYLES=['hotel','hotel','apart','ribbon','brick','brickTan'],FAC_OFFICE=[0xd8dde4,0x9fd8d8,0xe8d8c0];
 const FAC_COLS={hotel:[0xffc8d6,0xbfeee6,0xfff0c2,0xd8c8ff],apart:[0xf4ead8,0xffd0a8,0xc8e8f8],ribbon:[0xf0ece4,0xd8e8f0],brick:[0x9a4a36],brickTan:[0xc9a878]};
+{for(const st in FAC_COLS)for(const c of FAC_COLS[st])facadeMat(st,c);for(const c of FAC_OFFICE)facadeMat('office',c);facadeMat('clinic',0xf4f6f8);facadeMat('clinic',0xdff4f6);
+ for(let v=0;v<4;v++)shopMat(v);for(const w of[0xfff1e0,0xffd6e0,0xcff5ee,0xfff3b0,0xe0d6ff,0xffe0c8])for(const k of['siding','stucco'])surfMat(k,w);
+ for(const r of[0x5a4a48,0x4a5868,0x6a5a4a])surfMat('shingle',r);surfMat('tile',0xb5583a);surfMat('stucco',0xfbf8f2)}
 function addBuilding(ox,oz,w,h){const d=w,col=pal[(R()*pal.length)|0],trim=trimPal[(R()*trimPal.length)|0],sx=R()<.5?1:-1,sz=R()<.5?1:-1;
   storefront(ox,oz,w,d,col,trim);
   if(h>=28){ // —— 高楼：三段收分 + 转角竖鳍 + 楼顶尖塔
@@ -580,7 +599,7 @@ function addHouse(x,z,face,lw=BLK/2,ld=BLK/2){const w=Math.min(rr(17,22),lw-8),d
   const sl=Math.hypot(d/2+.8,rise);for(const sd of[-1,1]){const r=surfBox(w+1.4,.35,sl,rk,rcol,4);r.position.set(x,hh+rise/2,hz+sd*(d/4+.2));r.rotation.x=sd*Math.atan2(rise,d/2+.8);scene.add(r)}
   const ridge=box(w+1.5,.4,.6,rcol);ridge.position.set(x,hh+rise,hz);scene.add(ridge);
   {const tri=new THREE.Shape();tri.moveTo(-d/2-.1,0);tri.lineTo(d/2+.1,0);tri.lineTo(0,rise);tri.lineTo(-d/2-.1,0);const tg=new THREE.ExtrudeGeometry(tri,{depth:w-.1,bevelEnabled:false});tg.rotateY(Math.PI/2);tg.translate(-(w-.1)/2,0,0);
-   const gk='gab'+wk+wall;if(!surfCache[gk]){const gm=surfMat(wk,wall).clone();gm.map=gm.map.clone();gm.map.needsUpdate=true;gm.map.repeat.set(.25,.25);surfCache[gk]=gm}const gab=new THREE.Mesh(tg,surfCache[gk]);gab.position.set(x,hh,hz);gab.castShadow=true;scene.add(gab)}
+   {const uv=tg.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*.25,uv.getY(i)*.25)}const gab=atlasMesh(tg,surfMat(wk,wall));gab.position.set(x,hh,hz);gab.castShadow=true;scene.add(gab)}
   const ch=box(1.4,3.4,1.4,0x9a6a5a);ch.position.set(x+w*.28,hh+rise-.2,hz-d*.15);scene.add(ch);
   const fz=hz+face*(d/2+.05);
   const door=box(1.9,3.6,.15,houseDoorMat);door.position.set(x,1.8,fz);scene.add(door);
@@ -588,7 +607,7 @@ function addHouse(x,z,face,lw=BLK/2,ld=BLK/2){const w=Math.min(rr(17,22),lw-8),d
   const por=box(6,.3,3.4,roof);por.position.set(x,4.4,fz+face*1.6);scene.add(por);
   for(const sd of[-1,1]){const col=box(.35,4.3,.35,0xffffff);col.position.set(x+sd*2.7,2.15,fz+face*3.1);scene.add(col)}
   const step=box(3,.45,1.4,0xb8b0a8);step.position.set(x,.22,fz+face*.8);scene.add(step);
-  for(const sd of[-1,1]){const wn=new THREE.Mesh(new THREE.BoxGeometry(3,2.4,.12),houseWinMat);wn.position.set(x+sd*(w*.3),3,fz);scene.add(wn);
+  for(const sd of[-1,1]){const wn=atlasMesh(new THREE.BoxGeometry(3,2.4,.12),houseWinMat);wn.position.set(x+sd*(w*.3),3,fz);scene.add(wn);
     const sh=box(.7,2.6,.1,roof);sh.position.set(x+sd*(w*.3)+sd*1.9,3,fz+face*.05);scene.add(sh)}
   const mx=x-w*.42,mz=z+face*(ld/2-2.2);const mb=box(.6,.7,.9,0x2f6fd0);mb.position.set(mx,1.6,mz);scene.add(mb);const mp=box(.15,1.4,.15,0x555555);mp.position.set(mx,.7,mz);scene.add(mp);
   const fzz=z+face*(ld/2-1.2);for(let k=-7;k<=7;k++){if(Math.abs(k)<=1)continue;const pk=box(.22,1.5,.14,0xffffff);pk.position.set(x+k*1.15,.75,fzz);scene.add(pk)}
@@ -2049,15 +2068,19 @@ for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
  [['wedge',0x1fb5a8],['convertible',0xf4f0e6],['pickup',0x15151a],['sedan',0x8a3fc8],['taxi',0xffd21f],['coupe',0xc8ccd4]].forEach(([k,col],i)=>{
    const c=makeCar(px+4,pz0+i*8.5+2.25,-Math.PI/2,{kind:k,color:col});c.driver=null;c.parked=1});}
 // 把一批网格按材质合并（每块单独合并，看不到的块会被自动跳过绘制）
-function mergeInto(list,grp){const groups=new Map();
-  for(const o of list){if(o.isMesh&&!(o.material&&(o.material.transparent||o.material.vertexColors))&&!Array.isArray(o.material)){if(!groups.has(o.material))groups.set(o.material,[]);groups.get(o.material).push(o)}else grp.add(o)}
-  for(const[mat,lst]of groups){if(lst.length<2){grp.add(lst[0]);continue}const pos=[],nor=[],uv=[];let cast=false;
+// 把一批网格合并：贴图集材质合成一个；所有纯色卡通材质按颜色写进顶点色、合成一个；其余按材质合并
+const vcPlainMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad});
+function mergeInto(list,grp){const groups=new Map(),PLAIN='plain';
+  for(const o of list){if(!o.isMesh||Array.isArray(o.material)||(o.material&&(o.material.transparent||o.material.vertexColors))){grp.add(o);continue}
+    const m=o.material,key=(m.isMeshToonMaterial&&!m.map&&!m.emissiveMap)?PLAIN:m;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o)}
+  for(const[key,lst]of groups){if(lst.length<2&&key!==PLAIN){grp.add(lst[0]);continue}const pos=[],nor=[],uv=[],tl=[],cl=[];let cast=false;
     for(const o of lst){o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);
-      const P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv;
-      for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0)}
+      const P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv,T=g.attributes.tileR,c=o.material.color;
+      for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0);if(T)tl.push(T.getX(i),T.getY(i),T.getZ(i),T.getW(i));if(key===PLAIN)cl.push(c.r,c.g,c.b)}
       g.dispose();cast=cast||o.castShadow}
-    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));G.userData.merged=1;
-    const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;grp.add(m)}return grp}
+    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+    if(tl.length)G.setAttribute('tileR',new THREE.Float32BufferAttribute(tl,4));if(cl.length)G.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));G.userData.merged=1;
+    const m=new THREE.Mesh(G,key===PLAIN?vcPlainMat:key);m.castShadow=cast;m.receiveShadow=true;grp.add(m)}return grp}
 // 生成时把 scene.add 截下来，收进这个任务自己的组
 let CAP=null;const _sceneAdd=scene.add.bind(scene);scene.add=function(...o){if(CAP){CAP.push(...o);return this}return _sceneAdd(...o)};
 let LOAD_R=Q.load;const UNLOAD_R=640;
@@ -2079,12 +2102,12 @@ function updStream(){const px=player.car?player.car.x:player.x,pz=player.car?pla
   for(const o of[...scene.children]){if(!o.isMesh||o===sky||o===beam||(o.material&&(o.material.transparent||o.material.vertexColors))||Array.isArray(o.material))continue;
     if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();if(o.geometry.boundingSphere.radius*Math.max(o.scale.x,o.scale.z)>200)continue;
     const key=o.material.uuid+'|'+Math.floor(o.position.x/CH)+','+Math.floor(o.position.z/CH);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o)}
-  for(const[key,list]of groups){if(list.length<2)continue;const mat=list[0].material;const pos=[],nor=[],uv=[];let cast=false;
+  for(const[key,list]of groups){if(list.length<2)continue;const mat=list[0].material;const pos=[],nor=[],uv=[],tl=[];let cast=false;
     for(const o of list){o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);
-      const P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv;
-      for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0)}
+      const P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv,T=g.attributes.tileR;
+      for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0);if(T)tl.push(T.getX(i),T.getY(i),T.getZ(i),T.getW(i))}
       g.dispose();cast=cast||o.castShadow;scene.remove(o)}
-    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));if(tl.length)G.setAttribute('tileR',new THREE.Float32BufferAttribute(tl,4));
     const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;scene.add(m)}})();
 // 开局分批生成出生点附近的城市，开始按钮显示进度
 let STEER='btn';try{STEER=localStorage.getItem('nby-steer')||'btn'}catch(e){}
