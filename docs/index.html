@@ -980,8 +980,9 @@ function detailTex(kind){const S=256,c=document.createElement('canvas');c.width=
     g.strokeStyle='rgba(0,0,0,.03)';g.lineWidth=.6;for(let k=0;k<40;k++){const x=rnd()*S,y=rnd()*S,a=rnd()*6;g.beginPath();g.moveTo(x,y);g.lineTo(x+Math.cos(a)*(6+rnd()*20),y+Math.sin(a)*(6+rnd()*20));g.stroke()} // 细划痕
   }
   else{for(let y=0;y<S;y+=2){g.fillStyle=`rgba(0,0,0,${.05+rnd()*.03})`;g.fillRect(0,y,S,1)}for(let x=0;x<S;x+=2){g.fillStyle=`rgba(0,0,0,${.04+rnd()*.03})`;g.fillRect(x,0,1,S)} // 织纹
-    for(let k=0;k<3000;k++){g.fillStyle=`rgba(${rnd()<.5?'255,255,255':'0,0,0'},${rnd()*.06})`;g.fillRect(rnd()*S,rnd()*S,2,1)}}
-  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;if(kind!=='car')t.repeat.set(6,6);return t}
+    for(let k=0;k<3000;k++){g.fillStyle=`rgba(${rnd()<.5?'255,255,255':'0,0,0'},${rnd()*.06})`;g.fillRect(rnd()*S,rnd()*S,2,1)}
+    if(REAL)for(let k=0;k<9;k++){const y0=rnd()*S,amp=4+rnd()*8,ph=rnd()*6,w=3+rnd()*5;for(const[dy,col]of[[0,'rgba(0,0,0,.16)'],[-w*.8,'rgba(255,255,255,.12)']]){g.strokeStyle=col;g.lineWidth=w;g.beginPath();for(let x=-4;x<=S+4;x+=8){const y=y0+dy+Math.sin(x/S*Math.PI*2*(1+k%2)+ph)*amp;x<0?g.moveTo(x,y):g.lineTo(x,y)}g.stroke()}}}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;if(kind!=='car')t.repeat.set(REAL?3:6,REAL?2:6);return t}
 const vcCarMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad,map:detailTex('car')}),vcPersonMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad,map:detailTex('cloth')});
 const lightVC=new THREE.MeshBasicMaterial({vertexColors:true});
 function outlineMat(t){const m=new THREE.MeshBasicMaterial({color:0x1a0f2a,side:THREE.BackSide});
@@ -1078,6 +1079,11 @@ function faceMat(o){const key=JSON.stringify(o);if(faceCache[key])return faceCac
   const S=256,c=document.createElement('canvas');c.width=c.height=S;const g=c.getContext('2d');const P=(x,y)=>{const[u,v]=facePt(x,y);return[u*S,v*S]};
   const sk=new THREE.Color(o.skin),shade='#'+sk.clone().multiplyScalar(.72).getHexString(),deep='#'+sk.clone().multiplyScalar(.55).getHexString();
   const hair='#'+new THREE.Color(o.brow).getHexString();
+  if(REAL){const sh=(x,y,r,a,rgb)=>{const[cx,cy]=P(x,y),gr=g.createRadialGradient(cx,cy,0,cx,cy,r);gr.addColorStop(0,`rgba(${rgb},${a})`);gr.addColorStop(1,`rgba(${rgb},0)`);g.fillStyle=gr;g.fillRect(cx-r,cy-r,r*2,r*2)};
+    const D='60,28,18',H='255,238,222';
+    for(const sd of[-1,1]){sh(sd*.078,.04,26,.2,D);sh(sd*.14,-.06,34,.13,D);sh(sd*.11,-.005,16,.14,H)}
+    sh(0,.01,12,.25,H);sh(0,-.07,9,.2,H);sh(0,.16,44,.12,H);sh(0,-.2,44,.28,D);sh(0,-.155,14,.12,H);
+    for(const sd of[-1,1]){const[cx]=P(sd*.2,0),gr=g.createLinearGradient(cx,0,cx-sd*60,0);gr.addColorStop(0,`rgba(${D},.3)`);gr.addColorStop(1,`rgba(${D},0)`);g.fillStyle=gr;g.fillRect(Math.min(cx,cx-sd*60),0,60,S)}}
   // 腮红 / 面颊阴影
   for(const sd of[-1,1]){const[cx,cy]=P(sd*.11,-.06),gr=g.createRadialGradient(cx,cy,0,cx,cy,26);gr.addColorStop(0,o.fem?'rgba(235,110,120,.2)':'rgba(170,80,60,.1)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(cx-30,cy-30,60,60)}
   const sp=mulberry(7);
@@ -1164,6 +1170,7 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
   for(const sd of[-1,1]){B.add(sph(.05,12,10),skin,[sd*.198,hy-.005,-.01],[0,sd*.25,0],[.42,1,.75]);B.add(sph(.026,10,8),new THREE.Color(skin).multiplyScalar(.8).getHex(),[sd*.205,hy-.005,-.005],[0,0,0],[.3,.8,.6])}
   // 脖子
   B.add(cyl(.072,.085,.2,16),skin,[0,hy-.25,-.01]);
+  if(REAL){B.add(sph(.042,10,8),skin,[0,hy-.035,.195],[-.25,0,0],[.75,1.35,1]);B.add(sph(.05,10,8),skin,[0,hy-.16,.17],[0,0,0],[1.4,.8,.9])} // 鼻子、下巴
   const fr=mulberry((lookKey||'x').length*131+((R()*1000)|0));
   // 头发
   const hk=[1,1.16,1.05],cap=(r,tl,col=hairC)=>B.add(sph(r,16,8,0,Math.PI*2,0,tl),col,[0,hy+.01,-.005],[0,0,0],hk);
@@ -1468,7 +1475,7 @@ function clipU(poly,umin,umax){const clip=(P,keep,u0)=>{const o=[];for(let i=0;i
   if(ia)o.push(a);if(ia!==ib){const t=(u0-a[0])/(b[0]-a[0]);o.push([u0,a[1]+(b[1]-a[1])*t])}}return o};
   return clip(clip(poly,u=>u>=umin,umin),u=>u<=umax,umax)}
 // 折线平滑（Chaikin 细分）：让车顶、车头、车尾变成曲线，首尾点不动
-function chaikin(pts,it=2){for(let n=0;n<it;n++){const o=[pts[0]];for(let i=0;i<pts.length-1;i++){const[a,b]=[pts[i],pts[i+1]];o.push([a[0]*.75+b[0]*.25,a[1]*.75+b[1]*.25],[a[0]*.25+b[0]*.75,a[1]*.25+b[1]*.75])}o.push(pts.at(-1));pts=o}return pts}
+function chaikin(pts,it=2){if(REAL)it=Math.min(it,1);for(let n=0;n<it;n++){const o=[pts[0]];for(let i=0;i<pts.length-1;i++){const[a,b]=[pts[i],pts[i+1]];o.push([a[0]*.75+b[0]*.25,a[1]*.75+b[1]*.25],[a[0]*.25+b[0]*.75,a[1]*.25+b[1]*.75])}o.push(pts.at(-1));pts=o}return pts}
 // 车身缓存：同车型同颜色只建一次，之后克隆
 const carCache={};
 const CS=1.5; // 车辆缩放：人约 1.8 米、轿车约 4.8 米长
@@ -1553,7 +1560,10 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
     B.add(rgeo(W*.75,.55,.1,.3),0x111114,[0,mid+.05,front+.25]);for(const sd of[-1,1])B.add(rgeo(.1,.6,.3,.3),0x111114,[sd*W*.3,mid+.05,front+.12])}
   // —— 通用：镀铬或黑色保险杠、格栅、车牌、后视镜、门缝线
   if(d.retro||kind==='convertible'){for(const z of[front+.04,rear-.04])B.add(rgeo(W+.06,.18,.22,.4),CHROME,[0,d.gr+.12,z]);B.add(rgeo(W*.55,.3,.06,.2),0x2a2a30,[0,mid,front+.02]);for(let k=0;k<3;k++)B.add(rgeo(W*.53,.03,.07,.3),CHROME,[0,mid-.1+k*.1,front+.03])}
-  else if(kind!=='pickup')for(const z of[front+.02,rear-.02])B.add(rgeo(W*.9,.16,.12,.4),0x1a1a1e,[0,d.gr+.1,z]);
+  else if(kind!=='pickup')for(const z of[front+.02,rear-.02])B.add(rgeo(W*.9+(REAL?.12:0),REAL?.2:.16,REAL?.2:.12,.4),REAL&&kind!=='police'&&kind!=='suv'?CHROME:0x1a1a1e,[0,d.gr+.1,z]);
+  if(REAL){ // 写实：侧面镀铬腰线、门把手、前格栅、车身下沿深色裙边
+    const zl=rear+.35,zr2=front-.35,yl=(d.gr+beltY)/2+.08;for(const sd of[-1,1]){B.add(rgeo(.03,.05,zr2-zl,.3),CHROME,[sd*(W/2+.015),yl,(zl+zr2)/2]);B.add(rgeo(.04,.08,W>2.5?0:4.2,.3),0x15151a,[sd*(W/2+.005),d.gr+.06,0])}
+    if(!d.retro&&kind!=='wedge'&&kind!=='bus'){B.add(rgeo(W*.5,.26,.05,.2),0x16161a,[0,mid+.02,front+.035]);for(let k=0;k<4;k++)B.add(rgeo(W*.5,.025,.06,.3),CHROME,[0,mid-.1+k*.08,front+.04]);B.add(rgeo(W*.52,.3,.03,.2),CHROME,[0,mid+.02,front+.025])}}
   B.add(rgeo(.42,.2,.02,.2),0xf2e29a,[0,d.gr+.2,rear-.13]);
   if(d.glass){const gl=d.glass,fy=gl[3][1];for(const sd of[-1,1])B.add(rgeo(.08,.12,.2,.4),col,[sd*(W/2+.1),fy+.05,gl[3][0]-.12])}
   // —— 灯：前大灯（复古车四圆灯）、尾灯
@@ -1585,6 +1595,8 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
   for(let k=0;k<5;k++)WB.add(rgeo(tw+.04,.06,d.wr*1.1,.3),rimC,[0,0,0],[k/5*Math.PI,0,0]);
   WB.add(cyl(d.wr*.18,d.wr*.18,tw+.06,8),0x888888,[0,0,0],[0,0,Math.PI/2]);
   if(kind==='pickup')for(let k=0;k<12;k++)WB.add(rgeo(tw+.02,.1,.14,.3),0x0c0c0e,[0,0,0],[k/12*Math.PI*2,0,0],[1,1,1]).parts.at(-1)[1].multiply(new THREE.Matrix4().makeTranslation(0,d.wr,0));
+  if(REAL&&kind!=='pickup'&&kind!=='bus'&&kind!=='van'&&kind!=='police'&&kind!=='suv'){WB.add(cyl(d.wr*.78,d.wr*.78,tw+.03,20),0xf2f2ee,[0,0,0],[0,0,Math.PI/2]);WB.add(cyl(d.wr*.58,d.wr*.58,tw+.05,20),0x18181c,[0,0,0],[0,0,Math.PI/2])}
+  if(REAL)WB.add(cyl(d.wr*.42,d.wr*.36,tw+.08,16),CHROME,[0,0,0],[0,0,Math.PI/2]);
   const wg=WB.build(vcCarMat,OL_C);
   for(const u of d.wheels)for(const sd of[-1,1]){const w=wg.clone();w.position.set(sd*(W/2-.1+(kind==='pickup'?.12:0)),d.wr,u);w.userData.wheel=1;g.add(w)}
   return{g}}
@@ -2843,7 +2855,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.16.0';
+const VERSION='v0.17.0';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3009,6 +3021,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
+ ['v0.17','写实模型重做',[['0.17.0','写实画风下：人物加立体鼻子和下巴、脸部画上眼窝/鼻梁/颧骨/下颌的明暗；衣服加褶皱；车身线条更方正，加白边轮胎、镀铬轮毂盖、镀铬保险杠和侧面腰线、前格栅、车身下沿裙边']]],
  ['v0.16','写实画风',[['0.16.0','新增“写实”画风（默认）：去掉卡通描边和色阶，改为平滑光照与高光；人物头身比更接近真人、五官缩小；车漆高光更亮、整体颜色更沉稳。主页和手机设置可切回“卡通”画风']]],
  ['v0.15','画面升级',[['0.15.0','泛光、按时间调色与暗角、太阳光束、全新海面（波纹、倒影、浪花）、湿路面倒影、接触阴影、刹车灯与车头灯光晕、刹车痕与轮胎烟、车漆反光、爆炸火球与烟柱、海鸥、沙尘、路灯光柱、云影；手机设置可开关特效']]],
  ['v0.14','玩法大更新',[['0.14.2','所有载具按模型实际尺寸计算碰撞，摩托车更窄'],['0.14.1','主线金色问号、零活粉色问号（生成在人行道上）、街头事件橙色感叹号'],
