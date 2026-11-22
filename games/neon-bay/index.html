@@ -336,60 +336,125 @@ function pilasters(ox,oz,w,d,y0,y1,col){const hgt=y1-y0;for(const[fx,fz,len,alon
   const n=Math.max(2,Math.round(len/4.2));for(let k=1;k<n;k++){const t=-len/2+k*len/n;const pl=box(along==='x'?.45:.34,hgt,along==='x'?.34:.45,col);pl.castShadow=false;
     pl.position.set(ox+(along==='x'?t:fx*1.004),y0+hgt/2,oz+(along==='x'?fz*1.004:t));scene.add(pl)}}}
 // 一楼店面：大玻璃、门、遮阳棚、霓虹招牌
-function storefront(ox,oz,w,d,col,trim,face){const g=new THREE.Mesh(new THREE.BoxGeometry(w+.12,4.4,d+.12),R()<.65?winWarm:winCool);g.position.set(ox,2.6,oz);scene.add(g);
+function storefront(ox,oz,w,d,col,trim,face){const g=tiledBox(w+.12,4.4,d+.12,shopMat((R()*4)|0),16,4.4);g.position.set(ox,2.6,oz);scene.add(g);
   const base=box(w+.3,.6,d+.3,trim);base.position.set(ox,.3,oz);scene.add(base);
   const band=box(w+.5,1.2,d+.5,col);band.position.set(ox,5.4,oz);scene.add(band);
   for(const[ry,dx,dz]of[[0,0,d/2],[Math.PI,0,-d/2],[Math.PI/2,w/2,0],[-Math.PI/2,-w/2,0]]){if(R()<.45)continue;
     const along=Math.abs(dz)>0,len=along?w:d,ac=[0xff6f91,0x22d3ee,0xffd166,0xffffff,0x8a5cff][(R()*5)|0];
     const aw=box(along?len*.7:2.8,.3,along?2.8:len*.7,ac);aw.position.set(ox+dx+(along?0:Math.sign(dx)*1.3),4.6,oz+dz+(along?Math.sign(dz)*1.3:0));aw.rotation[along?'x':'z']=(along?Math.sign(dz):-Math.sign(dx))*.28;scene.add(aw);
     addSign(ox+dx*1.012+(along?0:Math.sign(dx)*.35),5.4,oz+dz*1.012+(along?Math.sign(dz)*.35:0),ry,Math.min(len*.5,9))}}
-// ===== 立面贴图：用画布原创绘制，一张贴图 = 4 开间 × 2 层（16 × 10 米），平铺到楼体四面 =====
-// 四种风格：hotel 粉彩酒店（窗框+窗台+遮阳篷）、office 玻璃幕墙办公楼、apart 公寓（成对窗+阳台栏杆+百叶）、ribbon 横向带形窗
-// 另画一张同尺寸的“亮窗”遮罩当自发光贴图，夜里窗户会亮
-const FAC_W=16,FAC_H=10,FACADE_MATS=[],facCache={};
+// ===== 写实贴图（全部用画布原创绘制）=====
+// 立面贴图 = 4 开间 × 2 层（16 × 10 米），平铺到楼体；另画一张低分辨率“亮窗”遮罩当自发光贴图，夜里窗户亮
+const FAC_W=16,FAC_H=10,FACADE_MATS=[],facCache={},TEXQ=MOBILE?.5:1;
+const hexOf=c=>'#'+new THREE.Color(c).getHexString();
+// 抹灰墙：底色 + 斑驳色块 + 细颗粒 + 竖向雨水污渍（贴图上下可平铺）
+function paintStucco(g,W,H,col,rnd,dirt=1){g.fillStyle=hexOf(col);g.fillRect(0,0,W,H);
+  for(let k=0;k<W*H/1400;k++){const r=10+rnd()*40,x=rnd()*W,y=rnd()*H,gr=g.createRadialGradient(x,y,0,x,y,r),cc=rnd()<.5?'255,255,255':'70,50,40';gr.addColorStop(0,`rgba(${cc},${.03+rnd()*.03})`);gr.addColorStop(1,`rgba(${cc},0)`);g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2)}
+  for(let k=0;k<W*H/40;k++){g.fillStyle=`rgba(${rnd()<.5?'255,255,255':'0,0,0'},${.04+rnd()*.06})`;g.fillRect(rnd()*W,rnd()*H,1.5,1.5)}
+  for(let k=0;k<W/40*dirt;k++){const x=rnd()*W,w=2+rnd()*8;const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'rgba(50,40,40,0)');gr.addColorStop(rnd(),`rgba(50,40,40,${.04+rnd()*.05})`);gr.addColorStop(1,'rgba(50,40,40,0)');g.fillStyle=gr;g.fillRect(x,0,w,H)}}
+// 砖墙：错缝砌法、每块砖颜色略有差别、灰缝
+function paintBrick(g,W,H,base,rnd,bw=28,bh=9){g.fillStyle='#b8ada0';g.fillRect(0,0,W,H);const c0=new THREE.Color(base);
+  for(let r=0;r*bh<H;r++)for(let c=-1;c*bw<W;c++){const x=c*bw+(r%2?bw/2:0),cc=c0.clone().offsetHSL((rnd()-.5)*.03,(rnd()-.5)*.1,(rnd()-.5)*.12);g.fillStyle='#'+cc.getHexString();g.fillRect(x+1,r*bh+1,bw-2,bh-2);
+    if(rnd()<.3){g.fillStyle='rgba(0,0,0,.12)';g.fillRect(x+1,r*bh+bh-3,bw-2,2)}}}
+// 玻璃：天空反射渐变 + 斜向高光 + 室内（窗帘 / 亮灯）
+function paintGlass(g,ge,x,y,w,h,lit,rnd,curtain){const gr=g.createLinearGradient(x,y,x,y+h);gr.addColorStop(0,'#9cc8e0');gr.addColorStop(.35,'#5b86a8');gr.addColorStop(1,'#1e2c40');g.fillStyle=gr;g.fillRect(x,y,w,h);
+  g.fillStyle='rgba(255,255,255,.18)';g.beginPath();g.moveTo(x+w*.1,y);g.lineTo(x+w*.38,y);g.lineTo(x+w*.08,y+h);g.lineTo(x,y+h*.8);g.closePath();g.fill();
+  if(curtain){g.fillStyle='rgba(240,225,200,.55)';g.fillRect(x+1,y+1,w*.22,h-2);g.fillRect(x+w*.78,y+1,w*.22-1,h-2)}
+  if(lit){const lc=lit>.28?'#ffd69a':'#bfefff';g.fillStyle=lc;g.globalAlpha=.75;g.fillRect(x+2,y+2,w-4,h-4);g.globalAlpha=1;g.fillStyle='rgba(110,70,40,.35)';g.fillRect(x+2,y+h*.65,w-4,h*.35-2);
+    ge.fillStyle=lc;ge.fillRect(x*TEXQ*.5+1,y*TEXQ*.5+1,w*TEXQ*.5-2,h*TEXQ*.5-2)}}
+// 窗洞：外圈窗框 + 上沿和左侧的阴影（看起来有深度）+ 窗台和窗台下的阴影
+function windowUnit(g,ge,x,y,w,h,frame,lit,rnd,opt={}){g.fillStyle='rgba(0,0,0,.28)';g.fillRect(x-4,y-4,w+8,h+8);g.fillStyle=frame;g.fillRect(x-3,y-3,w+6,h+6);
+  paintGlass(g,ge,x,y,w,h,lit,rnd,opt.curtain);g.fillStyle='rgba(0,0,0,.35)';g.fillRect(x,y,w,4);g.fillRect(x,y,3,h);
+  g.fillStyle=frame;if(opt.panes){g.fillRect(x+w/2-1.5,y,3,h);g.fillRect(x,y+h*.45,w,3)}
+  if(opt.sill!==false){g.fillStyle='#e9e2d6';g.fillRect(x-7,y+h+3,w+14,5);g.fillStyle='rgba(0,0,0,.22)';g.fillRect(x-6,y+h+8,w+12,5)}
+  if(opt.lintel){g.fillStyle='#d8cdb8';g.fillRect(x-6,y-12,w+12,8)}}
 function facadeMat(style,col){const key=style+col;if(facCache[key])return facCache[key];
-  const TW=512,TH=320,c=document.createElement('canvas'),e=document.createElement('canvas');c.width=e.width=TW;c.height=e.height=TH;
-  const g=c.getContext('2d'),ge=e.getContext('2d'),rnd=mulberry(key.split('').reduce((a,ch)=>a*31+ch.charCodeAt(0)|0,7));
-  const hex='#'+col.toString(16).padStart(6,'0'),wall=new THREE.Color(col),dark=wall.clone().multiplyScalar(.72),lite=wall.clone().lerp(new THREE.Color(1,1,1),.45);
-  const css=c3=>'#'+c3.getHexString();ge.fillStyle='#000';ge.fillRect(0,0,TW,TH);
-  const PX=TW/FAC_W; // 每米多少像素
-  // 墙面：底色 + 细微的抹灰噪点
-  g.fillStyle=hex;g.fillRect(0,0,TW,TH);for(let k=0;k<1800;k++){g.fillStyle=`rgba(${rnd()<.5?'255,255,255':'0,0,0'},${.03+rnd()*.04})`;g.fillRect(rnd()*TW,rnd()*TH,2,2)}
-  const glass=(x,y,w,h,lit)=>{const gr=g.createLinearGradient(x,y,x+w,y+h);gr.addColorStop(0,'#7fb9d8');gr.addColorStop(.45,'#2c4a6e');gr.addColorStop(1,'#1b2c48');g.fillStyle=gr;g.fillRect(x,y,w,h);
-    g.fillStyle='rgba(255,255,255,.22)';g.beginPath();g.moveTo(x+w*.15,y);g.lineTo(x+w*.45,y);g.lineTo(x+w*.1,y+h);g.lineTo(x,y+h*.75);g.closePath();g.fill();
-    if(lit){const lc=lit>.28?'#ffd28a':'#9fe8ff';g.fillStyle=lc;g.globalAlpha=.85;g.fillRect(x+2,y+2,w-4,h-4);g.globalAlpha=1;
-      g.fillStyle='rgba(120,70,30,.35)';g.fillRect(x+2,y+h*.62,w-4,h*.38-2);ge.fillStyle=lc;ge.fillRect(x+2,y+2,w-4,h-4)}};
-  const floorPx=TH/2;
-  for(let fl=0;fl<2;fl++){const y0=fl*floorPx;
-    // 楼层分隔线
-    g.fillStyle=css(dark);g.fillRect(0,y0+floorPx-7,TW,7);g.fillStyle=css(lite);g.fillRect(0,y0+floorPx-9,TW,2);
-    for(let b=0;b<4;b++){const x0=b*TW/4,bw=TW/4,lit=rnd()<.42?rnd():0;
-      if(style==='hotel'){const ww=bw*.5,wh=floorPx*.52,wx=x0+(bw-ww)/2,wy=y0+floorPx*.2;
-        g.fillStyle=css(lite);g.fillRect(wx-6,wy-6,ww+12,wh+12);glass(wx,wy,ww,wh,lit);g.fillStyle=css(lite);g.fillRect(wx+ww/2-2,wy,4,wh);g.fillRect(wx,wy+wh*.42,ww,4);
-        g.fillStyle=css(dark);g.fillRect(wx-10,wy+wh+6,ww+20,6); // 窗台
-        if(rnd()<.35){const ac=['#ff6fa0','#2fb5c0','#ffd166','#ffffff'][(rnd()*4)|0];g.fillStyle=ac;g.beginPath();g.moveTo(wx-8,wy-4);g.lineTo(wx+ww+8,wy-4);g.lineTo(wx+ww+14,wy+14);g.lineTo(wx-14,wy+14);g.closePath();g.fill();
-          g.fillStyle='rgba(255,255,255,.5)';for(let k=0;k<5;k++)g.fillRect(wx-8+k*(ww+16)/5,wy-4,(ww+16)/10,18)}}
-      else if(style==='office'){const ww=bw-14,wh=floorPx-22,wx=x0+7,wy=y0+6;glass(wx,wy,ww,wh,lit);g.fillStyle=css(lite);g.fillRect(wx+ww/2-1.5,wy,3,wh)}
-      else if(style==='apart'){for(const k of[0,1]){const ww=bw*.3,wh=floorPx*.5,wx=x0+bw*.12+k*bw*.46,wy=y0+floorPx*.18;
-          g.fillStyle=css(dark);g.fillRect(wx-9,wy,7,wh);g.fillRect(wx+ww+2,wy,7,wh);for(let q=0;q<6;q++){g.fillStyle='rgba(0,0,0,.18)';g.fillRect(wx-9,wy+q*wh/6,7,2);g.fillRect(wx+ww+2,wy+q*wh/6,7,2)} // 百叶
-          glass(wx,wy,ww,wh,k?(rnd()<.4?rnd():0):lit);g.fillStyle='#fff';g.fillRect(wx-2,wy-2,ww+4,3)}
-        if(b%2===0){const by=y0+floorPx*.62;g.fillStyle='rgba(0,0,0,.18)';g.fillRect(x0+6,by+28,bw*2-12,6);g.fillStyle='#f4f0e6';g.fillRect(x0+6,by,bw*2-12,4);g.fillRect(x0+6,by+24,bw*2-12,5);
-          for(let q=x0+10;q<x0+bw*2-8;q+=9)g.fillRect(q,by,2.5,26)}}
-      else if(style==='ribbon'){const wy=y0+floorPx*.22,wh=floorPx*.45;glass(x0,wy,bw,wh,lit);g.fillStyle=css(dark);g.fillRect(x0,wy,4,wh);g.fillStyle=css(lite);g.fillRect(x0,wy+wh,bw,5)}}}
+  const TW=512*TEXQ|0,TH=320*TEXQ|0,c=document.createElement('canvas'),e=document.createElement('canvas');c.width=TW;c.height=TH;e.width=TW/2|0;e.height=TH/2|0;
+  const g0=c.getContext('2d'),ge0=e.getContext('2d'),rnd=mulberry(key.split('').reduce((a,ch)=>a*31+ch.charCodeAt(0)|0,7));
+  // 统一按 512×320 的坐标作画，再缩放到实际分辨率
+  g0.scale(TEXQ,TEXQ);ge0.fillStyle='#000';ge0.fillRect(0,0,e.width,e.height);const g=g0,ge={set fillStyle(v){ge0.fillStyle=v},fillRect:(x,y,w,h)=>ge0.fillRect(x,y,w,h)};
+  const W=512,H=320,FP=H/2,BW=W/4,wall=new THREE.Color(col),dark='#'+wall.clone().multiplyScalar(.78).getHexString(),lite='#'+wall.clone().lerp(new THREE.Color(1,1,1),.5).getHexString();
+  if(style==='brick'||style==='brickTan')paintBrick(g,W,H,style==='brick'?0x9a4a36:0xc9a878,rnd);
+  else if(style==='office'){g.fillStyle='#3a4250';g.fillRect(0,0,W,H)}
+  else paintStucco(g,W,H,col,rnd);
+  for(let fl=0;fl<2;fl++){const y0=fl*FP;
+    if(style==='office'){ // 玻璃幕墙：深色铝竖梃 + 层间不透明板
+      for(let b=0;b<8;b++){const x=b*W/8;paintGlass(g,ge,x+3,y0+3,W/8-6,FP*.72,rnd()<.4?rnd():0,rnd);}
+      g.fillStyle='#2c323c';g.fillRect(0,y0+FP*.74,W,FP*.26);g.fillStyle='rgba(255,255,255,.08)';g.fillRect(0,y0+FP*.74,W,3);
+      g.fillStyle='#596270';for(let b=0;b<=8;b++)g.fillRect(b*W/8-2,y0,4,FP);continue}
+    // 楼层腰线
+    g.fillStyle=dark;g.fillRect(0,y0+FP-8,W,5);g.fillStyle=lite;g.fillRect(0,y0+FP-10,W,2);
+    for(let b=0;b<4;b++){const x0=b*BW,lit=rnd()<.4?rnd():0;
+      if(style==='hotel'){const ww=BW*.46,wh=FP*.5,wx=x0+(BW-ww)/2,wy=y0+FP*.2;windowUnit(g,ge,wx,wy,ww,wh,'#f6f2ea',lit,rnd,{panes:true,curtain:rnd()<.5});
+        if(rnd()<.3){const ac=['#e05a7a','#2a9aa8','#e8b84a','#f4f0e6'][(rnd()*4)|0];g.fillStyle=ac;g.beginPath();g.moveTo(wx-10,wy-6);g.lineTo(wx+ww+10,wy-6);g.lineTo(wx+ww+16,wy+16);g.lineTo(wx-16,wy+16);g.closePath();g.fill();
+          g.fillStyle='rgba(255,255,255,.45)';for(let k=0;k<6;k++)g.fillRect(wx-10+k*(ww+20)/6,wy-6,(ww+20)/12,22);g.fillStyle='rgba(0,0,0,.2)';g.fillRect(wx-14,wy+16,ww+28,4)}
+        if(rnd()<.18){g.fillStyle='#d8d8d0';g.fillRect(wx+ww*.15,wy+wh+12,ww*.5,FP*.16);g.fillStyle='#9a9a94';for(let k=0;k<4;k++)g.fillRect(wx+ww*.18+k*ww*.1,wy+wh+15,2,FP*.12)}} // 空调外机
+      else if(style==='apart'){for(const k of[0,1]){const ww=BW*.28,wh=FP*.48,wx=x0+BW*.12+k*BW*.46,wy=y0+FP*.18;
+          g.fillStyle='#6a7a6a';g.fillRect(wx-11,wy,8,wh);g.fillRect(wx+ww+3,wy,8,wh);for(let q=0;q<7;q++){g.fillStyle='rgba(0,0,0,.25)';g.fillRect(wx-11,wy+q*wh/7,8,1.5);g.fillRect(wx+ww+3,wy+q*wh/7,8,1.5)}
+          windowUnit(g,ge,wx,wy,ww,wh,'#f2efe8',k?(rnd()<.4?rnd():0):lit,rnd,{panes:true,curtain:rnd()<.6})}
+        if(b%2===0){const by=y0+FP*.66;g.fillStyle='rgba(0,0,0,.25)';g.fillRect(x0+4,by+30,BW*2-8,8);g.fillStyle='#d9d4ca';g.fillRect(x0+4,by+24,BW*2-8,7);g.fillStyle='#4a4a50';g.fillRect(x0+6,by,BW*2-12,3);for(let q=x0+9;q<x0+BW*2-8;q+=7)g.fillRect(q,by,2,24)}}
+      else if(style==='ribbon'){const wy=y0+FP*.22,wh=FP*.44;paintGlass(g,ge,x0,wy,BW,wh,lit,rnd);g.fillStyle='rgba(0,0,0,.3)';g.fillRect(x0,wy,BW,4);g.fillStyle='#8a8f98';g.fillRect(x0,wy,4,wh);g.fillRect(x0+BW/2-2,wy,3,wh);g.fillStyle='#e6e1d8';g.fillRect(x0,wy+wh,BW,6)}
+      else if(style==='brick'||style==='brickTan'){const ww=BW*.38,wh=FP*.55,wx=x0+(BW-ww)/2,wy=y0+FP*.2;windowUnit(g,ge,wx,wy,ww,wh,'#f4f1ea',lit,rnd,{panes:true,lintel:true,curtain:rnd()<.5})}
+      else if(style==='clinic'){const ww=BW*.78,wh=FP*.42,wx=x0+(BW-ww)/2,wy=y0+FP*.24;windowUnit(g,ge,wx,wy,ww,wh,'#c8ced6',lit,rnd,{sill:false});g.fillStyle='#c8ced6';g.fillRect(wx+ww/3,wy,3,wh);g.fillRect(wx+ww*2/3,wy,3,wh)}}}
+  // 底部（墙根）略脏
   const t=new THREE.CanvasTexture(c),te=new THREE.CanvasTexture(e);for(const x of[t,te]){x.wrapS=x.wrapT=THREE.RepeatWrapping;x.anisotropy=4}
   const m=new THREE.MeshToonMaterial({map:t,emissiveMap:te,emissive:0xffffff,emissiveIntensity:.15,gradientMap:toonGrad});FACADE_MATS.push(m);return facCache[key]=m}
-// 带立面贴图的楼体：按每个面的实际大小设置 UV，贴图按米平铺（顶、底面用纯墙色）
-function facadeBox(w,hgt,d,style,col){const geo=new THREE.BoxGeometry(w,hgt,d),uv=geo.attributes.uv;
-  const faces=[[d,hgt],[d,hgt],[0,0],[0,0],[w,hgt],[w,hgt]];
-  for(let f=0;f<6;f++)for(let k=0;k<4;k++){const i=f*4+k,[fw,fh]=faces[f];if(!fw){uv.setXY(i,.02,.98);continue}uv.setXY(i,uv.getX(i)*fw/FAC_W,uv.getY(i)*fh/FAC_H)}
-  const m=new THREE.Mesh(geo,facadeMat(style,col));m.castShadow=m.receiveShadow=true;return m}
-const FAC_STYLES=['hotel','hotel','apart','ribbon'],FAC_OFFICE=[0xd8dde4,0x9fd8d8,0xe8d8c0,0xc8c0e0,0xf4f0e6];
+// 平铺用的普通材质：墙面（抹灰 / 木挂板 / 砖）、屋顶（沥青瓦 / 陶土筒瓦）、店面、楼顶
+const surfCache={};
+function surfMat(kind,col,unit=4){const key=kind+col;if(surfCache[key])return surfCache[key];const S=256,c=document.createElement('canvas');c.width=c.height=S;const g=c.getContext('2d'),rnd=mulberry(key.length*977+col);
+  if(kind==='stucco')paintStucco(g,S,S,col,rnd,.5);
+  else if(kind==='siding'){g.fillStyle=hexOf(col);g.fillRect(0,0,S,S);for(let y=0;y<S;y+=16){g.fillStyle='rgba(0,0,0,.22)';g.fillRect(0,y+13,S,3);g.fillStyle='rgba(255,255,255,.18)';g.fillRect(0,y,S,2);
+      for(let k=0;k<6;k++){g.fillStyle=`rgba(0,0,0,${.03+rnd()*.03})`;g.fillRect(rnd()*S,y+3+rnd()*9,20+rnd()*60,1)}}}
+  else if(kind==='brick')paintBrick(g,S,S,col,rnd,28,9);
+  else if(kind==='shingle'){g.fillStyle=hexOf(col);g.fillRect(0,0,S,S);const c0=new THREE.Color(col);for(let r=0;r<S/16;r++)for(let k=-1;k<S/24;k++){const x=k*24+(r%2?12:0)+rnd()*4,cc=c0.clone().offsetHSL(0,(rnd()-.5)*.1,(rnd()-.5)*.14);
+      g.fillStyle='#'+cc.getHexString();g.fillRect(x+1,r*16,22,15);g.fillStyle='rgba(0,0,0,.35)';g.fillRect(x,r*16+13,24,3);g.fillRect(x,r*16,1.5,15)}}
+  else if(kind==='tile'){g.fillStyle=hexOf(col);g.fillRect(0,0,S,S);for(let x=0;x<S;x+=21){const gr=g.createLinearGradient(x,0,x+21,0);gr.addColorStop(0,'rgba(0,0,0,.35)');gr.addColorStop(.45,'rgba(255,255,255,.22)');gr.addColorStop(1,'rgba(0,0,0,.4)');g.fillStyle=gr;g.fillRect(x,0,21,S)}
+      for(let y=0;y<S;y+=32){g.fillStyle='rgba(0,0,0,.32)';g.fillRect(0,y+28,S,4);g.fillStyle='rgba(255,255,255,.12)';g.fillRect(0,y,S,3)}for(let k=0;k<400;k++){g.fillStyle=`rgba(0,0,0,${rnd()*.08})`;g.fillRect(rnd()*S,rnd()*S,3,3)}}
+  else if(kind==='roofTop'){g.fillStyle='#8a8580';g.fillRect(0,0,S,S);for(let k=0;k<5000;k++){g.fillStyle=`rgba(${rnd()<.5?'255,255,255':'0,0,0'},${rnd()*.15})`;g.fillRect(rnd()*S,rnd()*S,2,2)}}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=4;const m=new THREE.MeshToonMaterial({map:t,gradientMap:toonGrad,color:kind==='brick'?0xffffff:0xffffff});m.userData.unit=unit;return surfCache[key]=m}
+// 平房的窗（上下推拉窗：白色窗框、四格玻璃、窗帘，夜里亮灯）和门（木纹嵌板门）
+const houseWinMat=(()=>{const c=document.createElement('canvas'),e=document.createElement('canvas');c.width=e.width=128;c.height=e.height=104;const g=c.getContext('2d'),ge=e.getContext('2d'),rnd=mulberry(55);
+  g.fillStyle='#f4f1ea';g.fillRect(0,0,128,104);ge.fillStyle='#000';ge.fillRect(0,0,128,104);
+  for(const[x,y]of[[10,10],[66,10],[10,56],[66,56]]){paintGlass(g,{set fillStyle(v){},fillRect(){}},x,y,52,38,0,rnd,false)}
+  g.fillStyle='rgba(240,220,190,.7)';g.fillRect(10,10,16,84);g.fillRect(102,10,16,84);g.fillStyle='rgba(0,0,0,.25)';g.fillRect(8,50,112,4);
+  ge.fillStyle='#ffcf8a';ge.fillRect(10,10,108,84);
+  const t=new THREE.CanvasTexture(c),te=new THREE.CanvasTexture(e);const m=new THREE.MeshToonMaterial({map:t,emissiveMap:te,emissive:0xffffff,emissiveIntensity:.1,gradientMap:toonGrad});FACADE_MATS.push(m);return m})();
+const houseDoorMat=(()=>{const c=document.createElement('canvas');c.width=64;c.height=128;const g=c.getContext('2d'),rnd=mulberry(66);g.fillStyle='#7a4a2e';g.fillRect(0,0,64,128);
+  for(let k=0;k<60;k++){g.fillStyle=`rgba(${rnd()<.5?'40,20,10':'160,110,70'},${.1+rnd()*.15})`;g.fillRect(rnd()*64,0,1+rnd()*2,128)}
+  g.fillStyle='rgba(0,0,0,.3)';for(const[x,y,w,h]of[[8,8,20,46],[36,8,20,46],[8,64,20,56],[36,64,20,56]]){g.fillRect(x,y,w,h);g.fillStyle='rgba(255,220,180,.15)';g.fillRect(x+2,y+2,w-4,h-4);g.fillStyle='rgba(0,0,0,.3)'}
+  g.fillStyle='#d9a93a';g.beginPath();g.arc(52,70,3,0,7);g.fill();const t=new THREE.CanvasTexture(c);return new THREE.MeshToonMaterial({map:t,gradientMap:toonGrad})})();
+// 店面：大橱窗 + 门 + 货架剪影 + 招牌底板（有亮灯遮罩）
+const shopCache={};
+function shopMat(v){if(shopCache[v])return shopCache[v];const W=512*TEXQ|0,H=144*TEXQ|0,c=document.createElement('canvas'),e=document.createElement('canvas');c.width=e.width=W;c.height=e.height=H;
+  const g=c.getContext('2d'),ge=e.getContext('2d'),rnd=mulberry(91+v);g.scale(TEXQ,TEXQ);ge.scale(TEXQ,TEXQ);ge.fillStyle='#000';ge.fillRect(0,0,512,144);
+  const warm=v%2===0?'#ffd9a0':'#c8f2ff';g.fillStyle='#3c3a40';g.fillRect(0,0,512,144);
+  for(let b=0;b<4;b++){const x=b*128+6,isDoor=b===1+(v%3);
+    g.fillStyle=warm;g.fillRect(x,14,116,isDoor?126:100);ge.fillStyle=warm;ge.fillRect(x,14,116,isDoor?126:100);
+    // 室内：货架 / 衣架 / 桌椅剪影
+    g.fillStyle='rgba(60,40,30,.45)';for(let k=0;k<3;k++)g.fillRect(x+6,40+k*22,104,4);for(let k=0;k<6;k++){g.fillStyle=`rgba(${(rnd()*200)|0},${(rnd()*120)|0},${(rnd()*120)|0},.55)`;g.fillRect(x+10+k*17,26+((rnd()*3)|0)*22,10,12)}
+    const gr=g.createLinearGradient(x,14,x+116,114);gr.addColorStop(0,'rgba(255,255,255,.28)');gr.addColorStop(.4,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(x,14,116,isDoor?126:100);
+    g.fillStyle='#22222a';g.fillRect(x-4,10,4,134);if(isDoor){g.fillRect(x+56,14,4,126);g.fillStyle='#c8c8c8';g.fillRect(x+48,70,3,20);g.fillRect(x+66,70,3,20)}else{g.fillStyle='#55525a';g.fillRect(x,114,116,30)}}
+  g.fillStyle='#22222a';g.fillRect(0,0,512,12);
+  const t=new THREE.CanvasTexture(c),te=new THREE.CanvasTexture(e);for(const x of[t,te]){x.wrapS=x.wrapT=THREE.RepeatWrapping}
+  const m=new THREE.MeshToonMaterial({map:t,emissiveMap:te,emissive:0xffffff,emissiveIntensity:.3,gradientMap:toonGrad});FACADE_MATS.push(m);return shopCache[v]=m}
+// 按米平铺的盒子：侧面 UV 按面宽 / 单位长度；可单独给顶面材质
+function tiledBox(w,hgt,d,mat,uw,uh,topMat){const geo=new THREE.BoxGeometry(w,hgt,d),uv=geo.attributes.uv;const faces=[[d,hgt],[d,hgt],[w,d],[w,d],[w,hgt],[w,hgt]];
+  for(let f=0;f<6;f++)for(let k=0;k<4;k++){const i=f*4+k,[fw,fh]=faces[f];uv.setXY(i,uv.getX(i)*fw/uw,uv.getY(i)*fh/uh)}
+  if(topMat){geo.clearGroups();for(let f=0;f<6;f++)geo.addGroup(f*6,6,f===2?1:0)}
+  const m=new THREE.Mesh(geo,topMat?[mat,topMat]:mat);m.castShadow=m.receiveShadow=true;return m}
+const facadeBox=(w,hgt,d,style,col)=>tiledBox(w,hgt,d,facadeMat(style,col),FAC_W,FAC_H);
+const surfBox=(w,hgt,d,kind,col,unit=4)=>tiledBox(w,hgt,d,surfMat(kind,col),unit,unit);
+// 圆柱楼体也贴立面
+function facadeCyl(r,hgt,style,col,seg=24){const geo=new THREE.CylinderGeometry(r,r,hgt,seg,1,true),uv=geo.attributes.uv,circ=Math.PI*2*r;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*circ/FAC_W,uv.getY(i)*hgt/FAC_H);
+  const m=new THREE.Mesh(geo,facadeMat(style,col));m.castShadow=true;return m}
+const FAC_STYLES=['hotel','hotel','apart','ribbon','brick','brickTan'],FAC_OFFICE=[0xd8dde4,0x9fd8d8,0xe8d8c0];
+const FAC_COLS={hotel:[0xffc8d6,0xbfeee6,0xfff0c2,0xd8c8ff],apart:[0xf4ead8,0xffd0a8,0xc8e8f8],ribbon:[0xf0ece4,0xd8e8f0],brick:[0x9a4a36],brickTan:[0xc9a878]};
 function addBuilding(ox,oz,w,h){const d=w,col=pal[(R()*pal.length)|0],trim=trimPal[(R()*trimPal.length)|0],sx=R()<.5?1:-1,sz=R()<.5?1:-1;
   storefront(ox,oz,w,d,col,trim);
   if(h>=28){ // —— 高楼：三段收分 + 转角竖鳍 + 楼顶尖塔
     const tiers=[[w,h*.58],[w*.78,h*.84],[w*.55,h]];let y0=6;
-    const tcol=FAC_OFFICE[(R()*FAC_OFFICE.length)|0],tst=R()<.65?'office':'hotel';
-    for(const[tw,ty]of tiers){const bd=facadeBox(tw,ty-y0,tw,tst,tst==='office'?tcol:col);bd.position.set(ox,(y0+ty)/2,oz);scene.add(bd);
+    const tst=R()<.6?'office':['hotel','brick','ribbon'][(R()*3)|0],tcol=tst==='office'?FAC_OFFICE[(R()*FAC_OFFICE.length)|0]:FAC_COLS[tst][(R()*FAC_COLS[tst].length)|0];
+    for(const[tw,ty]of tiers){const bd=facadeBox(tw,ty-y0,tw,tst,tcol);bd.position.set(ox,(y0+ty)/2,oz);scene.add(bd);
       const par=box(tw+.6,1.1,tw+.6,trim);par.position.set(ox,ty+.55,oz);scene.add(par);
       for(const[cx2,cz2]of[[1,1],[1,-1],[-1,1],[-1,-1]]){const fin=box(.7,ty-y0+2,.7,trim);fin.position.set(ox+cx2*tw/2,(y0+ty)/2+1,oz+cz2*tw/2);scene.add(fin)}
       y0=ty}
@@ -399,12 +464,12 @@ function addBuilding(ox,oz,w,h){const d=w,col=pal[(R()*pal.length)|0],trim=trimP
     for(let y=8.5;y<h*.58-3;y+=5){const sl=box(w*.36,.25,1.6,0xffffff);sl.position.set(ox,y-1.2,oz+sz*(d/2+.8));scene.add(sl);const rl=box(w*.36,.9,.12,trim);rl.position.set(ox,y-.6,oz+sz*(d/2+1.55));scene.add(rl)}
     return}
   // —— 中低层：主体 + 圆角转角塔 + 眉檐窗带 + 竖向装饰鳍 + 阶梯楼顶
-  const bd=facadeBox(w,h-6,d,FAC_STYLES[(R()*FAC_STYLES.length)|0],col);bd.position.set(ox,(h+6)/2,oz);scene.add(bd);
+  const fst=FAC_STYLES[(R()*FAC_STYLES.length)|0],fcol=FAC_COLS[fst][(R()*FAC_COLS[fst].length)|0];const bd=facadeBox(w,h-6,d,fst,fcol);bd.position.set(ox,(h+6)/2,oz);scene.add(bd);
   const par=box(w+.5,1,d+.5,trim);par.position.set(ox,h+.5,oz);scene.add(par);
   if(w>=24){ // 圆角转角塔（朝向路口的一角）
     const r=w*.2,tx=ox+sx*(w/2-r*.55),tz=oz+sz*(d/2-r*.55),th=h+3;
-    const tw=new THREE.Mesh(new THREE.CylinderGeometry(r,r,th-6,20),M(col));tw.position.set(tx,(th+6)/2,tz);tw.castShadow=true;scene.add(tw);
-    for(let y=8.5;y<th-2;y+=5){const g=new THREE.Mesh(new THREE.CylinderGeometry(r+.08,r+.08,2.2,20,1,true),winMats());g.position.set(tx,y,tz);scene.add(g);
+    const tw=facadeCyl(r,th-6,fst==='brick'||fst==='brickTan'?'hotel':fst,fst==='brick'||fst==='brickTan'?FAC_COLS.hotel[0]:fcol);tw.position.set(tx,(th+6)/2,tz);scene.add(tw);
+    for(let y=8.5;y<th-2;y+=5){
       const e=new THREE.Mesh(new THREE.CylinderGeometry(r+.7,r+.7,.28,20),M(trim));e.position.set(tx,y+1.45,tz);scene.add(e)}
     const cap=new THREE.Mesh(new THREE.CylinderGeometry(r*.75,r+.3,1.4,20),M(trim));cap.position.set(tx,th+.7,tz);scene.add(cap)}
   // 竖向装饰鳍 + 竖排霓虹招牌（正面中间）
@@ -476,19 +541,20 @@ function addHouse(x,z,face,lw=BLK/2,ld=BLK/2){const w=Math.min(rr(17,22),lw-8),d
   const wall=[0xfff1e0,0xffd6e0,0xcff5ee,0xfff3b0,0xe0d6ff,0xffe0c8][(R()*6)|0],roof=[0xc8553d,0x2f8f9d,0x8a5cff,0x6a4a3a,0xd96a8a][(R()*5)|0];
   const yard=new THREE.Mesh(new THREE.PlaneGeometry(lw-2,ld-2),M(0x6fc070));yard.rotation.x=-Math.PI/2;yard.position.set(x,.09,z);yard.receiveShadow=true;scene.add(yard);
   const hz=z-face*2.5;
-  const body=box(w,hh,d,wall);body.position.set(x,hh/2,hz);scene.add(body);
-  const sl=Math.hypot(d/2+.8,rise);for(const sd of[-1,1]){const r=box(w+1.4,.35,sl,roof);r.position.set(x,hh+rise/2,hz+sd*(d/4+.2));r.rotation.x=sd*Math.atan2(rise,d/2+.8);scene.add(r)}
-  const ridge=box(w+1.5,.4,.6,roof);ridge.position.set(x,hh+rise,hz);scene.add(ridge);
+  const wk=R()<.5?'siding':'stucco',rk=R()<.5?'shingle':'tile',rcol=rk==='tile'?0xb5583a:[0x5a4a48,0x4a5868,0x6a5a4a][(R()*3)|0];
+  const body=surfBox(w,hh,d,wk,wall,4);body.position.set(x,hh/2,hz);scene.add(body);
+  const sl=Math.hypot(d/2+.8,rise);for(const sd of[-1,1]){const r=surfBox(w+1.4,.35,sl,rk,rcol,4);r.position.set(x,hh+rise/2,hz+sd*(d/4+.2));r.rotation.x=sd*Math.atan2(rise,d/2+.8);scene.add(r)}
+  const ridge=box(w+1.5,.4,.6,rcol);ridge.position.set(x,hh+rise,hz);scene.add(ridge);
   {const tri=new THREE.Shape();tri.moveTo(-d/2-.1,0);tri.lineTo(d/2+.1,0);tri.lineTo(0,rise);tri.lineTo(-d/2-.1,0);const tg=new THREE.ExtrudeGeometry(tri,{depth:w-.1,bevelEnabled:false});tg.rotateY(Math.PI/2);tg.translate(-(w-.1)/2,0,0);
-   const gab=new THREE.Mesh(tg,M(wall));gab.position.set(x,hh,hz);gab.castShadow=true;scene.add(gab)}
+   const gk='gab'+wk+wall;if(!surfCache[gk]){const gm=surfMat(wk,wall).clone();gm.map=gm.map.clone();gm.map.needsUpdate=true;gm.map.repeat.set(.25,.25);surfCache[gk]=gm}const gab=new THREE.Mesh(tg,surfCache[gk]);gab.position.set(x,hh,hz);gab.castShadow=true;scene.add(gab)}
   const ch=box(1.4,3.4,1.4,0x9a6a5a);ch.position.set(x+w*.28,hh+rise-.2,hz-d*.15);scene.add(ch);
   const fz=hz+face*(d/2+.05);
-  const door=box(1.9,3.6,.15,0x6a3a2a);door.position.set(x,1.8,fz);scene.add(door);
+  const door=box(1.9,3.6,.15,houseDoorMat);door.position.set(x,1.8,fz);scene.add(door);
   const knob=box(.16,.16,.25,0xd9a93a);knob.position.set(x+.6,1.7,fz+face*.1);scene.add(knob);
   const por=box(6,.3,3.4,roof);por.position.set(x,4.4,fz+face*1.6);scene.add(por);
   for(const sd of[-1,1]){const col=box(.35,4.3,.35,0xffffff);col.position.set(x+sd*2.7,2.15,fz+face*3.1);scene.add(col)}
   const step=box(3,.45,1.4,0xb8b0a8);step.position.set(x,.22,fz+face*.8);scene.add(step);
-  for(const sd of[-1,1]){const wn=new THREE.Mesh(new THREE.BoxGeometry(3,2.4,.12),R()<.6?winWarm:winCool);wn.position.set(x+sd*(w*.3),3,fz);scene.add(wn);
+  for(const sd of[-1,1]){const wn=new THREE.Mesh(new THREE.BoxGeometry(3,2.4,.12),houseWinMat);wn.position.set(x+sd*(w*.3),3,fz);scene.add(wn);
     const sh=box(.7,2.6,.1,roof);sh.position.set(x+sd*(w*.3)+sd*1.9,3,fz+face*.05);scene.add(sh)}
   const mx=x-w*.42,mz=z+face*(ld/2-2.2);const mb=box(.6,.7,.9,0x2f6fd0);mb.position.set(mx,1.6,mz);scene.add(mb);const mp=box(.15,1.4,.15,0x555555);mp.position.set(mx,.7,mz);scene.add(mp);
   const fzz=z+face*(ld/2-1.2);for(let k=-7;k<=7;k++){if(Math.abs(k)<=1)continue;const pk=box(.22,1.5,.14,0xffffff);pk.position.set(x+k*1.15,.75,fzz);scene.add(pk)}
@@ -568,10 +634,9 @@ function plaza(x,z,w,d,col){const pl=new THREE.Mesh(new THREE.PlaneGeometry(w,d)
 // 医院：比普通楼更宽更高，白色主楼 + 青色眉檐 + 红十字 + 急诊门廊 + 楼顶停机坪
 function buildHospital(H){const wht=0xf6f8fa,tr=0x2fb5c0;
   plaza(H.x,H.z,H.w-6,H.d-6,0xb9b3c4);
-  const main=box(52,16,24,wht);main.position.set(H.x,8,H.z-8);scene.add(main);
-  for(const y of[3,8.5,13.5])floorBand(H.x,H.z-8,52,24,y,tr);pilasters(H.x,H.z-8,52.2,24.2,0,16,wht);
+  const main=facadeBox(52,16,24,'clinic',0xf4f6f8);main.position.set(H.x,8,H.z-8);scene.add(main);
   const par=box(52.6,1,24.6,tr);par.position.set(H.x,16.5,H.z-8);scene.add(par);
-  for(const sd of[-1,1]){const wing=box(14,10,16,0xdff4f6);wing.position.set(H.x+sd*28,5,H.z+4);scene.add(wing);floorBand(H.x+sd*28,H.z+4,14,16,3,tr);floorBand(H.x+sd*28,H.z+4,14,16,7.5,tr)}
+  for(const sd of[-1,1]){const wing=facadeBox(14,10,16,'clinic',0xdff4f6);wing.position.set(H.x+sd*28,5,H.z+4);scene.add(wing)}
   // 楼顶停机坪
   const hp=new THREE.Mesh(new THREE.CylinderGeometry(8,8,.4,24),M(0x3a3a44));hp.position.set(H.x+12,17.2,H.z-8);scene.add(hp);
   const hc=document.createElement('canvas');hc.width=hc.height=128;const hg=hc.getContext('2d');hg.strokeStyle='#ffe14d';hg.lineWidth=8;hg.beginPath();hg.arc(64,64,54,0,7);hg.stroke();hg.fillStyle='#fff';hg.font='bold 80px sans-serif';hg.textAlign='center';hg.textBaseline='middle';hg.fillText('H',64,68);
@@ -591,15 +656,13 @@ function buildHospital(H){const wht=0xf6f8fa,tr=0x2fb5c0;
 buildHospital(hospital);
 {const S=station;const pink=0xf2b8d0,teal=0xb8f0ec,tr=0x22d3ee;
  plaza(S.x,S.z,S.w-6,S.d-6,0xc4b2c0);
- for(const sd of[-1,1]){const wg=box(11,8,18,0xf7c9dc);wg.position.set(S.x+sd*27,4,S.z-4);scene.add(wg);floorBand(S.x+sd*27,S.z-4,11,18,3.5,tr);
+ for(const sd of[-1,1]){const wg=facadeBox(11,8,18,'hotel',0xffc8d6);wg.position.set(S.x+sd*27,4,S.z-4);scene.add(wg);
    const fp=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,14,8),M(0xdde2ea));fp.position.set(S.x+sd*14,7,S.z+26);scene.add(fp);
    const fl=box(3,1.8,.08,sd<0?0x1c2a4a:0x22d3ee);fl.position.set(S.x+sd*14+1.5,13,S.z+26);scene.add(fl);palm(S.x+sd*26,S.z+26)}
  solids.push({x0:S.x-33,x1:S.x+33,z0:S.z-13,z1:S.z+5});
- const b1=box(42,11,24,pink);b1.position.set(S.x,5.5,S.z-6);scene.add(b1);
- for(const y of[3,8])floorBand(S.x,S.z-6,42,24,y,tr);pilasters(S.x,S.z-6,42.2,24.2,0,11,pink);
+ const b1=facadeBox(42,11,24,'hotel',0xffc8d6);b1.position.set(S.x,5.5,S.z-6);scene.add(b1);
  const p1=box(42.6,1,24.6,0xffffff);p1.position.set(S.x,11.5,S.z-6);scene.add(p1);
- const b2=box(16,19,11,teal);b2.position.set(S.x,9.5,S.z+4);scene.add(b2);
- for(const y of[4,9,14])floorBand(S.x,S.z+4,16,11,y,0xffffff);
+ const b2=facadeBox(16,19,11,'ribbon',0xd8e8f0);b2.position.set(S.x,9.5,S.z+4);scene.add(b2);
  const s1=box(12,2.5,9,teal);s1.position.set(S.x,20.2,S.z+4);scene.add(s1);const s2=box(7,2,6,0xffffff);s2.position.set(S.x,22.4,S.z+4);scene.add(s2);
  for(const sd of[-1,1]){const fin=box(1,22,1,0xffffff);fin.position.set(S.x+sd*8,11,S.z+9.6);scene.add(fin)}
  const can=box(26,.8,6,tr);can.position.set(S.x,5.6,S.z+12);scene.add(can);
@@ -627,13 +690,13 @@ buildHospital(hospital);
  for(const gx of[-4,4,-HW+11,-HW+1])for(const k of[0]){bx(1.2,2.8,1.2,WH,gx,1.4,HD);const lamp=new THREE.Mesh(new THREE.SphereGeometry(.4,10,8),lampMat);lamp.position.set(X(gx),3.1,Z(HD));scene.add(lamp)}
  // ---- 主楼一层：宽大的白色体量，正面整面落地玻璃 ----
  const hz=-HD+15;
- bx(34,6.4,16,WH,2,3.2,hz);
+ {const m=surfBox(34,6.4,16,'stucco',WH,4);m.position.set(X(2),3.2,Z(hz));scene.add(m)}
  const g1=new THREE.Mesh(new THREE.BoxGeometry(26,4.6,.2),glassV);g1.position.set(X(4),2.6,Z(hz+8.05));scene.add(g1);
  for(let k=-13;k<=13;k+=4.33)bx(.25,4.8,.3,0x3a3a44,4+k,2.6,hz+8.1);
  const inner=new THREE.Mesh(new THREE.BoxGeometry(25.6,4.4,.1),winWarm);inner.position.set(X(4),2.6,Z(hz+6.5));scene.add(inner);
  bx(38,.5,20,WH,3,6.65,hz+1.5);bx(38.2,.25,20.2,TEAL,3,6.95,hz+1.5);
  // ---- 二层：后退的体量 + 带玻璃栏杆的大露台 ----
- bx(24,5.4,12,WH,5,9.6,hz-2);
+ {const m=surfBox(24,5.4,12,'stucco',WH,4);m.position.set(X(5),9.6,Z(hz-2));scene.add(m)}
  const g2=new THREE.Mesh(new THREE.BoxGeometry(18,3.8,.2),glassV);g2.position.set(X(7),9.4,Z(hz+4.05));scene.add(g2);
  const inner2=new THREE.Mesh(new THREE.BoxGeometry(17.6,3.6,.1),winWarm);inner2.position.set(X(7),9.4,Z(hz+3));scene.add(inner2);
  const rail=new THREE.Mesh(new THREE.BoxGeometry(37,1.1,.08),glassV);rail.position.set(X(3),7.7,Z(hz+11.4));scene.add(rail);
