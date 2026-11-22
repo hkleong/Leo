@@ -1483,7 +1483,9 @@ function mapCenterMe(z){const px=player.car?player.car.x:player.x,pz=player.car?
 })();
 function drawMini(){const s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
   mini.fillStyle='#1fa3c4';mini.fillRect(0,0,300,300);
-  mini.save();const z=2.4;mini.translate(cx,cy);mini.scale(z,z);mini.translate(-px*s,-pz*s);
+  // 随镜头转动：镜头朝向永远在地图上方
+  const th=-Math.PI/2-Math.atan2(Math.cos(camYaw),Math.sin(camYaw)),cT=Math.cos(th),sT=Math.sin(th);
+  mini.save();const z=2.4;mini.translate(cx,cy);mini.rotate(th);mini.scale(z,z);mini.translate(-px*s,-pz*s);
   const isl=(m,c)=>{mini.fillStyle=c;mini.beginPath();for(let k=0;k<=96;k++){const a=k/96*Math.PI*2,r=(ISL(a)-m)*s;mini.lineTo(Math.cos(a)*r,Math.sin(a)*r)}mini.fill()};
   isl(0,'#f2d59b');isl(26,'#79c27c');
   mini.fillStyle='#55505f';for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
@@ -1495,8 +1497,10 @@ function drawMini(){const s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?playe
   if(beamMat.visible){mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(mission.x*s,mission.z*s,6,0,7);mini.fill()}
   mini.restore();
   // 屏外目标箭头
-  if(beamMat.visible){const dx=(mission.x-px)*s*z,dz=(mission.z-pz)*s*z;if(Math.hypot(dx,dz)>140){const a=Math.atan2(dz,dx);mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(cx+Math.cos(a)*128,cy+Math.sin(a)*128,14,0,7);mini.fill()}}
-  const h=player.car?player.car.h:player.rot;mini.save();mini.translate(cx,cy);mini.rotate(-h+Math.PI);
+  if(beamMat.visible){const wx=(mission.x-px)*s*z,wz=(mission.z-pz)*s*z,dx=wx*cT-wz*sT,dz=wx*sT+wz*cT;if(Math.hypot(dx,dz)>140){const a=Math.atan2(dz,dx);mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(cx+Math.cos(a)*128,cy+Math.sin(a)*128,14,0,7);mini.fill()}}
+  // 北方标记
+  {const nx=-(-1)*sT*128,ny=-1*cT*128;mini.fillStyle='rgba(10,8,24,.8)';mini.beginPath();mini.arc(cx+nx,cy+ny,15,0,7);mini.fill();mini.fillStyle='#fff';mini.font='bold 20px Rubik,sans-serif';mini.textAlign='center';mini.textBaseline='middle';mini.fillText('N',cx+nx,cy+ny+1)}
+  const h=player.car?player.car.h:player.rot;mini.save();mini.translate(cx,cy);mini.rotate(Math.atan2(Math.cos(h),Math.sin(h))+th+Math.PI/2);
   mini.fillStyle='#ff3d8b';mini.strokeStyle='#000';mini.lineWidth=4;mini.beginPath();mini.moveTo(0,-20);mini.lineTo(15,16);mini.lineTo(-15,16);mini.closePath();mini.fill();mini.stroke();mini.restore()}
 function hud(dt){$('money').textContent='$'+player.money.toLocaleString();
   $('hp').firstChild.style.width=clamp(player.hp,0,100)+'%';
