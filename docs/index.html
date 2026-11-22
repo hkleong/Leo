@@ -1212,6 +1212,14 @@ function faceMat(o){const key=JSON.stringify(o);if(faceCache[key])return faceCac
   return faceCache[key]=new THREE.MeshToonMaterial({map:t,transparent:true,depthWrite:false,gradientMap:toonGrad,polygonOffset:true,polygonOffsetFactor:-2})}
 const IRIS=['#5a3a22','#3a2414','#6a4a2a','#3a6a8a','#4a7a4a','#7a6a3a'],LIPS=['#c8506a','#d8607a','#b0405a','#e07080'];
 // 写实四肢：沿长度改变粗细（t=0 关节处，t=1 下一个关节；超出部分是手脚，不变）
+// 写实：手和鞋做成一个方块 + 纹理（手指缝、指甲、鞋底、鞋带、缝线画在贴图上）
+const TEXC={};function texMat(key,draw,col){const k=key+col;if(TEXC[k])return TEXC[k];if(!TEXC['t'+key]){const c=document.createElement('canvas');c.width=c.height=64;draw(c.getContext('2d'));const t=new THREE.CanvasTexture(c);t.anisotropy=4;TEXC['t'+key]=t}
+  return TEXC[k]=new THREE.MeshToonMaterial({map:TEXC['t'+key],color:col,gradientMap:toonGrad})}
+const handMat=c=>texMat('hand',g=>{g.fillStyle='#fff';g.fillRect(0,0,64,64);g.fillStyle='rgba(0,0,0,.38)';for(const x of[16,32,48])g.fillRect(x-1,28,2,36);g.fillStyle='rgba(0,0,0,.18)';g.fillRect(3,25,58,3);
+  g.fillStyle='rgba(255,235,225,.55)';for(const x of[8,24,40,56])g.fillRect(x-4,57,8,5);g.fillStyle='rgba(0,0,0,.1)';g.fillRect(0,0,64,8)},c);
+const shoeMat=(c,boot)=>texMat(boot?'boot':'shoe',g=>{g.fillStyle='#fff';g.fillRect(0,0,64,64);g.fillStyle='rgba(0,0,0,.6)';g.fillRect(0,52,64,12);g.fillStyle='rgba(255,255,255,.5)';g.fillRect(0,50,64,2);
+  g.strokeStyle='rgba(0,0,0,.28)';g.lineWidth=1;g.setLineDash([3,3]);g.strokeRect(4,6,56,42);g.setLineDash([]);
+  if(!boot){g.strokeStyle='rgba(255,255,255,.9)';g.lineWidth=2;for(let k=0;k<4;k++){g.beginPath();g.moveTo(22,10+k*8);g.lineTo(42,16+k*8);g.moveTo(42,10+k*8);g.lineTo(22,16+k*8);g.stroke()}}else{g.fillStyle='rgba(0,0,0,.25)';g.fillRect(28,4,8,44)}},c);
 function warpLimb(grp,len,fn,ext){if(!REAL)return grp;const m=grp.children[0];if(!m||!m.geometry)return grp;const P=m.geometry.attributes.position;
   for(let i=0;i<P.count;i++){const t=-P.getY(i)/len;if(t>1.02){if(ext){const[a,b,c]=ext(P.getX(i),P.getY(i),P.getZ(i));P.setXYZ(i,a,b,c)}continue}const f=fn(clamp(t,0,1));P.setX(i,P.getX(i)*f);P.setZ(i,P.getZ(i)*f)}P.needsUpdate=true;return grp}
 const LW={thigh:t=>1.32-.26*t,shin:t=>t<.3?1.1+.5*t:t<.85?1.25-(t-.3)*.62:.91,upper:t=>1.34-.22*t,fore:t=>1.2-.3*t};
@@ -1369,10 +1377,11 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
     if(L.shoes===-1)SB.add(rgeo(.12,.08,.27,.45),skin,[0,fy+.01,.05]);
     else if(L.blades){SB.add(rgeo(.17,.3,.34,.4),L.shoes,[0,fy+.08,.04]);SB.add(rgeo(.05,.05,.4,.3),0x222222,[0,fy-.1,.04]);for(let k=0;k<4;k++)SB.add(cyl(.045,.045,.04,10),0xff7a2f,[0,fy-.16,-.12+k*.11],[0,0,Math.PI/2])}
     else if(L.sandals){SB.add(rgeo(.13,.08,.27,.45),skin,[0,fy+.02,.05]);SB.add(rgeo(.15,.035,.31,.3),L.shoes,[0,fy-.05,.05]);SB.add(rgeo(.15,.03,.06,.3),L.shoes,[0,fy+.04,.08])}
+    else if(REAL){const bt=!!L.boots;SB.add(new THREE.BoxGeometry(.2,bt?.27:.15,.44),shoeMat(L.shoes,bt),[0,bt?fy+.05:fy-.01,.07])}
     else{SB.add(rgeo(.16,L.boots?.24:.14,.33,.4),L.shoes,[0,L.boots?fy+.04:fy,.05]);SB.add(sph(.085,14,10,0,Math.PI*2,0,Math.PI/2),L.shoes,[0,fy-.03,.17],[0,0,0],[.95,.9,.9]);if(!L.boots)for(let k=0;k<3;k++)SB.add(rgeo(.09,.012,.018,.3),0xf4f4f4,[0,fy+.072,.04+k*.045]);SB.add(rgeo(.165,.04,.34,.3),L.boots?0x2a1a10:0xf0f0f0,[0,fy-.06,.05])}
     if(REAL){SB.add(sph(.094,12,10),sc(0,0,0),[0,0,0],[1,1,.95]);SB.add(sph(.055,10,8),L.dress||L.shorts?skin:pantsC,[0,-.02,.07],[0,0,0],[1.05,1.15,.5]); // 膝盖骨
-      if(L.shoes!==-1&&!L.blades&&!L.sandals){const fy2=-.74-LEGX/2;SB.add(sph(.085,12,8),L.shoes,[0,fy2-.005,-.075],[0,0,0],[.95,.85,1.05]);SB.add(capsule(.07,.08,.12,10),L.boots?L.shoes:sc(0,fy2+.15,0),[0,fy2+.12,0])}} // 脚跟、脚踝
-    {const fy0=-.63-LEGX/2;kn.add(warpLimb(SB.build(vcPersonMat),.63+LEGX/2,LW.shin,(x,y,z)=>[x*1.2,fy0+(y-fy0)*1.08,.03+(z-.03)*1.3]))}hips.push(hp);knees.push(kn)}
+      if(L.shoes!==-1&&!L.blades&&!L.sandals){const fy2=-.74-LEGX/2;SB.add(capsule(.07,.08,.12,10),L.boots?L.shoes:sc(0,fy2+.15,0),[0,fy2+.12,0])}} // 脚跟、脚踝
+    kn.add(warpLimb(SB.build(vcPersonMat),.63+LEGX/2,LW.shin));hips.push(hp);knees.push(kn)}
   // —— 手臂：上臂（绕肩）+ 小臂（绕肘）
   const sl={short:.33,roll:.6,long:.84,none:0}[L.sleeve??'short'];
   const sleeveC=L.jacketMat?null:(L.jacket??shirtC);
@@ -1389,15 +1398,15 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
     sh.add(warpLimb(UB.build(vcPersonMat),EL,LW.upper));
     if(REAL)var _elbowCol=armCol(0,-EL+.01,0);
     const el=new THREE.Group();el.position.y=-EL;sh.add(el);
-    const FB=new Bld();FB.add(capsule(.064,.056,.43,10),(x,y,z)=>armCol(x,y-EL,z));{const hc=L.gloves?0x111111:skin;FB.add(rgeo(.1,.11,.05,.45),hc,[0,-.5,.005]);FB.add(rgeo(.092,.075,.045,.5),hc,[0,-.585,.012],[.25,0,0]);for(let k=0;k<3;k++)FB.add(rgeo(.004,.07,.046,.2),new THREE.Color(hc).multiplyScalar(.75).getHex(),[-.023+k*.023,-.585,.013],[.25,0,0]);FB.add(capsule(.022,.018,.07,10),hc,[sd*-.055,-.47,.02],[.3,0,sd*.6])}
+    const FB=new Bld();FB.add(capsule(.064,.056,.43,10),(x,y,z)=>armCol(x,y-EL,z));{const hc=L.gloves?0x111111:skin;if(REAL){FB.add(new THREE.BoxGeometry(.13,.25,.065),handMat(hc),[0,-.565,.01],[.12,0,0]);FB.add(capsule(.026,.022,.09,8),hc,[sd*-.07,-.5,.03],[.3,0,sd*.6])}
+    else{FB.add(rgeo(.1,.11,.05,.45),hc,[0,-.5,.005]);FB.add(rgeo(.092,.075,.045,.5),hc,[0,-.585,.012],[.25,0,0]);for(let k=0;k<3;k++)FB.add(rgeo(.004,.07,.046,.2),new THREE.Color(hc).multiplyScalar(.75).getHex(),[-.023+k*.023,-.585,.013],[.25,0,0]);FB.add(capsule(.022,.018,.07,10),hc,[sd*-.055,-.47,.02],[.3,0,sd*.6])}}
     if(L.watch&&sd>0)FB.add(cyl(.062,.062,.04,14),L.shirt===0xd4ff3a?0xff3d8b:0x1a1a1a,[0,-.4,0]);
     if((L.jacketMat||L.shirtMat)&&L.sleeve==='long')FB.add(capsule(.084,.078,.4,10),L.jacketMat??L.shirtMat);
     else if(L.sleeve==='roll'&&!L.jacketMat)FB.add(capsule(.078,.074,.14,10),sleeveC);
     else if(L.sleeve==='long'&&(L.jacket||L.vest))FB.add(capsule(.08,.072,.4,10),sleeveC);
     if(REAL){FB.add(sph(.066,12,10),_elbowCol,[0,0,0]);FB.add(sph(.04,8,6),_elbowCol,[0,-.01,-.06],[0,0,0],[1,1.2,1]); // 肘尖
-      const hc2=L.gloves?0x111111:skin;for(let f=0;f<4;f++)FB.add(capsule(.0145,.012,.075,6),hc2,[-.034+f*.0227,-.64+Math.abs(f-1.5)*.006,.02],[.3,0,0]); // 四根手指
-      FB.add(rgeo(.1,.025,.05,.4),new THREE.Color(hc2).multiplyScalar(.85).getHex(),[0,-.555,.02])} // 指节
-    el.add(warpLimb(FB.build(vcPersonMat),.43,LW.fore,(x,y,z)=>[x*1.3,-.44+(y+.44)*1.35,.01+(z-.01)*1.25]));
+    }
+    el.add(warpLimb(FB.build(vcPersonMat),.43,LW.fore));
     const hand=new THREE.Group();hand.position.y=-.52;el.add(hand);
     shs.push(sh);els.push(el);hands.push(hand)}
   // 手持道具挂在右手
@@ -3049,7 +3058,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.20.3';
+const VERSION='v0.20.4';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3215,7 +3224,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.20','骨骼与转向',[['0.20.3','写实人物的手（手掌和手指）放大约 1.3 倍，鞋子加宽加长约 1.2~1.3 倍'],['0.20.2','写实人物细节：锁骨、肩胛骨、肘尖、膝盖骨；手加四根手指和指节；脚加脚跟和脚踝；男女体型差异拉大（男性肩更宽、胸更厚，女性腰更细胯更宽）'],['0.20.1','卡通画风也改用骨骼蒙皮（描边跟着一起弯曲）；写实人物身体轮廓更像真人：收腰、胸部前凸、臀部后凸、骨盆略宽、背部更平'],['0.20.0','写实人物改用骨骼蒙皮：身体各部件合并成一整块会随骨骼弯曲的模型，肩、肘、髋、膝处平滑弯曲，没有接缝；汽车和摩托转向时前轮会跟着转']]],
+ ['v0.20','骨骼与转向',[['0.20.4','写实人物的手和鞋改成“方块 + 纹理”：手是一个方块，手指缝、指节、指甲画在贴图上（另有拇指）；鞋是一个方块，鞋底、鞋带、缝线画在贴图上'],['0.20.3','写实人物的手（手掌和手指）放大约 1.3 倍，鞋子加宽加长约 1.2~1.3 倍'],['0.20.2','写实人物细节：锁骨、肩胛骨、肘尖、膝盖骨；手加四根手指和指节；脚加脚跟和脚踝；男女体型差异拉大（男性肩更宽、胸更厚，女性腰更细胯更宽）'],['0.20.1','卡通画风也改用骨骼蒙皮（描边跟着一起弯曲）；写实人物身体轮廓更像真人：收腰、胸部前凸、臀部后凸、骨盆略宽、背部更平'],['0.20.0','写实人物改用骨骼蒙皮：身体各部件合并成一整块会随骨骼弯曲的模型，肩、肘、髋、膝处平滑弯曲，没有接缝；汽车和摩托转向时前轮会跟着转']]],
  ['v0.19','C VI',[['0.19.0','游戏改名为 C VI（C 代表 Claude），新图标；写实人物加肘、膝、髋关节过渡和斜方肌，四肢和身体衔接更自然；轿车、出租车、警车、跑车重新设计车身轮廓（引擎盖、后备厢更有层次），所有汽车车窗以上向内收、车底内收，截面更像真车']]],
  ['v0.18','写实化收尾',[['0.18.1','修复马路贴图盖到人行道上、积水和人行道重叠：路面去掉会随视角变化的深度偏移，积水只生成在离路边 0.8 米以内的路面上'],['0.18.0','写实画风下其余部分全部重做：远山改为灰蓝远山和灰岩绿坡、椰子树叶改成自然的橄榄绿；海边别墅去掉粉色青色饰边；郊区平房加排水槽、落水管、空调外机、门廊灯、垃圾桶、卫星锅和车道；汽车加轮拱眉、引擎盖和后备厢缝、引擎盖中线；警用直升机加尾桨、侧窗和白色腰带']]],
  ['v0.17','载具与建筑重做',[['0.17.7','写实画风下医院和警察局重做：医院改为米色混凝土主楼 + 砖砌两翼、层间腰线、厚檐口、混凝土急诊雨棚和钢柱、普通灯箱招牌，楼顶停机坪旁加设备；警察局改为红砖主楼和两翼 + 石材入口楼、方形石柱、台阶、蓝色招牌和门灯、楼顶天线'],['0.17.6','写实画风下楼的外形重做：去掉装饰艺术风格的圆角塔、竖鳍和阶梯楼顶，改为方正的砖砌公寓、商住楼和带裙楼、退台的办公楼；加檐口、腰线、窗式空调、楼顶楼梯间、机房和天线'],['0.17.5','建筑写实化：外墙、房屋和地面配色降低饱和度；外墙贴图加污渍、雨水痕和墙脚发黑；楼顶加空调外机、水箱、天线、通风管；砖楼加消防梯；高楼顶部霓虹环换成天线红灯。修复车灯有时消失：车灯、尾灯、保险杠、格栅、车牌原来被埋在车身倒角里，现在移到车身表面；车灯光晕按车身真实长度放置。修复贴图闪烁：提高远处深度精度，路面、标线、斑马线加偏移，不再互相闪烁'],['0.17.0','写实画风下所有载具重做细节：车身下部压暗、门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、加油口、转向灯和倒车灯、大灯镀铬框、车轮螺母；皮卡/面包车/巴士加挡泥板；巴士加折叠门、路牌灯箱、车窗立柱；面包车加侧滑门和后门缝、滑轨；摩托车加前后挡泥板、后视镜、发动机散热片、刹车盘、车牌、脚踏；踏板车加后货架、脚踏板、车牌、后视镜']]],
