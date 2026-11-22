@@ -249,19 +249,22 @@ const mtnPano=(()=>{const W=4096,H=512,c=document.createElement('canvas');c.widt
   // 远层：淡紫色剪影；近层：粉色山顶 → 灰岩 → 绿色山脚
   layer(14,180,330,.03,.07,[[0,'#c58ac0'],[.5,'#9a74ad'],[1,'#8a6aa8']],10);
   layer(20,90,250,.025,.06,[[0,'#ffc0d4'],[.18,'#c59aae'],[.42,'#7a6a7c'],[.7,'#3f7a55'],[1,'#2f6a48']],8);
+  // 近海小岛：低矮的绿色山头 + 沙滩边 + 椰子树剪影（画在最前面一层）
+  const isle=(u,w,h)=>{if(sunGap(u)<.5)return;const cx=u*W,hw=w*W/2,base=H-2;
+    const pth=new Path2D();pth.moveTo(cx-hw*1.15,base);for(let k=0;k<=40;k++){const f=k/40,x=cx-hw+2*hw*f,y=base-h*Math.pow(Math.sin(Math.PI*f),.8)*(1+.08*Math.sin(f*23));pth.lineTo(x,y)}pth.lineTo(cx+hw*1.15,base);pth.closePath();
+    const gr=g.createLinearGradient(0,base-h,0,base);gr.addColorStop(0,'#5fae6e');gr.addColorStop(.8,'#2f7a50');gr.addColorStop(1,'#2f7a50');g.fillStyle=gr;g.fill(pth);
+    g.fillStyle='#f2d59b';g.beginPath();g.ellipse(cx,base,hw*1.18,3.5,0,0,TAU);g.fill();
+    g.strokeStyle='#1f4a36';g.fillStyle='#1f4a36';for(let k=0;k<3+((rnd()*4)|0);k++){const px=cx+(rnd()-.5)*hw*1.4,f=Math.abs(px-cx)/hw,py=base-h*Math.pow(Math.max(0,Math.cos(f*Math.PI/2)),.8)+2,ph=16+rnd()*12,lean=(rnd()-.5)*5;
+      g.lineWidth=1.6;g.beginPath();g.moveTo(px,py);g.quadraticCurveTo(px+lean*.5,py-ph*.5,px+lean,py-ph);g.stroke();
+      for(let q=0;q<6;q++){const a=q/6*TAU;g.beginPath();g.moveTo(px+lean,py-ph);g.quadraticCurveTo(px+lean+Math.cos(a)*6,py-ph-3+Math.abs(Math.sin(a))*1,px+lean+Math.cos(a)*9,py-ph+3);g.lineWidth=1.3;g.stroke()}}};
+  for(let k=0;k<8;k++)isle(rnd(),.018+rnd()*.022,28+rnd()*40);
+  // 礁石：海面上一些小小的紫灰色石块
+  for(let k=0;k<40;k++){const u=rnd();if(sunGap(u)<.3)continue;const x=u*W,w=2+rnd()*5,h=1.5+rnd()*4;g.fillStyle=['#6a5a70','#7a6a78','#5a4a60'][k%3];g.beginPath();g.moveTo(x-w,H-1);g.lineTo(x-w*.3,H-1-h);g.lineTo(x+w*.5,H-1-h*.7);g.lineTo(x+w,H-1);g.closePath();g.fill()}
   const t=new THREE.CanvasTexture(c);t.wrapS=THREE.RepeatWrapping;
   const R0=2600,HH=R0*H/W*TAU*.55;const geo=new THREE.CylinderGeometry(R0,R0,HH,96,1,true);
   const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:t,transparent:true,side:THREE.BackSide,fog:false,depthWrite:false}));
   m.renderOrder=0;m.frustumCulled=false;const y0=HH/2-8;
   m.onBeforeRender=(r,sc,cm)=>{m.position.set(cm.position.x,y0,cm.position.z);m.updateMatrixWorld()};scene.add(m);return m})();
-// 近海小岛：沙滩 + 绿色山头 + 椰子树
-const islets=[[2.2,560,70,38],[3.9,600,90,55],[5.2,540,55,26],[1.2,620,80,48],[4.6,520,40,18]];
-islets.forEach(([a,d,r,h],i)=>{const dd=ISL(a)+d-360;const x=Math.cos(a)*dd,z=Math.sin(a)*dd;mountain(x,z,r,h,i*2.3+9,{seg:40,pow:.9,shadow:true,
-  stops:[[0,0xf2d59b],[.12,0xe8cf98],[.2,0x4fa866],[.7,0x3b8a57],[1,0x6a8a6a]]});
-  for(let k=0;k<6;k++){const aa=R()*6.28,rr2=r*rr(.72,.82);palm(x+Math.cos(aa)*rr2,z+Math.sin(aa)*rr2)}});
-// 海岸边的礁石
-for(let k=0;k<26;k++){const a=R()*Math.PI*2,d=ISL(a)+rr(12,60);const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(rr(2,6),0),M([0x6a5a70,0x7a6a78,0x5a4a60][k%3]));
-  rock.position.set(Math.cos(a)*d,-.3,Math.sin(a)*d);rock.rotation.set(R()*3,R()*3,R()*3);rock.scale.y=rr(.5,.9);rock.castShadow=true;scene.add(rock)}
 const pal=[0xffb3c7,0x9ff0e6,0xfff0c2,0xc7b3ff,0xffd0a8,0xf7f2f7,0x7fd8ff,0xff9fb8];
 const trimPal=[0x22d3ee,0xff3d8b,0xffffff,0x8a5cff,0x2fd1b0];
 const neon=[0xff3d8b,0x22d3ee,0xffe14d,0x8a5cff,0x5cff9b];
