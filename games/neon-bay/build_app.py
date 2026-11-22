@@ -93,7 +93,7 @@ head = '''<!doctype html>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="霓虹湾">
+<meta name="apple-mobile-web-app-title" content="NBY VI">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
@@ -124,7 +124,7 @@ open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(html)
 
 # ---------- manifest ----------
 manifest = {
-    'name': '霓虹湾', 'short_name': '霓虹湾', 'description': '日落海滨城市里的开放世界：开车、接活、躲警察。',
+    'name': 'NBY VI · 霓虹湾', 'short_name': 'NBY VI', 'description': '日落海滨城市里的开放世界：开车、接活、躲警察。',
     'lang': 'zh-CN', 'start_url': './', 'scope': './', 'display': 'fullscreen', 'orientation': 'landscape',
     'background_color': '#2a0b3d', 'theme_color': '#2a0b3d',
     'icons': [

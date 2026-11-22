@@ -7,14 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="霓虹湾">
+<meta name="apple-mobile-web-app-title" content="NBY VI">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}*{-webkit-tap-highlight-color:transparent}body{margin:0;overscroll-behavior:none}</style>
 </head>
 <body>
-<title>霓虹湾</title>
+<title>NBY VI</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 :root{--bg:#0b0f1a;--fg:#f4f1ff;--hot:#ff3d8b;--sun:#ffb347;--sea:#22d3ee;--ui:rgba(10,12,24,.72);color-scheme:dark;
@@ -39,13 +39,15 @@ canvas{display:block}
 #topmsg::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#ff2a3a;margin-right:7px;vertical-align:1px;animation:blink .5s steps(2) infinite}
 @keyframes blink{50%{background:#2a6fff}}
 #hint{position:absolute;bottom:calc(78px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ui);padding:6px 12px;border-radius:4px;font-size:13px;opacity:0;transition:opacity .2s}
-#title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow-y:auto;background:linear-gradient(180deg,rgba(20,8,40,.55),rgba(20,8,40,.25) 40%,rgba(20,8,40,.8)),url(art/title.jpg) center/cover,#2a0b3d;z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));text-align:center}
+#title{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;overflow-y:auto;background:linear-gradient(180deg,rgba(20,8,40,.55),rgba(20,8,40,.25) 40%,rgba(20,8,40,.8)),url(art/title.jpg) center/cover,#2a0b3d;z-index:5;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));text-align:center}
 .pick{display:flex;gap:12px}
 .hero{pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:2px;width:132px;padding:6px 6px 8px;border:3px solid rgba(255,255,255,.25);border-radius:8px;background:rgba(20,8,40,.7);color:#fff;font-family:var(--body);cursor:pointer}
 .hero img{width:100%;height:150px;object-fit:cover;object-position:top;border-radius:4px}
 .hero span{font-family:var(--disp);font-size:16px;color:var(--sun)}.hero small{font-size:11px;opacity:.8}
 .hero.on{border-color:var(--hot);box-shadow:0 0 18px var(--hot)}.hero:focus-visible{outline:3px solid #fff}
-#title h1{font-family:var(--disp);font-size:clamp(44px,12vw,110px);margin:0;line-height:.9;color:#fff;text-shadow:4px 4px 0 #2a0b3d,8px 8px 0 rgba(0,0,0,.25)}
+#title .sub{font-family:var(--disp);font-size:clamp(16px,3.4vw,26px);letter-spacing:.5em;color:#fff;margin-top:-10px;text-shadow:2px 2px 0 #2a0b3d}
+#title>:first-child{margin-top:auto;padding-top:12px}#title>:last-child{margin-bottom:auto;margin-bottom:max(12px,auto)}
+#title h1{font-family:var(--disp);font-size:clamp(36px,min(12vw,15vh),110px);margin:0;line-height:.9;color:#fff;text-shadow:4px 4px 0 #2a0b3d,8px 8px 0 rgba(0,0,0,.25)}
 #title p{margin:0;max-width:520px;font-size:15px;line-height:1.6;color:#fff}
 #title .keys{font-size:13px;background:rgba(0,0,0,.35);padding:10px 14px;border-radius:6px;line-height:1.8}
 #start{pointer-events:auto;font-family:var(--disp);font-size:22px;padding:14px 34px;border:0;border-radius:6px;background:#2a0b3d;color:var(--sun);cursor:pointer;box-shadow:0 5px 0 #000}
@@ -92,7 +94,8 @@ canvas{display:block}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;600&display=swap">
 <div id="title">
-  <h1>霓虹湾</h1>
+  <h1>NBY VI</h1>
+  <div class="sub">霓虹湾</div>
   <p>日落时分的海滨之城。你刚出狱，口袋空空。接活、飙车、甩掉警察，攒够 $30,000 买下海边那栋别墅。</p>
   <div class="pick" role="radiogroup" aria-label="选择主角">
     <button class="hero on" id="pickF" role="radio" aria-checked="true"><img src="art/hero_f.jpg" alt=""><span>玛雅</span><small>花衬衫 · 破洞牛仔裤</small></button>
@@ -108,7 +111,7 @@ canvas{display:block}
   <canvas id="mini" width="300" height="300" role="button" aria-label="打开完整地图" tabindex="0"></canvas>
   <div id="hurt"></div><div id="cut" hidden><i class="bar t"></i><i class="bar b"></i><div id="cutTxt"></div><div id="cutSub"></div></div><div id="fade"></div><div id="xh" hidden></div><div id="topmsg"></div><div id="toast"></div><div id="hint"></div>
 </div>
-<div id="bigmap" hidden><div class="bm-top"><b>霓虹湾地图</b><button id="bmClose" aria-label="关闭地图">关闭</button></div><canvas id="bmc"></canvas>
+<div id="bigmap" hidden><div class="bm-top"><b>NBY VI 地图</b><button id="bmClose" aria-label="关闭地图">关闭</button></div><canvas id="bmc"></canvas>
   <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#ffe14d"></i>任务</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#ff2a3a"></i>医院</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
 <div id="touch" data-mode="foot">
   <div id="stick" class="foot"><div id="knob"></div></div>
