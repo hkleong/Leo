@@ -939,7 +939,7 @@ class Bld{constructor(){this.parts=[];this.extra=[]}
 const GC={};const gget=(k,f)=>GC[k]||(GC[k]=f());
 const v2=(x,y)=>new THREE.Vector2(x,y);
 // 胶囊（四肢）：顶端在 y=0，向下长 len
-function capsule(r1,r2,len,seg=10){return gget(`cap${r1},${r2},${len},${seg}`,()=>{const pts=[];
+function capsule(r1,r2,len,seg=10){seg=Math.max(seg,16);return gget(`cap${r1},${r2},${len},${seg}`,()=>{const pts=[];
   for(let i=0;i<=5;i++){const a=-Math.PI/2+i/5*Math.PI/2;pts.push(v2(Math.max(1e-4,Math.cos(a)*r2),-len+Math.sin(a)*r2))}
   const n=Math.ceil(len/.025);for(let i=1;i<n;i++){const t=i/n;pts.push(v2(r2+(r1-r2)*t,-len+len*t))}
   for(let i=1;i<=5;i++){const a=i/5*Math.PI/2;pts.push(v2(Math.max(1e-4,Math.cos(a)*r1),Math.sin(a)*r1))}
@@ -951,7 +951,7 @@ const tor=(r,t)=>gget(`t${r},${t}`,()=>new THREE.TorusGeometry(r,t,6,16));
 const TORSO={m:[[0,1.27],[.2,1.29],[.26,1.42],[.25,1.55],[.245,1.72],[.29,1.94],[.31,2.06],[.27,2.15],[.13,2.21],[.085,2.25],[.085,2.38],[0,2.4]],
              f:[[0,1.27],[.21,1.29],[.28,1.42],[.255,1.55],[.19,1.72],[.25,1.9],[.255,2.0],[.235,2.1],[.12,2.18],[.075,2.23],[.075,2.38],[0,2.4]]};
 function dense(P,step=.025){const out=[];for(let i=0;i<P.length-1;i++){const[a,b]=[P[i],P[i+1]];const n=Math.max(1,Math.ceil(Math.abs(b[1]-a[1])/step));for(let k=0;k<n;k++){const t=k/n;out.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t])}}out.push(P.at(-1));return out}
-function torsoGeo(f){return gget('torso'+f,()=>new THREE.LatheGeometry(dense(TORSO[f?'f':'m']).map(p=>v2(Math.max(1e-4,p[0]),p[1])),16))}
+function torsoGeo(f){return gget('torso'+f,()=>new THREE.LatheGeometry(dense(TORSO[f?'f':'m']).map(p=>v2(Math.max(1e-4,p[0]),p[1])),28))}
 // 衣服外壳：取躯干一段放大，gap>0 时前襟敞开（夹克、背心）
 function shellGeo(f,y0,y1,k,gap){return gget(`sh${f}${y0}${y1}${k}${gap}`,()=>{const pts=TORSO[f?'f':'m'].filter(p=>p[1]>=y0&&p[1]<=y1).map(p=>v2(p[0]*k+.012,p[1]));
   return new THREE.LatheGeometry(pts,16,gap/2,Math.PI*2-gap)})}
@@ -988,6 +988,46 @@ const LOOKS={
 };
 const NPC_KEYS=['chef','suit','biker','courier','selfie','tourist','skater8','elder','skater','tank','sundress'];
 
+// 脸部贴图覆盖头部球体的这一片：经度 FPHI（弧度，正对前方），纬度 FT0~FT0+FTL
+const FPHI=2.1,FT0=Math.PI*.27,FTL=Math.PI*.62,faceCache={};
+// 头部局部坐标 (x,y) → 贴图上的位置（0~1）
+function facePt(x,y){const th=Math.acos(clamp(y/1.16/.2,-1,1)),ph=Math.asin(clamp(x/.2/Math.sin(th),-1,1));return[.5+ph/FPHI,(th-FT0)/FTL]}
+function faceMat(o){const key=JSON.stringify(o);if(faceCache[key])return faceCache[key];
+  const S=256,c=document.createElement('canvas');c.width=c.height=S;const g=c.getContext('2d');const P=(x,y)=>{const[u,v]=facePt(x,y);return[u*S,v*S]};
+  const sk=new THREE.Color(o.skin),shade='#'+sk.clone().multiplyScalar(.72).getHexString(),deep='#'+sk.clone().multiplyScalar(.55).getHexString();
+  const hair='#'+new THREE.Color(o.brow).getHexString();
+  // 腮红 / 面颊阴影
+  for(const sd of[-1,1]){const[cx,cy]=P(sd*.11,-.06),gr=g.createRadialGradient(cx,cy,0,cx,cy,26);gr.addColorStop(0,o.fem?'rgba(235,110,120,.2)':'rgba(170,80,60,.1)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(cx-30,cy-30,60,60)}
+  const sp=mulberry(7);
+  // 眼睛：眼白、虹膜、瞳孔、高光、上眼睑线（女性加睫毛和眼尾）
+  for(const sd of[-1,1]){const[ex,ey]=P(sd*.075,.03),w=21,h=11;
+    g.save();g.beginPath();g.moveTo(ex-w,ey);g.quadraticCurveTo(ex,ey-h*1.25,ex+w,ey);g.quadraticCurveTo(ex,ey+h,ex-w,ey);g.closePath();g.fillStyle='#fbf7f2';g.fill();g.clip();
+    g.fillStyle=o.iris;g.beginPath();g.arc(ex+sd*-1,ey,8.5,0,7);g.fill();g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.arc(ex+sd*-1,ey,8.5,Math.PI*1.1,Math.PI*1.9);g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.3)';g.stroke();
+    g.fillStyle='#120c0a';g.beginPath();g.arc(ex+sd*-1,ey,4,0,7);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(ex+sd*-1+2.5,ey-3,2,0,7);g.fill();
+    g.fillStyle='rgba(0,0,0,.18)';g.fillRect(ex-w,ey-h*1.3,w*2,h*.6);g.restore();
+    g.strokeStyle='#1a120e';g.lineWidth=o.fem?3.4:2.6;g.lineCap='round';g.beginPath();g.moveTo(ex-w,ey+1);g.quadraticCurveTo(ex,ey-h*1.3,ex+w+(o.fem?3:0),ey-(o.fem?3:0));g.stroke();
+    if(o.fem){g.lineWidth=1.6;for(let k=0;k<4;k++){const t=.55+k*.15,lx=ex+(sd>0?1:-1)*w*(t-.5)*2;g.beginPath();g.moveTo(lx,ey-h*.9+k);g.lineTo(lx+(sd>0?3:-3),ey-h*1.4+k);g.stroke()}}
+    g.strokeStyle='rgba(60,30,20,.35)';g.lineWidth=1.2;g.beginPath();g.moveTo(ex-w*.8,ey+h*.55);g.quadraticCurveTo(ex,ey+h*1.05,ex+w*.8,ey+h*.55);g.stroke();
+    // 眉毛
+    const[bx,by]=P(sd*.078,.095);g.strokeStyle=hair;g.lineWidth=o.fem?3.2:5;g.beginPath();g.moveTo(bx-sd*17,by+3);g.quadraticCurveTo(bx-sd*2,by-5,bx+sd*16,by+1);g.stroke()}
+  // 鼻子：鼻梁阴影 + 鼻翼 + 鼻孔
+  {const[nx,ny]=P(0,-.035);g.strokeStyle=shade;g.lineWidth=2;g.beginPath();g.moveTo(nx-3,ny-22);g.quadraticCurveTo(nx-6,ny-6,nx-2,ny+2);g.stroke();
+   g.beginPath();g.moveTo(nx-9,ny+3);g.quadraticCurveTo(nx,ny+9,nx+9,ny+3);g.stroke();g.fillStyle=deep;for(const sd of[-1,1]){g.beginPath();g.ellipse(nx+sd*4.5,ny+4,2.6,1.6,0,0,7);g.fill()}}
+  // 胡子：画在下半张脸（胡茬淡、络腮胡浓），嘴巴之后再画在上面
+  if(o.beard||o.must){const bc=new THREE.Color(o.beardCol||0x2a1a12),rgb=`${bc.r*255|0},${bc.g*255|0},${bc.b*255|0}`;
+    if(o.beard){g.save();g.beginPath();const pts=[[-.19,.0],[-.17,-.1],[-.12,-.18],[0,-.215],[.12,-.18],[.17,-.1],[.19,0],[.13,-.04],[.06,-.075],[0,-.07],[-.06,-.075],[-.13,-.04]];
+      pts.forEach(([x,y],i)=>{const[u,v]=P(x,y);i?g.lineTo(u,v):g.moveTo(u,v)});g.closePath();g.clip();
+      g.fillStyle=`rgba(${rgb},${o.beard==='stub'?.32:.82})`;g.fillRect(0,0,S,S);g.fillStyle=`rgba(${rgb},.5)`;for(let k=0;k<900;k++)g.fillRect(sp()*S,sp()*S,1.4,1.4);g.restore()}
+    if(o.must){const[mx,my]=P(0,-.095);g.fillStyle=`rgba(${rgb},.92)`;g.beginPath();g.moveTo(mx-20,my+6);g.quadraticCurveTo(mx-10,my-6,mx,my-1);g.quadraticCurveTo(mx+10,my-6,mx+20,my+6);g.quadraticCurveTo(mx,my+2,mx-20,my+6);g.fill()}}
+  // 嘴：上唇线 + 下唇；女性有口红和唇峰高光
+  {const[mx,my]=P(0,-.12),mw=o.fem?17:16;g.fillStyle=o.fem?o.lip:'#'+sk.clone().lerp(new THREE.Color(0x8a4a40),.45).getHexString();
+   g.beginPath();g.moveTo(mx-mw,my);g.quadraticCurveTo(mx-mw*.4,my-6,mx,my-3);g.quadraticCurveTo(mx+mw*.4,my-6,mx+mw,my);g.quadraticCurveTo(mx,my+(o.fem?9:7),mx-mw,my);g.fill();
+   g.strokeStyle='#3a1a18';g.lineWidth=1.8;g.beginPath();g.moveTo(mx-mw,my);g.quadraticCurveTo(mx,my+1.5,mx+mw,my);g.stroke();
+   if(o.fem){g.fillStyle='rgba(255,255,255,.35)';g.beginPath();g.ellipse(mx+3,my+3.5,5,1.6,0,0,7);g.fill()}
+   g.strokeStyle=shade;g.lineWidth=1.4;g.beginPath();g.moveTo(mx-7,my+12);g.quadraticCurveTo(mx,my+15,mx+7,my+12);g.stroke()} // 下巴阴影
+  const t=new THREE.CanvasTexture(c);t.anisotropy=4;
+  return faceCache[key]=new THREE.MeshToonMaterial({map:t,transparent:true,depthWrite:false,gradientMap:toonGrad,polygonOffset:true,polygonOffsetFactor:-2})}
+const IRIS=['#5a3a22','#3a2414','#6a4a2a','#3a6a8a','#4a7a4a','#7a6a3a'],LIPS=['#c8506a','#d8607a','#b0405a','#e07080'];
 function buildPerson(look){const lookKey=typeof look==='string'?look:null;const L=typeof look==='string'?LOOKS[look]:look;const fem=!!L.fem;
   const skin=L.skin??SKIN[(R()*SKIN.length)|0],hairC=L.hairCol??[0x1a1a1a,0x2a1a12,0x4a2e1a][(R()*3)|0];
   const shirtC=L.shirt??0xffffff,pantsC=L.pants??0x2a2f3a,dark=0x1a1012,sx=L.big?1.08:1;
@@ -1020,14 +1060,12 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;const 
   if(L.carry==='pizza'){B.add(rgeo(.46,.08,.46,.25),0xd8b27a,[0,1.74,.62]);B.add(rgeo(.2,.005,.12,.3),0xb03a2a,[0,1.785,.62])}
   // —— 头部：椭圆头 + 五官
   const hy=2.6;
-  B.add(sph(.2,16,12),skin,[0,hy,0],[0,0,0],[1,1.16,1.05]);
-  for(const sd of[-1,1]){B.add(sph(.045,8,6),skin,[sd*.2,hy,0],[0,0,0],[.6,1,.8]);
-    B.add(sph(.034,8,6),0xffffff,[sd*.075,hy+.03,.18],[0,0,0],[1.2,.9,.6]);B.add(sph(.02,8,6),0x2a1a12,[sd*.075,hy+.03,.2],[0,0,0],[1,1,.6]);
-    B.add(rgeo(.095,.022,.03,.4),L.hairCol??dark,[sd*.078,hy+.095,.18],[0,0,sd*-.12])}
-  B.add(sph(.035,8,6),skin,[0,hy-.03,.215],[0,0,0],[.9,1.3,1]);
-  B.add(rgeo(.08,.018,.02,.4),fem?0xb0405a:0x7a3a34,[0,hy-.12,.19]);
-  if(L.beard)B.add(sph(L.stubble?.203:.208,14,8,Math.PI/2-1.25,2.5,Math.PI*.6,Math.PI*.36),L.beardCol??0x2a1a12,[0,hy,.008],[0,0,0],[1,1.16,1.05]);
-  if(L.mustache)B.add(rgeo(.12,.03,.03,.4),hairC,[0,hy-.085,.2]);
+  B.add(sph(.2,28,22),skin,[0,hy,0],[0,0,0],[1,1.16,1.05]);
+  // 耳朵：外耳廓 + 耳窝
+  for(const sd of[-1,1]){B.add(sph(.05,12,10),skin,[sd*.198,hy-.005,-.01],[0,sd*.25,0],[.42,1,.75]);B.add(sph(.026,10,8),new THREE.Color(skin).multiplyScalar(.8).getHex(),[sd*.205,hy-.005,-.005],[0,0,0],[.3,.8,.6])}
+  // 脖子
+  B.add(cyl(.072,.085,.2,16),skin,[0,hy-.25,-.01]);
+  const fr=mulberry((lookKey||'x').length*131+((R()*1000)|0));
   // 头发
   const hk=[1,1.16,1.05],cap=(r,tl,col=hairC)=>B.add(sph(r,16,8,0,Math.PI*2,0,tl),col,[0,hy+.01,-.005],[0,0,0],hk);
   const back=(r,tl,col=hairC)=>B.add(sph(r,14,8,Math.PI*1.5-1.7,3.4,0,tl),col,[0,hy,-.01],[0,0,0],hk);
@@ -1055,6 +1093,8 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;const 
   // —— 骨架：躯干（含头和手臂）挂在髋部 spine 上，方便前倾、扭腰
   const spine=new THREE.Group();spine.position.y=1.38;g.add(spine);
   const body=B.build(vcPersonMat);body.position.y=-1.38;spine.add(body);
+  {const fm=faceMat({skin,brow:L.hairCol??(L.beardCol||0x2a1a12),fem,beard:L.beard?(L.stubble?'stub':'full'):0,beardCol:L.beardCol??hairC,must:!!L.mustache,iris:IRIS[(fr()*IRIS.length)|0],lip:LIPS[(fr()*LIPS.length)|0]});
+   const fg=gget('faceGeo',()=>new THREE.SphereGeometry(.2,24,18,Math.PI/2-FPHI/2,FPHI,FT0,FTL));const face=new THREE.Mesh(fg,fm);face.scale.set(1.006,1.166,1.056);face.position.set(0,hy,0);face.renderOrder=3;body.add(face)}
   // —— 腿：大腿（绕髋）+ 小腿（绕膝）
   const legCol=(x,y,z)=>{if(L.dress)return skin;
     if(L.shorts&&y<-.42)return L.socks&&y<-1.08?L.socks:skin;
@@ -1073,7 +1113,7 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;const 
     if(L.shoes===-1)SB.add(rgeo(.12,.08,.27,.45),skin,[0,fy+.01,.05]);
     else if(L.blades){SB.add(rgeo(.17,.3,.34,.4),L.shoes,[0,fy+.08,.04]);SB.add(rgeo(.05,.05,.4,.3),0x222222,[0,fy-.1,.04]);for(let k=0;k<4;k++)SB.add(cyl(.045,.045,.04,10),0xff7a2f,[0,fy-.16,-.12+k*.11],[0,0,Math.PI/2])}
     else if(L.sandals){SB.add(rgeo(.13,.08,.27,.45),skin,[0,fy+.02,.05]);SB.add(rgeo(.15,.035,.31,.3),L.shoes,[0,fy-.05,.05]);SB.add(rgeo(.15,.03,.06,.3),L.shoes,[0,fy+.04,.08])}
-    else{SB.add(rgeo(.16,L.boots?.24:.14,.33,.4),L.shoes,[0,L.boots?fy+.04:fy,.05]);SB.add(rgeo(.165,.04,.34,.3),L.boots?0x2a1a10:0xf0f0f0,[0,fy-.06,.05])}
+    else{SB.add(rgeo(.16,L.boots?.24:.14,.33,.4),L.shoes,[0,L.boots?fy+.04:fy,.05]);SB.add(sph(.085,14,10,0,Math.PI*2,0,Math.PI/2),L.shoes,[0,fy-.03,.17],[0,0,0],[.95,.9,.9]);if(!L.boots)for(let k=0;k<3;k++)SB.add(rgeo(.09,.012,.018,.3),0xf4f4f4,[0,fy+.072,.04+k*.045]);SB.add(rgeo(.165,.04,.34,.3),L.boots?0x2a1a10:0xf0f0f0,[0,fy-.06,.05])}
     kn.add(SB.build(vcPersonMat));hips.push(hp);knees.push(kn)}
   // —— 手臂：上臂（绕肩）+ 小臂（绕肘）
   const sl={short:.33,roll:.6,long:.84,none:0}[L.sleeve??'short'];
@@ -1089,7 +1129,7 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;const 
     if(L.patch)UB.add(sph(.04,8,6),0x4a7ab0,[sd*.08,-.12,0],[0,0,0],[.4,1,1]);
     sh.add(UB.build(vcPersonMat));
     const el=new THREE.Group();el.position.y=-EL;sh.add(el);
-    const FB=new Bld();FB.add(capsule(.064,.056,.43,10),(x,y,z)=>armCol(x,y-EL,z));FB.add(sph(.062,10,8),L.gloves?0x111111:skin,[0,-.51,.01],[0,0,0],[.9,1.25,.75]);
+    const FB=new Bld();FB.add(capsule(.064,.056,.43,10),(x,y,z)=>armCol(x,y-EL,z));{const hc=L.gloves?0x111111:skin;FB.add(rgeo(.1,.11,.05,.45),hc,[0,-.5,.005]);FB.add(rgeo(.092,.075,.045,.5),hc,[0,-.585,.012],[.25,0,0]);for(let k=0;k<3;k++)FB.add(rgeo(.004,.07,.046,.2),new THREE.Color(hc).multiplyScalar(.75).getHex(),[-.023+k*.023,-.585,.013],[.25,0,0]);FB.add(capsule(.022,.018,.07,10),hc,[sd*-.055,-.47,.02],[.3,0,sd*.6])}
     if(L.sleeve==='roll'&&!L.jacketMat)FB.add(capsule(.078,.074,.14,10),sleeveC);
     else if(L.sleeve==='long'&&(L.jacket||L.vest))FB.add(capsule(.08,.072,.4,10),sleeveC);
     el.add(FB.build(vcPersonMat));
@@ -1583,7 +1623,7 @@ function updDayNight(dt){gameHour=(gameHour+dt*DAY_SPEED)%24;const ph=(gameHour-
   // 天空三段颜色：白天 ↔ 黄昏 ↔ 夜晚
   const toDay=Math.min(1,Math.max(0,(e-.04)/.36)),toNight=Math.min(1,Math.max(0,(-e-.02)/.18));
   ['uTop','uMid','uHor'].forEach((k,i)=>{const col=SKYU[k].value;mixHex(PAL.dusk[i],PAL.day[i],toDay,col);if(toNight>0)col.lerp(_ca.set(PAL.night[i]),toNight)});
-  SKYU.uTime.value+=dt*60;SKYU.uCloud.value.set(0xffd2c8).lerp(_ca.set(0xffffff),toDay).lerp(_ca.set(0x3a4266),toNight);SKYU.uCloudSh.value.set(0x9a6a9a).lerp(_ca.set(0xb8c4d8),toDay).lerp(_ca.set(0x161a30),toNight);
+  SKYU.uTime.value+=dt*15;SKYU.uCloud.value.set(0xffd2c8).lerp(_ca.set(0xffffff),toDay).lerp(_ca.set(0x3a4266),toNight);SKYU.uCloudSh.value.set(0x9a6a9a).lerp(_ca.set(0xb8c4d8),toDay).lerp(_ca.set(0x161a30),toNight);
   SKYU.uNight.value=toNight;SKYU.uSunI.value=Math.max(0,Math.min(1,(e+.08)/.12));
   scene.fog.color.copy(SKYU.uHor.value).lerp(SKYU.uMid.value,.35);scene.background.copy(SKYU.uMid.value);
   // 太阳 / 月光：白天暖白，黄昏橙，夜里换成偏蓝的月光
