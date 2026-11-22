@@ -113,10 +113,10 @@ canvas{display:block}
 #touch:not([data-bike]) #bStunt{display:none!important}
 #verBtn{pointer-events:auto;background:rgba(20,8,40,.6);border:1.5px solid rgba(255,255,255,.35);color:#fff;font:600 12px var(--body);padding:5px 12px;border-radius:999px;cursor:pointer}#verBtn:focus-visible{outline:2px solid #fff}
 #logPanel{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;background:rgba(10,8,24,.6);padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}#logPanel[hidden]{display:none}
-#logPanel .shop-card{width:min(92vw,480px);text-align:left}#logClose{font:600 14px var(--body);padding:8px 14px;border:0;border-radius:6px;background:var(--hot);color:#fff;cursor:pointer}
-.log-v{background:rgba(255,255,255,.06);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px}.log-v b{font-family:var(--disp);color:var(--sun);font-size:15px}.log-v span{opacity:.85}.log-v em{font-style:normal;font-size:11px;background:var(--hot);padding:1px 7px;border-radius:999px;margin-left:4px}
+#logPanel .shop-card{width:min(86vw,360px);max-height:min(62vh,520px);text-align:left;padding:12px;gap:8px}#logPanel .bm-top{font-size:15px}#logClose{font:600 14px var(--body);padding:8px 14px;border:0;border-radius:6px;background:var(--hot);color:#fff;cursor:pointer}
+.log-v{background:rgba(255,255,255,.06);border-radius:8px;padding:7px 10px;color:#fff;font-size:12px}.log-v summary{cursor:pointer;list-style:none}.log-v summary::-webkit-details-marker{display:none}.log-v summary::after{content:' ▾';opacity:.5;font-size:11px}.log-v[open] summary::after{content:' ▴'}.log-v b{font-family:var(--disp);color:var(--sun);font-size:13px}.log-v span{opacity:.85}.log-v em{font-style:normal;font-size:11px;background:var(--hot);padding:1px 7px;border-radius:999px;margin-left:4px}
 .log-v i{font-style:normal;color:#7fe0ff;font-variant-numeric:tabular-nums;margin-right:4px}.log-note{margin:0;font-size:12px;color:#fff;opacity:.7}
-.log-v ul{margin:6px 0 0;padding-left:18px;line-height:1.6}#logBody{display:flex;flex-direction:column;gap:8px}
+.log-v ul{margin:5px 0 0;padding-left:16px;line-height:1.5}#logBody{display:flex;flex-direction:column;gap:6px;overflow:auto}
 #prompt{position:absolute;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);pointer-events:auto;display:flex;align-items:center;gap:10px;padding:9px 18px 9px 10px;border-radius:999px;border:2px solid var(--sun);background:rgba(10,8,24,.88);color:#fff;font:600 15px var(--body);cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.4);animation:pIn .25s ease-out}
 #prompt b{font-family:var(--disp);font-size:13px;width:28px;height:28px;border-radius:8px;background:var(--sun);color:#1a0f2a;display:flex;align-items:center;justify-content:center}#prompt:focus-visible{outline:3px solid #fff}
 body.touch #prompt b{display:none}@keyframes pIn{from{opacity:0;transform:translate(-50%,8px)}}
@@ -3080,7 +3080,7 @@ const CHANGELOG=[
  ['v0.2','美术风格',[['0.2.2','圆润的人物和车'],['0.2.1','六种车辆、海滩停车场'],['0.2.0','日落霓虹画风、主角选择、警车、直升机']]],
  ['v0.1','第一版',[['0.1.3','小地图、奔跑键、驾驶按键'],['0.1.2','修复通缉超过 5 星卡死'],['0.1.1','修复人物移动'],['0.1.0','开放世界驾驶游戏第一版']]]];
 $('verBtn').textContent=VERSION+' · 更新内容';
-function openLog(v){$('logPanel').hidden=!v;if(v)$('logBody').innerHTML='<p class="log-note">大更新 +0.1.0，小更新 +0.0.1</p>'+CHANGELOG.map(([ver,t,items],k)=>`<div class="log-v"><b>${ver}</b> <span>${t}</span>${k===0?' <em>最新</em>':''}<ul>${items.map(([n,x])=>`<li><i>${n}</i> ${x}</li>`).join('')}</ul></div>`).join('')}
+function openLog(v){$('logPanel').hidden=!v;if(v)$('logBody').innerHTML='<p class="log-note">大更新 +0.1.0，小更新 +0.0.1</p>'+CHANGELOG.map(([ver,t,items],k)=>`<details class="log-v"${k===0?' open':''}><summary><b>${ver}</b> <span>${t}</span>${k===0?' <em>最新</em>':''}</summary><ul>${items.map(([n,x])=>`<li><i>${n}</i> ${x}</li>`).join('')}</ul></details>`).join('')}
 $('verBtn').addEventListener('click',()=>openLog(true));$('logClose').addEventListener('click',()=>openLog(false));$('logPanel').addEventListener('click',e=>{if(e.target.id==='logPanel')openLog(false)});
 addEventListener('keydown',e=>{if(e.code==='Escape'&&!$('logPanel').hidden)openLog(false)});
 
