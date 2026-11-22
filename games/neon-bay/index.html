@@ -47,10 +47,13 @@ canvas{display:block}
 #touch .pill{height:124px;border-radius:42px}
 #touch .hot{border-color:var(--hot);background:rgba(255,61,139,.35)}
 #touch[data-mode="foot"] .drive,#touch[data-mode="drive"] .foot{display:none}
-.bm-top{display:flex;justify-content:space-between;align-items:center;width:min(92vw,92vh);font-family:var(--disp);color:var(--sun);font-size:18px}
+.bm-top{display:flex;justify-content:space-between;align-items:center;width:min(94vw,1200px);font-family:var(--disp);color:var(--sun);font-size:18px}
 #bigmap{position:fixed;inset:0;z-index:6;background:rgba(10,8,24,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 #bigmap[hidden]{display:none}
-#bmc{width:min(92vw,80vh);height:min(92vw,80vh);border-radius:12px;border:3px solid #000;box-shadow:0 0 0 2px var(--hot)}
+#bmc{width:min(94vw,1200px);height:min(70vh,560px);border-radius:12px;border:3px solid #000;box-shadow:0 0 0 2px var(--hot);touch-action:none;cursor:grab}
+.bm-wrap{position:relative}.bm-zoom{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
+.bm-zoom button{width:40px;height:40px;border-radius:50%;border:2px solid #000;background:rgba(10,8,24,.85);color:#fff;font:700 20px/1 Rubik,system-ui,sans-serif;cursor:pointer}
+.bm-zoom button:focus-visible{outline:3px solid #fff}
 #bmClose{font-family:var(--disp);font-size:14px;padding:8px 16px;border:0;border-radius:6px;background:var(--hot);color:#fff;cursor:pointer}
 #bmClose:focus-visible,#mini:focus-visible{outline:3px solid #fff}
 .bm-legend{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;font-size:13px;color:#fff}
@@ -95,7 +98,7 @@ canvas{display:block}
   <canvas id="mini" width="300" height="300" role="button" aria-label="打开完整地图" tabindex="0"></canvas>
   <div id="hurt"></div><div id="cut" hidden><i class="bar t"></i><i class="bar b"></i><div id="cutTxt"></div><div id="cutSub"></div></div><div id="fade"></div><div id="xh" hidden></div><div id="topmsg"></div><div id="toast"></div><div id="hint"></div>
 </div>
-<div id="bigmap" hidden><div class="bm-top"><b>NBY VI 地图</b><button id="bmClose" aria-label="关闭地图">关闭</button></div><canvas id="bmc"></canvas>
+<div id="bigmap" hidden><div class="bm-top"><b>NBY VI 地图</b><button id="bmClose" aria-label="关闭地图">关闭</button></div><div class="bm-wrap"><canvas id="bmc"></canvas><div class="bm-zoom"><button id="bmIn" aria-label="放大">＋</button><button id="bmOut" aria-label="缩小">－</button><button id="bmMe" aria-label="回到我的位置" style="font-size:15px">◎</button></div></div>
   <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#ffe14d"></i>任务</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#ff2a3a"></i>医院</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
 <div id="touch" data-mode="foot">
   <div id="stick" class="foot"><div id="knob"></div></div>
@@ -114,21 +117,38 @@ canvas{display:block}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // ===== 基础 =====
-const R=Math.random,rr=(a,b)=>a+R()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const N=14,BLK=70,RD=16,P=BLK+RD,HALF=N*P/2;
-const road=i=>i*P-HALF; // 道路中心线 i=0..N
-const ISL=a=>HALF*.93*(1+.1*Math.sin(3*a+.8)+.06*Math.sin(5*a+2.1)+.04*Math.sin(2*a+4)+.025*Math.sin(9*a+1))/Math.hypot(Math.cos(a),Math.sin(a)/.56)+34;
+let R=Math.random;const rr=(a,b)=>a+R()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+// 固定随机种子：地图布局、楼房每次打开都一样（城市生成完后换回普通随机）
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+R=mulberry(20261122);
+// 道路：东西 NX 段、南北 NZ 段，每段间距随机 → 街区大小不一
+const RD=16,NX=18,NZ=8,BLK=70;
+const RX=[0],RZ=[0];for(let i=0;i<NX;i++)RX.push(RX[i]+(R()<.3?rr(130,175):rr(66,118)));for(let j=0;j<NZ;j++)RZ.push(RZ[j]+(R()<.3?rr(125,160):rr(66,112)));
+const HALFX=RX[NX]/2,HALFZ=RZ[NZ]/2,HALF=Math.max(HALFX,HALFZ);for(let i=0;i<=NX;i++)RX[i]-=HALFX;for(let j=0;j<=NZ;j++)RZ[j]-=HALFZ;
+const rx=i=>RX[i],rz=j=>RZ[j],bW=i=>RX[i+1]-RX[i]-RD,bD=j=>RZ[j+1]-RZ[j]-RD;
+// 细长的椭圆海岛（东西长、南北短），海岸线叠加几组正弦变得不规则
+const ISL=a=>(1+.08*Math.sin(3*a+.8)+.05*Math.sin(5*a+2.1)+.04*Math.sin(2*a+4)+.025*Math.sin(9*a+1))/Math.hypot(Math.cos(a)/(HALFX*1.02),Math.sin(a)/(HALFZ*1.12))+34;
 const coastR=(x,z)=>ISL(Math.atan2(z,x));
 const onIsland=(x,z,m=0)=>Math.hypot(x,z)<coastR(x,z)-m;
-const nodeOK=(i,j)=>i>=0&&j>=0&&i<=N&&j<=N&&onIsland(road(i),road(j),26);
-const blockOK=(i,j)=>nodeOK(i,j)&&nodeOK(i+1,j)&&nodeOK(i,j+1)&&nodeOK(i+1,j+1);
-// 特殊街区：别墅（最东南）、警察局（偏西北）、停车场（最东）
-const VALID=[];for(let i=0;i<N;i++)for(let j=0;j<N;j++)if(blockOK(i,j))VALID.push([i,j]);
-const pickBlock=(f,ex=[])=>VALID.filter(b=>!ex.some(e=>e[0]===b[0]&&e[1]===b[1])).reduce((a,b)=>f(b)>f(a)?b:a);
-const VB=pickBlock(b=>b[0]+b[1]),SB=pickBlock(b=>-Math.hypot(b[0]-N*.25,b[1]-N/2),[VB]),LB=pickBlock(b=>b[0]*3-Math.abs(b[1]-N/2+.5),[VB,SB]),HB=pickBlock(b=>-Math.hypot(b[0]-N*.66,b[1]-N*.42),[VB,SB,LB]);
-const bc=b=>({x:road(b[0])+P/2,z:road(b[1])+P/2});const LOT=bc(LB);
+const nodeOK=(i,j)=>i>=0&&j>=0&&i<=NX&&j<=NZ&&onIsland(rx(i),rz(j),26);
+// 路段：h=(i,j)→(i+1,j) 东西向，v=(i,j)→(i,j+1) 南北向；随机断开一部分，让相邻街区连成不规则的大街区
+const EDGE_OFF=new Set(),ek=(i,j,h)=>(h?'h':'v')+i+','+j;
+const edgeOK=(i,j,h)=>nodeOK(i,j)&&(h?nodeOK(i+1,j):nodeOK(i,j+1))&&!EDGE_OFF.has(ek(i,j,h));
+const deg=(i,j)=>(edgeOK(i,j,1)?1:0)+(edgeOK(i-1,j,1)?1:0)+(edgeOK(i,j,0)?1:0)+(edgeOK(i,j-1,0)?1:0);
+for(let k=0;k<NX*NZ*.85;k++){const h=R()<.55,i=1+((R()*(NX-2))|0),j=1+((R()*(NZ-2))|0);if(!edgeOK(i,j,h))continue;
+  EDGE_OFF.add(ek(i,j,h));if(deg(i,j)<2||deg(h?i+1:i,h?j:j+1)<2)EDGE_OFF.delete(ek(i,j,h))}
+const linkOK=(i,j,a,b)=>a?edgeOK(Math.min(i,i+a),j,1):edgeOK(i,Math.min(j,j+b),0);
+const blockOK=(i,j)=>i>=0&&j>=0&&i<NX&&j<NZ&&nodeOK(i,j)&&nodeOK(i+1,j)&&nodeOK(i,j+1)&&nodeOK(i+1,j+1);
+const bcen=(i,j)=>({x:(rx(i)+rx(i+1))/2,z:(rz(j)+rz(j+1))/2});
+const cellOf=(x,z)=>{let i=0,j=0;while(i<NX-1&&RX[i+1]<=x)i++;while(j<NZ-1&&RZ[j+1]<=z)j++;return[i,j]};
+// 特殊街区：别墅（东南）、警察局（偏西）、医院（偏东）、停车场（最东）；公共建筑要够大
+const VALID=[];for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++)if(blockOK(i,j))VALID.push([i,j]);
+const pickBlock=(f,ex=[],mw=0,md=0)=>{let c=VALID.filter(b=>!ex.some(e=>e[0]===b[0]&&e[1]===b[1]));const big=c.filter(b=>bW(b[0])>=mw&&bD(b[1])>=md);if(big.length)c=big;return c.reduce((a,b)=>f(b)>f(a)?b:a)};
+const VB=pickBlock(b=>b[0]/NX+b[1]/NZ,[],50,50),SB=pickBlock(b=>-Math.hypot(b[0]/NX-.3,b[1]/NZ-.5),[VB],68,66),
+  LB=pickBlock(b=>b[0]/NX*3-Math.abs(b[1]/NZ-.5),[VB,SB],44,64),HB=pickBlock(b=>-Math.hypot(b[0]/NX-.66,b[1]/NZ-.45),[VB,SB,LB],68,66);
+const bc=b=>bcen(b[0],b[1]);const LOT=bc(LB);
 // 出生点：最西边的路口
-const SPN=(()=>{let best=null;for(let i=0;i<=N;i++)for(let j=0;j<=N;j++)if(nodeOK(i,j)){const v=road(i)*2+Math.abs(road(j)+80);if(!best||v<best.v)best={v,x:road(i),z:road(j)}}return best})();
+const SPN=(()=>{let best=null;for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++)if(nodeOK(i,j)&&deg(i,j)>0){const v=rx(i)*2+Math.abs(rz(j));if(!best||v<best.v)best={v,x:rx(i),z:rz(j)}}return best})();
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x2b1b4a);scene.fog=new THREE.Fog(0xc8607a,110,440);
 // 日落天空：顶部青蓝 → 粉紫 → 地平线橙
@@ -170,21 +190,18 @@ flat(islandShape(-6),0x7fd6d0,-.35); // 浅水
 flat(islandShape(0),0xf2d59b,0);       // 沙滩
 flat(islandShape(26),0x6fbf73,.01);    // 草地
 const asphalt=M(0x2c2738);
-for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){if(!nodeOK(i,j))continue;
-  const sq=new THREE.Mesh(new THREE.PlaneGeometry(RD,RD),asphalt);sq.rotation.x=-Math.PI/2;sq.position.set(road(i),.02,road(j));sq.receiveShadow=true;scene.add(sq);
-  if(nodeOK(i+1,j)){const r=new THREE.Mesh(new THREE.PlaneGeometry(P,RD),asphalt);r.rotation.x=-Math.PI/2;r.position.set(road(i)+P/2,.02,road(j));r.receiveShadow=true;scene.add(r)}
-  if(nodeOK(i,j+1)){const r=new THREE.Mesh(new THREE.PlaneGeometry(RD,P),asphalt);r.rotation.x=-Math.PI/2;r.position.set(road(i),.02,road(j)+P/2);r.receiveShadow=true;scene.add(r)}}
-const sea=new THREE.Mesh(new THREE.PlaneGeometry(2000,2000),new THREE.MeshLambertMaterial({color:0x1fb5c9}));
-sea.rotation.x=-Math.PI/2;sea.position.y=-.6;scene.add(sea);
-// 东侧沙滩
-
-// 道路线
 const lineMat=new THREE.MeshBasicMaterial({color:0xf2c14e});
-for(let i=0;i<=N;i++)for(let j=0;j<N;j++){
-  for(let k=0;k<6;k++){const t=road(j)+RD/2+4+k*10;
-    if(nodeOK(i,j)&&nodeOK(i,j+1)){const a=new THREE.Mesh(new THREE.PlaneGeometry(.5,5),lineMat);a.rotation.x=-Math.PI/2;a.position.set(road(i),.03,t);scene.add(a)}
-    if(nodeOK(j,i)&&nodeOK(j+1,i)){const b=new THREE.Mesh(new THREE.PlaneGeometry(5,.5),lineMat);b.rotation.x=-Math.PI/2;b.position.set(t,.03,road(i));scene.add(b)}}
-}
+const roadPlane=(x,z,w,d)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),asphalt);m.rotation.x=-Math.PI/2;m.position.set(x,.02,z);m.receiveShadow=true;scene.add(m)};
+const dash=(x,z,w,d)=>{const a=new THREE.Mesh(new THREE.PlaneGeometry(w,d),lineMat);a.rotation.x=-Math.PI/2;a.position.set(x,.03,z);scene.add(a)};
+for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!deg(i,j))continue;roadPlane(rx(i),rz(j),RD,RD);
+  if(edgeOK(i,j,1)){const L=rx(i+1)-rx(i);roadPlane(rx(i)+L/2,rz(j),L,RD);for(let t=rx(i)+RD/2+4;t<rx(i+1)-RD/2-3;t+=10)dash(t+2.5,rz(j),5,.5)}
+  if(edgeOK(i,j,0)){const L=rz(j+1)-rz(j);roadPlane(rx(i),rz(j)+L/2,RD,L);for(let t=rz(j)+RD/2+4;t<rz(j+1)-RD/2-3;t+=10)dash(rx(i),t+2.5,.5,5)}}
+// 断开的路段变成草地带，种几棵椰子树
+const brokenStrips=[];
+for(let i=0;i<NX;i++)for(let j=0;j<=NZ;j++)if(nodeOK(i,j)&&nodeOK(i+1,j)&&EDGE_OFF.has(ek(i,j,1)))brokenStrips.push([(rx(i)+rx(i+1))/2,rz(j),rx(i+1)-rx(i)-RD,RD]);
+for(let i=0;i<=NX;i++)for(let j=0;j<NZ;j++)if(nodeOK(i,j)&&nodeOK(i,j+1)&&EDGE_OFF.has(ek(i,j,0)))brokenStrips.push([rx(i),(rz(j)+rz(j+1))/2,RD,rz(j+1)-rz(j)-RD]);
+const sea=new THREE.Mesh(new THREE.PlaneGeometry(7000,7000),new THREE.MeshLambertMaterial({color:0x1fb5c9}));
+sea.rotation.x=-Math.PI/2;sea.position.y=-.6;scene.add(sea);
 // ===== 海上山体：远处连绵大山 + 近海小岛礁石 =====
 // 高度 = 圆锥衰减 × 多层正弦噪声（山脊），颜色按高度分层，远的山按距离混入紫色雾气
 const mtnMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad,fog:false});
@@ -287,34 +304,42 @@ function addBuilding(ox,oz,w,h){const d=w,col=pal[(R()*pal.length)|0],trim=trimP
   if(R()<.5&&h>=14)for(let y=8.5;y<h-2;y+=5){const sl=box(w*.32,.25,1.5,0xffffff);sl.position.set(ox+sx*w*.22,y-1.25,oz+sz*(d/2+.75));scene.add(sl);
     const rl=box(w*.32,.9,.12,0xffffff);rl.position.set(ox+sx*w*.22,y-.65,oz+sz*(d/2+1.45));scene.add(rl)}}
 let villa=null,station=null,hospital=null;const parkSpots=[];
-for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){
   if(!blockOK(i,j))continue;
-  const cx=road(i)+P/2,cz=road(j)+P/2;
-  const side=new THREE.Mesh(new THREE.PlaneGeometry(BLK+4,BLK+4),M(0x9a8aa3));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);
+  const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j);
+  const side=new THREE.Mesh(new THREE.PlaneGeometry(W+4,D+4),M(0x9a8aa3));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);
   if(i===VB[0]&&j===VB[1]){villa={x:cx,z:cz};continue}
-  if(i===SB[0]&&j===SB[1]){station={x:cx,z:cz};continue}
-  if(i===HB[0]&&j===HB[1]){hospital={x:cx,z:cz};continue}
+  if(i===SB[0]&&j===SB[1]){station={x:cx,z:cz,w:W,d:D};continue}
+  if(i===HB[0]&&j===HB[1]){hospital={x:cx,z:cz,w:W,d:D};continue}
   if(i===LB[0]&&j===LB[1])continue;
-  if((i+j*3)%7===3||R()<.2){ // 公园 / 空地
-    const g=new THREE.Mesh(new THREE.PlaneGeometry(BLK-4,BLK-4),M(0x4fb069));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
-    for(let k=0;k<6;k++)palm(cx+rr(-24,24),cz+rr(-24,24));parkSpots.push([cx,cz]);continue}
-  const bdist=Math.hypot(cx,cz)/HALF;
-  if(bdist>.38&&R()<.55){ // 平房住宅区：每个街区 4 户，带院子、栅栏、坡屋顶
-    for(let a=0;a<2;a++)for(let b=0;b<2;b++){const hx=cx+(a-.5)*BLK/2,hz=cz+(b-.5)*BLK/2;addHouse(hx,hz,b?1:-1)}
-    palm(cx,cz);continue}
-  const lots=R()<.5?1:2;
-  for(let a=0;a<lots;a++)for(let b=0;b<lots;b++){
-    const w=lots===1?rr(28,40):BLK/2-14,ox=cx+(a-(lots-1)/2)*BLK/lots,oz=cz+(b-(lots-1)/2)*BLK/lots;
-    const dist=Math.hypot(ox,oz)/HALF,h=dist<.3?Math.round(rr(28,64)/4)*4:dist<.5&&R()<.35?Math.round(rr(16,28)/4)*4:Math.round(rr(8,16)/4)*4;
+  const bdist=Math.hypot(cx/HALFX,cz/HALFZ);
+  if(R()<.22){ // 公园 / 空地
+    const g=new THREE.Mesh(new THREE.PlaneGeometry(W-4,D-4),M(0x4fb069));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
+    for(let k=0;k<Math.round(W*D/700);k++)palm(cx+rr(-W/2+6,W/2-6),cz+rr(-D/2+6,D/2-6));parkSpots.push([cx,cz]);continue}
+  if(bdist>.42&&R()<.6){ // 平房住宅区：按街区大小分成若干户，每户朝向最近的街道
+    const nx=Math.max(1,Math.round(W/38)),nz=Math.max(1,Math.round(D/36)),lw=W/nx,ld=D/nz;
+    for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){const hx=cx-W/2+lw*(a+.5),hz=cz-D/2+ld*(b+.5);if(R()<.12){palm(hx,hz);continue}addHouse(hx,hz,nz===1?(R()<.5?1:-1):(b<nz/2?-1:1),lw,ld)}
+    continue}
+  // 楼房：大街区分成多块地，部分空着当小广场
+  const nx=W>104?3:W>64?2:1,nz=D>104?3:D>64?2:1,lw=W/nx,ld=D/nz;
+  for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){
+    const ox=cx-W/2+lw*(a+.5),oz=cz-D/2+ld*(b+.5);
+    if(nx*nz>1&&R()<.2){palm(ox,oz);continue}
+    const w=nx*nz===1?Math.min(W,D)*rr(.48,.62):Math.max(18,Math.min(lw,ld)-rr(10,16));
+    const dist=Math.hypot(ox/HALFX,oz/HALFZ),h=dist<.28?Math.round(rr(28,64)/4)*4:dist<.5&&R()<.35?Math.round(rr(16,28)/4)*4:Math.round(rr(8,16)/4)*4;
     addBuilding(ox,oz,w,h);
     solids.push({x0:ox-w/2,x1:ox+w/2,z0:oz-w/2,z1:oz+w/2});
   }
-  palm(cx-BLK/2+2,cz-BLK/2+2);palm(cx+BLK/2-2,cz+BLK/2-2);
+  palm(cx-W/2+2,cz-D/2+2);palm(cx+W/2-2,cz+D/2-2);
 }
+const plate=M(0x9a8aa3);
+for(const[x,z,w,d]of brokenStrips){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),plate);m.rotation.x=-Math.PI/2;m.position.set(x,.05,z);m.receiveShadow=true;scene.add(m)}
+for(let i=1;i<NX;i++)for(let j=1;j<NZ;j++)if(nodeOK(i,j)&&!deg(i,j)&&blockOK(i-1,j-1)&&blockOK(i,j-1)&&blockOK(i-1,j)&&blockOK(i,j)){const m=new THREE.Mesh(new THREE.PlaneGeometry(RD+4,RD+4),plate);m.rotation.x=-Math.PI/2;m.position.set(rx(i),.05,rz(j));scene.add(m)}
+for(const[x,z,w,d]of brokenStrips){const n=Math.max(1,Math.round(Math.max(w,d)/22));for(let k=0;k<n;k++){const t=(k+.5)/n-.5;palm(x+(w>d?t*w:0),z+(w>d?0:t*d))}}
 // 平房：按人物比例建（人≈2.9 单位≈1.8 米）。粉彩外墙、坡屋顶、门廊、窗户、烟囱、白色栅栏和草坪；face=±1 朝向街道
-function addHouse(x,z,face){const w=rr(17,22),d=rr(13,16),hh=rr(5.4,6.2),rise=3.2;
+function addHouse(x,z,face,lw=BLK/2,ld=BLK/2){const w=Math.min(rr(17,22),lw-8),d=Math.min(rr(13,16),ld-14),hh=rr(5.4,6.2),rise=3.2;
   const wall=[0xfff1e0,0xffd6e0,0xcff5ee,0xfff3b0,0xe0d6ff,0xffe0c8][(R()*6)|0],roof=[0xc8553d,0x2f8f9d,0x8a5cff,0x6a4a3a,0xd96a8a][(R()*5)|0];
-  const yard=new THREE.Mesh(new THREE.PlaneGeometry(BLK/2-2,BLK/2-2),M(0x6fc070));yard.rotation.x=-Math.PI/2;yard.position.set(x,.09,z);yard.receiveShadow=true;scene.add(yard);
+  const yard=new THREE.Mesh(new THREE.PlaneGeometry(lw-2,ld-2),M(0x6fc070));yard.rotation.x=-Math.PI/2;yard.position.set(x,.09,z);yard.receiveShadow=true;scene.add(yard);
   const hz=z-face*2.5;
   const body=box(w,hh,d,wall);body.position.set(x,hh/2,hz);scene.add(body);
   const sl=Math.hypot(d/2+.8,rise);for(const sd of[-1,1]){const r=box(w+1.4,.35,sl,roof);r.position.set(x,hh+rise/2,hz+sd*(d/4+.2));r.rotation.x=sd*Math.atan2(rise,d/2+.8);scene.add(r)}
@@ -330,25 +355,29 @@ function addHouse(x,z,face){const w=rr(17,22),d=rr(13,16),hh=rr(5.4,6.2),rise=3.
   const step=box(3,.45,1.4,0xb8b0a8);step.position.set(x,.22,fz+face*.8);scene.add(step);
   for(const sd of[-1,1]){const wn=new THREE.Mesh(new THREE.BoxGeometry(3,2.4,.12),R()<.6?winWarm:winCool);wn.position.set(x+sd*(w*.3),3,fz);scene.add(wn);
     const sh=box(.7,2.6,.1,roof);sh.position.set(x+sd*(w*.3)+sd*1.9,3,fz+face*.05);scene.add(sh)}
-  const mx=x-w*.42,mz=z+face*(BLK/4-2.2);const mb=box(.6,.7,.9,0x2f6fd0);mb.position.set(mx,1.6,mz);scene.add(mb);const mp=box(.15,1.4,.15,0x555555);mp.position.set(mx,.7,mz);scene.add(mp);
-  const fzz=z+face*(BLK/4-1.2);for(let k=-7;k<=7;k++){if(Math.abs(k)<=1)continue;const pk=box(.22,1.5,.14,0xffffff);pk.position.set(x+k*1.15,.75,fzz);scene.add(pk)}
+  const mx=x-w*.42,mz=z+face*(ld/2-2.2);const mb=box(.6,.7,.9,0x2f6fd0);mb.position.set(mx,1.6,mz);scene.add(mb);const mp=box(.15,1.4,.15,0x555555);mp.position.set(mx,.7,mz);scene.add(mp);
+  const fzz=z+face*(ld/2-1.2);for(let k=-7;k<=7;k++){if(Math.abs(k)<=1)continue;const pk=box(.22,1.5,.14,0xffffff);pk.position.set(x+k*1.15,.75,fzz);scene.add(pk)}
   for(const sd of[-1,1]){const rail=box(6.8,.18,.12,0xffffff);rail.position.set(x+sd*5.05,1.05,fzz);scene.add(rail)}
   solids.push({x0:x-w/2,x1:x+w/2,z0:hz-d/2,z1:hz+d/2})}
 // ===== 人行道路线：行人绕街区一圈走，只在斑马线处过马路 =====
-const HW=BLK/2-1,SL=2*HW,CR=5;              // 人行道离街区中心的距离、每条边长、斑马线离路口的距离
+const CR=5;                                   // 斑马线离路口的距离
 const CORN=[[-1,-1],[1,-1],[1,1],[-1,1]],NB=[[0,-1],[1,0],[0,1],[-1,0]]; // 四个角、四条边朝外的邻街区
-const bcen=(i,j)=>({x:road(i)+P/2,z:road(j)+P/2});
-function sidePt(i,j,s){s=((s%(4*SL))+4*SL)%(4*SL);const k=Math.floor(s/SL),f=s-k*SL,a=CORN[k],b=CORN[(k+1)%4],c=bcen(i,j);
-  return{x:c.x+(a[0]+(b[0]-a[0])*f/SL)*HW,z:c.z+(a[1]+(b[1]-a[1])*f/SL)*HW,k,f}}
+// 人行道：每个街区一圈长方形路线（离街区边 1 米）
+const bdim=(i,j)=>{const c=bcen(i,j);return{x:c.x,z:c.z,hx:bW(i)/2-1,hz:bD(j)/2-1}};
+const sideLen=(b,k)=>k%2?2*b.hz:2*b.hx,perim=b=>4*(b.hx+b.hz);
+function sOf(i,j,k,f){const b=bdim(i,j);let s=0;for(let q=0;q<k;q++)s+=sideLen(b,q);return s+f}
+function sidePt(i,j,s){const b=bdim(i,j),P4=perim(b);s=((s%P4)+P4)%P4;let k=0;while(k<3&&s>=sideLen(b,k)){s-=sideLen(b,k);k++}
+  const L=sideLen(b,k),f=Math.min(s,L),a=CORN[k],c=CORN[(k+1)%4];return{x:b.x+(a[0]+(c[0]-a[0])*f/L)*b.hx,z:b.z+(a[1]+(c[1]-a[1])*f/L)*b.hz,k,f,L}}
+// 第 k 条边跨过的那段路是否存在（存在才画斑马线）
+const sideEdge=(i,j,k)=>k===0?edgeOK(i,j,1):k===1?edgeOK(i+1,j,0):k===2?edgeOK(i,j+1,1):edgeOK(i,j,0);
 const zebraMat=new THREE.MeshBasicMaterial({color:0xf4f0e6});
-for(const[i,j]of VALID)for(const k of[1,2]){const ni=i+NB[k][0],nj=j+NB[k][1];if(!blockOK(ni,nj))continue;
-  for(const fc of[CR,SL-CR]){const a=sidePt(i,j,k*SL+fc),b=sidePt(ni,nj,((k+2)%4)*SL+SL-fc);
+for(const[i,j]of VALID)for(const k of[1,2]){const ni=i+NB[k][0],nj=j+NB[k][1];if(!blockOK(ni,nj)||!sideEdge(i,j,k))continue;const L=sideLen(bdim(i,j),k);
+  for(const fc of[CR,L-CR]){const a=sidePt(i,j,sOf(i,j,k,fc)),b=sidePt(ni,nj,sOf(ni,nj,(k+2)%4,L-fc));
     const len=Math.hypot(b.x-a.x,b.z-a.z),ux=(b.x-a.x)/len,uz=(b.z-a.z)/len;
-    for(let t=1.2;t<len-.8;t+=1.5){const m=new THREE.Mesh(new THREE.PlaneGeometry(.75,4),zebraMat);m.rotation.x=-Math.PI/2;m.rotation.z=-Math.atan2(ux,uz)+Math.PI/2*0;
-      m.position.set(a.x+ux*t,.035,a.z+uz*t);m.rotation.set(-Math.PI/2,0,Math.abs(ux)>.5?0:Math.PI/2);scene.add(m)}}}
+    for(let t=1.2;t<len-.8;t+=1.5){const m=new THREE.Mesh(new THREE.PlaneGeometry(.75,4),zebraMat);m.position.set(a.x+ux*t,.035,a.z+uz*t);m.rotation.set(-Math.PI/2,0,Math.abs(ux)>.5?0:Math.PI/2);scene.add(m)}}}
 // 路灯
 const lampMat=new THREE.MeshBasicMaterial({color:0xfff0b0});
-for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){if(!nodeOK(i,j))continue;const x=road(i)+RD/2-.5,z=road(j)+RD/2-.5;
+for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!deg(i,j))continue;const x=rx(i)+RD/2-.5,z=rz(j)+RD/2-.5;
   const p1=box(.3,7,.3,0x3a3448);p1.position.set(x,3.5,z);scene.add(p1);
   const arm=box(2,.25,.25,0x3a3448);arm.position.set(x-1,7,z);scene.add(arm);
   const l=new THREE.Mesh(new THREE.BoxGeometry(.8,.3,.5),lampMat);l.position.set(x-1.8,6.8,z);scene.add(l)}
@@ -356,7 +385,7 @@ for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){if(!nodeOK(i,j))continue;const x=road
 function plaza(x,z,w,d,col){const pl=new THREE.Mesh(new THREE.PlaneGeometry(w,d),M(col));pl.rotation.x=-Math.PI/2;pl.position.set(x,.1,z);pl.receiveShadow=true;scene.add(pl)}
 // 医院：比普通楼更宽更高，白色主楼 + 青色眉檐 + 红十字 + 急诊门廊 + 楼顶停机坪
 function buildHospital(H){const wht=0xf6f8fa,tr=0x2fb5c0;
-  plaza(H.x,H.z,BLK-6,BLK-6,0xb9b3c4);
+  plaza(H.x,H.z,H.w-6,H.d-6,0xb9b3c4);
   const main=box(52,16,24,wht);main.position.set(H.x,8,H.z-8);scene.add(main);
   for(const y of[3,8.5,13.5])floorBand(H.x,H.z-8,52,24,y,tr);pilasters(H.x,H.z-8,52.2,24.2,0,16,wht);
   const par=box(52.6,1,24.6,tr);par.position.set(H.x,16.5,H.z-8);scene.add(par);
@@ -379,7 +408,7 @@ function buildHospital(H){const wht=0xf6f8fa,tr=0x2fb5c0;
 // 警察局（参考图 6）：两层粉彩装饰艺术楼，中央青白塔楼 + 警徽，门廊立柱，眉檐窗带；两侧加翼楼和前广场，比普通楼更宽敞
 buildHospital(hospital);
 {const S=station;const pink=0xf2b8d0,teal=0xb8f0ec,tr=0x22d3ee;
- plaza(S.x,S.z,BLK-6,BLK-6,0xc4b2c0);
+ plaza(S.x,S.z,S.w-6,S.d-6,0xc4b2c0);
  for(const sd of[-1,1]){const wg=box(11,8,18,0xf7c9dc);wg.position.set(S.x+sd*27,4,S.z-4);scene.add(wg);floorBand(S.x+sd*27,S.z-4,11,18,3.5,tr);
    const fp=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,14,8),M(0xdde2ea));fp.position.set(S.x+sd*14,7,S.z+26);scene.add(fp);
    const fl=box(3,1.8,.08,sd<0?0x1c2a4a:0x22d3ee);fl.position.set(S.x+sd*14+1.5,13,S.z+26);scene.add(fl);palm(S.x+sd*26,S.z+26)}
@@ -1036,10 +1065,10 @@ function carPhysics(c,thr,steer,brake,dt){
   if(c.hp<=0)explode(c)}
 
 // ===== 交通 AI =====
-const node=(i,j)=>({x:road(i),z:road(j)});
-function aiPickNext(c){const d=[[1,0],[-1,0],[0,1],[0,-1]].filter(([a,b])=>{const i=c.ni+a,j=c.nj+b;return nodeOK(i,j)&&!(a===-c.dx&&b===-c.dz)});
+const node=(i,j)=>({x:rx(i),z:rz(j)});
+function aiPickNext(c){const d=[[1,0],[-1,0],[0,1],[0,-1]].filter(([a,b])=>{const i=c.ni+a,j=c.nj+b;return linkOK(c.ni,c.nj,a,b)&&!(a===-c.dx&&b===-c.dz)});
   if(!d.length)d.push([-c.dx,-c.dz]);const[a,b]=d[(R()*d.length)|0];c.dx=a;c.dz=b;c.ni+=a;c.nj+=b}
-function spawnTraffic(patrol){const i=(R()*(N+1))|0,j=(R()*(N+1))|0;if(!nodeOK(i,j))return;const n=node(i,j);
+function spawnTraffic(patrol){const i=(R()*(NX+1))|0,j=(R()*(NZ+1))|0;if(!nodeOK(i,j)||!deg(i,j))return;const n=node(i,j);
   if(Math.hypot(n.x-player.x,n.z-player.z)<50)return;
   const c=makeCar(n.x,n.z,0,patrol?{police:true}:{});if(patrol){c.driver='ai';c.patrol=1}c.ni=i;c.nj=j;c.dx=0;c.dz=0;aiPickNext(c);c.h=Math.atan2(c.dx,c.dz)}
 function driveAI(c,dt){const n=node(c.ni,c.nj);const tx=n.x+c.dz*4,tz=n.z-c.dx*4;
@@ -1060,7 +1089,7 @@ function driveAI(c,dt){const n=node(c.ni,c.nj);const tx=n.x+c.dz*4,tz=n.z-c.dx*4
 
 // ===== 行人 =====
 const peds=[];const shirts=[0x22d3ee,0xffe14d,0x9cffd0,0xffffff,0xff7a2f,0x8a5cff];
-function spawnPed(x,z,look){let onP=null;if(x===undefined){const i=(R()*N)|0,j=(R()*N)|0;if(!blockOK(i,j))return;const sp0=R()*4*SL,pt=sidePt(i,j,sp0);x=pt.x;z=pt.z;onP={i,j,s:sp0};
+function spawnPed(x,z,look){let onP=null;if(x===undefined){const i=(R()*NX)|0,j=(R()*NZ)|0;if(!blockOK(i,j))return;const sp0=R()*perim(bdim(i,j)),pt=sidePt(i,j,sp0);x=pt.x;z=pt.z;onP={i,j,s:sp0};
   if(Math.hypot(x-player.x,z-player.z)<40)return}
   look=look??NPC_KEYS[(R()*NPC_KEYS.length)|0];
   const p={mesh:makePerson(look),x,z,rot:R()*6.28,t:R()*9,dead:0,flee:0,knock:0,wave:0,waved:0,danceT:0,pause:0};p.look=look;if(onP){p.bi=onP.i;p.bj=onP.j;p.s=onP.s;p.dir=R()<.5?1:-1;p.onPath=true}
@@ -1114,18 +1143,18 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
     else if(pedWalk(p,sp,dt)==='wait'){st=st==='walk'||st==='jog'||st==='skate'?'idle':st;k=0}}
   p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.rot;pose(p.mesh,st,p.t,k)}
 // 把行人吸附到最近的人行道路线上
-function pedSnap(p){const i=Math.floor((p.x+HALF)/P),j=Math.floor((p.z+HALF)/P);if(!blockOK(i,j))return false;
-  const c=bcen(i,j),dx=p.x-c.x,dz=p.z-c.z;
-  const cand=[[0,clamp(dx+HW,0,SL),Math.abs(dz+HW)],[1,clamp(dz+HW,0,SL),Math.abs(dx-HW)],[2,clamp(HW-dx,0,SL),Math.abs(dz-HW)],[3,clamp(HW-dz,0,SL),Math.abs(dx+HW)]].sort((a,b)=>a[2]-b[2])[0];
-  if(cand[2]>14)return false;p.bi=i;p.bj=j;p.s=cand[0]*SL+cand[1];p.dir=p.dir||(R()<.5?1:-1);p.onPath=true;return true}
+function pedSnap(p){const[i,j]=cellOf(p.x,p.z);if(!blockOK(i,j))return false;
+  const b=bdim(i,j),dx=p.x-b.x,dz=p.z-b.z;
+  const cand=[[0,clamp(dx+b.hx,0,2*b.hx),Math.abs(dz+b.hz)],[1,clamp(dz+b.hz,0,2*b.hz),Math.abs(dx-b.hx)],[2,clamp(b.hx-dx,0,2*b.hx),Math.abs(dz-b.hz)],[3,clamp(b.hz-dz,0,2*b.hz),Math.abs(dx+b.hx)]].sort((a,c)=>a[2]-c[2])[0];
+  if(cand[2]>14)return false;p.bi=i;p.bj=j;p.s=sOf(i,j,cand[0],cand[1]);p.dir=p.dir||(R()<.5?1:-1);p.onPath=true;return true}
 function pedWalk(p,sp,dt){
   if(p.cross){const c=p.cross;
     if(c.wait){if(cars.some(o=>!o.dead&&o!==player.car&&Math.abs(o.speed)>2&&Math.hypot(o.x-c.mx,o.z-c.mz)<18))return'wait';c.wait=0}
     c.t=Math.min(1,c.t+sp*dt/c.len);p.x=c.x0+(c.x1-c.x0)*c.t;p.z=c.z0+(c.z1-c.z0)*c.t;p.rot=Math.atan2(c.x1-c.x0,c.z1-c.z0);
     if(c.t>=1){p.bi=c.i;p.bj=c.j;p.s=c.s1;p.cross=null;if(R()<.5)p.dir=-p.dir}return'walk'}
   const s0=p.s;p.s+=p.dir*sp*dt;const a=sidePt(p.bi,p.bj,s0),b=sidePt(p.bi,p.bj,p.s);
-  if(a.k===b.k)for(const fc of[CR,SL-CR])if((a.f-fc)*(b.f-fc)<=0&&R()<.4){const k=a.k,ni=p.bi+NB[k][0],nj=p.bj+NB[k][1];
-    if(blockOK(ni,nj)){const pt=sidePt(p.bi,p.bj,k*SL+fc),s1=((k+2)%4)*SL+SL-fc,q=sidePt(ni,nj,s1);
+  if(a.k===b.k)for(const fc of[CR,a.L-CR])if((a.f-fc)*(b.f-fc)<=0&&R()<.4){const k=a.k,ni=p.bi+NB[k][0],nj=p.bj+NB[k][1];
+    if(blockOK(ni,nj)){const pt=sidePt(p.bi,p.bj,sOf(p.bi,p.bj,k,fc)),s1=sOf(ni,nj,(k+2)%4,a.L-fc),q=sidePt(ni,nj,s1);
       p.cross={x0:pt.x,z0:pt.z,x1:q.x,z1:q.z,t:0,len:Math.hypot(q.x-pt.x,q.z-pt.z),i:ni,j:nj,s1,wait:1,mx:(pt.x+q.x)/2,mz:(pt.z+q.z)/2};p.x=pt.x;p.z=pt.z;return'walk'}}
   p.x=b.x;p.z=b.z;const sa=CORN[b.k],sb=CORN[(b.k+1)%4];const want=Math.atan2((sb[0]-sa[0])*p.dir,(sb[1]-sa[1])*p.dir);p.rot+=angDiff(want,p.rot)*Math.min(1,dt*10);return'walk'}
 // 长椅
@@ -1156,7 +1185,7 @@ function updWanted(dt){const w=clamp(Math.ceil(player.heat-.001),0,5);
   if(player.wanted>0&&player.dispatch<=0&&cops.filter(c=>!c.patrol).length<Math.min(3,1+Math.floor(player.wanted/2))&&R()<dt*.4)spawnCop();
   if(player.wanted===0)for(const c of cops)if(!c.patrol&&Math.hypot(c.x-player.x,c.z-player.z)>120){removeCar(c)}
   for(const c of cops)for(const s of c.siren)s.visible=player.wanted>0&&((performance.now()/150)|0)%2===(c.siren.indexOf(s))}
-function spawnCop(){for(let k=0;k<40;k++){const i=(R()*(N+1))|0,j=(R()*(N+1))|0,n=node(i,j),d=Math.hypot(n.x-player.x,n.z-player.z);
+function spawnCop(){for(let k=0;k<40;k++){const i=(R()*(NX+1))|0,j=(R()*(NZ+1))|0;if(!nodeOK(i,j)||!deg(i,j))continue;const n=node(i,j),d=Math.hypot(n.x-player.x,n.z-player.z);
   if(nodeOK(i,j)&&d>150&&d<260){const c=makeCar(n.x,n.z,Math.atan2(player.x-n.x,player.z-n.z),{police:true,kind:player.wanted>=3&&R()<.5?'suv':'police'});return c}}}
 function driveCop(c,dt){if(c.patrol&&c.driver==='ai'&&player.wanted===0){driveAI(c,dt);return}
   const tx=player.car?player.car.x:player.x,tz=player.car?player.car.z:player.z;
@@ -1293,7 +1322,7 @@ const GOAL=30000;
 const beamMat=new THREE.MeshBasicMaterial({color:0xff3d8b,transparent:true,opacity:.45});
 const beam=new THREE.Mesh(new THREE.CylinderGeometry(2.5,2.5,60,16,1,true),beamMat);scene.add(beam);
 let mission={stage:'offer',x:0,z:0,timer:0,type:null,pts:[],car:null};
-function randNode(minD){for(let k=0;;k++){const i=(R()*(N+1))|0,j=(R()*(N+1))|0;if(!nodeOK(i,j))continue;const n=node(i,j);if(Math.hypot(n.x-player.x,n.z-player.z)>minD*(k>300?.3:1))return n}}
+function randNode(minD){for(let k=0;;k++){const i=(R()*(NX+1))|0,j=(R()*(NZ+1))|0;if(!nodeOK(i,j)||!deg(i,j))continue;const n=node(i,j);if(Math.hypot(n.x-player.x,n.z-player.z)>minD*(k>300?.3:1))return n}}
 function offerMission(){const n=randNode(60);mission={stage:'offer',x:n.x,z:n.z,timer:0};beamMat.color.set(0xff3d8b);setM('走到粉色光柱接新活')}
 const jobs=[
  {name:'急件快递',start(){const n=randNode(200);mission.x=n.x;mission.z=n.z;mission.timer=75;mission.reward=2500;setM('把包裹送到黄色光柱，限时 75 秒');beamMat.color.set(0xffe14d)}},
@@ -1332,36 +1361,61 @@ function toast(t){if(/通缉|警|直升机|★/.test(t)){$('topmsg').textContent
 const mini=$('mini').getContext('2d');
 // —— 完整地图：点小地图打开，游戏暂停；点关闭、点空白处或按 Esc/Tab 关闭
 let mapOpen=false;
-function openMap(v){mapOpen=v;$('bigmap').hidden=!v;if(v)drawBigMap();else last=performance.now()}
+function openMap(v){mapOpen=v;$('bigmap').hidden=!v;if(v){mapView.zoom=1;mapView.cx=0;mapView.cz=0;drawBigMap()}else last=performance.now()}
 $('mini').addEventListener('click',()=>openMap(true));$('mini').addEventListener('touchend',e=>{e.preventDefault();openMap(true)});
 $('mini').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')openMap(true)});
 $('bmClose').addEventListener('click',()=>openMap(false));$('bigmap').addEventListener('click',e=>{if(e.target.id==='bigmap')openMap(false)});
 addEventListener('keydown',e=>{if(e.code==='Tab'&&running){e.preventDefault();openMap(!mapOpen)}else if(e.code==='Escape'&&mapOpen)openMap(false)});
-function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),W=cv.clientWidth*dpr;cv.width=cv.height=W;const g=cv.getContext('2d');
-  const span=HALF*2.8+80,s=W/span;g.setTransform(s,0,0,s,W/2,W/2);
-  g.fillStyle='#1fb5c9';g.fillRect(-span/2,-span/2,span,span);
-  const isl=(m,c)=>{g.fillStyle=c;g.beginPath();for(let k=0;k<=160;k++){const a=k/160*Math.PI*2,r=ISL(a)-m;g.lineTo(Math.cos(a)*r,Math.sin(a)*r)}g.fill()};
+// 地图视角：zoom=1 时整座岛刚好放进画布；cx/cz 是画布中心对应的世界坐标
+const mapView={zoom:1,cx:0,cz:0};
+function mapBase(Wc,Hc){return Math.min(Wc/(HALFX*2.3),Hc/(HALFZ*2.5))}
+function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),Wc=cv.clientWidth*dpr,Hc=cv.clientHeight*dpr;if(cv.width!==Wc||cv.height!==Hc){cv.width=Wc;cv.height=Hc}
+  const g=cv.getContext('2d'),s=mapBase(Wc,Hc)*mapView.zoom,ox=Wc/2-mapView.cx*s,oz=Hc/2-mapView.cz*s,S=(x,z)=>[ox+x*s,oz+z*s];
+  g.setTransform(1,0,0,1,0,0);g.fillStyle='#1fb5c9';g.fillRect(0,0,Wc,Hc);g.setTransform(s,0,0,s,ox,oz);
+  const isl=(m,c)=>{g.fillStyle=c;g.beginPath();for(let k=0;k<=200;k++){const a=k/200*Math.PI*2,r=ISL(a)-m;g.lineTo(Math.cos(a)*r,Math.sin(a)*r)}g.fill()};
   isl(-6,'#7fd6d0');isl(0,'#f2d59b');isl(26,'#79c27c');
-  g.fillStyle='#55505f';for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){if(!nodeOK(i,j))continue;
-    if(nodeOK(i+1,j))g.fillRect(road(i)-RD/2,road(j)-RD/2,P+RD,RD);if(nodeOK(i,j+1))g.fillRect(road(i)-RD/2,road(j)-RD/2,RD,P+RD)}
-  for(const[i,j]of VALID){const x=road(i)+RD/2,z=road(j)+RD/2;g.fillStyle=parkSpots.some(p=>Math.abs(p[0]-x-BLK/2)<1&&Math.abs(p[1]-z-BLK/2)<1)?'#5fb565':'#c9c0d0';g.fillRect(x,z,BLK,BLK)}
-  const label=(x,z,txt,col)=>{g.fillStyle=col;g.strokeStyle='#000';g.lineWidth=3/s*dpr;g.beginPath();g.arc(x,z,12,0,7);g.fill();g.stroke();
-    g.font=`bold ${26}px Rubik,system-ui,sans-serif`;g.textAlign='center';g.lineWidth=6;g.strokeText(txt,x,z-20);g.fillStyle='#fff';g.fillText(txt,x,z-20)};
+  g.fillStyle='#55505f';for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
+    if(edgeOK(i,j,1))g.fillRect(rx(i)-RD/2,rz(j)-RD/2,rx(i+1)-rx(i)+RD,RD);if(edgeOK(i,j,0))g.fillRect(rx(i)-RD/2,rz(j)-RD/2,RD,rz(j+1)-rz(j)+RD)}
+  for(const[i,j]of VALID){const c=bcen(i,j);g.fillStyle=parkSpots.some(q=>Math.abs(q[0]-c.x)<1&&Math.abs(q[1]-c.z)<1)?'#5fb565':'#c9c0d0';g.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}
+  g.fillStyle='#c9c0d0';for(const[x,z,w,d]of brokenStrips)g.fillRect(x-w/2-1,z-d/2-1,w+2,d+2);
+  // 放大后画出楼房轮廓
+  if(mapView.zoom>=2.2){g.fillStyle='rgba(120,100,140,.55)';for(const o of solids)if(o.x1-o.x0<80)g.fillRect(o.x0,o.z0,o.x1-o.x0,o.z1-o.z0)}
+  g.setTransform(1,0,0,1,0,0);
+  const fs=Math.round(13*dpr),label=(x,z,txt,col)=>{const[X,Y]=S(x,z);g.fillStyle=col;g.strokeStyle='#000';g.lineWidth=2*dpr;g.beginPath();g.arc(X,Y,6*dpr,0,7);g.fill();g.stroke();
+    g.font=`700 ${fs}px Rubik,system-ui,sans-serif`;g.textAlign='center';g.lineWidth=3.5*dpr;g.strokeText(txt,X,Y-10*dpr);g.fillStyle='#fff';g.fillText(txt,X,Y-10*dpr)};
+  const dot=(x,z,r,col)=>{const[X,Y]=S(x,z);g.fillStyle=col;g.beginPath();g.arc(X,Y,r*dpr,0,7);g.fill()};
   label(villa.x,villa.z,'海边别墅','#fff');label(station.x,station.z,'警察局','#4a7ab0');label(hospital.x,hospital.z,'医院','#ff2a3a');label(LOT.x,LOT.z,'停车场','#22d3ee');
-  for(const k of cash){g.fillStyle='#5cff7a';g.beginPath();g.arc(k.x,k.z,4,0,7);g.fill()}
-  for(const c of cars)if(c.police&&!c.dead){g.fillStyle='#ff2a3a';g.beginPath();g.arc(c.x,c.z,6,0,7);g.fill()}
-  if(heli){g.fillStyle='#ff2a3a';g.beginPath();g.arc(heli.x,heli.z,9,0,7);g.fill()}
+  for(const k of cash)dot(k.x,k.z,2.5,'#5cff7a');
+  for(const c of cars)if(c.police&&!c.dead)dot(c.x,c.z,4,'#ff2a3a');
+  if(heli)dot(heli.x,heli.z,6,'#ff2a3a');
   if(beamMat.visible)label(mission.x,mission.z,'任务','#'+beamMat.color.getHexString());
-  const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z,h=player.car?player.car.h:player.rot;
-  g.save();g.translate(px,pz);g.rotate(-h+Math.PI);g.fillStyle='#ff3d8b';g.strokeStyle='#000';g.lineWidth=3;g.beginPath();g.moveTo(0,-16);g.lineTo(12,13);g.lineTo(-12,13);g.closePath();g.fill();g.stroke();g.restore()}
-function drawMini(){const s=300/(N*P*.6+120),cx=150,cy=150,px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
+  const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z,h=player.car?player.car.h:player.rot,[PX,PY]=S(px,pz);
+  g.save();g.translate(PX,PY);g.rotate(-h+Math.PI);g.scale(dpr,dpr);g.fillStyle='#ff3d8b';g.strokeStyle='#000';g.lineWidth=2;g.beginPath();g.moveTo(0,-11);g.lineTo(8,9);g.lineTo(-8,9);g.closePath();g.fill();g.stroke();g.restore()}
+// 缩放：以某个屏幕点为中心缩放（滚轮、双指、按钮）
+function mapZoomAt(f,sx,sy){const cv=$('bmc'),r=cv.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,2),Wc=cv.width,Hc=cv.height;
+  const s0=mapBase(Wc,Hc)*mapView.zoom,wx=mapView.cx+((sx-r.left)*dpr-Wc/2)/s0,wz=mapView.cz+((sy-r.top)*dpr-Hc/2)/s0;
+  mapView.zoom=clamp(mapView.zoom*f,1,10);const s1=mapBase(Wc,Hc)*mapView.zoom;mapView.cx=wx-((sx-r.left)*dpr-Wc/2)/s1;mapView.cz=wz-((sy-r.top)*dpr-Hc/2)/s1;mapClamp();drawBigMap()}
+function mapClamp(){const k=1-1/mapView.zoom;mapView.cx=clamp(mapView.cx,-HALFX*1.15*k,HALFX*1.15*k);mapView.cz=clamp(mapView.cz,-HALFZ*1.25*k,HALFZ*1.25*k)}
+function mapCenterMe(z){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;if(z)mapView.zoom=Math.max(mapView.zoom,z);mapView.cx=px;mapView.cz=pz;mapClamp();drawBigMap()}
+(function(){const cv=$('bmc'),pts=new Map();let pinch0=0,zoom0=1;
+  cv.addEventListener('wheel',e=>{e.preventDefault();mapZoomAt(Math.exp(-e.deltaY*.0015),e.clientX,e.clientY)},{passive:false});
+  cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});cv.style.cursor='grabbing';
+    if(pts.size===2){const[a,b]=[...pts.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);zoom0=mapView.zoom}});
+  cv.addEventListener('pointermove',e=>{const p0=pts.get(e.pointerId);if(!p0)return;const dpr=Math.min(devicePixelRatio,2),s=mapBase(cv.width,cv.height)*mapView.zoom;
+    if(pts.size===1){mapView.cx-=(e.clientX-p0.x)*dpr/s;mapView.cz-=(e.clientY-p0.y)*dpr/s;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});mapClamp();drawBigMap()}
+    else if(pts.size===2){pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const[a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0>0)mapZoomAt(zoom0*d/pinch0/mapView.zoom,(a.x+b.x)/2,(a.y+b.y)/2)}});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch0=0;if(!pts.size)cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  const mid=()=>{const r=cv.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]};
+  $('bmIn').addEventListener('click',()=>mapZoomAt(1.6,...mid()));$('bmOut').addEventListener('click',()=>mapZoomAt(1/1.6,...mid()));$('bmMe').addEventListener('click',()=>mapCenterMe(3));
+})();
+function drawMini(){const s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
   mini.fillStyle='#1fa3c4';mini.fillRect(0,0,300,300);
   mini.save();const z=2.4;mini.translate(cx,cy);mini.scale(z,z);mini.translate(-px*s,-pz*s);
   const isl=(m,c)=>{mini.fillStyle=c;mini.beginPath();for(let k=0;k<=96;k++){const a=k/96*Math.PI*2,r=(ISL(a)-m)*s;mini.lineTo(Math.cos(a)*r,Math.sin(a)*r)}mini.fill()};
   isl(0,'#f2d59b');isl(26,'#79c27c');
-  mini.fillStyle='#55505f';for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){if(!nodeOK(i,j))continue;
-    if(nodeOK(i+1,j))mini.fillRect((road(i)-RD/2)*s,(road(j)-RD/2)*s,(P+RD)*s,RD*s);if(nodeOK(i,j+1))mini.fillRect((road(i)-RD/2)*s,(road(j)-RD/2)*s,RD*s,(P+RD)*s)}
-  mini.fillStyle='#c9c0d0';for(const[i,j]of VALID)mini.fillRect((road(i)+RD/2)*s,(road(j)+RD/2)*s,BLK*s,BLK*s);
+  mini.fillStyle='#55505f';for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
+    if(edgeOK(i,j,1))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,(rx(i+1)-rx(i)+RD)*s,RD*s);if(edgeOK(i,j,0))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,RD*s,(rz(j+1)-rz(j)+RD)*s)}
+  mini.fillStyle='#c9c0d0';for(const[i,j]of VALID)mini.fillRect((rx(i)+RD/2)*s,(rz(j)+RD/2)*s,bW(i)*s,bD(j)*s);for(const[x,z,w,d]of brokenStrips)mini.fillRect((x-w/2-1)*s,(z-d/2-1)*s,(w+2)*s,(d+2)*s);
   mini.fillStyle='#fff';mini.fillRect((villa.x-15)*s,(villa.z-11)*s,30*s,22*s);mini.fillStyle='#ff2a3a';mini.fillRect((hospital.x-8)*s,(hospital.z-2.5)*s,16*s,5*s);mini.fillRect((hospital.x-2.5)*s,(hospital.z-8)*s,5*s,16*s);mini.fillStyle='#4a7ab0';mini.beginPath();mini.arc(station.x*s,station.z*s,7*s,0,7);mini.fill();
   for(const c of cars)if(c.police&&!c.dead){mini.fillStyle=((performance.now()/200)|0)%2?'#f00':'#04f';mini.fillRect(c.x*s-3,c.z*s-3,6,6)}
   if(beamMat.visible){mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(mission.x*s,mission.z*s,6,0,7);mini.fill()}
@@ -1459,7 +1513,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
     if(camHold>0){camHold-=dt;rate=0}
     camYaw+=d*Math.min(1,dt*rate)}
   const aimC=!player.car&&player.aiming;
-  const dist=player.car?13+Math.abs(player.car.speed)*.12:aimC?3:5.2,hgt=player.car?5.8:aimC?2.65:3,sh=aimC?.95:0;
+  const dist=player.car?9.5+Math.abs(player.car.speed)*.06:aimC?3:5.2,hgt=player.car?4.6:aimC?2.65:3,sh=aimC?.95:0;
   if(cut)camPos.copy(cam.position);const hd=dist*(1-camPitch*.35);if(!cut)camPos.set(player.x-Math.sin(camYaw)*hd-Math.cos(camYaw)*sh,hgt+player.y*(aimC?1:0)+camPitch*dist*(aimC?.4:1),player.z-Math.cos(camYaw)*hd+Math.sin(camYaw)*sh);if(!cut)cam.position.lerp(camPos,Math.min(1,dt*(aimC?14:8)));
   const tf=aimC?50:65;if(Math.abs(cam.fov-tf)>.1){cam.fov+=(tf-cam.fov)*Math.min(1,dt*10);cam.updateProjectionMatrix()}
   if(aimC)camLook.set(player.x+Math.sin(camYaw)*12-Math.cos(camYaw)*sh,2.3,player.z+Math.cos(camYaw)*12+Math.sin(camYaw)*sh);else camLook.set(player.x,player.car?1.5:2,player.z);
@@ -1479,6 +1533,7 @@ let camYaw=0,camPitch=0,camHold=0;
 function angDiff(a,b){return((a-b)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI}
 function tryMove(dx,dz){if(!hit(player.x+dx,player.z,.6))player.x+=dx;if(!hit(player.x,player.z+dz,.6))player.z+=dz}
 for(const[cx,cz]of parkSpots)for(const[dx,dz,r]of[[-12,-8,0],[12,-8,0],[-12,10,Math.PI],[12,10,Math.PI],[0,-20,0],[0,20,Math.PI]])addBench(cx+dx,cz+dz,r);
+R=Math.random;
 for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
 {const c=makeCar(SPN.x+6,SPN.z+8,0,{color:0x1fb5a8,kind:'wedge'});c.driver=null}
 // 海滩停车场：六种车停成一排（东侧沙滩，空车可直接开走）
