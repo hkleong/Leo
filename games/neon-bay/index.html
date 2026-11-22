@@ -319,6 +319,10 @@ function addBuilding(ox,oz,w,h){const d=w,col=pal[(R()*pal.length)|0],trim=trimP
   if(R()<.5&&h>=14)for(let y=8.5;y<h-2;y+=5){const sl=box(w*.32,.25,1.5,0xffffff);sl.position.set(ox+sx*w*.22,y-1.25,oz+sz*(d/2+.75));scene.add(sl);
     const rl=box(w*.32,.9,.12,0xffffff);rl.position.set(ox+sx*w*.22,y-.65,oz+sz*(d/2+1.45));scene.add(rl)}}
 let villa=null,station=null,hospital=null;const parkSpots=[];
+// ===== 跟随角色生成：城市切成街区 / 路段 / 路口三类“任务”，只生成角色附近的，走远了卸载 =====
+const JOBS=[],BTYPE={};
+// 每个任务用自己的固定种子：无论先生成哪块，同一个地方的楼永远一样
+const seedR=(...k)=>{let h=2166136261;for(const v of k){h=Math.imul(h^((v*2654435761)>>>0),16777619)}return mulberry(h>>>0)};
 for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){
   if(!blockOK(i,j))continue;
   const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j);
@@ -327,18 +331,22 @@ for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){
   if(i===SB[0]&&j===SB[1]){station={x:cx,z:cz,w:W,d:D};continue}
   if(i===HB[0]&&j===HB[1]){hospital={x:cx,z:cz,w:W,d:D};continue}
   if(i===LB[0]&&j===LB[1])continue;
-  const bdist=Math.hypot(cx/HALFX,cz/HALFZ);
-  if(DIAG.has(i+','+j)){const[x0,z0,x1,z1]=diagSeg(i+','+j,DIAG.get(i+','+j));
+  let t;if(DIAG.has(i+','+j))t='diag';else{const r=seedR(1,i,j),bdist=Math.hypot(cx/HALFX,cz/HALFZ);t=r()<.22?'park':(bdist>.42&&r()<.6)?'houses':'bld'}
+  BTYPE[i+','+j]=t;if(t==='park'||t==='diag')parkSpots.push([cx,cz]);
+  JOBS.push({kind:'block',i,j,x:cx,z:cz,r:Math.hypot(W,D)/2});
+}
+function buildBlock(i,j){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),t=BTYPE[i+','+j];R=seedR(2,i,j);
+  if(t==='diag'){const[x0,z0,x1,z1]=diagSeg(i+','+j,DIAG.get(i+','+j));
     const g=new THREE.Mesh(new THREE.PlaneGeometry(W-4,D-4),M(0x4fb069));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
-    for(let k=0;k<Math.round(W*D/500);k++){const px=cx+rr(-W/2+5,W/2-5),pz=cz+rr(-D/2+5,D/2-5);if(segDist(px,pz,x0,z0,x1,z1)>13)palm(px,pz)}
-    continue}
-  if(R()<.22){ // 公园 / 空地
+    for(let k=0;k<Math.round(W*D/500);k++){const px=cx+rr(-W/2+5,W/2-5),pz=cz+rr(-D/2+5,D/2-5);if(segDist(px,pz,x0,z0,x1,z1)>13)palm(px,pz)}return}
+  if(t==='park'){ // 公园 / 空地 + 长椅
     const g=new THREE.Mesh(new THREE.PlaneGeometry(W-4,D-4),M(0x4fb069));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
-    for(let k=0;k<Math.round(W*D/700);k++)palm(cx+rr(-W/2+6,W/2-6),cz+rr(-D/2+6,D/2-6));parkSpots.push([cx,cz]);continue}
-  if(bdist>.42&&R()<.6){ // 平房住宅区：按街区大小分成若干户，每户朝向最近的街道
+    for(let k=0;k<Math.round(W*D/700);k++)palm(cx+rr(-W/2+6,W/2-6),cz+rr(-D/2+6,D/2-6));
+    for(const[dx,dz,r]of[[-12,-8,0],[12,-8,0],[-12,10,Math.PI],[12,10,Math.PI],[0,-20,0],[0,20,Math.PI]])addBench(cx+dx,cz+dz,r);return}
+  if(t==='houses'){ // 平房住宅区：按街区大小分成若干户，每户朝向最近的街道
     const nx=Math.max(1,Math.round(W/38)),nz=Math.max(1,Math.round(D/36)),lw=W/nx,ld=D/nz;
     for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){const hx=cx-W/2+lw*(a+.5),hz=cz-D/2+ld*(b+.5);if(R()<.12){palm(hx,hz);continue}addHouse(hx,hz,nz===1?(R()<.5?1:-1):(b<nz/2?-1:1),lw,ld)}
-    continue}
+    return}
   // 楼房：大街区分成多块地，部分空着当小广场
   const nx=W>104?3:W>64?2:1,nz=D>104?3:D>64?2:1,lw=W/nx,ld=D/nz;
   for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){
@@ -349,8 +357,7 @@ for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){
     addBuilding(ox,oz,w,h);
     solids.push({x0:ox-w/2,x1:ox+w/2,z0:oz-w/2,z1:oz+w/2});
   }
-  palm(cx-W/2+2,cz-D/2+2);palm(cx+W/2-2,cz+D/2-2);
-}
+  palm(cx-W/2+2,cz-D/2+2);palm(cx+W/2-2,cz+D/2-2)}
 const plate=M(0x9a8aa3);
 for(const[x,z,w,d]of brokenStrips){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),plate);m.rotation.x=-Math.PI/2;m.position.set(x,.05,z);m.receiveShadow=true;scene.add(m)}
 for(let i=1;i<NX;i++)for(let j=1;j<NZ;j++)if(nodeOK(i,j)&&!deg(i,j)&&blockOK(i-1,j-1)&&blockOK(i,j-1)&&blockOK(i-1,j)&&blockOK(i,j)){const m=new THREE.Mesh(new THREE.PlaneGeometry(RD+4,RD+4),plate);m.rotation.x=-Math.PI/2;m.position.set(rx(i),.05,rz(j));scene.add(m)}
@@ -437,10 +444,13 @@ function streetEdge(x0,z0,x1,z1){const L=Math.hypot(x1-x0,z1-z0),ux=(x1-x0)/L,uz
       PARK.push({x,z,h:Math.atan2(ux*sd,uz*sd),used:null});if(R()<.35){const[mx,mz]=at(t+4.2,8.6);props.meter(mx,mz)}}
     if(hasBus&&sd===busSide){const[x,z]=at(busT,8.8);busStop(x,z,ry+Math.PI)}}}
 for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
-  if(edgeOK(i,j,1))streetEdge(rx(i)+RD/2,rz(j),rx(i+1)-RD/2,rz(j));
-  if(edgeOK(i,j,0))streetEdge(rx(i),rz(j)+RD/2,rx(i),rz(j+1)-RD/2);
-  if(nodeOK(i,j)&&degAll(i,j)>=3){trafficLight(rx(i)+8.6,rz(j)+8.6,-Math.PI/2,'a');trafficLight(rx(i)-8.6,rz(j)-8.6,0,'b');
-    streetSign(rx(i)-8.8,rz(j)+8.8,Math.PI/4,STREETS[(i*7+j*3)%STREETS.length])}}
+  if(edgeOK(i,j,1))JOBS.push({kind:'edge',i,j,h:1,x:(rx(i)+rx(i+1))/2,z:rz(j),r:(rx(i+1)-rx(i))/2,a:[rx(i)+RD/2,rz(j),rx(i+1)-RD/2,rz(j)]});
+  if(edgeOK(i,j,0))JOBS.push({kind:'edge',i,j,h:0,x:rx(i),z:(rz(j)+rz(j+1))/2,r:(rz(j+1)-rz(j))/2,a:[rx(i),rz(j)+RD/2,rx(i),rz(j+1)-RD/2]});
+  if(nodeOK(i,j)&&degAll(i,j)>=3)JOBS.push({kind:'node',i,j,x:rx(i),z:rz(j),r:12})}
+function buildJobContent(job){const{i,j}=job;
+  if(job.kind==='block')return buildBlock(i,j);
+  if(job.kind==='edge'){R=seedR(3,i,j,job.h);return streetEdge(...job.a)}
+  R=seedR(4,i,j);trafficLight(rx(i)+8.6,rz(j)+8.6,-Math.PI/2,'a');trafficLight(rx(i)-8.6,rz(j)-8.6,0,'b');streetSign(rx(i)-8.8,rz(j)+8.8,Math.PI/4,STREETS[(i*7+j*3)%STREETS.length])}
 // 公共建筑前广场：浅色铺地 + 花坛 + 矮墙
 function plaza(x,z,w,d,col){const pl=new THREE.Mesh(new THREE.PlaneGeometry(w,d),M(col));pl.rotation.x=-Math.PI/2;pl.position.set(x,.1,z);pl.receiveShadow=true;scene.add(pl)}
 // 医院：比普通楼更宽更高，白色主楼 + 青色眉檐 + 红十字 + 急诊门廊 + 楼顶停机坪
@@ -1531,7 +1541,7 @@ function updCut(dt){const c=cut;c.t+=dt;const T=c.t;
   $('fade').style.opacity=T<2.2?0:T<2.8?(T-2.2)/.6:Math.max(0,1-(T-2.9)/.5);
   if(T>=2.8&&!c.done){c.done=true;respawnAt(c.type)}
   if(T>=3.4){player.mesh.rotation.x=0;player.mesh.position.y=0;$('cut').classList.remove('on');setTimeout(()=>{if(!cut)$('cut').hidden=true},400);$('fade').style.opacity=0;cut=null}}
-function respawnAt(type){const fee=Math.floor(player.money*.1),P0=type==='dead'?hospital:station;player.money-=fee;player.heat=0;player.wanted=0;player.hp=100;player.dispatch=0;player.bustT=0;
+function respawnAt(type){const fee=Math.floor(player.money*.1),P0=type==='dead'?hospital:station;ensureAround(P0.x,P0.z+24);player.money-=fee;player.heat=0;player.wanted=0;player.hp=100;player.dispatch=0;player.bustT=0;
   player.x=P0.x+rr(0,3);player.z=P0.z+24;player.rot=0;player.y=0;player.vy=0;camYaw=Math.PI;player.mesh.rotation.x=0;player.mesh.visible=true;
   for(const c of cars.filter(c=>c.police&&!c.patrol))removeCar(c);for(const q of[...peds])if(q.cop)dropPed(q);if(heli){scene.remove(heli.g,heli.cone,heli.spot);heli=null}
   if(mission.stage==='run')fail('任务失败');
@@ -1576,7 +1586,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   for(const k of[...cash]){k.m.rotation.y+=dt*3;if(Math.hypot(k.x-player.x,k.z-player.z)<3){player.money+=k.v;beep(1200,.08,'sine',.08);scene.remove(k.m);cash.splice(cash.indexOf(k),1)}}
   for(const f of[...fxs]){f.t+=dt;if(f.smoke){f.m.position.y+=dt*3;f.m.material.opacity=.6-f.t*.4}else{f.m.scale.setScalar(1+f.t*2);f.m.material.opacity=.9-f.t}if(f.t>1.4){scene.remove(f.m);f.m.geometry.dispose();f.m.material.dispose();fxs.splice(fxs.indexOf(f),1)}}
   for(const t of[...tracers])if((t.t-=dt)<0){scene.remove(t.l);t.l.geometry.dispose();t.l.material.dispose();tracers.splice(tracers.indexOf(t),1)}
-  syncDrivers();updLights();updWanted(dt);updMission(dt);updAudio(dt,ax,ay);updBubbles(dt);
+  updStream();syncDrivers();updLights();updWanted(dt);updMission(dt);updAudio(dt,ax,ay);updBubbles(dt);
   if(player.hp<=0&&!cut)startCut('dead');else if(!player.car&&player.wanted===0)player.hp=Math.min(100,player.hp+dt*2);
   // 逮捕判定：有通缉时，警员贴身（步行时 2 米内且没在跑）或你的车停下、警员在 6 米内，持续一会儿就被捕
   if(!cut&&player.wanted>0){let near=false;for(const q of peds)if(q.cop&&!q.dead&&!(q.knock>0)){const d=Math.hypot(q.x-player.x,q.z-player.z);
@@ -1611,7 +1621,6 @@ let camYaw=0,camPitch=0,camHold=0;
   addEventListener('mousemove',e=>{if(md)move(e.clientX,e.clientY)});addEventListener('mouseup',()=>{md=false;el.style.cursor=''});})();
 function angDiff(a,b){return((a-b)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI}
 function tryMove(dx,dz){if(!hit(player.x+dx,player.z,.6))player.x+=dx;if(!hit(player.x,player.z+dz,.6))player.z+=dz}
-for(const[cx,cz]of parkSpots)for(const[dx,dz,r]of[[-12,-8,0],[12,-8,0],[-12,10,Math.PI],[12,10,Math.PI],[0,-20,0],[0,20,Math.PI]])addBench(cx+dx,cz+dz,r);
 R=Math.random;
 for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
 {const c=makeCar(SPN.x+6,SPN.z+8,0,{color:0x1fb5a8,kind:'wedge'});c.driver=null}
@@ -1621,17 +1630,45 @@ for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
  const sg=new THREE.Mesh(new THREE.PlaneGeometry(10,3.75),signMat('PARK',0x22d3ee));sg.position.set(px-12,5,pz0+25);sg.rotation.y=-Math.PI/2;scene.add(sg);
  [['wedge',0x1fb5a8],['convertible',0xf4f0e6],['pickup',0x15151a],['sedan',0x8a3fc8],['taxi',0xffd21f],['coupe',0xc8ccd4]].forEach(([k,col],i)=>{
    const c=makeCar(px+4,pz0+i*8.5+2.25,-Math.PI/2,{kind:k,color:col});c.driver=null;c.parked=1});}
-// 合并城市静态网格：同材质的零件拼成一个网格，大幅减少绘制次数
-(function mergeStatic(){const groups=new Map();
+// 把一批网格按材质合并（每块单独合并，看不到的块会被自动跳过绘制）
+function mergeInto(list,grp){const groups=new Map();
+  for(const o of list){if(o.isMesh&&!(o.material&&(o.material.transparent||o.material.vertexColors))&&!Array.isArray(o.material)){if(!groups.has(o.material))groups.set(o.material,[]);groups.get(o.material).push(o)}else grp.add(o)}
+  for(const[mat,lst]of groups){if(lst.length<2){grp.add(lst[0]);continue}const pos=[],nor=[],uv=[];let cast=false;
+    for(const o of lst){o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);
+      const P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv;
+      for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0)}
+      g.dispose();cast=cast||o.castShadow}
+    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));G.userData.merged=1;
+    const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;grp.add(m)}return grp}
+// 生成时把 scene.add 截下来，收进这个任务自己的组
+let CAP=null;const _sceneAdd=scene.add.bind(scene);scene.add=function(...o){if(CAP){CAP.push(...o);return this}return _sceneAdd(...o)};
+const LOAD_R=430,UNLOAD_R=620;
+function buildJob(job){if(job.built)return;const s0=solids.length,b0=benches.length,p0=PARK.length,oldR=R;CAP=[];
+  try{buildJobContent(job)}finally{R=oldR}const objs=CAP;CAP=null;
+  job.solids=solids.slice(s0);job.benches=benches.slice(b0);job.park=PARK.slice(p0);job.group=mergeInto(objs,new THREE.Group());_sceneAdd(job.group);job.built=true}
+function unloadJob(job){if(!job.built)return;scene.remove(job.group);job.group.traverse(o=>{if(o.geometry&&o.geometry.userData.merged)o.geometry.dispose()});job.group=null;
+  const drop=(arr,items)=>{for(const it of items){const k=arr.indexOf(it);if(k>=0)arr.splice(k,1)}};drop(solids,job.solids);drop(benches,job.benches);drop(PARK,job.park.filter(sp=>!sp.used));job.built=false}
+// 立刻生成某点周围的所有任务（开局、读档、重生传送时用）
+function ensureAround(x,z,rad=LOAD_R){for(const j of JOBS)if(!j.built&&Math.hypot(j.x-x,j.z-z)-j.r<rad)buildJob(j)}
+// 每帧：按距离由近到远生成，每帧最多花约 6 毫秒；太远的卸载
+let streamT=0;
+function updStream(){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
+  if((streamT=(streamT+1)%30)===0)for(const j of JOBS)if(j.built&&Math.hypot(j.x-px,j.z-pz)-j.r>UNLOAD_R)unloadJob(j);
+  const t0=performance.now();const todo=JOBS.filter(j=>!j.built&&Math.hypot(j.x-px,j.z-pz)-j.r<LOAD_R).sort((a,b)=>Math.hypot(a.x-px,a.z-pz)-Math.hypot(b.x-px,b.z-pz));
+  for(const j of todo){buildJob(j);if(performance.now()-t0>6)break}}
+// 常驻部分（道路、人行道、路灯、斑马线、公共建筑等）按 250 米分块合并，看不到的块自动跳过
+(function mergeStatic(){const groups=new Map(),CH=250;
   for(const o of[...scene.children]){if(!o.isMesh||o===sky||o===beam||(o.material&&(o.material.transparent||o.material.vertexColors))||Array.isArray(o.material))continue;
-    if(!groups.has(o.material))groups.set(o.material,[]);groups.get(o.material).push(o)}
-  for(const[mat,list]of groups){if(list.length<2)continue;const pos=[],nor=[],uv=[];let cast=false;
+    if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();if(o.geometry.boundingSphere.radius*Math.max(o.scale.x,o.scale.z)>200)continue;
+    const key=o.material.uuid+'|'+Math.floor(o.position.x/CH)+','+Math.floor(o.position.z/CH);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o)}
+  for(const[key,list]of groups){if(list.length<2)continue;const mat=list[0].material;const pos=[],nor=[],uv=[];let cast=false;
     for(const o of list){o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);
       const P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv;
       for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0)}
       g.dispose();cast=cast||o.castShadow;scene.remove(o)}
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
     const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;scene.add(m)}})();
+ensureAround(SPN.x,SPN.z);
 $('wpn').addEventListener('click',nextWeapon);$('wpn').addEventListener('touchend',e=>{e.preventDefault();nextWeapon()});setWeapon(0);
 offerMission();cam.position.set(player.x,40,player.z-40);
 for(const[id,k]of[['pickF','heroF'],['pickM','heroM']])$(id).addEventListener('click',()=>{setHero(k);
@@ -1642,7 +1679,7 @@ function snapshotState(){return{money:player.money,hero:heroLook,w:wIdx,won,fini
 function saveGame(){if(!running)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshotState()))}catch(e){}}
 function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'null')}catch(e){return null}}
 function pickHeroUI(k){setHero(k);for(const b of document.querySelectorAll('.hero')){const on=b.id===(k==='heroM'?'pickM':'pickF');b.classList.toggle('on',on);b.setAttribute('aria-checked',on)}}
-function applyState(st){if(!st)return;player.money=st.money|0;won=!!st.won;finished=!!st.finished;if(st.hero)pickHeroUI(st.hero);
+function applyState(st){if(!st)return;if(Number.isFinite(st.x))ensureAround(st.x,st.z);player.money=st.money|0;won=!!st.won;finished=!!st.finished;if(st.hero)pickHeroUI(st.hero);
   if(Number.isFinite(st.x)&&onIsland(st.x,st.z,8)&&!hit(st.x,st.z,1)){player.x=st.x;player.z=st.z}setWeapon(st.w|0)}
 function beginPlay(msg){$('title').hidden=true;running=true;last=performance.now();if(ac)ac.resume&&ac.resume();toast(msg)}
 setInterval(saveGame,5000);addEventListener('visibilitychange',()=>{if(document.hidden)saveGame()});addEventListener('pagehide',saveGame);
