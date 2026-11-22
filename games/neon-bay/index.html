@@ -369,10 +369,10 @@ const mtnPano=(()=>{const W=4096,H=512,c=document.createElement('canvas');c.widt
     const path=new Path2D();path.moveTo(0,H);for(let x=0;x<=W;x+=2)path.lineTo(x,H-hs[x]);path.lineTo(W,H);path.closePath();
     const gr=g.createLinearGradient(0,H-hMax,0,H);cols.forEach(([t,col])=>gr.addColorStop(t,col));g.fillStyle=gr;g.fill(path);
     // 迎光面：山脊往右下的一侧提亮，做出明暗面
-    g.save();g.clip(path);g.globalAlpha=.22;g.strokeStyle='#ffd0e0';g.lineWidth=3;for(let x=0;x<W;x+=6){const h=hs[x];if(h<20)continue;if(hs[x+6]<h){g.beginPath();g.moveTo(x,H-h);g.lineTo(x+h*.25,H);g.stroke()}}g.restore()};
+    g.save();g.clip(path);g.globalAlpha=.22;g.strokeStyle=REAL?'#f0ece0':'#ffd0e0';g.lineWidth=3;for(let x=0;x<W;x+=6){const h=hs[x];if(h<20)continue;if(hs[x+6]<h){g.beginPath();g.moveTo(x,H-h);g.lineTo(x+h*.25,H);g.stroke()}}g.restore()};
   // 远层：淡紫色剪影；近层：粉色山顶 → 灰岩 → 绿色山脚
-  layer(14,180,330,.03,.07,[[0,'#c58ac0'],[.5,'#9a74ad'],[1,'#8a6aa8']],10);
-  layer(20,90,250,.025,.06,[[0,'#ffc0d4'],[.18,'#c59aae'],[.42,'#7a6a7c'],[.7,'#3f7a55'],[1,'#2f6a48']],8);
+  layer(14,180,330,.03,.07,REAL?[[0,'#9aa4b0'],[.5,'#7f8a98'],[1,'#6e7a88']]:[[0,'#c58ac0'],[.5,'#9a74ad'],[1,'#8a6aa8']],10);
+  layer(20,90,250,.025,.06,REAL?[[0,'#c8c4bc'],[.18,'#9a968c'],[.42,'#6a6a5e'],[.7,'#4a6a3e'],[1,'#3a5a34']]:[[0,'#ffc0d4'],[.18,'#c59aae'],[.42,'#7a6a7c'],[.7,'#3f7a55'],[1,'#2f6a48']],8);
   // 近海小岛：低矮的绿色山头 + 沙滩边 + 椰子树剪影（画在最前面一层）
   const isle=(u,w,h)=>{if(sunGap(u)<.5)return;const cx=u*W,hw=w*W/2,base=H-2;
     const pth=new Path2D();pth.moveTo(cx-hw*1.15,base);for(let k=0;k<=40;k++){const f=k/40,x=cx-hw+2*hw*f,y=base-h*Math.pow(Math.sin(Math.PI*f),.8)*(1+.08*Math.sin(f*23));pth.lineTo(x,y)}pth.lineTo(cx+hw*1.15,base);pth.closePath();
@@ -698,6 +698,12 @@ function addHouse(x,z,face,lw=BLK/2,ld=BLK/2){const w=Math.min(rr(17,22),lw-8),d
   const mx=x-w*.42,mz=z+face*(ld/2-2.2);const mb=box(.6,.7,.9,0x2f6fd0);mb.position.set(mx,1.6,mz);scene.add(mb);const mp=box(.15,1.4,.15,0x555555);mp.position.set(mx,.7,mz);scene.add(mp);
   const fzz=z+face*(ld/2-1.2);for(let k=-7;k<=7;k++){if(Math.abs(k)<=1)continue;const pk=box(.22,1.5,.14,0xffffff);pk.position.set(x+k*1.15,.75,fzz);scene.add(pk)}
   for(const sd of[-1,1]){const rail=box(6.8,.18,.12,0xffffff);rail.position.set(x+sd*5.05,1.05,fzz);scene.add(rail)}
+  if(REAL){for(const sd of[-1,1]){const gt=box(w+1.4,.22,.25,0xd8d8d4);gt.position.set(x,hh+.05,hz+sd*(d/2+.85));scene.add(gt);const dp=box(.18,hh,.18,0xd8d8d4);dp.position.set(x+sd*(w/2+.12),hh/2,hz+sd*(d/2+.12));scene.add(dp)}
+    const ac=box(1.2,1,1.2,0xb4b6ba);ac.position.set(x-w/2-.8,.5,hz-d*.2);scene.add(ac);const fan=new THREE.Mesh(cylG(.45,.45,.08,12),M(0x3a3c42));fan.position.set(x-w/2-.8,1.04,hz-d*.2);scene.add(fan);
+    const pl=box(.3,.4,.15,0xfff0c0);pl.position.set(x+1.4,3.2,fz+face*.12);scene.add(pl);
+    for(let k=0;k<2;k++){const bn=box(.7,1.1,.7,[0x2f5a3a,0x3a3a40][k]);bn.position.set(x+w/2+1.2,.55,hz+face*(d/2-1-k*.9));scene.add(bn)}
+    if(R()<.4){const dish=new THREE.Mesh(new THREE.SphereGeometry(.45,10,6,0,Math.PI*2,0,Math.PI/2.4),M(0xd8d8d4));dish.position.set(x-w*.3,hh+rise*.5,hz+face*d*.1);dish.rotation.x=face*.9;scene.add(dish)}
+    const dw=tPlane(3.4,Math.max(2,ld/2-d/2-1.5),groundMat('stone',0x9a9690));dw.rotation.x=-Math.PI/2;dw.position.set(x+w*.38,.1,(fz+z+face*(ld/2-1.2))/2);scene.add(dw)}
   solids.push({x0:x-w/2,x1:x+w/2,z0:hz-d/2,z1:hz+d/2})}
 // ===== 人行道路线：行人绕街区一圈走，只在斑马线处过马路 =====
 const CR=5;                                   // 斑马线离路口的距离
@@ -863,7 +869,7 @@ if(REAL)buildStationReal(station);else{const S=station;const pink=0xf2b8d0,teal=
  solids.push({x0:S.x-21,x1:S.x+21,z0:S.z-18,z1:S.z+10});}
 // 海边别墅：现代装饰艺术风两层白色大宅 + 圆角玻璃塔 + 悬挑屋檐 + 露台，前面是泳池、日光浴平台、车库和车道
 {const V=villa,HW=bW(VB[0])/2-3,HD=bD(VB[1])/2-3,X=x=>V.x+x,Z=z=>V.z+z;
- const WH=0xfbf8f2,TEAL=0x2fb5c0,PINK=0xff6fa0,STONE=0xe8dccb,WOOD=0xb07a4a;
+ const WH=REAL?0xece8e0:0xfbf8f2,TEAL=REAL?0x8a8a86:0x2fb5c0,PINK=REAL?0x5a5a5e:0xff6fa0,STONE=0xe8dccb,WOOD=0xb07a4a;
  const glassV=new THREE.MeshPhongMaterial({color:0x9fd8ff,transparent:true,opacity:.45,shininess:120,specular:0xffffff});
  const pl=(w,d,col,x,z,y=.06)=>{const m=tPlane(w,d,col===0x6fc070?groundMat('grass'):col===STONE?groundMat('stone'):groundMat('stone',0xc8c4cc));m.rotation.x=-Math.PI/2;m.position.set(X(x),y,Z(z));m.receiveShadow=true;scene.add(m);return m};
  const bx=(w,h,d,col,x,y,z,round=0)=>{const m=round?rbox(w,h,d,col,round):box(w,h,d,col);m.position.set(X(x),y,Z(z));scene.add(m);return m};
@@ -929,7 +935,7 @@ if(REAL)buildStationReal(station);else{const S=station;const pink=0xf2b8d0,teal=
 for(let a=0;a<Math.PI*2;a+=.045){const r=ISL(a)-rr(9,16);if(R()<.75)palm(Math.cos(a)*r,Math.sin(a)*r)}
 function palm(x,z){if(guard('palm',x,z,1.2))return;const lean=rr(-.12,.12),lz=rr(-.12,.12);let tx=x,tz=z;
   for(let k=0;k<5;k++){const t=rbox(.75-k*.06,2.1,.75-k*.06,0x8a5a3b,.45);tx+=lean*1.6*k*.3;tz+=lz*1.6*k*.3;t.position.set(tx,1+k*1.9,tz);scene.add(t)}
-  for(let k=0;k<7;k++){const l=new THREE.Mesh(leafGeo,M(k%2?0x2fa84f:0x268a44));l.castShadow=true;l.position.set(tx,9.6,tz);l.rotation.y=k*.9+rr(0,.3);l.rotation.z=rr(.05,.25);scene.add(l)}
+  for(let k=0;k<7;k++){const l=new THREE.Mesh(leafGeo,M(REAL?(k%2?0x4a7a3a:0x3e6a34):(k%2?0x2fa84f:0x268a44)));l.castShadow=true;l.position.set(tx,9.6,tz);l.rotation.y=k*.9+rr(0,.3);l.rotation.z=rr(.05,.25);scene.add(l)}
   const nut=rbox(.9,.7,.9,0x5a3a1a,.48);nut.position.set(tx,9.2,tz);scene.add(nut)}
 // 边界
 const SEA={sea:1}; // 海岸线：走到水边就算撞墙
@@ -1661,6 +1667,10 @@ function buildCar(kind,col){const BC=REAL?aoCol(col,CAR[kind].gr):col;const d=CA
   else for(const sd of[-1,1])Lt.add(rgeo(.55,.1,.05,.3),0xfff4d0,[sd*(W/2-.42),hy,front+.03]);
   for(const sd of[-1,1])Lt.add(rgeo(.5,.16,.05,.3),0xff2a3a,[sd*(W/2-.4),kind==='pickup'?1.55:mid+.12,rear-.03]);
   if(kind==='taxi'){const tx=new THREE.Mesh(new THREE.BoxGeometry(1,.34,.42),[taxiSign(),taxiSign(),M(0xffd21f),M(0xffd21f),taxiSign(),taxiSign()]);tx.position.set(0,1.85,-.15);g.add(tx)}
+  if(REAL&&kind!=='bus'){const archG=gget('arch'+d.wr,()=>{const t=new THREE.TorusGeometry(d.wr+.14,.055,6,16,Math.PI);t.rotateY(Math.PI/2);return t});
+    for(const u of d.wheels)for(const sd of[-1,1])B.add(archG,new THREE.Color(col).multiplyScalar(.7).getHex(),[sd*(W/2+.01),d.wr,u]);
+    if(d.glass){const gl=d.glass,hy2=Math.min(gl[3][1],gl[0][1]);B.add(rgeo(W*.92,.02,.03,.1),0x0c0c0e,[0,hy2+.01,gl[3][0]+.3]);B.add(rgeo(W*.92,.02,.03,.1),0x0c0c0e,[0,hy2+.01,gl[0][0]-.3]);
+      if(kind!=='van'&&kind!=='pickup')B.add(rgeo(.04,.02,front-gl[3][0]-.6,.1),new THREE.Color(col).multiplyScalar(.82).getHex(),[0,hy2+.02,(front+gl[3][0])/2+.1])}}
   if(REAL){ // —— 写实细节：门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、转向灯/倒车灯、挡泥板
     const gl=d.glass,DK=0x0c0c0e,Wh=W/2,dark=kind==='police'||kind==='suv';
     if(gl){const zf=gl[3][0]+.02,DLm={sedan:1.15,taxi:1.15,police:1.15,suv:1.25,wedge:1.4,coupe:1.5,pickup:1.35}[kind]||1.2,y0=d.gr+.12,y1=Math.min(gl[0][1],gl[3][1])-.02,four=['sedan','taxi','police','suv'].includes(kind);
@@ -1733,6 +1743,8 @@ function makeHeli(){const g=new THREE.Group();const ad=(m,x,y,z)=>{m.position.se
   H.add(capsule(.42,.16,5,10),0x14161c,[0,.3,-1.6],[-Math.PI/2+.05,0,0]);H.add(rgeo(.15,1.6,.9,.4),0x14161c,[0,1,-6.6]);H.add(rgeo(1.6,.12,.5,.4),0x14161c,[0,.4,-6.4]);
   for(const sd of[-1,1]){H.add(capsule(.07,.07,3.6,8),0x333338,[sd*1.1,-1.6,1.8],[Math.PI/2,0,0]);H.add(rgeo(.08,.6,.08,.4),0x333338,[sd*1.0,-1.25,1],[0,0,sd*.3]);H.add(rgeo(.08,.6,.08,.4),0x333338,[sd*1.0,-1.25,-.8],[0,0,sd*.3])}
   H.add(cyl(.3,.4,.5),0x222226,[0,1.45,.2]);H.add(sph(.25,10,8),0x222226,[0,-1.35,2.1]);
+  if(REAL){for(const a of[0,Math.PI/2])H.add(rgeo(.04,1.5,.14,.3),0x2a2a2e,[.14,1.05,-6.75],[a,0,0]);H.add(cyl(.08,.08,.12,8),0x555558,[.08,1.05,-6.75],[0,0,Math.PI/2]);
+    for(const sd of[-1,1]){H.add(rgeo(.04,.5,.9,.3),0x1c2438,[sd*1.46,.35,-.4]);H.add(rgeo(.04,.12,3.6,.2),0xf4f4f4,[sd*1.48,-.25,.2])}}
   for(const sd of[-1,1])H.add(cyl(.25,.25,.03,12),0xd9a93a,[sd*1.5,0,.4],[0,0,Math.PI/2]);
   g.add(H.build(vcMat,OL_C));
   const rot=ad(new THREE.Group(),0,1.75,.2);const RB=new Bld();for(let k=0;k<4;k++)RB.add(rgeo(7,.06,.45,.3),0x222226,[Math.cos(k*Math.PI/2)*3.5,0,Math.sin(k*Math.PI/2)*3.5],[0,-k*Math.PI/2,0]);rot.add(RB.build(vcMat,null));
@@ -2964,7 +2976,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.17.7';
+const VERSION='v0.18.0';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3130,6 +3142,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
+ ['v0.18','写实化收尾',[['0.18.0','写实画风下其余部分全部重做：远山改为灰蓝远山和灰岩绿坡、椰子树叶改成自然的橄榄绿；海边别墅去掉粉色青色饰边；郊区平房加排水槽、落水管、空调外机、门廊灯、垃圾桶、卫星锅和车道；汽车加轮拱眉、引擎盖和后备厢缝、引擎盖中线；警用直升机加尾桨、侧窗和白色腰带']]],
  ['v0.17','载具与建筑重做',[['0.17.7','写实画风下医院和警察局重做：医院改为米色混凝土主楼 + 砖砌两翼、层间腰线、厚檐口、混凝土急诊雨棚和钢柱、普通灯箱招牌，楼顶停机坪旁加设备；警察局改为红砖主楼和两翼 + 石材入口楼、方形石柱、台阶、蓝色招牌和门灯、楼顶天线'],['0.17.6','写实画风下楼的外形重做：去掉装饰艺术风格的圆角塔、竖鳍和阶梯楼顶，改为方正的砖砌公寓、商住楼和带裙楼、退台的办公楼；加檐口、腰线、窗式空调、楼顶楼梯间、机房和天线'],['0.17.5','建筑写实化：外墙、房屋和地面配色降低饱和度；外墙贴图加污渍、雨水痕和墙脚发黑；楼顶加空调外机、水箱、天线、通风管；砖楼加消防梯；高楼顶部霓虹环换成天线红灯。修复车灯有时消失：车灯、尾灯、保险杠、格栅、车牌原来被埋在车身倒角里，现在移到车身表面；车灯光晕按车身真实长度放置。修复贴图闪烁：提高远处深度精度，路面、标线、斑马线加偏移，不再互相闪烁'],['0.17.0','写实画风下所有载具重做细节：车身下部压暗、门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、加油口、转向灯和倒车灯、大灯镀铬框、车轮螺母；皮卡/面包车/巴士加挡泥板；巴士加折叠门、路牌灯箱、车窗立柱；面包车加侧滑门和后门缝、滑轨；摩托车加前后挡泥板、后视镜、发动机散热片、刹车盘、车牌、脚踏；踏板车加后货架、脚踏板、车牌、后视镜']]],
  ['v0.16','写实画风',[['0.16.3','走近任务时弹出选项（接活 / 对话 / 接听电话 / 接受赛车挑战），按 E 或点击按钮才开始'],['0.16.2','写实人物：脸改为椭圆、下巴收窄；脖子更粗更短；四肢按肌肉形状粗细变化（肩头、上臂、前臂、大腿、小腿肚）；持枪动作重做：手枪平时举在胸前，瞄准时双手握枪，步枪平时低位双手持、瞄准时抵肩'],['0.16.1','写实人物比例改为结实型：肩更宽、躯干更厚、四肢更粗，腿不再过长，头部比例调整'],['0.16.0','新增“写实”画风（默认），参考老式 3D 游戏“低多边形 + 写实光影”的做法，人物和车辆仍是原创设计：去掉卡通描边和色阶，改为平滑光照与高光；人物头部缩小、腿加长，身材接近真人比例，加立体鼻子和下巴，脸部画上眼窝、鼻梁、颧骨、下颌的明暗，五官缩小；衣服加褶皱；车身更方正，加白边轮胎、镀铬轮毂盖、镀铬保险杠和侧面腰线、前格栅、车身下沿裙边；整体颜色更沉稳。主页和手机设置可切回“卡通”画风']]],
  ['v0.15','画面升级',[['0.15.0','泛光、按时间调色与暗角、太阳光束、全新海面（波纹、倒影、浪花）、湿路面倒影、接触阴影、刹车灯与车头灯光晕、刹车痕与轮胎烟、车漆反光、爆炸火球与烟柱、海鸥、沙尘、路灯光柱、云影；手机设置可开关特效']]],

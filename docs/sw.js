@@ -1,5 +1,5 @@
-// 霓虹湾离线缓存（自动生成，版本 be7b75a8e0）
-const CACHE='neonbay-be7b75a8e0';
+// 霓虹湾离线缓存（自动生成，版本 24d12b9ef0）
+const CACHE='neonbay-24d12b9ef0';
 const FILES=["./", "index.html", "manifest.webmanifest", "vendor/three.min.js", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png", "art/hero_f.jpg", "art/hero_m.jpg", "art/icon.png", "art/title.jpg"];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
