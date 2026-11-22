@@ -2613,6 +2613,8 @@ for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
    const c=makeCar(px+4,pz0+i*8.5+2.25,-Math.PI/2,{kind:k,color:col});c.driver=null;c.parked=1});}
 // 把一批网格按材质合并（每块单独合并，看不到的块会被自动跳过绘制）
 // 把一批网格合并：贴图集材质合成一个；所有纯色卡通材质按颜色写进顶点色、合成一个；其余按材质合并
+// 合并后的城市几何体：上传到显卡后释放内存里的顶点数组（之后不会再读，省下大量内存）
+function releaseAfterUpload(G){G.computeBoundingSphere();G.computeBoundingBox();for(const k in G.attributes)G.attributes[k].onUpload(function(){this.array=null});if(G.index)G.index.onUpload(function(){this.array=null})}
 const vcPlainMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad});
 function mergeInto(list,grp){const groups=new Map(),PLAIN='plain';
   for(const o of list){if(!o.isMesh||Array.isArray(o.material)||(o.material&&(o.material.transparent||o.material.vertexColors))){grp.add(o);continue}
@@ -2623,7 +2625,7 @@ function mergeInto(list,grp){const groups=new Map(),PLAIN='plain';
       for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0);if(T)tl.push(T.getX(i),T.getY(i),T.getZ(i),T.getW(i));if(key===PLAIN)cl.push(c.r,c.g,c.b)}
       g.dispose();cast=cast||o.castShadow}
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
-    if(tl.length)G.setAttribute('tileR',new THREE.Float32BufferAttribute(tl,4));if(cl.length)G.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));G.userData.merged=1;
+    if(tl.length)G.setAttribute('tileR',new THREE.Float32BufferAttribute(tl,4));if(cl.length)G.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));G.userData.merged=1;releaseAfterUpload(G);
     const m=new THREE.Mesh(G,key===PLAIN?vcPlainMat:key);m.castShadow=cast;m.receiveShadow=true;grp.add(m)}return grp}
 // 生成时把 scene.add 截下来，收进这个任务自己的组
 let CAP=null;const _sceneAdd=scene.add.bind(scene);scene.add=function(...o){if(CAP){CAP.push(...o);return this}return _sceneAdd(...o)};
@@ -2652,7 +2654,7 @@ function updStream(){const px=player.car?player.car.x:player.x,pz=player.car?pla
       for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0);if(T)tl.push(T.getX(i),T.getY(i),T.getZ(i),T.getW(i))}
       g.dispose();cast=cast||o.castShadow;scene.remove(o)}
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));if(tl.length)G.setAttribute('tileR',new THREE.Float32BufferAttribute(tl,4));
-    const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;scene.add(m)}})();
+    releaseAfterUpload(G);const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;scene.add(m)}})();
 // 开局分批生成出生点附近的城市，开始按钮显示进度
 let STEER='btn';try{STEER=localStorage.getItem('nby-steer')||'btn'}catch(e){}
 function setSteer(v){STEER=v;try{localStorage.setItem('nby-steer',v)}catch(e){}$('touch').dataset.steer=v;for(const b of document.querySelectorAll('#steerRow button')){b.classList.toggle('on',b.dataset.s===v);b.setAttribute('aria-checked',b.dataset.s===v)}}
@@ -3116,7 +3118,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.22.3';
+const VERSION='v0.22.4';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3282,7 +3284,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.22','生活',[['0.22.3','修复从车库开出的车（特别是皮卡）卡住不能动；室内用单独的调色，开泛光也不会太亮；房间和家具按人物比例放大；晚上更亮一些'],['0.22.2','肩膀边角加圆弧；卡通画风也换成新的连续身体（带描边）、C 形手和方块鞋'],['0.22.1','肩线拉平：上身顶部做成平的，肩膀和身体齐平，不再从肩膀斜着往脖子收'],['0.22.0','左右手掌方向修正（掌心朝身体）；每个人身高、胖瘦不同，女性胸部更明显；路人有不同性格（友善、暴躁、胆小、强硬：说话和被打后的反应不同）；新增职业路人：小贩（推车叫卖）、清洁工（扫地）、施工工人（打钻、摆路锥）、街头艺人（弹吉他、有琴盒）；可以进入建筑：主角的家（睡觉存档、吃东西、看电视、换主角，带一个能保存的车库）、海边别墅（购买后可进入）、便利店、酒吧、夜店、车库（不用买也能进去，花钱买东西；买下后免费）']]],
+ ['v0.22','生活',[['0.22.4','内存优化：城市几何体上传到显卡后释放内存里的副本，内存占用减半（约 430MB → 210MB），手机上更不容易闪退重载'],['0.22.3','修复从车库开出的车（特别是皮卡）卡住不能动；室内用单独的调色，开泛光也不会太亮；房间和家具按人物比例放大；晚上更亮一些'],['0.22.2','肩膀边角加圆弧；卡通画风也换成新的连续身体（带描边）、C 形手和方块鞋'],['0.22.1','肩线拉平：上身顶部做成平的，肩膀和身体齐平，不再从肩膀斜着往脖子收'],['0.22.0','左右手掌方向修正（掌心朝身体）；每个人身高、胖瘦不同，女性胸部更明显；路人有不同性格（友善、暴躁、胆小、强硬：说话和被打后的反应不同）；新增职业路人：小贩（推车叫卖）、清洁工（扫地）、施工工人（打钻、摆路锥）、街头艺人（弹吉他、有琴盒）；可以进入建筑：主角的家（睡觉存档、吃东西、看电视、换主角，带一个能保存的车库）、海边别墅（购买后可进入）、便利店、酒吧、夜店、车库（不用买也能进去，花钱买东西；买下后免费）']]],
  ['v0.21','人物重建',[['0.21.1','手臂调整：更粗、加圆形肩头和三角肌、肘部不再过细、前臂上粗下细；上身肩部加宽，手臂从肩角长出来'],['0.21.0','写实人物身体重做：不再用胶囊、球体拼接，改为按真人比例放样的连续低多边形网格（骨盆、上身、脖子、上臂、前臂、大腿、小腿），节与节在关节处共用一圈顶点，蒙皮权重在关节处各占一半，弯曲时自然衔接；保留原创的服装配色和图案']]],
  ['v0.20','骨骼与转向',[['0.20.8','写实人物的手改为方形手掌 + 向前弯曲的四指 + 拇指，侧面看成 C 形，手掌和手指带细节贴图；修复建筑贴图集装满后部分外墙显示错贴图（容量翻倍）'],['0.20.7','写实人物的手改成 C 形（圆环开口朝前，像能握住东西的夹子），加一小段手腕'],['0.20.6','写实人物的手和鞋改成圆角方块；手的贴图加柔和的指缝、指节高光和指甲，另加一个小拇指凸起'],['0.20.5','写实人物的手简化成一个方块，不再画出每根手指，也去掉单独的拇指'],['0.20.4','写实人物的手和鞋改成“方块 + 纹理”：手是一个方块，手指缝、指节、指甲画在贴图上（另有拇指）；鞋是一个方块，鞋底、鞋带、缝线画在贴图上'],['0.20.3','写实人物的手（手掌和手指）放大约 1.3 倍，鞋子加宽加长约 1.2~1.3 倍'],['0.20.2','写实人物细节：锁骨、肩胛骨、肘尖、膝盖骨；手加四根手指和指节；脚加脚跟和脚踝；男女体型差异拉大（男性肩更宽、胸更厚，女性腰更细胯更宽）'],['0.20.1','卡通画风也改用骨骼蒙皮（描边跟着一起弯曲）；写实人物身体轮廓更像真人：收腰、胸部前凸、臀部后凸、骨盆略宽、背部更平'],['0.20.0','写实人物改用骨骼蒙皮：身体各部件合并成一整块会随骨骼弯曲的模型，肩、肘、髋、膝处平滑弯曲，没有接缝；汽车和摩托转向时前轮会跟着转']]],
  ['v0.19','C VI',[['0.19.0','游戏改名为 C VI（C 代表 Claude），新图标；写实人物加肘、膝、髋关节过渡和斜方肌，四肢和身体衔接更自然；轿车、出租车、警车、跑车重新设计车身轮廓（引擎盖、后备厢更有层次），所有汽车车窗以上向内收、车底内收，截面更像真车']]],
