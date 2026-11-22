@@ -1470,9 +1470,13 @@ function buildBike(kind,col){const g=new THREE.Group(),B=new Bld(),Lt=new Bld(),
     B.add(rgeo(.38,.62,.1,.5),col,[0,.64,.44],[-.2,0,0]);B.add(cyl(.035,.035,.5,8),0x3a3a40,[0,.96,.54]);B.add(rgeo(.52,.06,.07,.4),col,[0,1.2,.52]);
     B.add(sph(.2,12,8,0,Math.PI*2,0,Math.PI/2),col,[0,.3,zf],[0,0,0],[.7,.6,1.2]);for(const sd of[-1,1])B.add(sph(.06,8,6),CHROME,[sd*.27,1.18,.6]);
     Lt.add(sph(.07,10,8),0xfff4d0,[0,1.12,.6]);Lt.add(rgeo(.14,.05,.04,.4),0xff2a3a,[0,.6,-.68])}
+  if(REAL){if(moto){B.add(rgeo(.17,.04,.5,.4),col,[0,wr*2+.07,zf+.02],[.15,0,0]);B.add(rgeo(.17,.04,.46,.4),col,[0,wr*2+.14,zr-.06],[-.32,0,0]);
+      for(const sd of[-1,1]){B.add(cyl(.008,.008,.22,6),0x111111,[sd*.27,1.13,.47],[0,0,sd*.35]);B.add(rgeo(.1,.065,.02,.3),0x111111,[sd*.32,1.23,.47]);B.add(cyl(.02,.02,.14,6),CHROME,[sd*.16,.36,-.2],[0,0,Math.PI/2])}
+      for(let k=0;k<4;k++)B.add(rgeo(.32,.018,.22,.2),0x4a4a52,[0,.4+k*.055,.1]);B.add(rgeo(.18,.12,.02,.2),0xf2f0e6,[0,.88,-.84],[-.3,0,0]);B.add(cyl(.085,.085,.05,14),CHROME,[0,.82,.8],[Math.PI/2,0,0])}
+    else{B.add(rgeo(.34,.03,.3,.3),0x2a2a30,[0,.93,-.62]);B.add(rgeo(.16,.1,.02,.2),0xf2f0e6,[0,.52,-.73],[-.2,0,0]);for(const sd of[-1,1])B.add(cyl(.008,.008,.2,6),0x111111,[sd*.27,1.28,.6]);B.add(rgeo(.3,.05,.5,.3),0x18181c,[0,.355,.05])}}
   g.add(B.build(vcCarMat,OL_C));g.add(Lt.build(lightVC,null));
   const WB=new Bld();WB.add(cyl(wr,wr,moto?.14:.11,22),TIRE,[0,0,0],[0,0,Math.PI/2]);WB.add(cyl(wr*.62,wr*.62,(moto?.14:.11)+.02,16),moto?0x2a2a30:0xc8ccd4,[0,0,0],[0,0,Math.PI/2]);
-  for(let k=0;k<5;k++)WB.add(rgeo(.16,.04,wr*1.1,.3),moto?0xff3d8b:0xdde2ea,[0,0,0],[k/5*Math.PI,0,0]);const wg=WB.build(vcCarMat,OL_C);
+  for(let k=0;k<5;k++)WB.add(rgeo(.16,.04,wr*1.1,.3),moto?(REAL?0x3a3a40:0xff3d8b):0xdde2ea,[0,0,0],[k/5*Math.PI,0,0]);if(REAL&&moto)for(const sd of[-1,1])WB.add(cyl(wr*.55,wr*.55,.012,20),0xb8bcc4,[sd*.085,0,0],[0,0,Math.PI/2]);const wg=WB.build(vcCarMat,OL_C);
   for(const z of[zf,zr]){const w=wg.clone();w.position.set(0,wr,z);w.userData.wheel=1;g.add(w)}
   g.userData.seat={x:0,y:moto?.95:.78,z:moto?-.24:-.3,k:.86};g.userData.halfW=.25;g.userData.doorZ=moto?-.1:-.2;g.userData.bike=1;return{g}}
 function sideShape(d,top){const s=new THREE.Shape();const t=top||d.top;s.moveTo(t[0][0],t[0][1]);for(const p of t.slice(1))s.lineTo(p[0],p[1]);
@@ -1499,7 +1503,8 @@ function carMesh(kind,col){const key=kind+col;if(!carCache[key])carCache[key]=BI
   // 警灯每辆车独立材质（各自闪烁）
   for(const s of siren)if(s)s.material=s.material.clone();
   g.scale.setScalar(CS);g.userData.wheels=wheels;return{g,siren:siren.length?siren:null}}
-function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();const B=new Bld(),Lt=new Bld();const gGlass=[];
+const _aoC=new THREE.Color();const aoCol=(c,gr)=>{const C=new THREE.Color(c);return(x,y,z)=>_aoC.copy(C).multiplyScalar(.6+.4*clamp((y-gr)/.75,0,1)).getHex()};
+function buildCar(kind,col){const BC=REAL?aoCol(col,CAR[kind].gr):col;const d=CAR[kind],W=d.W;const g=new THREE.Group();const B=new Bld(),Lt=new Bld();const gGlass=[];
   const xs=d.top.map(p=>p[0]),L0=Math.min(...xs),L1=Math.max(...xs);
   // —— 车身：车厢部分掏空（顶线在车厢处下沉到地板），外面再加两侧车门板、A/B/C 柱、车顶板和透明玻璃
   const IN=(d.retro||kind==='convertible')?0x5a3a2a:0x26222a; // 内饰颜色
@@ -1509,7 +1514,7 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
     // 车厢凹槽只挖在前后轮拱之间，避免和轮拱切口交叉（交叉会让轮廓自相交、三角化把凹槽又填实）
     const ar=d.wr+.1,nR=Math.max(uR,Math.min(...d.wheels)+ar+.08),nF=Math.min(uF,Math.max(...d.wheels)-ar-.08);
     const bodyTop=[...chaikin(sp,2),[uR,belt],[nR,belt],[nR+.06,floor],[nF-.06,floor],[nF,belt],[uF,belt],...chaikin(fp,2)];
-    B.add(extrude(sideShape(d,bodyTop),W,.16),col);
+    B.add(extrude(sideShape(d,bodyTop),W,.16),BC);
     const DLm={sedan:1.15,taxi:1.15,police:1.15,suv:1.25,wedge:1.4,coupe:1.5,pickup:1.35}[kind]||1.2,zfD=g[3][0]+.02,cut=zfD-DLm;
     const wall=(a,b2,x)=>{if(b2-a>.05)B.add(extrude(polyShape([[a,floor-.02],[b2,floor-.02],[b2,belt],[a,belt]]),.12,0),col,[x,0,0])};
     wall(uR,uF,-(W/2-.08));wall(uR,cut,W/2-.08);wall(zfD,uF,W/2-.08);
@@ -1538,7 +1543,7 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
     if(uF-uR>2.3){B.add(rgeo(W-.5,.18,.6,.35),IN,[0,seatTop-.09,uR+.5]);B.add(rgeo(W-.5,.6,.16,.35),IN,[0,seatTop+.28,uR+.16],[-.12,0,0])}
     B.add(tor(.15,.025),0x18181c,[W*.22,belt+.02,g[3][0]-.5],[-1.05,0,0]);
     const roofY=Math.max(...cab.map(q=>q[1]));seat={x:W*.22,y:seatTop,z:seatZ,k:Math.min(.86,((roofY-seatTop)*CS-.2)/1.62)}}
-  else{B.add(extrude(sideShape(d,chaikin(d.top,2)),W,.16),col);seat={x:.52,y:1.16,z:-.25,k:.86}}
+  else{B.add(extrude(sideShape(d,chaikin(d.top,2)),W,.16),BC);seat={x:.52,y:1.16,z:-.25,k:.86}}
   const beltY=d.top.find(p=>p[0]>0&&p[1]<d.top[4][1])?.[1]??1;
   const front=L1,rear=L0,mid=(d.gr+beltY)/2;
   // —— 车型细节
@@ -1586,6 +1591,25 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
   else for(const sd of[-1,1])Lt.add(rgeo(.55,.1,.05,.3),0xfff4d0,[sd*(W/2-.42),hy,front+.03]);
   for(const sd of[-1,1])Lt.add(rgeo(.5,.16,.05,.3),0xff2a3a,[sd*(W/2-.4),kind==='pickup'?1.55:mid+.12,rear-.03]);
   if(kind==='taxi'){const tx=new THREE.Mesh(new THREE.BoxGeometry(1,.34,.42),[taxiSign(),taxiSign(),M(0xffd21f),M(0xffd21f),taxiSign(),taxiSign()]);tx.position.set(0,1.85,-.15);g.add(tx)}
+  if(REAL){ // —— 写实细节：门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、转向灯/倒车灯、挡泥板
+    const gl=d.glass,DK=0x0c0c0e,Wh=W/2,dark=kind==='police'||kind==='suv';
+    if(gl){const zf=gl[3][0]+.02,DLm={sedan:1.15,taxi:1.15,police:1.15,suv:1.25,wedge:1.4,coupe:1.5,pickup:1.35}[kind]||1.2,y0=d.gr+.12,y1=Math.min(gl[0][1],gl[3][1])-.02,four=['sedan','taxi','police','suv'].includes(kind);
+      for(const sd of[-1,1])for(const u of four?[zf,zf-DLm,zf-DLm*2+.12]:[zf,zf-DLm])if(u>rear+.4)B.add(rgeo(.014,y1-y0,.03,.1),DK,[sd*(Wh+.01),(y0+y1)/2,u]);
+      if(kind!=='bus'){const poly=[...gl,gl[0]];for(let k=0;k<gl.length;k++){const p=poly[k],q=poly[k+1],du=q[0]-p[0],dy=q[1]-p[1],Ln=Math.hypot(du,dy);if(Ln<.05)continue;
+        for(const sd of[-1,1])B.add(rgeo(.035,.04,Ln+.04,.2),dark?0x111114:CHROME,[sd*(Wh-.03),(p[1]+q[1])/2,(p[0]+q[0])/2],[-Math.atan2(dy,du),0,0])}}
+      for(const sd of[-1,1])B.add(rgeo(.55,.025,.035,.3),DK,[sd*.32,gl[3][1]+.05,gl[3][0]+.1],[0,sd*.15,0]);
+      const ry=Math.max(gl[1][1],gl[2][1])+.07;if(kind!=='bus')for(const sd of[-1,1])B.add(rgeo(.03,.03,Math.max(.2,gl[2][0]-gl[1][0]+.1),.2),dark?0x111114:CHROME,[sd*(Wh-.1),ry,(gl[1][0]+gl[2][0])/2])}
+    B.add(rgeo(.44,.2,.02,.2),0xf2f0e6,[0,d.gr+.28,front+.14]);B.add(rgeo(.3,.05,.025,.2),0x2a3a6a,[0,d.gr+.33,front+.15]);
+    B.add(cyl(.045,.05,.32,10),CHROME,[Wh*.55,d.gr+.03,rear-.06],[Math.PI/2,0,0]);
+    for(const sd of[-1,1]){Lt.add(rgeo(.02,.06,.16,.3),0xffa020,[sd*(Wh+.012),mid+.05,front-.38]);Lt.add(rgeo(.02,.06,.16,.3),0xff2a3a,[sd*(Wh+.012),mid+.05,rear+.38])}
+    const ty=kind==='pickup'?1.55:mid+.12;for(const sd of[-1,1]){Lt.add(rgeo(.16,.12,.05,.3),0xffa020,[sd*(Wh-.12),ty,rear-.04]);Lt.add(rgeo(.12,.08,.05,.3),0xf8f8f8,[sd*(Wh-.78),ty,rear-.04])}
+    if(!d.retro&&kind!=='convertible'&&kind!=='pickup')for(const sd of[-1,1])B.add(rgeo(.62,.16,.04,.3),dark?0x111114:CHROME,[sd*(Wh-.42),kind==='wedge'?.62:mid+.08,front+.015]);
+    {const fy=(d.top.find(p=>p[0]<rear+.7&&p[0]>rear+.1)||[0,1.05])[1];B.add(cyl(.008,.008,.9,4),0x111111,[-(Wh-.18),fy+.45,rear+.5])}
+    B.add(cyl(.07,.07,.02,12),DK,[-(Wh+.01),mid+.2,rear+.85],[0,0,Math.PI/2]);
+    if(kind==='pickup'||kind==='van'||kind==='bus')for(const u of d.wheels)if(u<0)for(const sd of[-1,1])B.add(rgeo(.05,.38,.4,.2),0x111114,[sd*(Wh-.14),d.gr+.02,u-d.wr-.16]);
+    if(kind==='bus'){B.add(rgeo(.04,1.9,1.1,.2),0x1a1a1e,[Wh+.012,1.6,2.9]);B.add(rgeo(.02,1.85,.03,.2),CHROME,[Wh+.035,1.6,2.9]);Lt.add(rgeo(1.7,.3,.04,.3),0xffb040,[0,2.72,3.97]);
+      for(let k=0;k<6;k++)for(const sd of[-1,1])B.add(rgeo(.02,.9,.05,.2),0x111114,[sd*(Wh+.012),2.05,-3.1+k*1.15])}
+    if(kind==='van'){for(const sd of[-1,1])B.add(rgeo(.014,1.75,.03,.1),DK,[sd*(Wh+.01),1.42,-.45]);B.add(rgeo(.03,1.8,.014,.1),DK,[0,1.45,rear-.01]);B.add(rgeo(.06,.06,1.3,.2),0x2a2a30,[Wh+.04,1.25,-1.2])}}
   g.add(B.build(vcCarMat,OL_C));g.add(Lt.build(lightVC,null));for(const m of gGlass)g.add(m);g.userData.seat=seat;
   { // 车门：铰链在门前缘，门板向后延伸；开门时绕 y 轴向外转
     const DL={sedan:1.15,taxi:1.15,police:1.15,suv:1.25,wedge:1.4,coupe:1.5,pickup:1.35,convertible:1.5,van:1.3,bus:1.4}[kind];
@@ -1611,6 +1635,7 @@ function buildCar(kind,col){const d=CAR[kind],W=d.W;const g=new THREE.Group();co
   if(kind==='pickup')for(let k=0;k<12;k++)WB.add(rgeo(tw+.02,.1,.14,.3),0x0c0c0e,[0,0,0],[k/12*Math.PI*2,0,0],[1,1,1]).parts.at(-1)[1].multiply(new THREE.Matrix4().makeTranslation(0,d.wr,0));
   if(REAL&&kind!=='pickup'&&kind!=='bus'&&kind!=='van'&&kind!=='police'&&kind!=='suv'){WB.add(cyl(d.wr*.78,d.wr*.78,tw+.03,20),0xf2f2ee,[0,0,0],[0,0,Math.PI/2]);WB.add(cyl(d.wr*.58,d.wr*.58,tw+.05,20),0x18181c,[0,0,0],[0,0,Math.PI/2])}
   if(REAL)WB.add(cyl(d.wr*.42,d.wr*.36,tw+.08,16),CHROME,[0,0,0],[0,0,Math.PI/2]);
+  if(REAL)for(let k=0;k<5;k++){const a=k/5*Math.PI*2;for(const sd of[-1,1])WB.add(sph(.028,6,5),0x9a9ea6,[sd*(tw/2+.05),Math.cos(a)*d.wr*.2,Math.sin(a)*d.wr*.2])}
   const wg=WB.build(vcCarMat,OL_C);
   for(const u of d.wheels)for(const sd of[-1,1]){const w=wg.clone();w.position.set(sd*(W/2-.1+(kind==='pickup'?.12:0)),d.wr,u);w.userData.wheel=1;g.add(w)}
   return{g}}
@@ -2869,7 +2894,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.16.3';
+const VERSION='v0.17.0';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3035,6 +3060,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
+ ['v0.17','载具重做',[['0.17.0','写实画风下所有载具重做细节：车身下部压暗、门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、加油口、转向灯和倒车灯、大灯镀铬框、车轮螺母；皮卡/面包车/巴士加挡泥板；巴士加折叠门、路牌灯箱、车窗立柱；面包车加侧滑门和后门缝、滑轨；摩托车加前后挡泥板、后视镜、发动机散热片、刹车盘、车牌、脚踏；踏板车加后货架、脚踏板、车牌、后视镜']]],
  ['v0.16','写实画风',[['0.16.3','走近任务时弹出选项（接活 / 对话 / 接听电话 / 接受赛车挑战），按 E 或点击按钮才开始'],['0.16.2','写实人物：脸改为椭圆、下巴收窄；脖子更粗更短；四肢按肌肉形状粗细变化（肩头、上臂、前臂、大腿、小腿肚）；持枪动作重做：手枪平时举在胸前，瞄准时双手握枪，步枪平时低位双手持、瞄准时抵肩'],['0.16.1','写实人物比例改为结实型：肩更宽、躯干更厚、四肢更粗，腿不再过长，头部比例调整'],['0.16.0','新增“写实”画风（默认），参考老式 3D 游戏“低多边形 + 写实光影”的做法，人物和车辆仍是原创设计：去掉卡通描边和色阶，改为平滑光照与高光；人物头部缩小、腿加长，身材接近真人比例，加立体鼻子和下巴，脸部画上眼窝、鼻梁、颧骨、下颌的明暗，五官缩小；衣服加褶皱；车身更方正，加白边轮胎、镀铬轮毂盖、镀铬保险杠和侧面腰线、前格栅、车身下沿裙边；整体颜色更沉稳。主页和手机设置可切回“卡通”画风']]],
  ['v0.15','画面升级',[['0.15.0','泛光、按时间调色与暗角、太阳光束、全新海面（波纹、倒影、浪花）、湿路面倒影、接触阴影、刹车灯与车头灯光晕、刹车痕与轮胎烟、车漆反光、爆炸火球与烟柱、海鸥、沙尘、路灯光柱、云影；手机设置可开关特效']]],
  ['v0.14','玩法大更新',[['0.14.2','所有载具按模型实际尺寸计算碰撞，摩托车更窄'],['0.14.1','主线金色问号、零活粉色问号（生成在人行道上）、街头事件橙色感叹号'],
