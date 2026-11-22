@@ -179,6 +179,8 @@ body.touch #prompt b{display:none}@keyframes pIn{from{opacity:0;transform:transl
 <script>
 // ===== 画风：写实（低多边形 + 写实光照和贴图，人物比例更接近真人）或 卡通（色阶着色 + 描边）=====
 const REAL=(()=>{try{return localStorage.getItem('nby-style')!=='toon'}catch(e){return true}})(),LEGX=REAL?.03:0,LIMB=REAL?1.24:1;
+// 写实：建筑配色降低饱和度、略压暗（霓虹招牌不变）
+const _dc=new THREE.Color();const dsat=c=>{if(!REAL||typeof c!=='number')return c;_dc.setHex(c);const l=_dc.r*.3+_dc.g*.55+_dc.b*.15;_dc.setRGB((_dc.r*.3+l*.7)*.88,(_dc.g*.3+l*.7)*.87,(_dc.b*.3+l*.7)*.84);return _dc.getHex()};
 if(REAL){const P=THREE.MeshPhongMaterial;THREE.MeshToonMaterial=class extends P{constructor(p={}){const q=Object.assign({},p);delete q.gradientMap;super(q);this.userData.toonish=1;this.shininess=14;this.specular.setHex(0x1a1a1a)}}}
 // ===== 基础 =====
 let R=Math.random;const rr=(a,b)=>a+R()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -299,11 +301,11 @@ function groundTex(kind){if(GT[kind])return GT[kind];const S=kind==='asphalt'?51
   const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=8;return GT[kind]=t}
 const GUNIT={asphalt:14,sidewalk:5,grass:5,sand:7,water:9,stone:6};const GM={};
 // 地面材质；带 tint 时把贴图染成那个颜色（保持原来的配色倾向）
-function groundMat(kind,tint){const k=kind+(tint||'');if(GM[k])return GM[k];const m=new THREE.MeshToonMaterial({map:groundTex(kind),gradientMap:toonGrad,color:tint||0xffffff});m.userData.unit=GUNIT[kind];return GM[k]=m}
+function groundMat(kind,tint){const k=kind+(tint||'');if(GM[k])return GM[k];const m=new THREE.MeshToonMaterial({map:groundTex(kind),gradientMap:toonGrad,color:dsat(tint||0xffffff)});m.userData.unit=GUNIT[kind];return GM[k]=m}
 // 按米平铺的平面
 function tPlane(w,d,mat){const g=new THREE.PlaneGeometry(w,d),u=mat.userData.unit||4,uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*w/u,uv.getY(i)*d/u);return new THREE.Mesh(g,mat)}
 // ShapeGeometry 的 UV 就是米坐标，单独复制一份贴图按单位缩放
-function shapeMat(kind,tint){if(kind==='grassD'){kind='grass';tint=0xc4dcc0}const k='sh'+kind+(tint||'');if(GM[k])return GM[k];const t=groundTex(kind).clone();t.needsUpdate=true;t.repeat.set(1/GUNIT[kind],1/GUNIT[kind]);return GM[k]=new THREE.MeshToonMaterial({map:t,gradientMap:toonGrad,color:tint||0xffffff})}
+function shapeMat(kind,tint){if(kind==='grassD'){kind='grass';tint=0xc4dcc0}const k='sh'+kind+(tint||'');if(GM[k])return GM[k];const t=groundTex(kind).clone();t.needsUpdate=true;t.repeat.set(1/GUNIT[kind],1/GUNIT[kind]);return GM[k]=new THREE.MeshToonMaterial({map:t,gradientMap:toonGrad,color:dsat(tint||0xffffff)})}
 const flat=(sh,col,y)=>{const m=new THREE.Mesh(new THREE.ShapeGeometry(sh,2),typeof col==='string'?shapeMat(col):M(col));m.rotation.x=-Math.PI/2;m.position.y=y;m.receiveShadow=true;scene.add(m);return m};
 const shallowSea=flat(islandShape(-6),'water',-.35); // 浅水
 flat(islandShape(0),'sand',0);       // 沙滩
@@ -432,8 +434,12 @@ const hexOf=c=>'#'+new THREE.Color(c).getHexString();
 const ATL=(()=>{const cw=512*TEXQ|0,ch=320*TEXQ|0,cols=8,rows=6,c=document.createElement('canvas'),e=document.createElement('canvas');c.width=cols*cw;c.height=rows*ch;e.width=c.width/2;e.height=c.height/2;
   const eg=e.getContext('2d');eg.fillStyle='#000';eg.fillRect(0,0,e.width,e.height);const tex=new THREE.CanvasTexture(c),etex=new THREE.CanvasTexture(e);tex.anisotropy=8;etex.anisotropy=4;
   return{cw,ch,cols,rows,c,e,g:c.getContext('2d'),eg,n:0,tex,etex}})();
+function grime(g,x,y,w,h,seed){const r=mulberry(seed*97+13);g.save();g.beginPath();g.rect(x,y,w,h);g.clip();
+  const gr=g.createLinearGradient(0,y,0,y+h);gr.addColorStop(0,'rgba(40,32,28,0)');gr.addColorStop(.7,'rgba(40,32,28,.07)');gr.addColorStop(1,'rgba(40,32,28,.24)');g.fillStyle=gr;g.fillRect(x,y,w,h);
+  for(let i=0;i<16;i++){const sx=x+r()*w,sw=2+r()*8,sy=y+r()*h*.6,sl=h*(.2+r()*.5),st=g.createLinearGradient(0,sy,0,sy+sl);st.addColorStop(0,'rgba(30,26,22,.17)');st.addColorStop(1,'rgba(30,26,22,0)');g.fillStyle=st;g.fillRect(sx,sy,sw,sl)}
+  for(let i=0;i<260;i++){g.fillStyle=`rgba(${r()<.5?'255,255,255':'20,16,12'},${r()*.06})`;g.fillRect(x+r()*w,y+r()*h,1+r()*3,1+r()*3)}g.restore()}
 function atlasAdd(cv,em){let k=ATL.n++;if(k>=ATL.cols*ATL.rows){console.warn('atlas full');k=ATL.cols*ATL.rows-1}
-  const x=(k%ATL.cols)*ATL.cw,y=((k/ATL.cols)|0)*ATL.ch,W=ATL.c.width,H=ATL.c.height,pad=2;ATL.g.drawImage(cv,x,y,ATL.cw,ATL.ch);if(em)ATL.eg.drawImage(em,x/2,y/2,ATL.cw/2,ATL.ch/2);
+  const x=(k%ATL.cols)*ATL.cw,y=((k/ATL.cols)|0)*ATL.ch,W=ATL.c.width,H=ATL.c.height,pad=2;ATL.g.drawImage(cv,x,y,ATL.cw,ATL.ch);if(REAL)grime(ATL.g,x,y,ATL.cw,ATL.ch,k);if(em)ATL.eg.drawImage(em,x/2,y/2,ATL.cw/2,ATL.ch/2);
   ATL.tex.needsUpdate=true;ATL.etex.needsUpdate=true;return{atlas:1,rect:[(x+pad)/W,1-(y+ATL.ch-pad)/H,(ATL.cw-2*pad)/W,(ATL.ch-2*pad)/H]}}
 // 共用材质：UV 仍按米平铺，着色器里用 fract 把它折回贴图集里对应的那一格（用原始 UV 的导数选 mip，避免接缝）
 const ATLAS_MAT=new THREE.MeshToonMaterial({map:ATL.tex,emissiveMap:ATL.etex,emissive:0xffffff,emissiveIntensity:.15,gradientMap:toonGrad});
@@ -549,6 +555,16 @@ const FAC_COLS={hotel:[0xffc8d6,0xbfeee6,0xfff0c2,0xd8c8ff],apart:[0xf4ead8,0xff
 {for(const st in FAC_COLS)for(const c of FAC_COLS[st])facadeMat(st,c);for(const c of FAC_OFFICE)facadeMat('office',c);facadeMat('clinic',0xf4f6f8);facadeMat('clinic',0xdff4f6);
  for(let v=0;v<4;v++)shopMat(v);for(const w of[0xfff1e0,0xffd6e0,0xcff5ee,0xfff3b0,0xe0d6ff,0xffe0c8])for(const k of['siding','stucco'])surfMat(k,w);
  for(const r of[0x5a4a48,0x4a5868,0x6a5a4a])surfMat('shingle',r);surfMat('tile',0xb5583a);surfMat('stucco',0xfbf8f2)}
+if(REAL){for(const a of[pal,trimPal,FAC_OFFICE,...Object.values(FAC_COLS)])for(let i=0;i<a.length;i++)a[i]=dsat(a[i])}
+function roofJunk(ox,oz,w,d,y){if(!REAL)return;const n=2+((R()*3)|0);
+  for(let k=0;k<n;k++){const ax=ox+rr(-w*.33,w*.33),az=oz+rr(-d*.33,d*.33),u=box(2.2,1.3,1.6,0x9a9ca2);u.position.set(ax,y+.65,az);scene.add(u);const f=new THREE.Mesh(cylG(.55,.55,.12,12),M(0x3a3c42));f.position.set(ax,y+1.36,az);scene.add(f)}
+  if(R()<.55&&w>=16){const tx=ox+rr(-w*.22,w*.22),tz=oz+rr(-d*.22,d*.22),t=new THREE.Mesh(cylG(1.6,1.6,3,14),M(0x7a5a3e));t.position.set(tx,y+3.6,tz);scene.add(t);
+    const c=new THREE.Mesh(new THREE.ConeGeometry(1.75,1,14),M(0x5a4030));c.position.set(tx,y+5.6,tz);scene.add(c);for(const[a,b]of[[1,1],[1,-1],[-1,1],[-1,-1]]){const l=box(.2,2.1,.2,0x4a4a50);l.position.set(tx+a*1.1,y+1.05,tz+b*1.1);scene.add(l)}}
+  if(R()<.6){const a=new THREE.Mesh(cylG(.05,.05,4,5),M(0x2a2a2e));a.position.set(ox+rr(-w*.3,w*.3),y+2,oz+rr(-d*.3,d*.3));scene.add(a)}
+  for(let k=0;k<2;k++){const v=new THREE.Mesh(cylG(.25,.25,1.2,8),M(0x8a8c92));v.position.set(ox+rr(-w*.4,w*.4),y+.6,oz+rr(-d*.4,d*.4));scene.add(v)}}
+function fireEscape(x,oz,d,h,side){if(!REAL)return;const fx=x+side*.9,L=d*.32,DK=0x2a2a2e;
+  for(let y=8.5;y<h-1;y+=5){const pl=box(1.6,.15,L,DK);pl.position.set(fx,y-1.3,oz);scene.add(pl);const rl=box(.08,.9,L,DK);rl.position.set(fx+side*.78,y-.85,oz);scene.add(rl);
+    if(y>9){const sl=Math.hypot(5,L*.8),st=box(.6,.1,sl,DK);st.position.set(fx,y-3.8,oz);st.rotation.x=Math.atan2(5,L*.8);scene.add(st)}}}
 function addBuilding(ox,oz,w,h){const d=w,col=pal[(R()*pal.length)|0],trim=trimPal[(R()*trimPal.length)|0],sx=R()<.5?1:-1,sz=R()<.5?1:-1;
   storefront(ox,oz,w,d,col,trim);
   if(h>=28){ // —— 高楼：三段收分 + 转角竖鳍 + 楼顶尖塔
@@ -559,13 +575,13 @@ function addBuilding(ox,oz,w,h){const d=w,col=pal[(R()*pal.length)|0],trim=trimP
       for(const[cx2,cz2]of[[1,1],[1,-1],[-1,1],[-1,-1]]){const fin=box(.7,ty-y0+2,.7,trim);fin.position.set(ox+cx2*tw/2,(y0+ty)/2+1,oz+cz2*tw/2);scene.add(fin)}
       y0=ty}
     const sp=new THREE.Mesh(new THREE.CylinderGeometry(.15,.6,10,8),M(0xdde2ea));sp.position.set(ox,h+5,oz);scene.add(sp);
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(2.2,.25,6,20),new THREE.MeshBasicMaterial({color:neon[(R()*neon.length)|0]}));ring.rotation.x=Math.PI/2;ring.position.set(ox,h+2.5,oz);scene.add(ring);
+    if(REAL){const rl=new THREE.Mesh(sph(.35,8,6),new THREE.MeshBasicMaterial({color:0xff2a2a}));rl.position.set(ox,h+10.2,oz);scene.add(rl);roofJunk(ox,oz,w*.55,w*.55,h)}else{const ring=new THREE.Mesh(new THREE.TorusGeometry(2.2,.25,6,20),new THREE.MeshBasicMaterial({color:neon[(R()*neon.length)|0]}));ring.rotation.x=Math.PI/2;ring.position.set(ox,h+2.5,oz);scene.add(ring)}
     // 正面一列阳台（下段）
     for(let y=8.5;y<h*.58-3;y+=5){const sl=box(w*.36,.25,1.6,0xffffff);sl.position.set(ox,y-1.2,oz+sz*(d/2+.8));scene.add(sl);const rl=box(w*.36,.9,.12,trim);rl.position.set(ox,y-.6,oz+sz*(d/2+1.55));scene.add(rl)}
     return}
   // —— 中低层：主体 + 圆角转角塔 + 眉檐窗带 + 竖向装饰鳍 + 阶梯楼顶
   const fst=FAC_STYLES[(R()*FAC_STYLES.length)|0],fcol=FAC_COLS[fst][(R()*FAC_COLS[fst].length)|0];const bd=facadeBox(w,h-6,d,fst,fcol);bd.position.set(ox,(h+6)/2,oz);scene.add(bd);
-  const par=box(w+.5,1,d+.5,trim);par.position.set(ox,h+.5,oz);scene.add(par);
+  const par=box(w+.5,1,d+.5,trim);par.position.set(ox,h+.5,oz);scene.add(par);roofJunk(ox,oz,w,d,h+1);if(fst==='brick'||fst==='brickTan')fireEscape(ox-sx*(w/2),oz,d,h,-sx);
   if(w>=24){ // 圆角转角塔（朝向路口的一角）
     const r=w*.2,tx=ox+sx*(w/2-r*.55),tz=oz+sz*(d/2-r*.55),th=h+3;
     const tw=facadeCyl(r,th-6,fst==='brick'||fst==='brickTan'?'hotel':fst,fst==='brick'||fst==='brickTan'?FAC_COLS.hotel[0]:fcol);tw.position.set(tx,(th+6)/2,tz);scene.add(tw);
@@ -638,7 +654,7 @@ for(let i=1;i<NX;i++)for(let j=1;j<NZ;j++)if(nodeOK(i,j)&&!deg(i,j)&&blockOK(i-1
 for(const[x,z,w,d]of brokenStrips){const n=Math.max(1,Math.round(Math.max(w,d)/22));for(let k=0;k<n;k++){const t=(k+.5)/n-.5;palm(x+(w>d?t*w:0),z+(w>d?0:t*d))}}
 // 平房：按人物比例建（人≈2.9 单位≈1.8 米）。粉彩外墙、坡屋顶、门廊、窗户、烟囱、白色栅栏和草坪；face=±1 朝向街道
 function addHouse(x,z,face,lw=BLK/2,ld=BLK/2){const w=Math.min(rr(17,22),lw-8),d=Math.min(rr(13,16),ld-14),hh=rr(5.4,6.2),rise=3.2;
-  const wall=[0xfff1e0,0xffd6e0,0xcff5ee,0xfff3b0,0xe0d6ff,0xffe0c8][(R()*6)|0],roof=[0xc8553d,0x2f8f9d,0x8a5cff,0x6a4a3a,0xd96a8a][(R()*5)|0];
+  const wall=dsat([0xfff1e0,0xffd6e0,0xcff5ee,0xfff3b0,0xe0d6ff,0xffe0c8][(R()*6)|0]),roof=dsat([0xc8553d,0x2f8f9d,0x8a5cff,0x6a4a3a,0xd96a8a][(R()*5)|0]);
   const yard=tPlane(lw-2,ld-2,groundMat('grass',0xe8ffe0));yard.rotation.x=-Math.PI/2;yard.position.set(x,.09,z);yard.receiveShadow=true;scene.add(yard);
   const hz=z-face*2.5;
   const wk=R()<.5?'siding':'stucco',rk=R()<.5?'shingle':'tile',rcol=rk==='tile'?0xb5583a:[0x5a4a48,0x4a5868,0x6a5a4a][(R()*3)|0];
@@ -2878,7 +2894,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.17.0';
+const VERSION='v0.18.0';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3044,6 +3060,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
+ ['v0.18','建筑写实化',[['0.18.0','写实画风下建筑重做：外墙、房屋和地面（人行道、广场）配色降低饱和度、更沉稳；所有外墙贴图加污渍、雨水痕和墙脚发黑；楼顶加空调外机、水箱、天线、通风管；砖楼加消防梯；高楼顶部的霓虹环换成天线红灯']]],
  ['v0.17','载具重做',[['0.17.0','写实画风下所有载具重做细节：车身下部压暗、门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、加油口、转向灯和倒车灯、大灯镀铬框、车轮螺母；皮卡/面包车/巴士加挡泥板；巴士加折叠门、路牌灯箱、车窗立柱；面包车加侧滑门和后门缝、滑轨；摩托车加前后挡泥板、后视镜、发动机散热片、刹车盘、车牌、脚踏；踏板车加后货架、脚踏板、车牌、后视镜']]],
  ['v0.16','写实画风',[['0.16.3','走近任务时弹出选项（接活 / 对话 / 接听电话 / 接受赛车挑战），按 E 或点击按钮才开始'],['0.16.2','写实人物：脸改为椭圆、下巴收窄；脖子更粗更短；四肢按肌肉形状粗细变化（肩头、上臂、前臂、大腿、小腿肚）；持枪动作重做：手枪平时举在胸前，瞄准时双手握枪，步枪平时低位双手持、瞄准时抵肩'],['0.16.1','写实人物比例改为结实型：肩更宽、躯干更厚、四肢更粗，腿不再过长，头部比例调整'],['0.16.0','新增“写实”画风（默认），参考老式 3D 游戏“低多边形 + 写实光影”的做法，人物和车辆仍是原创设计：去掉卡通描边和色阶，改为平滑光照与高光；人物头部缩小、腿加长，身材接近真人比例，加立体鼻子和下巴，脸部画上眼窝、鼻梁、颧骨、下颌的明暗，五官缩小；衣服加褶皱；车身更方正，加白边轮胎、镀铬轮毂盖、镀铬保险杠和侧面腰线、前格栅、车身下沿裙边；整体颜色更沉稳。主页和手机设置可切回“卡通”画风']]],
  ['v0.15','画面升级',[['0.15.0','泛光、按时间调色与暗角、太阳光束、全新海面（波纹、倒影、浪花）、湿路面倒影、接触阴影、刹车灯与车头灯光晕、刹车痕与轮胎烟、车漆反光、爆炸火球与烟柱、海鸥、沙尘、路灯光柱、云影；手机设置可开关特效']]],
