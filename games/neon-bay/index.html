@@ -71,6 +71,7 @@ canvas{display:block}
 .qrow{display:flex;gap:6px;align-items:center;pointer-events:auto;font-size:13px;color:#fff}.qrow button{padding:5px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,.4);background:rgba(20,8,40,.6);color:#fff;font:600 13px Rubik,system-ui,sans-serif;cursor:pointer}
 .qrow button.on{background:var(--hot);border-color:var(--hot)}.qrow button:focus-visible{outline:2px solid #fff}
 #start:disabled{opacity:.75;cursor:wait}
+#clock{font:700 13px/1 Rubik,system-ui,sans-serif;color:#fff;background:rgba(10,8,24,.6);padding:4px 9px;border-radius:999px;font-variant-numeric:tabular-nums}
 #hurt{position:absolute;inset:0;background:radial-gradient(transparent 40%,rgba(255,0,40,.8));opacity:0;transition:opacity .15s;pointer-events:none}
 #newGame{pointer-events:auto;background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;cursor:pointer;opacity:.85}
 #cut{position:absolute;inset:0;pointer-events:none}
@@ -97,7 +98,7 @@ canvas{display:block}
 </div>
 <div id="hud">
   <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div></div>
-  <div class="tr"><div id="stars"></div><button id="wpn" aria-label="切换武器"><span id="wpnIcon"></span><span id="wpnName">拳头</span><span id="wpnDots"></span></button><div id="speed"></div></div>
+  <div class="tr"><div id="stars"></div><div id="clock"></div><button id="wpn" aria-label="切换武器"><span id="wpnIcon"></span><span id="wpnName">拳头</span><span id="wpnDots"></span></button><div id="speed"></div></div>
   <canvas id="mini" width="300" height="300" role="button" aria-label="打开完整地图" tabindex="0"></canvas>
   <div id="hurt"></div><div id="cut" hidden><i class="bar t"></i><i class="bar b"></i><div id="cutTxt"></div><div id="cutSub"></div></div><div id="fade"></div><div id="xh" hidden></div><div id="topmsg"></div><div id="toast"></div><div id="hint"></div>
 </div>
@@ -163,12 +164,17 @@ const bc=b=>bcen(b[0],b[1]);const LOT=bc(LB);
 const SPN=(()=>{let best=null;for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++)if(nodeOK(i,j)&&degAll(i,j)>0){const v=rx(i)*2+Math.abs(rz(j));if(!best||v<best.v)best={v,x:rx(i),z:rz(j)}}return best})();
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x2b1b4a);scene.fog=new THREE.Fog(0xc8607a,110,440);
-// 日落天空：顶部青蓝 → 粉紫 → 地平线橙
-const sky=new THREE.Mesh(new THREE.SphereGeometry(800,24,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
+// 天空：顶部 / 中段 / 地平线三段渐变 + 太阳 + 夜晚的星星和月亮（颜色由昼夜循环每帧更新）
+const SKYU={uSun:{value:new THREE.Vector3(.9,.06,-.3).normalize()},uTop:{value:new THREE.Color()},uMid:{value:new THREE.Color()},uHor:{value:new THREE.Color()},uNight:{value:0},uSunI:{value:1}};
+const sky=new THREE.Mesh(new THREE.SphereGeometry(800,32,20),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,uniforms:SKYU,
   vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`varying vec3 vP;void main(){float h=vP.y;vec3 top=vec3(.05,.33,.40),mid=vec3(.86,.27,.52),hor=vec3(1.,.58,.25);
-   vec3 c=h>.18?mix(mid,top,smoothstep(.18,.6,h)):mix(hor,mid,smoothstep(-.02,.18,h));
-   float sd=distance(vP,normalize(vec3(.9,.06,-.3)));c+=vec3(1.,.8,.4)*smoothstep(.07,.05,sd)+vec3(1.,.5,.3)*.35*smoothstep(.5,.0,sd);gl_FragColor=vec4(c,1.);}`}));
+  fragmentShader:`uniform vec3 uSun,uTop,uMid,uHor;uniform float uNight,uSunI;varying vec3 vP;
+   float hash(vec3 p){p=fract(p*.3183+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+   void main(){float h=vP.y;vec3 c=h>.18?mix(uMid,uTop,smoothstep(.18,.6,h)):mix(uHor,uMid,smoothstep(-.02,.18,h));
+   float sd=distance(vP,uSun);c+=uSunI*(vec3(1.,.85,.5)*smoothstep(.07,.05,sd)+vec3(1.,.55,.3)*.35*smoothstep(.5,.0,sd));
+   vec3 g=floor(vP*180.);float st=step(.997,hash(g))*smoothstep(.05,.3,h);c+=vec3(st)*uNight*(.6+.4*hash(g+3.));
+   float md=distance(vP,-uSun);c+=uNight*(vec3(.95,.95,1.)*smoothstep(.045,.035,md)+vec3(.4,.45,.7)*.25*smoothstep(.35,.0,md));
+   gl_FragColor=vec4(c,1.);}`}));
 sky.renderOrder=-1;scene.add(sky);
 const cam=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.5,3200);
 const ren=new THREE.WebGLRenderer({antialias:true});
@@ -179,7 +185,7 @@ let Q=QUALITY[QK];
 ren.setPixelRatio(Math.min(devicePixelRatio,Q.pr));ren.setSize(innerWidth,innerHeight);
 ren.shadowMap.enabled=true;document.body.prepend(ren.domElement);
 addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
-scene.add(new THREE.HemisphereLight(0xb7a2ff,0x4a2450,.85));
+const hemi=new THREE.HemisphereLight(0xb7a2ff,0x4a2450,.85);scene.add(hemi);
 const sun=new THREE.DirectionalLight(0xffa86b,1.05);sun.position.set(200,90,-60);sun.castShadow=true;
 Object.assign(sun.shadow.camera,{left:-110,right:110,top:110,bottom:-110,far:500});sun.shadow.mapSize.set(Q.shadow||512,Q.shadow||512);ren.shadowMap.enabled=Q.shadow>0;
 function applyQuality(k){QK=k;Q=QUALITY[k];try{localStorage.setItem('nby-quality',k)}catch(e){}ren.setPixelRatio(Math.min(devicePixelRatio,Q.pr));ren.setSize(innerWidth,innerHeight);
@@ -1318,6 +1324,28 @@ function updParking(dt){if((parkT-=dt)>0)return;parkT=.5;const px=player.x,pz=pl
 const LSTATE={a:'g',b:'r'};
 function updLights(){const t=(performance.now()/1000)%12,set=(g,on)=>{LSTATE[g]=['r','y','g'][on];const cs=[0xff2a3a,0xffd21f,0x5cff7a];TL[g].forEach((m,k)=>m.color.setHex(k===on?cs[k]:0x2a1a1a))};
   set('a',t<5?2:t<6?1:0);set('b',t<6?0:t<11?2:1)}
+// ===== 昼夜循环：一整天约 10 分钟，从傍晚 18:00 开始 =====
+let gameHour=18,DAY_SPEED=24/600;
+const SUN_E=new THREE.Vector3(.95,0,-.32).normalize(),UP=new THREE.Vector3(0,1,0),SUN_DIR=new THREE.Vector3();
+const PAL={night:[0x050818,0x111a3c,0x2a2152],dusk:[0x0d5466,0xdb4585,0xff9440],day:[0x2a86d6,0x7cc6f2,0xd8eeff]};
+const _ca=new THREE.Color(),_cb=new THREE.Color();
+const mixHex=(a,b,t,out)=>out.set(a).lerp(_cb.set(b),t);
+const WIN_BASE=[[winWarm,0xffc27a],[winCool,0x7fe0ff],[winDark,0x2a2350],[lampMat,0xfff0b0]];
+function updDayNight(dt){gameHour=(gameHour+dt*DAY_SPEED)%24;const ph=(gameHour-6)/24*Math.PI*2,e=Math.sin(ph);
+  SUN_DIR.copy(SUN_E).multiplyScalar(-Math.cos(ph)).addScaledVector(UP,e).normalize();SKYU.uSun.value.copy(SUN_DIR);
+  // 天空三段颜色：白天 ↔ 黄昏 ↔ 夜晚
+  const toDay=Math.min(1,Math.max(0,(e-.04)/.36)),toNight=Math.min(1,Math.max(0,(-e-.02)/.18));
+  ['uTop','uMid','uHor'].forEach((k,i)=>{const col=SKYU[k].value;mixHex(PAL.dusk[i],PAL.day[i],toDay,col);if(toNight>0)col.lerp(_ca.set(PAL.night[i]),toNight)});
+  SKYU.uNight.value=toNight;SKYU.uSunI.value=Math.max(0,Math.min(1,(e+.08)/.12));
+  scene.fog.color.copy(SKYU.uHor.value).lerp(SKYU.uMid.value,.35);scene.background.copy(SKYU.uMid.value);
+  // 太阳 / 月光：白天暖白，黄昏橙，夜里换成偏蓝的月光
+  if(e>-.05){sun.color.set(0xffa86b).lerp(_ca.set(0xfff4e0),toDay);sun.intensity=.35+.5*Math.min(1,(e+.05)/.3)}
+  else{sun.color.set(0x8090d0);sun.intensity=.35}
+  hemi.color.set(0xb7a2ff).lerp(_ca.set(0xdfeaff),toDay).lerp(_ca.set(0x5a6aaa),toNight);hemi.intensity=.85-.05*toDay-.4*toNight;
+  // 窗户、路灯：白天暗、夜里亮；远山贴图跟着变暗
+  const glow=.55+.45*toNight+.15*(1-toDay)*(1-toNight);for(const[m,c]of WIN_BASE)m.color.set(c).multiplyScalar(m===winDark?1:glow);
+  mtnPano.material.color.setRGB(1,1,1).lerp(_ca.set(0x2a3466),toNight*.8);
+  $('clock').textContent=String(Math.floor(gameHour)).padStart(2,'0')+':'+String(Math.floor(gameHour%1*60)).padStart(2,'0')+(toNight>.5?' 🌙':e>.25?' ☀':' 🌇')}
 // 长椅
 let _noPair=false;const benches=[];
 function addBench(x,z,rot){if(guard('bench',x,z,1))return;const B=new Bld();B.add(rgeo(1.8,.1,.5,.3),0xb07a4a,[0,.75,0]);B.add(rgeo(1.8,.5,.08,.3),0xb07a4a,[0,1.1,-.24],[-.15,0,0]);
@@ -1666,7 +1694,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   for(const k of[...cash]){k.m.rotation.y+=dt*3;if(Math.hypot(k.x-player.x,k.z-player.z)<3){player.money+=k.v;beep(1200,.08,'sine',.08);scene.remove(k.m);cash.splice(cash.indexOf(k),1)}}
   for(const f of[...fxs]){f.t+=dt;if(f.smoke){f.m.position.y+=dt*3;f.m.material.opacity=.6-f.t*.4}else{f.m.scale.setScalar(1+f.t*2);f.m.material.opacity=.9-f.t}if(f.t>1.4){scene.remove(f.m);f.m.geometry.dispose();f.m.material.dispose();fxs.splice(fxs.indexOf(f),1)}}
   for(const t of[...tracers])if((t.t-=dt)<0){scene.remove(t.l);t.l.geometry.dispose();t.l.material.dispose();tracers.splice(tracers.indexOf(t),1)}
-  updStream();syncDrivers();updLights();updWanted(dt);updMission(dt);updAudio(dt,ax,ay);updBubbles(dt);
+  updStream();syncDrivers();updLights();updDayNight(dt);updWanted(dt);updMission(dt);updAudio(dt,ax,ay);updBubbles(dt);
   if(player.hp<=0&&!cut)startCut('dead');else if(!player.car&&player.wanted===0)player.hp=Math.min(100,player.hp+dt*2);
   // 逮捕判定：有通缉时，警员贴身（步行时 2 米内且没在跑）或你的车停下、警员在 6 米内，持续一会儿就被捕
   if(!cut&&player.wanted>0){let near=false;for(const q of peds)if(q.cop&&!q.dead&&!(q.knock>0)){const d=Math.hypot(q.x-player.x,q.z-player.z);
@@ -1688,7 +1716,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   if(aimC)camLook.set(player.x+Math.sin(camYaw)*12-Math.cos(camYaw)*sh,2.3,player.z+Math.cos(camYaw)*12+Math.sin(camYaw)*sh);else camLook.set(player.x,player.car?1.5:2,player.z);
   if(!cut){sky.position.copy(cam.position);cam.lookAt(camLook)}
   $('xh').hidden=!aimC;$('xh').classList.toggle('lock',!!(aimC&&aimLock));
-  sun.position.set(player.x-120,180,player.z+80);sun.target.position.set(player.x,0,player.z);
+  {const L=SUN_DIR.y>-.05?SUN_DIR.clone():SUN_DIR.clone().negate();const d=L.y<.15?L.setY(.15).normalize():L;sun.position.set(player.x+d.x*220,d.y*220,player.z+d.z*220);sun.target.position.set(player.x,0,player.z)}
   hud(dt);ren.render(scene,cam)}
 let camYaw=0,camPitch=0,camHold=0;
 // 拖动屏幕旋转视角：手指在空白处拖（不影响摇杆和按钮），电脑按住鼠标左键拖
@@ -1749,7 +1777,7 @@ function updStream(){const px=player.car?player.car.x:player.x,pz=player.car?pla
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
     const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;scene.add(m)}})();
 // 开局分批生成出生点附近的城市，开始按钮显示进度
-let cityReady=false;
+let cityReady=false;updDayNight(0);
 (function bootCity(){const st=$('start'),label=st.textContent;st.disabled=true;
   const todo=JOBS.filter(j=>Math.hypot(j.x-SPN.x,j.z-SPN.z)-j.r<Math.min(LOAD_R,300)).sort((a,b)=>Math.hypot(a.x-SPN.x,a.z-SPN.z)-Math.hypot(b.x-SPN.x,b.z-SPN.z));let k=0;
   (function step(){const t0=performance.now();while(k<todo.length&&performance.now()-t0<40)buildJob(todo[k++]);
@@ -1763,11 +1791,11 @@ for(const[id,k]of[['pickF','heroF'],['pickM','heroM']])$(id).addEventListener('c
   for(const b of document.querySelectorAll('.hero')){const on=b.id===id;b.classList.toggle('on',on);b.setAttribute('aria-checked',on)}});
 // ===== 存档：每 5 秒、切到后台时自动保存（钱、主角、武器、位置、是否通关），页面刷新后可以接着玩 =====
 const SAVE_KEY='neonbay-save-v1';
-function snapshotState(){return{money:player.money,hero:heroLook,w:wIdx,won,finished,x:player.car?player.car.x:player.x,z:player.car?player.car.z:player.z}}
+function snapshotState(){return{hour:gameHour,money:player.money,hero:heroLook,w:wIdx,won,finished,x:player.car?player.car.x:player.x,z:player.car?player.car.z:player.z}}
 function saveGame(){if(!running)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshotState()))}catch(e){}}
 function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'null')}catch(e){return null}}
 function pickHeroUI(k){setHero(k);for(const b of document.querySelectorAll('.hero')){const on=b.id===(k==='heroM'?'pickM':'pickF');b.classList.toggle('on',on);b.setAttribute('aria-checked',on)}}
-function applyState(st){if(!st)return;if(Number.isFinite(st.x))ensureAround(st.x,st.z);player.money=st.money|0;won=!!st.won;finished=!!st.finished;if(st.hero)pickHeroUI(st.hero);
+function applyState(st){if(!st)return;if(Number.isFinite(st.hour))gameHour=st.hour;if(Number.isFinite(st.x))ensureAround(st.x,st.z);player.money=st.money|0;won=!!st.won;finished=!!st.finished;if(st.hero)pickHeroUI(st.hero);
   if(Number.isFinite(st.x)&&onIsland(st.x,st.z,8)&&!hit(st.x,st.z,1)){player.x=st.x;player.z=st.z}setWeapon(st.w|0)}
 function beginPlay(msg){$('title').hidden=true;running=true;last=performance.now();if(ac)ac.resume&&ac.resume();toast(msg)}
 setInterval(saveGame,5000);addEventListener('visibilitychange',()=>{if(document.hidden)saveGame()});addEventListener('pagehide',saveGame);
