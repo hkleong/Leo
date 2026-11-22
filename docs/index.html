@@ -1617,6 +1617,25 @@ function updHeli(dt){if(player.wanted>=4&&!heli){heli=makeHeli();toast('警用�
   heli.cone.visible=heli.spot.visible=player.wanted>=3;
   const f=((performance.now()/150)|0)%2;heli.siren[0].visible=!!f;heli.siren[1].visible=!f;
   return player.wanted>=3&&Math.hypot(gx-player.x,gz-player.z)<9}
+// ===== 载具碰撞体积：按模型实际尺寸算成"胶囊"（两端半圆的长条），摩托很窄、巴士很长 =====
+const DIM={};
+function carDim(c){let d=DIM[c.kind];if(!d){const m=c.mesh,ry=m.rotation.y,rz=m.rotation.z,p=m.position.clone();m.rotation.set(0,0,0);m.position.set(0,0,0);m.updateMatrixWorld(true);
+    const b=new THREE.Box3();m.traverse(o=>{if(o.isMesh&&o.geometry&&!o.material.transparent){if(!o.geometry.boundingBox)o.geometry.computeBoundingBox();b.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld))}});
+    m.rotation.set(0,ry,rz);m.position.copy(p);m.updateMatrixWorld(true);
+    const bike=!!m.userData.bike;d=DIM[c.kind]={hw:Math.max(.3,(b.max.x-b.min.x)/2*(bike?.75:.9)),hl:Math.max(.8,(b.max.z-b.min.z)/2*.94),cz:(b.max.z+b.min.z)/2}}
+  c.hw=d.hw;c.hl=d.hl;c.cz=d.cz}
+function capSeg(c,x=c.x,z=c.z){if(c.hw===undefined)carDim(c);const fx=Math.sin(c.h),fz=Math.cos(c.h),a=Math.max(0,c.hl-c.hw),cx=x+fx*c.cz,cz=z+fz*c.cz;return[cx-fx*a,cz-fz*a,cx+fx*a,cz+fz*a,c.hw]}
+// 两条线段之间最近的两点
+function segSeg(ax,az,bx,bz,cx,cz,dx,dz){const d1x=bx-ax,d1z=bz-az,d2x=dx-cx,d2z=dz-cz,rx=ax-cx,rz=az-cz,a=d1x*d1x+d1z*d1z,e=d2x*d2x+d2z*d2z,f=d2x*rx+d2z*rz;let s,t;
+  if(a<1e-6&&e<1e-6){s=t=0}else if(a<1e-6){s=0;t=clamp(f/e,0,1)}else{const c0=d1x*rx+d1z*rz;if(e<1e-6){t=0;s=clamp(-c0/a,0,1)}else{const b=d1x*d2x+d1z*d2z,den=a*e-b*b;s=den>1e-6?clamp((b*f-c0*e)/den,0,1):0;t=(b*s+f)/e;
+    if(t<0){t=0;s=clamp(-c0/a,0,1)}else if(t>1){t=1;s=clamp((b-c0)/a,0,1)}}}
+  return[ax+d1x*s,az+d1z*s,cx+d2x*t,cz+d2z*t]}
+function capHit(c,o){const A=capSeg(c),B=capSeg(o),[px,pz,qx,qz]=segSeg(A[0],A[1],A[2],A[3],B[0],B[1],B[2],B[3]);let nx=qx-px,nz=qz-pz,d=Math.hypot(nx,nz);const r=A[4]+B[4];if(d>=r)return null;
+  if(d<1e-4){nx=o.x-c.x;nz=o.z-c.z;d=Math.hypot(nx,nz)||1;return{nx:nx/d,nz:nz/d,pen:r}}return{nx:nx/d,nz:nz/d,pen:r-d}}
+// 点到车的距离是否小于 r（行人被撞、步行时挡路）
+function carDist(c,x,z){const A=capSeg(c),dx=A[2]-A[0],dz=A[3]-A[1],L=dx*dx+dz*dz,t=L?clamp(((x-A[0])*dx+(z-A[1])*dz)/L,0,1):0;return Math.hypot(x-A[0]-dx*t,z-A[1]-dz*t)-A[4]}
+// 车撞墙：沿车身取几个点，每个点用车宽做半径去查建筑/海岸
+function carBlocked(c,x,z){const A=capSeg(c,x,z),n=Math.max(1,Math.ceil(Math.hypot(A[2]-A[0],A[3]-A[1])/(A[4]*1.6)));for(let k=0;k<=n;k++){const t=k/n;if(hit(A[0]+(A[2]-A[0])*t,A[1]+(A[3]-A[1])*t,A[4]))return true}return false}
 function carPhysics(c,thr,steer,brake,dt){
   const sp=SPECS[c.kind]||SPECS.sedan,max=c.driver==='ai'?40:sp.max,air=c.air;if(air){thr=0;steer=0;brake=false}
   if(thr>0)c.speed+=thr*(c.speed<0?40:sp.acc)*dt;else if(thr<0)c.speed+=thr*(c.speed>0?36:12)*dt;else if(!air)c.speed*=1-1.2*dt;
@@ -1625,11 +1644,11 @@ function carPhysics(c,thr,steer,brake,dt){
   if(c===player.car){c.steerS=(c.steerS||0)+(steer-(c.steerS||0))*Math.min(1,dt*(steer?7:10));steer=c.steerS*(1/(1+Math.max(0,Math.abs(c.speed)-18)/26))}
   c.h+=steer*clamp(c.speed/10,-1,1)*(brake?sp.steer+.8:sp.steer)*dt;
   const nx=c.x+Math.sin(c.h)*c.speed*dt,nz=c.z+Math.cos(c.h)*c.speed*dt;
-  if(hit(nx,nz,2.3)){if(Math.abs(c.speed)>14){crashFx(c);c.hp-=Math.abs(c.speed)*.6}c.speed*=-.3;}
+  if(carBlocked(c,nx,nz)){if(Math.abs(c.speed)>14){crashFx(c);c.hp-=Math.abs(c.speed)*.6}c.speed*=-.3;}
   else{c.x=nx;c.z=nz}
   // 车与车碰撞
-  for(const o of cars)if(o!==c&&!o.dead){const dx=o.x-c.x,dz=o.z-c.z,d=Math.hypot(dx,dz);
-    if(d<5.2&&d>0){const p=(5.2-d)/2;c.x-=dx/d*p;c.z-=dz/d*p;o.x+=dx/d*p;o.z+=dz/d*p;
+  for(const o of cars)if(o!==c&&!o.dead){if(Math.abs(o.x-c.x)>16||Math.abs(o.z-c.z)>16)continue;const q=capHit(c,o);
+    if(q){const p=q.pen/2;c.x-=q.nx*p;c.z-=q.nz*p;o.x+=q.nx*p;o.z+=q.nz*p;
       if(Math.abs(c.speed)>10){const ms=(SPECS[c.kind]||SPECS.sedan).mass/((SPECS[o.kind]||SPECS.sedan).mass);o.speed=c.speed*.5*ms;c.speed*=Math.min(.9,.4*ms);if(c===player.car)SFX.crash(.7);
         if(c===player.car||o===player.car){const im=Math.abs(c.speed-o.speed*Math.cos(o.h-c.h))+4;o.hp-=im*.7;c.hp-=im*.3;dmgHit(c);dmgHit(o);if(o.hp<=0)explode(o)}}}}
   c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;if(c.mesh.userData.bike){c.lean=(c.lean||0)+(-steer*Math.sign(c.speed||1)*clamp(Math.abs(c.speed)/18,0,1)*.4-(c.lean||0))*Math.min(1,dt*6);c.mesh.rotation.z=c.lean}if(c===player.car||c.y||c.pitch||c.air)carVert(c,dt);for(const w of c.mesh.userData.wheels)w.rotation.x+=c.speed*dt/.55;
@@ -1667,7 +1686,7 @@ function driveAI(c,dt){let ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj);
   let block=false;const fx=Math.sin(c.h),fz=Math.cos(c.h);
   const obs=[...cars.filter(o=>o!==c&&!o.dead),player.car?null:player,...peds.filter(q=>!q.dead&&Math.abs(q.x-c.x)<16&&Math.abs(q.z-c.z)<16)].filter(Boolean);
   let bPed=false;
-  for(const o of obs){const dx=o.x-c.x,dz=o.z-c.z,f=dx*fx+dz*fz,s=Math.abs(dx*fz-dz*fx);if(f<=0||f>14||s>2.6)continue;
+  for(const o of obs){const dx=o.x-c.x,dz=o.z-c.z,f=dx*fx+dz*fz,s=Math.abs(dx*fz-dz*fx);if(f<=0||f>14+(c.hl||2.4)||s>(c.hw||1.1)+(o.kind?(o.hw||1.1):.4)+.5)continue;
     if(o.kind){const same=Math.sin(o.h)*fx+Math.cos(o.h)*fz;if(same<.5&&f>6.5)continue;block=true} // 车：只让同向前车，横穿/对向的车贴近才停
     else if(f<11)bPed=true}                                                                            // 行人（含玩家）：一直礼让
   // 被车堵超过 4 秒：按喇叭，然后慢慢挤过去
@@ -1708,13 +1727,13 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
     if(arrestMode&&d>1.6||!arrestMode&&d>16){const sp=7*dt,nx=p.x+dx/d*sp,nz=p.z+dz/d*sp;if(!hit(nx,p.z,.6))p.x=nx;if(!hit(p.x,nz,.6))p.z=nz;cst='run';ck=1}
     else if(!arrestMode){p.shootT=(p.shootT??1)-dt;if(p.shootT<=0){p.shootT=rr(1.1,1.8);copShoot(p,d)}}
     else cst='idle';
-    for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.hypot(c.x-p.x,c.z-p.z)<3.4){killPed(p,c===player.car);addHeat(.8);break}
+    for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.abs(c.x-p.x)<14&&Math.abs(c.z-p.z)<14&&carDist(c,p.x,p.z)<.45){killPed(p,c===player.car);addHeat(.8);break}
     p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.rot;pose(p.mesh,cst,p.t*1.2,ck);return}
   // 被打倒：躺 3 秒后爬起来逃跑
   if(p.knock>0){if(p.thug)p.beaten=1;if(p.robber)p.caught=1;p.knock-=dt;p.mesh.rotation.x=-Math.PI/2;p.mesh.position.set(p.x,.35,p.z);pose(p.mesh,'idle',p.t,0);
     if(p.knock<=0){p.mesh.rotation.x=0;p.flee=6;p.thug=0;if(p.bench){p.bench.used=null;p.bench=null}p.act='walk'}return}
   const pd=Math.hypot(player.x-p.x,player.z-p.z);
-  for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.hypot(c.x-p.x,c.z-p.z)<3.4){killPed(p,c===player.car);return}
+  for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.abs(c.x-p.x)<14&&Math.abs(c.z-p.z)<14&&carDist(c,p.x,p.z)<.45){killPed(p,c===player.car);return}
   // 主线里的混混：靠近就冲上来打你
   if(p.thug){const dx=player.x-p.x,dz=player.z-p.z,d=Math.hypot(dx,dz);let st='idle',k=0,ex=0;p.rot=Math.atan2(dx,dz);
     if(d<20&&!player.car){if(d>1.5){const sp=5.6*dt,nx=p.x+dx/d*sp,nz=p.z+dz/d*sp;if(!hit(nx,p.z,.6))p.x=nx;if(!hit(p.x,nz,.6))p.z=nz;st='run';k=1}
@@ -2294,7 +2313,8 @@ let camYaw=0,camPitch=0,camHold=0;
 function angDiff(a,b){return((a-b)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI}
 // 步行：可以走进海里游泳（离岸 45 米以内）
 function hitP(x,z,r){if(!onIsland(x,z,-45))return SEA;if(!onIsland(x,z,3+r))return null;return hit(x,z,r)}
-function tryMove(dx,dz){if(!hitP(player.x+dx,player.z,.6))player.x+=dx;if(!hitP(player.x,player.z+dz,.6))player.z+=dz}
+function carBlockP(x,z){for(const c of cars){if(c.dead||Math.abs(c.x-x)>14||Math.abs(c.z-z)>14)continue;const d=carDist(c,x,z);if(d<.45&&d<carDist(c,player.x,player.z)-1e-4)return true}return false}
+function tryMove(dx,dz){if(!hitP(player.x+dx,player.z,.6)&&!carBlockP(player.x+dx,player.z))player.x+=dx;if(!hitP(player.x,player.z+dz,.6)&&!carBlockP(player.x,player.z+dz))player.z+=dz}
 R=Math.random;
 for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
 {const c=makeCar(SPN.x+6,SPN.z+8,0,{color:0x1fb5a8,kind:'wedge'});c.driver=null;const m=makeCar(SPN.x+2,SPN.z+16,0,{color:0xff3d8b,kind:'moto'});m.driver=null;m.parked=1}
