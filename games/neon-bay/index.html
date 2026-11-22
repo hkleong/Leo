@@ -137,7 +137,7 @@ canvas{display:block}
   <div class="keys">WASD 移动·驾驶 · 鼠标拖动 转视角 · Shift 奔跑 · 空格 跳跃/手刹 · Q/1-4 切换武器 · R/右键 瞄准开关 · F 攻击 · E 上下车 · H 喇叭 · G 电台 · P 手机 · Tab 地图 · M 静音 · 骑摩托按住 Shift 翘头/空翻</div>
 </div>
 <div id="hud">
-  <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div><div id="storyBox" hidden><b id="sname">主线</b><span id="stext"></span></div><div id="navInfo" hidden><span>◆ 导航</span><b id="navDist"></b><button id="navX" aria-label="取消导航">✕</button></div></div>
+  <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色问号接活</span></div><div id="storyBox" hidden><b id="sname">主线</b><span id="stext"></span></div><div id="navInfo" hidden><span>◆ 导航</span><b id="navDist"></b><button id="navX" aria-label="取消导航">✕</button></div></div>
   <div class="tr"><div id="stars"></div><div id="clock"></div><button id="phoneBtn" aria-label="打开手机（P）">📱</button><button id="wpn" aria-label="切换武器"><span id="wpnIcon"></span><span id="wpnName">拳头</span><span id="wpnDots"></span></button><div id="speed"></div></div>
   <canvas id="mini" width="300" height="300" role="button" aria-label="打开完整地图" tabindex="0"></canvas>
   <canvas id="lens" width="256" height="144"></canvas><div id="wflash"></div><div id="hurt"></div><div id="cut" hidden><i class="bar t"></i><i class="bar b"></i><div id="cutTxt"></div><div id="cutSub"></div></div><div id="fade"></div><div id="xh" hidden></div><div id="topmsg"></div><div id="toast"></div><div id="hint"></div>
@@ -1954,7 +1954,7 @@ function exitCar(force){const c=player.car;if(!c)return;if(!force&&Math.abs(c.sp
 const GOAL=30000;
 const beamMat=new THREE.MeshBasicMaterial({color:0xff3d8b,transparent:true,opacity:.45});
 const beam=new THREE.Mesh(new THREE.CylinderGeometry(2.5,2.5,60,16,1,true),beamMat);scene.add(beam);
-// 导航目的地：紫色光柱 + 路线（路口坐标列表）
+// 导航目的地：紫色标记 + 路线（路口坐标列表）
 const NAV={on:false,x:0,z:0,route:[],t:0};
 const navBeam=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.6,80,16,1,true),new THREE.MeshBasicMaterial({color:0xb36bff,transparent:true,opacity:.5,depthWrite:false,side:THREE.DoubleSide}));navBeam.visible=false;scene.add(navBeam);
 function nearestNode(x,z){let best=null,bd=1e9;for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!degAll(i,j))continue;const d=Math.hypot(rx(i)-x,rz(j)-z);if(d<bd){bd=d;best=[i,j]}}return best}
@@ -1976,16 +1976,18 @@ function drawRoute(g,f,w){if(!NAV.on||NAV.route.length<2)return;g.save();g.lineC
   for(const[col,lw]of[['rgba(30,0,60,.7)',w*1.7],['#c77dff',w]]){g.strokeStyle=col;g.lineWidth=lw;g.beginPath();NAV.route.forEach((p,k)=>{const[X,Y]=f(p.x,p.z);k?g.lineTo(X,Y):g.moveTo(X,Y)});g.stroke()}g.restore()}
 let mission={stage:'offer',x:0,z:0,timer:0,type:null,pts:[],car:null};
 function randNode(minD){for(let k=0;;k++){const i=(R()*(NX+1))|0,j=(R()*(NZ+1))|0;if(!nodeOK(i,j)||!degAll(i,j))continue;const n=node(i,j);if(Math.hypot(n.x-player.x,n.z-player.z)>minD*(k>300?.3:1))return n}}
-function offerMission(){const n=randNode(60);mission={stage:'offer',x:n.x,z:n.z,timer:0};beamMat.color.set(0xff3d8b);setM('走到粉色光柱接新活')}
+// 路口旁边人行道上的一点（不在路面上）
+function curb(n){const o=RD/2+3.5;for(const[a,b]of[[1,1],[-1,1],[1,-1],[-1,-1]]){const x=n.x+a*o,z=n.z+b*o;if(!onRoad(x,z,.6)&&!hit(x,z,1))return{x,z}}return{x:n.x+o,z:n.z+o}}
+function offerMission(){const n=curb(randNode(60));mission={stage:'offer',x:n.x,z:n.z,timer:0};beamMat.color.set(0xff3d8b);setM('走到粉色问号接新活')}
 const jobs=[
- {name:'急件快递',start(){const n=randNode(200);mission.x=n.x;mission.z=n.z;mission.timer=75;mission.reward=2500;setM('把包裹送到黄色光柱，限时 75 秒');beamMat.color.set(0xffe14d)}},
+ {name:'急件快递',start(){const n=curb(randNode(200));mission.x=n.x;mission.z=n.z;mission.timer=75;mission.reward=2500;setM('把包裹送到黄色标记，限时 75 秒');beamMat.color.set(0xffe14d)}},
  {name:'海滨竞速',start(){mission.pts=[randNode(120),randNode(120),randNode(120)];const p=mission.pts.shift();mission.x=p.x;mission.z=p.z;mission.timer=90;mission.reward=4000;
    setM('开车穿过 3 个检查点，限时 90 秒');beamMat.color.set(0x22d3ee);if(!player.car)toast('先抢一辆车！')}},
  {name:'偷跑车',start(){const n=randNode(150);const c=makeCar(n.x,n.z,0,{color:0xffc83d,kind:'wedge'});c.driver=null;mission.car=c;mission.x=n.x;mission.z=n.z;mission.timer=0;mission.reward=6000;
    setM('找到那辆金色跑车并开走');beamMat.color.set(0xffe14d)}},
  {name:'出租车载客',start(){const n=randNode(80);const p=spawnPed(n.x+RD/2+3,n.z+RD/2+3,NPC_KEYS[(R()*NPC_KEYS.length)|0]);if(!p)return fail('乘客走掉了');p.act='wave';p.wave=999;
    mission.pass=p;mission.sub='pick';mission.x=p.x;mission.z=p.z;mission.timer=0;beamMat.color.set(0xffd21f);setM(player.car?'去接招手的乘客，开到他旁边停下':'先找辆车，再去接招手的乘客')}},
- {name:'外卖配送',start(){const n=randNode(90);mission.sub='pick';mission.x=n.x+RD/2+3;mission.z=n.z+RD/2+3;mission.timer=0;beamMat.color.set(0xff7a2f);setM('去橙色光柱取外卖')}},
+ {name:'外卖配送',start(){const n=randNode(90);mission.sub='pick';mission.x=n.x+RD/2+3;mission.z=n.z+RD/2+3;mission.timer=0;beamMat.color.set(0xff7a2f);setM('去橙色标记取外卖')}},
  {name:'甩掉追兵',start(){player.heat=Math.max(player.heat,2.5);mission.timer=0;mission.reward=5000;mission.esc=true;setM('警察来了！甩掉通缉');beamMat.visible=false}}
 ];
 function setM(t){document.getElementById('mtext').textContent=t}
@@ -2005,19 +2007,19 @@ function updMission(dt){const px=player.car?player.car.x:player.x,pz=player.car?
   if(t==='海滨竞速'&&d<8&&player.car){beep(880,.1);if(mission.pts.length){const p=mission.pts.shift();mission.x=p.x;mission.z=p.z}else pay(mission.reward,'冲线')}
   if(t==='偷跑车'){const c=mission.car;if(c.dead)return fail('跑车炸了');
     if(player.car!==c){mission.x=c.x;mission.z=c.z}
-    else if(!mission.garage){mission.garage=randNode(150);mission.x=mission.garage.x;mission.z=mission.garage.z;setM('把跑车开到车库（绿色光柱），别撞坏了');beamMat.color.set(0x5cff7a);addHeat(1.5)}
+    else if(!mission.garage){mission.garage=randNode(150);mission.x=mission.garage.x;mission.z=mission.garage.z;setM('把跑车开到车库（绿色标记），别撞坏了');beamMat.color.set(0x5cff7a);addHeat(1.5)}
     else if(d<7){mission.garage=null;exitCar(true);removeCar(c);pay(mission.reward,'交车')}}
   if(t==='甩掉追兵'&&player.wanted===0){mission.esc=false;pay(mission.reward,'成功脱身')}
   if(t==='出租车载客'){const c=player.car;
     if(mission.sub==='pick'){const p=mission.pass;if(!p||p.dead||!peds.includes(p))return fail('乘客走掉了');mission.x=p.x;mission.z=p.z;p.rot=Math.atan2(px-p.x,pz-p.z);
       if(c&&Math.abs(c.speed)<3&&Math.hypot(p.x-c.x,p.z-c.z)<10){dropPed(p);say(p,'wave','去这个地址，谢谢！');const dn=randNode(220),dd=Math.hypot(dn.x-c.x,dn.z-c.z);
         mission.sub='drop';mission.x=dn.x;mission.z=dn.z;mission.timer=Math.round(25+dd/9);mission.reward=Math.round((700+dd*4)*(c.kind==='taxi'?1.5:1)/10)*10;beamMat.color.set(0x5cff7a);
-        setM(`把乘客送到绿色光柱${c.kind==='taxi'?'（出租车车费 +50%）':''}`);SFX.doorOpen&&SFX.doorClose()}}
+        setM(`把乘客送到绿色标记${c.kind==='taxi'?'（出租车车费 +50%）':''}`);SFX.doorOpen&&SFX.doorClose()}}
     else if(mission.sub==='drop'){if(!c)return fail('乘客下车跑了');if(d<10&&Math.abs(c.speed)<4)pay(mission.reward,'车费')}}
   if(t==='外卖配送'){
     if(mission.sub==='pick'&&d<6){const hs=VALID.filter(([i,j])=>BTYPE[i+','+j]==='houses');const[i,j]=hs.length?hs[(R()*hs.length)|0]:VALID[0];const b=bcen(i,j);
       mission.sub='drop';mission.x=b.x;mission.z=b.z-bD(j)/2+1;const dd=Math.hypot(mission.x-px,mission.z-pz);mission.timer=Math.round(30+dd/8);mission.reward=Math.round((600+dd*3)/10)*10;
-      beamMat.color.set(0x5cff7a);setM('把外卖送到住宅区的绿色光柱，别让它凉了');beep(900,.08)}
+      beamMat.color.set(0x5cff7a);setM('把外卖送到住宅区的绿色标记，别让它凉了');beep(900,.08)}
     else if(mission.sub==='drop'&&d<6)pay(mission.reward,'外卖送达')}}
 
 // ===== 统计和成就 =====
@@ -2375,24 +2377,24 @@ const sBeam=new THREE.Mesh(new THREE.CylinderGeometry(3,3,90,16,1,true),sBeamMat
 const CHAPTERS=[
  {name:'重获自由',npc:'skater',who:'阿杰',
   intro:[['阿杰','{我}！你可算出来了。三年，城里变了不少。'],['我','阿杰，我现在身无分文。有活吗？'],['阿杰','别急。我在城里有个车库，你先弄辆车开过来，我们慢慢聊。'],['我','弄辆车……行，老规矩。']],
-  start(S){const n=nodeNear(player.x,player.z,140,260);S.x=n.x;S.z=n.z;return'弄一辆车，开到阿杰的车库（金色光柱）'},
+  start(S){const n=nodeNear(player.x,player.z,140,260);S.x=n.x;S.z=n.z;return'弄一辆车，开到阿杰的车库（金色标记）'},
   upd(S,d){return!!player.car&&d<10},
   outro:[['阿杰','车不错嘛。欢迎回来，{我}。'],['阿杰','这点钱先拿着。明天开始，跟我干点正经……半正经的生意。']],reward:1500},
  {name:'码头急件',npc:'skater',who:'阿杰',
   intro:[['阿杰','有个包裹，客户今晚就要。'],['阿杰','先去取货，拿到以后要赶时间。路上别惹警察。'],['我','交给我。']],
-  start(S){const a=nodeNear(player.x,player.z,110,220);S.x=a.x;S.z=a.z;S.sub='pick';return'去取包裹（金色光柱）'},
-  upd(S,d){if(S.sub==='pick'){if(d<7){const b=nodeNear(S.x,S.z,220,420);S.x=b.x;S.z=b.z;S.sub='drop';S.timer=Math.round(40+Math.hypot(b.x-player.x,b.z-player.z)/9);beep(900,.08);return'把包裹送到客户那里（金色光柱）'}return false}return d<7},
+  start(S){const a=nodeNear(player.x,player.z,110,220);S.x=a.x;S.z=a.z;S.sub='pick';return'去取包裹（金色标记）'},
+  upd(S,d){if(S.sub==='pick'){if(d<7){const b=nodeNear(S.x,S.z,220,420);S.x=b.x;S.z=b.z;S.sub='drop';S.timer=Math.round(40+Math.hypot(b.x-player.x,b.z-player.z)/9);beep(900,.08);return'把包裹送到客户那里（金色标记）'}return false}return d<7},
   outro:[['客户','准时送到，阿杰的人果然靠谱。'],['我','下次有活还找我们。']],reward:2500},
  {name:'讨债',npc:'suit',who:'老周',
   intro:[['老周','你就是阿杰说的那个新人？'],['老周','街角有三个混混欠我钱不还，还到处说我坏话。'],['老周','去让他们长长记性。别闹出人命，我要的是钱。'],['我','明白。']],
-  start(S){const n=nodeNear(player.x,player.z,110,220);S.x=n.x+RD/2+4;S.z=n.z+RD/2+4;S.sub='go';return'去找那三个混混（金色光柱）'},
+  start(S){const n=nodeNear(player.x,player.z,110,220);S.x=n.x+RD/2+4;S.z=n.z+RD/2+4;S.sub='go';return'去找那三个混混（金色标记）'},
   upd(S,d){if(S.sub==='go'){if(d<35){S.sub='fight';S.thugs=[];S.left=3;for(let k=0;k<3;k++){const p=spawnPed(S.x+rr(-3,3),S.z+rr(-3,3),['biker','tank','skater8'][k]);if(p){p.thug=1;p.keep=1;p.act='idle';p.partner=null;S.thugs.push(p)}}toast('就是他们！');return'打倒三个混混（剩 3 个）'}return false}
     const al=S.thugs.filter(p=>!p.beaten&&!p.dead&&peds.includes(p));if(al[0]){S.x=al[0].x;S.z=al[0].z}
     if(al.length!==S.left){S.left=al.length;if(al.length)return'打倒三个混混（剩 '+al.length+' 个）'}return al.length===0},
   outro:[['老周','钱拿回来了，干得漂亮。'],['老周','还有个家伙一直偷我的货。我查到他今晚开一辆黑色跑车出门……']],reward:3000},
  {name:'黑色跑车',npc:'suit',who:'老周',
   intro:[['老周','就是那辆黑色跑车，车上是我的货。'],['老周','拦下来。撞也好，打也好，让它报废。'],['我','交给我。']],
-  start(S){const n=nodeNear(player.x,player.z,150,260);const c=makeCar(n.x,n.z,0,{kind:'coupe',color:0x101014});c.target=1;c.hp=c.hpMax=150;putOnLane(c,n.i,n.j);S.car=c;S.x=c.x;S.z=c.z;return'摧毁那辆黑色跑车（跟着金色光柱）'},
+  start(S){const n=nodeNear(player.x,player.z,150,260);const c=makeCar(n.x,n.z,0,{kind:'coupe',color:0x101014});c.target=1;c.hp=c.hpMax=150;putOnLane(c,n.i,n.j);S.car=c;S.x=c.x;S.z=c.z;return'摧毁那辆黑色跑车（跟着金色标记）'},
   upd(S){const c=S.car;if(c.dead)return true;if(!cars.includes(c)||Math.hypot(c.x-player.x,c.z-player.z)>450)return{fail:'跑车跑掉了'};S.x=c.x;S.z=c.z;return false},
   outro:[['老周','货是保不住了，不过那家伙也老实了。'],['老周','只是……动静闹得有点大。']],reward:4000},
  {name:'风声鹤唳',npc:null,who:'阿杰',
@@ -2420,7 +2422,7 @@ function finishChapter(){const C=CHAPTERS[STORY.ch];STORY.stage='done';sBeam.vis
   const end=()=>{player.money+=C.reward;toast(`第 ${STORY.ch+1} 章完成：${C.name}  +$${C.reward.toLocaleString()}`);beep(660,.1);setTimeout(()=>beep(990,.15),100);
     STORY.ch++;STORY.stage='offer';STORY.wait=12;STORY.car=null;STORY.thugs=null;
     if(C.end){STORY.done=true;won=true;finished=true;OWNP.villa=1;$('storyBox').hidden=true;setTimeout(()=>toast('🏝 主线通关！海边别墅归你了，每天还有 $500 收入'),2800)}
-    else setS(CHAPTERS[STORY.ch].npc?`去找${CHAPTERS[STORY.ch].who}（金色光柱）`:'等待电话…')};
+    else setS(CHAPTERS[STORY.ch].npc?`去找${CHAPTERS[STORY.ch].who}（金色问号）`:'等待电话…')};
   if(C.outro)dialog(C.outro,end);else end()}
 function updStory(dt){const C=CHAPTERS[STORY.ch];$('sname').textContent=storyName();
   if(!C||STORY.done){sBeam.visible=false;return}
@@ -2428,7 +2430,7 @@ function updStory(dt){const C=CHAPTERS[STORY.ch];$('sname').textContent=storyNam
   if(STORY.stage==='offer'){
     if(C.npc){let p=STORY.npc;
       if(!p||p.dead||!peds.includes(p)){STORY.npc=null;sBeam.visible=false;if((STORY.wait-=dt)>0)return;STORY.wait=3;const n=nodeNear(px,pz,70,170);
-        p=spawnPed(n.x+RD/2+3,n.z+RD/2+3,C.npc);if(!p)return;p.keep=1;p.act='idle';p.partner=null;p.wave=1e9;STORY.npc=p;setS(`去找${C.who}（金色光柱）`)}
+        p=spawnPed(n.x+RD/2+3,n.z+RD/2+3,C.npc);if(!p)return;p.keep=1;p.act='idle';p.partner=null;p.wave=1e9;STORY.npc=p;setS(`去找${C.who}（金色问号）`)}
       STORY.x=p.x;STORY.z=p.z;sBeam.visible=true;sBeam.position.set(p.x,45,p.z);
       if(Math.hypot(p.x-px,p.z-pz)<6&&(!player.car||Math.abs(player.car.speed)<3)&&!cut&&!boarding){
         if(mission.stage==='run'){if(!STORY.warned){STORY.warned=1;toast('先把手上的零活干完')}return}
@@ -2507,8 +2509,8 @@ const EVENTS={
          if(d<45&&!this.said){this.said=1;say(q,'wave','嘿！敢跟我比一场吗？开车过来！')}
          if(player.car&&player.car!==c&&d<14&&Math.abs(player.car.speed)<4){this.stage=1;if(peds.includes(q))dropPed(q);c.hold=0;c.driver='ai';sp.used=null;const nn=nearestNode(c.x,c.z);if(nn)putOnLane(c,nn[0],nn[1]);
            const n=nodeNear(player.car.x,player.car.z,260,420);this.x=n.x;this.z=n.z;this.timer=Math.round(Math.hypot(n.x-player.car.x,n.z-player.car.z)/19+8);this.life=this.t+this.timer+5;
-           toast(`比赛开始！${this.timer} 秒内开到橙色光柱  奖金 $1500`);beep(660,.15);setTimeout(()=>beep(660,.15),500);setTimeout(()=>beep(990,.3),1000)}}
-       else if(this.stage===1){this.timer-=dt;setM2(`街头赛车：开到橙色光柱（剩 ${Math.max(0,Math.ceil(this.timer))} 秒）`);const pc=player.car;
+           toast(`比赛开始！${this.timer} 秒内开到橙色标记  奖金 $1500`);beep(660,.15);setTimeout(()=>beep(660,.15),500);setTimeout(()=>beep(990,.3),1000)}}
+       else if(this.stage===1){this.timer-=dt;setM2(`街头赛车：开到橙色标记（剩 ${Math.max(0,Math.ceil(this.timer))} 秒）`);const pc=player.car;
          if(pc&&Math.hypot(this.x-pc.x,this.z-pc.z)<11){this.done=true;player.money+=1500;STATS.races=(STATS.races||0)+1;toast('🏁 你赢了！  +$1500');setM2('')}
          else if(this.timer<=0){this.done=true;toast('输了，他先到了');setM2('')}}},
      end(){setM2('');if(peds.includes(q))q.keep=0;if(this.stage===0){if(cars.includes(c)&&c!==player.car)removeCar(c);if(sp.used===c)sp.used=null}}}},
@@ -2542,7 +2544,7 @@ function phOpen(id){phTime();const A=APPS.find(a=>a[0]===id);$('phTitle').textCo
    case'task':h+=`<div class="ph-list"><div class="ph-card"><b>${STORY.done?'主线已通关':storyName()}</b><br>${STORY.done?'这座城以后就是你的了。':($('stext').textContent||'—')}</div>
      <div class="ph-card"><b>零活</b><br>${$('mtext').textContent}</div>
      <div class="ph-card"><b>主线进度</b><br>${CHAPTERS.map((c,k)=>`${k<STORY.ch||STORY.done?'✅':k===STORY.ch?'▶️':'🔒'} 第 ${k+1} 章 ${k<=STORY.ch||STORY.done?c.name:'？？？'}`).join('<br>')}</div>
-     ${EVT?`<div class="ph-card"><b>附近</b><br>${EVT.name}（橙色光柱）</div>`:''}</div>`;break;
+     ${EVT?`<div class="ph-card"><b>附近</b><br>${EVT.name}（橙色标记）</div>`:''}</div>`;break;
    case'prop':h+=`<div class="ph-list">${PROPS.filter(p=>p.pad).map(p=>`<div class="ph-card"><div class="row"><span><b>${p.name}</b><br>${OWNP[p.id]?'已拥有 · 每天 $'+p.inc:'售价 $'+p.price.toLocaleString()+' · 每天 $'+p.inc}</span><button class="ph-btn alt" data-nav="${p.id}">导航</button></div></div>`).join('')}
      <div class="ph-card">${OWNP.villa?'🏝 <b>海边别墅</b> · 每天 $500':'🏝 海边别墅：通关主线后获得'}</div><div class="ph-card">每天早上 8 点自动到账，现在每天合计 <b>$${dayIncome().toLocaleString()}</b></div></div>`;break;
    case'car':if(!OWNP.garage){h+='<div class="ph-card">先买下<b>阿杰车库</b>，就能存车，还能用手机叫车送到身边。</div>';break}
@@ -2762,8 +2764,28 @@ function updPerf(){const t=performance.now(),d=t-(PERF.last||t);PERF.last=t;if(d
 ACH.push(['stunt','特技车手','骑摩托完成一次后空翻',()=>(STATS.flips||0)>=1],['hero','见义勇为','抓住一个抢包贼',()=>(STATS.heroic||0)>=1],
   ['landlord','包租婆','买下 2 处物业',()=>PROPS.filter(p=>OWNP[p.id]).length>=2],['racer','街头车神','赢一场街头赛车',()=>(STATS.races||0)>=1],['legend','传奇','通关主线',()=>STORY.done]);
 
+// ---------- 任务图标：主线金色问号、零活粉色问号、街头事件橙色感叹号；进行中的目的地用同色箭头 ----------
+for(const b of[beam,sBeam,eBeam])b.layers.set(1);
+const MK_TEX={};
+function mkTex(sym,col){const k=sym+col;if(MK_TEX[k])return MK_TEX[k];const c=document.createElement('canvas');c.width=128;c.height=160;const g=c.getContext('2d'),hex='#'+col.toString(16).padStart(6,'0');
+  g.shadowColor=hex;g.shadowBlur=22;g.lineJoin='round';
+  if(sym==='v'){g.beginPath();g.moveTo(20,40);g.lineTo(108,40);g.lineTo(64,128);g.closePath();g.lineWidth=12;g.strokeStyle='#1a0f2a';g.stroke();g.fillStyle=hex;g.fill()}
+  else{const F='900 118px "Arial Black","Rubik",Impact,sans-serif';g.font=F;g.textAlign='center';g.textBaseline='alphabetic';g.lineWidth=14;g.strokeStyle='#1a0f2a';g.strokeText(sym,64,138);g.fillStyle=hex;g.fillText(sym,64,138);
+    g.shadowBlur=0;g.fillStyle='rgba(255,255,255,.4)';g.save();g.beginPath();g.rect(0,0,128,70);g.clip();g.fillText(sym,64,138);g.restore()}
+  const t=new THREE.CanvasTexture(c);return MK_TEX[k]=t}
+const mkRingGeo=new THREE.RingGeometry(1.1,1.6,32);mkRingGeo.rotateX(-Math.PI/2);
+function makeMarker(){const sp=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthWrite:false,fog:false}));sp.center.set(.5,0);sp.renderOrder=5;sp.visible=false;scene.add(sp);
+  const ring=new THREE.Mesh(mkRingGeo,new THREE.MeshBasicMaterial({transparent:true,opacity:.7,depthWrite:false,side:THREE.DoubleSide}));ring.renderOrder=4;ring.visible=false;scene.add(ring);return{sp,ring,key:''}}
+const MK={story:makeMarker(),job:makeMarker(),evt:makeMarker()};
+function setMarker(m,on,x,z,sym,col,t){m.sp.visible=m.ring.visible=on;if(!on)return;const k=sym+col;if(m.key!==k){m.key=k;m.sp.material.map=mkTex(sym,col);m.sp.material.needsUpdate=true;m.ring.material.color.set(col)}
+  const d=Math.hypot(x-cam.position.x,z-cam.position.z),s=clamp(d*.045,2.6,16),bob=Math.sin(t*2.5+x)*.35;m.sp.scale.set(s*.8,s,1);m.sp.position.set(x,2.2+bob+s*.15,z);
+  m.ring.visible=d<140;m.ring.position.set(x,.09,z);const r=1+.15*Math.sin(t*4);m.ring.scale.set(r,1,r)}
+function updMarkers(){const t=performance.now()/1000;
+  setMarker(MK.story,sBeam.visible,STORY.x,STORY.z,STORY.stage==='offer'?'?':'v',0xffc83d,t);
+  setMarker(MK.job,beamMat.visible,mission.x,mission.z,mission.stage==='offer'?'?':'v',mission.stage==='offer'?0xff3d8b:beamMat.color.getHex(),t);
+  setMarker(MK.evt,eBeam.visible&&!!EVT,EVT?EVT.x:0,EVT?EVT.z:0,EVT&&EVT.stage===1&&EVT.timer!==undefined?'v':'!',0xff9a3d,t)}
 function updExtra(dt){const e=Math.sin((gameHour-6)/24*Math.PI*2);NIGHT=clamp((-e+.12)/.3,0,1);
-  updStory(dt);updProps(dt);updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updPerf();
+  updStory(dt);updProps(dt);updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updPerf();
   if((umbT-=dt)<=0){umbT=1;updUmbrellas()}}
 
 // ===== 存档：每 5 秒、切到后台时自动保存（钱、主角、武器、位置、是否通关），页面刷新后可以接着玩 =====
