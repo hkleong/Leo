@@ -59,7 +59,7 @@ def make_icon(size, maskable=False):
     # 文字
     try:
         f = ImageFont.truetype(FONT, 168)
-        txt = '霓虹湾'
+        txt = 'NBY VI'
         tw = d.textlength(txt, font=f)
         x, y = (W - tw) / 2, 800 if not maskable else 770
         d.text((x + 8, y + 8), txt, font=f, fill=(26, 15, 42))
@@ -124,7 +124,7 @@ open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(html)
 
 # ---------- manifest ----------
 manifest = {
-    'name': 'NBY VI · 霓虹湾', 'short_name': 'NBY VI', 'description': '日落海滨城市里的开放世界：开车、接活、躲警察。',
+    'name': 'NBY VI', 'short_name': 'NBY VI', 'description': '日落海滨城市里的开放世界：开车、接活、躲警察。',
     'lang': 'zh-CN', 'start_url': './', 'scope': './', 'display': 'fullscreen', 'orientation': 'landscape',
     'background_color': '#2a0b3d', 'theme_color': '#2a0b3d',
     'icons': [
