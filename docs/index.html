@@ -84,6 +84,9 @@ canvas{display:block}
 #wpn{pointer-events:auto;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;width:78px;padding:6px 4px 5px;border:2px solid #000;border-radius:10px;background:var(--ui);color:#fff;font-family:var(--body);box-shadow:0 0 0 2px var(--hot)}
 #wpn:focus-visible{outline:3px solid #fff}#wpnIcon svg{width:58px;height:34px;display:block}#wpnName{font-size:11px;font-weight:600}
 #wpnDots{display:flex;gap:3px}#wpnDots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}#wpnDots i.on{background:var(--sun)}
+.qrow{display:flex;gap:6px;align-items:center;pointer-events:auto;font-size:13px;color:#fff}.qrow button{padding:5px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,.4);background:rgba(20,8,40,.6);color:#fff;font:600 13px Rubik,system-ui,sans-serif;cursor:pointer}
+.qrow button.on{background:var(--hot);border-color:var(--hot)}.qrow button:focus-visible{outline:2px solid #fff}
+#start:disabled{opacity:.75;cursor:wait}
 #hurt{position:absolute;inset:0;background:radial-gradient(transparent 40%,rgba(255,0,40,.8));opacity:0;transition:opacity .15s;pointer-events:none}
 #newGame{pointer-events:auto;background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;cursor:pointer;opacity:.85}
 #cut{position:absolute;inset:0;pointer-events:none}
@@ -104,6 +107,7 @@ canvas{display:block}
     <button class="hero on" id="pickF" role="radio" aria-checked="true"><img src="art/hero_f.jpg" alt=""><span>玛雅</span><small>花衬衫 · 破洞牛仔裤</small></button>
     <button class="hero" id="pickM" role="radio" aria-checked="false"><img src="art/hero_m.jpg" alt=""><span>科尔</span><small>牛仔夹克 · 工装靴</small></button>
   </div>
+  <div class="qrow" role="radiogroup" aria-label="画质"><span>画质</span><button data-q="low">流畅</button><button data-q="mid">标准</button><button data-q="high">高清</button></div>
   <button id="start">开始游戏</button>
   <button id="newGame" hidden>放弃存档，重新开始</button>
   <div class="keys">WASD 移动·驾驶 · 鼠标拖动 转视角 · Shift 奔跑 · 空格 跳跃/手刹 · Q/1-4 切换武器 · R/右键 瞄准开关 · F 攻击 · E 上下车 · H 喇叭 · Tab 地图 · M 静音</div>
@@ -185,12 +189,19 @@ const sky=new THREE.Mesh(new THREE.SphereGeometry(800,24,16),new THREE.ShaderMat
 sky.renderOrder=-1;scene.add(sky);
 const cam=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.5,3200);
 const ren=new THREE.WebGLRenderer({antialias:true});
-const MOBILE=matchMedia('(pointer:coarse)').matches;ren.setPixelRatio(Math.min(devicePixelRatio,MOBILE?1.5:2));ren.setSize(innerWidth,innerHeight);
+const MOBILE=matchMedia('(pointer:coarse)').matches;
+const QUALITY={low:{name:'流畅',pr:1,shadow:0,load:320,peds:24,traffic:9,lod:70},mid:{name:'标准',pr:1.5,shadow:1024,load:430,peds:38,traffic:13,lod:100},high:{name:'高清',pr:2,shadow:2048,load:520,peds:48,traffic:17,lod:140}};
+let QK=MOBILE?'low':'mid';try{const v=localStorage.getItem('nby-quality');if(QUALITY[v])QK=v}catch(e){}
+let Q=QUALITY[QK];
+ren.setPixelRatio(Math.min(devicePixelRatio,Q.pr));ren.setSize(innerWidth,innerHeight);
 ren.shadowMap.enabled=true;document.body.prepend(ren.domElement);
 addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
 scene.add(new THREE.HemisphereLight(0xb7a2ff,0x4a2450,.85));
 const sun=new THREE.DirectionalLight(0xffa86b,1.05);sun.position.set(200,90,-60);sun.castShadow=true;
-Object.assign(sun.shadow.camera,{left:-160,right:160,top:160,bottom:-160,far:500});sun.shadow.mapSize.set(MOBILE?1024:2048,MOBILE?1024:2048);
+Object.assign(sun.shadow.camera,{left:-110,right:110,top:110,bottom:-110,far:500});sun.shadow.mapSize.set(Q.shadow||512,Q.shadow||512);ren.shadowMap.enabled=Q.shadow>0;
+function applyQuality(k){QK=k;Q=QUALITY[k];try{localStorage.setItem('nby-quality',k)}catch(e){}ren.setPixelRatio(Math.min(devicePixelRatio,Q.pr));ren.setSize(innerWidth,innerHeight);
+  ren.shadowMap.enabled=Q.shadow>0;if(Q.shadow){sun.shadow.mapSize.set(Q.shadow,Q.shadow);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}
+  scene.traverse(o=>{if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>m.needsUpdate=true)}});if(typeof LOAD_R!=='undefined')LOAD_R=Q.load}
 scene.add(sun,sun.target);
 // 卡通分层着色（三档明暗，接近插画的赛璐璐感），按颜色缓存材质
 const toonGrad=(()=>{const t=new THREE.DataTexture(new Uint8Array([90,90,90,255,170,170,170,255,255,255,255,255]),3,1,THREE.RGBAFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;return t})();
@@ -748,7 +759,7 @@ const LOOKS={
 };
 const NPC_KEYS=['chef','suit','biker','courier','selfie','tourist','skater8','elder','skater','tank','sundress'];
 
-function makePerson(look){const lookKey=typeof look==='string'?look:null;const L=typeof look==='string'?LOOKS[look]:look;const fem=!!L.fem;
+function buildPerson(look){const lookKey=typeof look==='string'?look:null;const L=typeof look==='string'?LOOKS[look]:look;const fem=!!L.fem;
   const skin=L.skin??SKIN[(R()*SKIN.length)|0],hairC=L.hairCol??[0x1a1a1a,0x2a1a12,0x4a2e1a][(R()*3)|0];
   const shirtC=L.shirt??0xffffff,pantsC=L.pants??0x2a2f3a,dark=0x1a1012,sx=L.big?1.08:1;
   const g=new THREE.Group();const B=new Bld();
@@ -860,9 +871,18 @@ function makePerson(look){const lookKey=typeof look==='string'?look:null;const L
   if(L.carry==='selfie'){const st=new Bld();st.add(cyl(.012,.012,1.0,6),0x222222,[0,-.45,.05],[.3,0,0]);st.add(rgeo(.09,.16,.015,.3),0x111111,[0,-.95,.2],[.3,0,0]);hR.add(st.build())}
   if(L.phone){const ph=new Bld();ph.add(rgeo(.06,.13,.02,.3),0x111111,[0,-.02,.06]);hR.add(ph.build())}
   if(L.coffee){const cf=new Bld();cf.add(cyl(.045,.04,.13),0xf0f0f0,[0,.02,.07]);cf.add(cyl(.047,.047,.03),0x6a3a1a,[0,.075,.07]);hR.add(cf.build())}
+  spine.name='rg_spine';[hips,knees,shs,els,hands].forEach((arr,a)=>arr.forEach((o,k)=>o.name='rg_'+a+'_'+k));
   const rig={spine,hips,knees,shs,els,hands};
   g.userData.rig=rig;g.userData.limbs=[hips[0],hips[1],shs[0],shs[1]];g.userData.carry=L.carry||(L.phone?'phone':L.coffee?'coffee':null);
   g.userData.look=lookKey;scene.add(g);return g}
+const PCACHE={};
+function rigOf(g,carry,look){const n=x=>g.getObjectByName(x),arr=a=>[0,1].map(k=>n('rg_'+a+'_'+k));
+  const rig={spine:n('rg_spine'),hips:arr(0),knees:arr(1),shs:arr(2),els:arr(3),hands:arr(4)};g.userData={rig,limbs:[rig.hips[0],rig.hips[1],rig.shs[0],rig.shs[1]],carry,look}}
+function makePerson(look){if(typeof look!=='string'||look==='heroF'||look==='heroM')return buildPerson(look);
+  const key=look+'#'+((Math.random()*2)|0);let t=PCACHE[key];
+  if(!t){t=buildPerson(look);scene.remove(t);t.traverse(o=>{if(o.geometry)o.geometry.userData.own=false});PCACHE[key]=t}
+  const ud=t.userData;t.userData={};const g=t.clone(true);t.userData=ud;rigOf(g,ud.carry,ud.look);
+  g.traverse(o=>{if(o.isMesh)o.matrixAutoUpdate=true});scene.add(g);return g}
 
 // ===== 动作：每帧根据状态摆姿势 =====
 // st：idle 站立 / walk 走 / run 跑 / jump 跳 / punch 出拳 / aim 举枪 / dance 跳舞 / phone 打电话 / selfie 自拍 /
@@ -1223,8 +1243,11 @@ function driveAI(c,dt){let ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj);
     if(o.kind){const same=Math.sin(o.h)*fx+Math.cos(o.h)*fz;if(same<.5&&f>6.5)continue;block=true} // 车：只让同向前车，横穿/对向的车贴近才停
     else if(f<11)bPed=true}                                                                            // 行人（含玩家）：一直礼让
   // 被车堵超过 4 秒：按喇叭，然后慢慢挤过去
-  if(block){c.blockT=(c.blockT||0)+dt;if(c.blockT>4){if(!c.honked&&Math.hypot(c.x-player.x,c.z-player.z)<50){c.honked=1;SFX.horn()}block=false;if(c.blockT>7)c.blockT=0}}else{c.blockT=0;c.honked=0}
+  if(block&&!c.redStop){c.blockT=(c.blockT||0)+dt;if(c.blockT>4){if(!c.honked&&Math.hypot(c.x-player.x,c.z-player.z)<50){c.honked=1;SFX.horn()}block=false;if(c.blockT>7)c.blockT=0}}else{c.blockT=0;c.honked=0}
   block=block||bPed;
+  // 红灯 / 黄灯：在停止线前停下（已经进入路口的车继续通过）
+  if(!c.police||player.wanted===0){const grp=c.dz&&!c.dx?'b':'a';const stopD=rem-RD*.5-1.5;
+    if(degAll(c.ni,c.nj)>=3&&LSTATE[grp]!=='g'&&stopD>-.5&&stopD<4+Math.abs(c.speed)*.7){block=true;c.redStop=1}else c.redStop=0}
   const target=turning||Math.abs(diff)>.35?8:16;
   carPhysics(c,block?0:(c.speed<(c.blockT>4?4:target)?.6:0),clamp(diff*2.5,-1,1),block,dt);
   if(Math.abs(c.speed)<.5&&!block){if((c.stuck+=dt)>3){c.x=tx;c.z=tz;c.h=Math.atan2(ln.ux,ln.uz);c.stuck=0}}else c.stuck=0}
@@ -1246,6 +1269,7 @@ function spawnPed(x,z,look){let onP=null;if(x===undefined){const i=(R()*NX)|0,j=
 // 移除路人：从场景拿掉并释放它独有的几何体（共享的缓存几何体不动）
 function dropPed(p){scene.remove(p.mesh);p.mesh.traverse(o=>{if(o.geometry&&o.geometry.userData.own)o.geometry.dispose()});const i=peds.indexOf(p);if(i>=0)peds.splice(i,1);if(p.bench)p.bench.used=null}
 function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
+  {const dd=Math.hypot(p.x-cam.position.x,p.z-cam.position.z);p.mesh.visible=dd<Q.lod*1.6;if(dd>Q.lod&&!p.cop&&!(p.flee>0)&&p.onPath&&!p.cross){p.lodT=(p.lodT||0)+dt;if(p.lodT<.25){return}dt=p.lodT;p.lodT=0}}
   p.t+=dt;
   if(p.cop){ // 警员：跑向玩家，贴身就扣血；没通缉了就离开
     const dx=player.x-p.x,dz=player.z-p.z,d=Math.hypot(dx,dz);
@@ -1291,13 +1315,13 @@ function pedSnap(p){const[i,j]=cellOf(p.x,p.z);if(!blockOK(i,j))return false;
   if(cand[2]>14)return false;p.bi=i;p.bj=j;p.s=sOf(i,j,cand[0],cand[1]);p.dir=p.dir||(R()<.5?1:-1);p.onPath=true;return true}
 function pedWalk(p,sp,dt){
   if(p.cross){const c=p.cross;
-    if(c.wait){if(cars.some(o=>!o.dead&&o!==player.car&&Math.abs(o.speed)>2&&Math.hypot(o.x-c.mx,o.z-c.mz)<18))return'wait';c.wait=0}
+    if(c.wait){const grp=c.k%2?'b':'a';if(LSTATE[grp]!=='r')return'wait';if(cars.some(o=>!o.dead&&o!==player.car&&Math.abs(o.speed)>2&&Math.hypot(o.x-c.mx,o.z-c.mz)<18))return'wait';c.wait=0}
     c.t=Math.min(1,c.t+sp*dt/c.len);p.x=c.x0+(c.x1-c.x0)*c.t;p.z=c.z0+(c.z1-c.z0)*c.t;p.rot=Math.atan2(c.x1-c.x0,c.z1-c.z0);
     if(c.t>=1){p.bi=c.i;p.bj=c.j;p.s=c.s1;p.cross=null;if(R()<.5)p.dir=-p.dir}return'walk'}
   const s0=p.s;p.s+=p.dir*sp*dt;const a=sidePt(p.bi,p.bj,s0),b=sidePt(p.bi,p.bj,p.s);
   if(a.k===b.k)for(const fc of[CR,a.L-CR])if((a.f-fc)*(b.f-fc)<=0&&R()<.4){const k=a.k,ni=p.bi+NB[k][0],nj=p.bj+NB[k][1];
     if(blockOK(ni,nj)){const pt=sidePt(p.bi,p.bj,sOf(p.bi,p.bj,k,fc)),s1=sOf(ni,nj,(k+2)%4,a.L-fc),q=sidePt(ni,nj,s1);
-      p.cross={x0:pt.x,z0:pt.z,x1:q.x,z1:q.z,t:0,len:Math.hypot(q.x-pt.x,q.z-pt.z),i:ni,j:nj,s1,wait:1,mx:(pt.x+q.x)/2,mz:(pt.z+q.z)/2};p.x=pt.x;p.z=pt.z;return'walk'}}
+      p.cross={k,x0:pt.x,z0:pt.z,x1:q.x,z1:q.z,t:0,len:Math.hypot(q.x-pt.x,q.z-pt.z),i:ni,j:nj,s1,wait:1,mx:(pt.x+q.x)/2,mz:(pt.z+q.z)/2};p.x=pt.x;p.z=pt.z;return'walk'}}
   p.x=b.x;p.z=b.z;const sa=CORN[b.k],sb=CORN[(b.k+1)%4];const want=Math.atan2((sb[0]-sa[0])*p.dir,(sb[1]-sa[1])*p.dir);p.rot+=angDiff(want,p.rot)*Math.min(1,dt*10);return'walk'}
 // 路边停车：60~170 米范围内的空车位随机刷车，附近最多约 20 辆；离开 230 米以上就收回
 let parkT=0;
@@ -1308,7 +1332,8 @@ function updParking(dt){if((parkT-=dt)>0)return;parkT=.5;const px=player.x,pz=pl
     if(cars.some(c=>!c.dead&&Math.hypot(c.x-sp.x,c.z-sp.z)<7))continue;if(Math.random()<.35)continue;
     const c=makeCar(sp.x,sp.z,sp.h);c.driver=null;c.street=1;sp.used=c;near++}}
 // 红绿灯：两组交替，绿 5 秒 → 黄 1 秒 → 红
-function updLights(){const t=(performance.now()/1000)%12,set=(g,on)=>{const cs=[0xff2a3a,0xffd21f,0x5cff7a];TL[g].forEach((m,k)=>m.color.setHex(k===on?cs[k]:0x2a1a1a))};
+const LSTATE={a:'g',b:'r'};
+function updLights(){const t=(performance.now()/1000)%12,set=(g,on)=>{LSTATE[g]=['r','y','g'][on];const cs=[0xff2a3a,0xffd21f,0x5cff7a];TL[g].forEach((m,k)=>m.color.setHex(k===on?cs[k]:0x2a1a1a))};
   set('a',t<5?2:t<6?1:0);set('b',t<6?0:t<11?2:1)}
 // 长椅
 let _noPair=false;const benches=[];
@@ -1409,7 +1434,7 @@ const DRIVER_LOOKS=['chef','suit','biker','tourist','elder','skater','tank','sun
 function seatPose(m,k){pose(m,'sit',0,0);const r=m.userData.rig;if(!r)return;r.spine.position.y=.78;for(const s2 of r.shs){s2.rotation.x=-1.05;s2.rotation.z=s2.userData.z0*-1.5}for(const e of r.els)e.rotation.x=-.55}
 function addDriver(c){const se=c.mesh.userData.seat;if(!se||c.driverMesh)return;const m=makePerson(c.police?['cop','copF','copHelmet'][(R()*3)|0]:DRIVER_LOOKS[(R()*DRIVER_LOOKS.length)|0]);
   scene.remove(m);const k=se.k/CS;m.scale.setScalar(k);m.position.set(se.x,se.y-.78*k,se.z);seatPose(m);c.mesh.add(m);c.driverMesh=m;c.driverLook=m.userData.look}
-function syncDrivers(){for(const c of cars){if(c.dead)continue;const want=(c.driver==='ai'||c.driver==='cop')&&!c.jacking;
+function syncDrivers(){for(const c of cars){if(c.dead)continue;if(c.driverMesh)c.driverMesh.visible=Math.hypot(c.x-cam.position.x,c.z-cam.position.z)<Q.lod;const want=(c.driver==='ai'||c.driver==='cop')&&!c.jacking;
   if(want&&!c.driverMesh)addDriver(c);else if(!want&&c.driverMesh&&!c.jacking){c.mesh.remove(c.driverMesh);c.driverMesh.traverse(o=>{if(o.geometry&&o.geometry.userData.own)o.geometry.dispose()});c.driverMesh=null}}}
 // 玩家坐在驾驶座（世界坐标放置，按车型缩小一点免得顶穿车顶）
 function seatPlayer(c){const se=c.mesh.userData.seat;if(!se)return;const k=se.k;const pt=carPt(c,se.x*CS,se.z*CS);
@@ -1653,7 +1678,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   for(const c of[...cars])if(c.driver==='ai'&&!c.parked&&!c.street&&Math.hypot(c.x-player.x,c.z-player.z)>220)removeCar(c);
   for(const p of[...peds])if(Math.hypot(p.x-player.x,p.z-player.z)>200)dropPed(p)
   updParking(dt);
-  if(cars.filter(c=>c.driver==='ai'&&!c.patrol).length<14)spawnTraffic();if(cars.filter(c=>c.patrol&&!c.dead).length<2)spawnTraffic(true);if(peds.length<45)spawnPed();
+  if(cars.filter(c=>c.driver==='ai'&&!c.patrol).length<Q.traffic)spawnTraffic();if(cars.filter(c=>c.patrol&&!c.dead).length<2)spawnTraffic(true);if(peds.length<Q.peds)spawnPed();
   if(cash.length<12&&R()<.02){const n=randNode(30);let cx2=n.x,cz2=n.z;for(let k=0;k<12&&onRoad(cx2,cz2,.5);k++){cx2=n.x+rr(-30,30);cz2=n.z+rr(-30,30)}if(!onRoad(cx2,cz2,.5))dropCash(cx2,cz2,(rr(50,300))|0)}
   for(const k of[...cash]){k.m.rotation.y+=dt*3;if(Math.hypot(k.x-player.x,k.z-player.z)<3){player.money+=k.v;beep(1200,.08,'sine',.08);scene.remove(k.m);cash.splice(cash.indexOf(k),1)}}
   for(const f of[...fxs]){f.t+=dt;if(f.smoke){f.m.position.y+=dt*3;f.m.material.opacity=.6-f.t*.4}else{f.m.scale.setScalar(1+f.t*2);f.m.material.opacity=.9-f.t}if(f.t>1.4){scene.remove(f.m);f.m.geometry.dispose();f.m.material.dispose();fxs.splice(fxs.indexOf(f),1)}}
@@ -1714,7 +1739,7 @@ function mergeInto(list,grp){const groups=new Map();
     const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;grp.add(m)}return grp}
 // 生成时把 scene.add 截下来，收进这个任务自己的组
 let CAP=null;const _sceneAdd=scene.add.bind(scene);scene.add=function(...o){if(CAP){CAP.push(...o);return this}return _sceneAdd(...o)};
-const LOAD_R=430,UNLOAD_R=620;
+let LOAD_R=Q.load;const UNLOAD_R=640;
 function buildJob(job){if(job.built)return;const s0=solids.length,b0=benches.length,p0=PARK.length,oldR=R;CAP=[];
   try{buildJobContent(job)}finally{R=oldR}const objs=CAP;CAP=null;
   job.solids=solids.slice(s0);job.benches=benches.slice(b0);job.park=PARK.slice(p0);job.group=mergeInto(objs,new THREE.Group());_sceneAdd(job.group);job.built=true}
@@ -1740,7 +1765,15 @@ function updStream(){const px=player.car?player.car.x:player.x,pz=player.car?pla
       g.dispose();cast=cast||o.castShadow;scene.remove(o)}
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
     const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;scene.add(m)}})();
-ensureAround(SPN.x,SPN.z);
+// 开局分批生成出生点附近的城市，开始按钮显示进度
+let cityReady=false;
+(function bootCity(){const st=$('start'),label=st.textContent;st.disabled=true;
+  const todo=JOBS.filter(j=>Math.hypot(j.x-SPN.x,j.z-SPN.z)-j.r<Math.min(LOAD_R,300)).sort((a,b)=>Math.hypot(a.x-SPN.x,a.z-SPN.z)-Math.hypot(b.x-SPN.x,b.z-SPN.z));let k=0;
+  (function step(){const t0=performance.now();while(k<todo.length&&performance.now()-t0<40)buildJob(todo[k++]);
+    st.textContent=`正在生成城市 ${Math.round(k/Math.max(1,todo.length)*100)}%`;
+    if(k<todo.length)requestAnimationFrame(step);else{st.textContent=st.dataset.label||label;st.disabled=false;cityReady=true}})()})();
+for(const b of document.querySelectorAll('.qrow button')){b.classList.toggle('on',b.dataset.q===QK);b.setAttribute('aria-checked',b.dataset.q===QK);
+  b.addEventListener('click',()=>{applyQuality(b.dataset.q);for(const x of document.querySelectorAll('.qrow button')){x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)}})}
 $('wpn').addEventListener('click',nextWeapon);$('wpn').addEventListener('touchend',e=>{e.preventDefault();nextWeapon()});setWeapon(0);
 offerMission();cam.position.set(player.x,40,player.z-40);
 for(const[id,k]of[['pickF','heroF'],['pickM','heroM']])$(id).addEventListener('click',()=>{setHero(k);
@@ -1758,9 +1791,9 @@ setInterval(saveGame,5000);addEventListener('visibilitychange',()=>{if(document.
 // 声音需要一次点击才能开启：自动恢复游戏时，第一次触摸屏幕再开声音
 addEventListener('pointerdown',()=>{if(running&&!ac)initAudio()},{capture:true});
 const saved=loadSave();
-if(saved&&saved.money>0||saved&&saved.hero){$('start').textContent='继续游戏 · $'+(saved.money|0).toLocaleString();$('newGame').hidden=false;if(saved.hero)pickHeroUI(saved.hero)}
+if(saved&&saved.money>0||saved&&saved.hero){$('start').dataset.label='继续游戏 · $'+(saved.money|0).toLocaleString();if(cityReady)$('start').textContent=$('start').dataset.label;$('newGame').hidden=false;if(saved.hero)pickHeroUI(saved.hero)}
 $('newGame').addEventListener('click',()=>{try{localStorage.removeItem(SAVE_KEY)}catch(e){}location.reload()});
-$('start').addEventListener('click',()=>{if(!ac)initAudio();const sv=loadSave();if(sv){applyState(sv);beginPlay('欢迎回来')}else beginPlay('出狱第一天')});
+$('start').addEventListener('click',()=>{if(!cityReady)return;if(!ac)initAudio();const sv=loadSave();if(sv){applyState(sv);beginPlay('欢迎回来')}else beginPlay('出狱第一天')});
 // 页面更新时（比如发布了新版本）保留正在玩的进度，直接接着玩
 window.claude?.hot?.snapshot?.(()=>running?{state:snapshotState()}:{});
 (function boot(data){if(data&&data.state){applyState(data.state);beginPlay('游戏已更新，继续玩吧')}})(window.claude?.hot?.data);
