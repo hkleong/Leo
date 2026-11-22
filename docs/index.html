@@ -131,6 +131,7 @@ canvas{display:block}
 #logPanel{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;background:rgba(10,8,24,.6);padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px))}#logPanel[hidden]{display:none}
 #logPanel .shop-card{width:min(92vw,480px);text-align:left}#logClose{font:600 14px var(--body);padding:8px 14px;border:0;border-radius:6px;background:var(--hot);color:#fff;cursor:pointer}
 .log-v{background:rgba(255,255,255,.06);border-radius:10px;padding:10px 12px;color:#fff;font-size:13px}.log-v b{font-family:var(--disp);color:var(--sun);font-size:15px}.log-v span{opacity:.85}.log-v em{font-style:normal;font-size:11px;background:var(--hot);padding:1px 7px;border-radius:999px;margin-left:4px}
+.log-v i{font-style:normal;color:#7fe0ff;font-variant-numeric:tabular-nums;margin-right:4px}.log-note{margin:0;font-size:12px;color:#fff;opacity:.7}
 .log-v ul{margin:6px 0 0;padding-left:18px;line-height:1.6}#logBody{display:flex;flex-direction:column;gap:8px}
 #hurt{position:absolute;inset:0;background:radial-gradient(transparent 40%,rgba(255,0,40,.8));opacity:0;transition:opacity .15s;pointer-events:none}
 #newGame{pointer-events:auto;background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;cursor:pointer;opacity:.85}
@@ -2833,7 +2834,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.1.2';
+const VERSION='v0.15.0';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -2999,12 +3000,24 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.1.2','画面升级',['霓虹招牌、车灯、路灯、篝火加入泛光','按时间自动调色：白天通透、黄昏暖橙、夜晚蓝紫，加轻微暗角','全新海面：波纹、天空倒影、太阳和月亮反光，岸边有浪花','雨夜湿路面倒映霓虹招牌和路灯','人和车脚下加接触阴影','刹车灯、夜间尾灯、车头灯光晕','急刹 / 漂移留下刹车痕，轮胎冒烟','车漆加边缘反光','爆炸改成火球 + 烟柱 + 碎片','海边有海鸥，沙滩上奔跑扬起沙尘','白天太阳光束；雾天、雨夜路灯有光柱','地面有缓慢移动的云影','手机 → 设置 可以开关画面特效']],
- ['v0.1.1','图标与碰撞',['主线改为金色问号，零活粉色问号（生成在人行道上），街头事件橙色感叹号','所有载具按模型实际尺寸计算碰撞，摩托车更窄，可以钻车缝']],
- ['v0.1.0','大型更新',['6 章剧情主线','物业与每日收入；车库存车、手机叫车','街头随机事件：抢劫、车祸、赛车、临检','游戏内手机','摩托翘头、飞台、后空翻','游泳','车辆损坏：冒烟、着火、掉车门','天气：晴、多云、雨、雷雨、雾','夜晚车灯照地、路灯光圈、招牌闪烁','雨天撑伞、海滩篝火、遛狗的路人','自定义触屏按键布局、自动画质']],
- ['v0.0.x','早期版本',['开放世界海岛城市与昼夜循环','零活任务、警察通缉、抢车','各种车辆与摩托、武器、枪店与喷漆店','地图导航、电台、存档、成就']]];
+ ['v0.15','画面升级',[['0.15.0','泛光、按时间调色与暗角、太阳光束、全新海面（波纹、倒影、浪花）、湿路面倒影、接触阴影、刹车灯与车头灯光晕、刹车痕与轮胎烟、车漆反光、爆炸火球与烟柱、海鸥、沙尘、路灯光柱、云影；手机设置可开关特效']]],
+ ['v0.14','玩法大更新',[['0.14.2','所有载具按模型实际尺寸计算碰撞，摩托车更窄'],['0.14.1','主线金色问号、零活粉色问号（生成在人行道上）、街头事件橙色感叹号'],
+   ['0.14.0','6 章剧情主线、物业与每日收入、车库存车与叫车、街头随机事件、游戏内手机、摩托翘头/飞台/后空翻、游泳、车辆损坏、天气系统、夜晚灯光、雨天撑伞与海滩篝火、自定义按键布局、自动画质']]],
+ ['v0.13','新载具与伙伴',[['0.13.4','骑手跟着摩托一起倾斜'],['0.13.3','修正摩托倾斜方向'],['0.13.2','点击地图导航，按道路算最短路线'],['0.13.1','修复巴士没有车顶'],['0.13.0','路人带狗、滑板，新增摩托车、踏板车、面包车、巴士']]],
+ ['v0.12','写实贴图',[['0.12.5','服装细节：牛仔、皮革、亮片、印花布料，领子、口袋、配饰'],['0.12.4','云飘得更慢；脸部改为贴图（眼睛、眉毛、鼻子、嘴）'],['0.12.3','建筑贴图合并，减少绘制次数'],['0.12.2','天空飘云'],['0.12.1','地面、车漆、衣服贴图'],['0.12.0','所有建筑改为写实贴图']]],
+ ['v0.11','任务与商店',[['0.11.5','修复喷漆店关不掉'],['0.11.4','楼房外墙贴图'],['0.11.3','重建海边别墅'],['0.11.2','瞄准时上下拖动移动准星'],['0.11.1','摇杆转向选项、震动'],['0.11.0','出租车、外卖任务，枪店、喷漆店，车载电台，统计与成就']]],
+ ['v0.10','昼夜循环',[['0.10.1','警察沿道路追捕，转向更顺'],['0.10.0','昼夜循环：天空、太阳月亮、星星、灯光、窗户亮灯、时钟']]],
+ ['v0.9','新地图',[['0.9.10–11','去掉旧名字'],['0.9.9','角色模板缓存、远近细节、画质选项'],['0.9.8','路边物件不再长在路中间'],['0.9.7','道路加宽、车道与停车格，AI 严格靠右行驶'],['0.9.5–6','远山、小岛、礁石改为贴图'],['0.9.4','城市跟随玩家分块加载'],['0.9.3','小地图跟随镜头转动'],['0.9.2','红绿灯、路牌、消防栓等街道细节，路边停车'],['0.9.1','斜向大道'],['0.9.0','更大更狭长的岛，不规则道路，可缩放大地图']]],
+ ['v0.8','车舱与 App',[['0.8.7','改名 NBY VI'],['0.8.5–6','App 图标'],['0.8.4','可安装的 App 版'],['0.8.1–3','车门开口修正，可开关的车门'],['0.8.0','曲面车身、透明玻璃、车内司机、抢车拖人动画']]],
+ ['v0.7','医院与警局',[['0.7.2','逮捕变慢，重生后站起来'],['0.7.1','通缉提示放顶部，任务字幕放底部'],['0.7.0','医院、警察局，被捕/死亡过场动画']]],
+ ['v0.6','城市扩建',[['0.6.3','装饰艺术风格楼房'],['0.6.2','修复内存泄漏、自动存档'],['0.6.1','房屋按人物比例缩放，修复堵车，近距离瞄准'],['0.6.0','更大的岛、人行道和斑马线、警察下车步行追捕']]],
+ ['v0.5','武器',[['0.5.0','拳头、棒球棒、手枪、自动步枪，武器图标与建模；加入平房']]],
+ ['v0.4','开放世界',[['0.4.8','引擎、枪声、开门、警笛、NPC 说话等音效'],['0.4.7','按键布局、上车开门动画'],['0.4.6','瞄准改为开关，跳跃键靠近车时变上车键，车辆比例放大'],['0.4.5','拖动屏幕转视角'],['0.4.4','去掉跳舞，加入瞄准模式'],['0.4.3','被警察看见才通缉，巡逻警车'],['0.4.2','远处山体'],['0.4.1','点小地图看大地图'],['0.4.0','不规则海岛、手肘膝盖关节、路人活动']]],
+ ['v0.3','重新建模',[['0.3.0','人物、车辆、直升机全部重做，加描边']]],
+ ['v0.2','美术风格',[['0.2.2','圆润的人物和车'],['0.2.1','六种车辆、海滩停车场'],['0.2.0','日落霓虹画风、主角选择、警车、直升机']]],
+ ['v0.1','第一版',[['0.1.3','小地图、奔跑键、驾驶按键'],['0.1.2','修复通缉超过 5 星卡死'],['0.1.1','修复人物移动'],['0.1.0','开放世界驾驶游戏第一版']]]];
 $('verBtn').textContent=VERSION+' · 更新内容';
-function openLog(v){$('logPanel').hidden=!v;if(v)$('logBody').innerHTML=CHANGELOG.map(([ver,t,items],k)=>`<div class="log-v"><b>${ver}</b> <span>${t}</span>${k===0?' <em>最新</em>':''}<ul>${items.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}
+function openLog(v){$('logPanel').hidden=!v;if(v)$('logBody').innerHTML='<p class="log-note">大更新 +0.1.0，小更新 +0.0.1</p>'+CHANGELOG.map(([ver,t,items],k)=>`<div class="log-v"><b>${ver}</b> <span>${t}</span>${k===0?' <em>最新</em>':''}<ul>${items.map(([n,x])=>`<li><i>${n}</i> ${x}</li>`).join('')}</ul></div>`).join('')}
 $('verBtn').addEventListener('click',()=>openLog(true));$('logClose').addEventListener('click',()=>openLog(false));$('logPanel').addEventListener('click',e=>{if(e.target.id==='logPanel')openLog(false)});
 addEventListener('keydown',e=>{if(e.code==='Escape'&&!$('logPanel').hidden)openLog(false)});
 
