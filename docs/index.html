@@ -1863,8 +1863,10 @@ function addDriver(c){const se=c.mesh.userData.seat;if(!se||c.driverMesh)return;
 function syncDrivers(){for(const c of cars){if(c.dead)continue;if(c.driverMesh)c.driverMesh.visible=Math.hypot(c.x-cam.position.x,c.z-cam.position.z)<Q.lod;const want=(c.driver==='ai'||c.driver==='cop')&&!c.jacking;
   if(want&&!c.driverMesh)addDriver(c);else if(!want&&c.driverMesh&&!c.jacking){c.mesh.remove(c.driverMesh);c.driverMesh.traverse(o=>{if(o.geometry&&o.geometry.userData.own)o.geometry.dispose()});c.driverMesh=null}}}
 // 玩家坐在驾驶座（世界坐标放置，按车型缩小一点免得顶穿车顶）
-function seatPlayer(c){const se=c.mesh.userData.seat;if(!se)return;const k=se.k;const pt=carPt(c,se.x*CS,se.z*CS);
-  player.mesh.visible=true;if(player.wMesh)player.wMesh.visible=false;player.mesh.scale.setScalar(k);player.mesh.rotation.set(0,c.h,0);player.mesh.position.set(pt.x,se.y*CS-.78*k,pt.z);seatPose(player.mesh);if(c.mesh.userData.bike)bikePose(player.mesh)}
+function seatPlayer(c){const se=c.mesh.userData.seat;if(!se)return;const k=se.k,ln=c.mesh.userData.bike?(c.lean||0):0,lx0=se.x*CS,ly0=se.y*CS-.78*k,cl=Math.cos(ln),sl=Math.sin(ln);
+  // 摩托倾斜时，人物绕车底（地面）一起倾斜
+  const pt=carPt(c,lx0*cl-ly0*sl,se.z*CS);
+  player.mesh.visible=true;if(player.wMesh)player.wMesh.visible=false;player.mesh.scale.setScalar(k);player.mesh.rotation.set(0,c.h,ln);player.mesh.position.set(pt.x,lx0*sl+ly0*cl,pt.z);seatPose(player.mesh);if(c.mesh.userData.bike)bikePose(player.mesh)}
 // 车门外站位 / 驾驶座位置（世界坐标）
 function carPt(c,lx,lz){const s=Math.sin(c.h),co=Math.cos(c.h);return{x:c.x+lx*co+lz*s,z:c.z-lx*s+lz*co}}
 const doorStand=c=>carPt(c,(c.mesh.userData.halfW+.75)*CS,c.mesh.userData.doorZ*CS);
