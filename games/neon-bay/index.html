@@ -83,6 +83,8 @@ canvas{display:block}
 .st-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}.st-grid div{background:rgba(255,255,255,.06);border-radius:8px;padding:8px}.st-grid span{display:block;font-size:12px;opacity:.7}.st-grid b{font-size:18px;color:var(--sun);font-variant-numeric:tabular-nums}
 #statsPanel h3{margin:14px 0 8px;font-family:var(--disp);color:var(--hot);font-size:16px}.ach{list-style:none;margin:0;padding:0;display:grid;gap:6px}.ach li{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.04);opacity:.55;font-size:13px}.ach li.on{opacity:1;background:rgba(255,179,71,.15)}.ach span{opacity:.75}
 @media (max-height:460px){#title{gap:8px}#title p{display:none}#title h1{font-size:clamp(30px,13vh,60px)}.hero{width:104px;padding:4px}.hero img{height:84px}.hero small{display:none}#title .keys{display:none}.qrow button{padding:3px 10px}#start{padding:10px 28px;font-size:18px}}
+#navInfo{display:flex;align-items:center;gap:8px;background:var(--ui);border-left:4px solid #c77dff;border-radius:4px;padding:4px 6px 4px 10px;font-size:12px;width:max-content;pointer-events:auto}#navInfo span{color:#c77dff;font-weight:700}#navInfo b{font-variant-numeric:tabular-nums}
+#navX{background:none;border:0;color:#fff;font-size:14px;cursor:pointer;padding:2px 4px}
 #hurt{position:absolute;inset:0;background:radial-gradient(transparent 40%,rgba(255,0,40,.8));opacity:0;transition:opacity .15s;pointer-events:none}
 #newGame{pointer-events:auto;background:none;border:0;color:#fff;text-decoration:underline;font-size:13px;cursor:pointer;opacity:.85}
 #cut{position:absolute;inset:0;pointer-events:none}
@@ -109,14 +111,14 @@ canvas{display:block}
   <div class="keys">WASD 移动·驾驶 · 鼠标拖动 转视角 · Shift 奔跑 · 空格 跳跃/手刹 · Q/1-4 切换武器 · R/右键 瞄准开关 · F 攻击 · E 上下车 · H 喇叭 · G 电台 · Tab 地图 · M 静音</div>
 </div>
 <div id="hud">
-  <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div></div>
+  <div class="tl"><div id="money">$0</div><div id="hp"><i></i></div><div id="mission"><b>任务</b><span id="mtext">走到粉色光柱接活</span></div><div id="navInfo" hidden><span>◆ 导航</span><b id="navDist"></b><button id="navX" aria-label="取消导航">✕</button></div></div>
   <div class="tr"><div id="stars"></div><div id="clock"></div><button id="wpn" aria-label="切换武器"><span id="wpnIcon"></span><span id="wpnName">拳头</span><span id="wpnDots"></span></button><div id="speed"></div></div>
   <canvas id="mini" width="300" height="300" role="button" aria-label="打开完整地图" tabindex="0"></canvas>
   <div id="hurt"></div><div id="cut" hidden><i class="bar t"></i><i class="bar b"></i><div id="cutTxt"></div><div id="cutSub"></div></div><div id="fade"></div><div id="xh" hidden></div><div id="topmsg"></div><div id="toast"></div><div id="hint"></div>
 </div>
 <div id="shop" hidden><div class="shop-card"><div class="bm-top"><b id="shopTitle"></b><button id="shopClose">离开</button></div><div id="shopList"></div></div></div>
-<div id="bigmap" hidden><div class="bm-top"><b>NBY VI 地图</b><span><button id="bmStats">统计 · 成就</button> <button id="bmClose" aria-label="关闭地图">关闭</button></span></div><div id="statsPanel" hidden><div id="statsBody"></div></div><div class="bm-wrap"><canvas id="bmc"></canvas><div class="bm-zoom"><button id="bmIn" aria-label="放大">＋</button><button id="bmOut" aria-label="缩小">－</button><button id="bmMe" aria-label="回到我的位置" style="font-size:15px">◎</button></div></div>
-  <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#ffe14d"></i>任务</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#ff2a3a"></i>医院</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
+<div id="bigmap" hidden><div class="bm-top"><b>NBY VI 地图</b><span><button id="bmStats">统计 · 成就</button> <button id="bmClose" aria-label="关闭地图">关闭</button></span></div><div id="statsPanel" hidden><div id="statsBody"></div></div><div class="bm-wrap"><canvas id="bmc"></canvas><div class="bm-zoom"><button id="bmIn" aria-label="放大">＋</button><button id="bmOut" aria-label="缩小">－</button><button id="bmNavX" aria-label="清除导航" style="font-size:13px">✕</button><button id="bmMe" aria-label="回到我的位置" style="font-size:15px">◎</button></div></div>
+  <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#c77dff"></i>导航（点地图设置）</span><span><i style="background:#ffe14d"></i>任务</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#ff2a3a"></i>医院</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
 <div id="touch" data-mode="foot">
   <div id="stick" class="foot"><div id="knob"></div></div>
   <div class="tb foot big hot" id="bF" style="right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(34px + env(safe-area-inset-bottom,0px))">攻击</div>
@@ -1907,6 +1909,26 @@ function exitCar(force){const c=player.car;if(!c)return;if(!force&&Math.abs(c.sp
 const GOAL=30000;
 const beamMat=new THREE.MeshBasicMaterial({color:0xff3d8b,transparent:true,opacity:.45});
 const beam=new THREE.Mesh(new THREE.CylinderGeometry(2.5,2.5,60,16,1,true),beamMat);scene.add(beam);
+// 导航目的地：紫色光柱 + 路线（路口坐标列表）
+const NAV={on:false,x:0,z:0,route:[],t:0};
+const navBeam=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.6,80,16,1,true),new THREE.MeshBasicMaterial({color:0xb36bff,transparent:true,opacity:.5,depthWrite:false,side:THREE.DoubleSide}));navBeam.visible=false;scene.add(navBeam);
+function nearestNode(x,z){let best=null,bd=1e9;for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!degAll(i,j))continue;const d=Math.hypot(rx(i)-x,rz(j)-z);if(d<bd){bd=d;best=[i,j]}}return best}
+// Dijkstra：边长就是两个路口之间的距离（含斜路）
+function navRoute(){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z,a=nearestNode(px,pz),b=nearestNode(NAV.x,NAV.z);if(!a||!b){NAV.route=[];return}
+  const key=(i,j)=>i*100+j,dist=new Map([[key(...a),0]]),prev=new Map(),open=[[0,a[0],a[1]]],done=new Set();
+  while(open.length){let mi=0;for(let k=1;k<open.length;k++)if(open[k][0]<open[mi][0])mi=k;const[d0,i,j]=open.splice(mi,1)[0],k0=key(i,j);if(done.has(k0))continue;done.add(k0);if(i===b[0]&&j===b[1])break;
+    for(const[di,dj]of DIRS8){if(!linkOK(i,j,di,dj))continue;const ni=i+di,nj=j+dj,nk=key(ni,nj),nd=d0+Math.hypot(rx(ni)-rx(i),rz(nj)-rz(j));if(nd<(dist.get(nk)??1e12)){dist.set(nk,nd);prev.set(nk,[i,j]);open.push([nd,ni,nj])}}}
+  const path=[];let cur=b;while(cur){path.unshift({x:rx(cur[0]),z:rz(cur[1])});if(cur[0]===a[0]&&cur[1]===a[1])break;cur=prev.get(key(...cur))}
+  NAV.route=[{x:px,z:pz},...path,{x:NAV.x,z:NAV.z}];NAV.len=NAV.route.reduce((s0,p,k,arr)=>k?s0+Math.hypot(p.x-arr[k-1].x,p.z-arr[k-1].z):0,0)}
+function setNav(x,z){if(!onIsland(x,z,4)){toast('那里是海，选岛上的地方');return}NAV.on=true;NAV.x=x;NAV.z=z;navRoute();navBeam.visible=true;navBeam.position.set(x,40,z);$('navInfo').hidden=false;toast('已设置导航');beep(880,.08,'triangle',.06)}
+function clearNav(msg){NAV.on=false;NAV.route=[];navBeam.visible=false;$('navInfo').hidden=true;if(msg)toast(msg)}
+function updNav(dt){if(!NAV.on)return;const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z,d=Math.hypot(NAV.x-px,NAV.z-pz);
+  if(d<14){clearNav('已到达目的地');beep(660,.1);setTimeout(()=>beep(990,.15),100);return}
+  if((NAV.t-=dt)<=0){NAV.t=1.2;navRoute()}else if(NAV.route.length)NAV.route[0]={x:px,z:pz};
+  navBeam.material.opacity=.35+.15*Math.sin(performance.now()/300);{const m=NAV.len/1.6;$('navDist').textContent=m>=1000?(m/1000).toFixed(1)+' 公里':Math.round(m/10)*10+' 米'}}
+// 路线画到 2D 画布上（f 把世界坐标转成画布坐标）
+function drawRoute(g,f,w){if(!NAV.on||NAV.route.length<2)return;g.save();g.lineCap=g.lineJoin='round';
+  for(const[col,lw]of[['rgba(30,0,60,.7)',w*1.7],['#c77dff',w]]){g.strokeStyle=col;g.lineWidth=lw;g.beginPath();NAV.route.forEach((p,k)=>{const[X,Y]=f(p.x,p.z);k?g.lineTo(X,Y):g.moveTo(X,Y)});g.stroke()}g.restore()}
 let mission={stage:'offer',x:0,z:0,timer:0,type:null,pts:[],car:null};
 function randNode(minD){for(let k=0;;k++){const i=(R()*(NX+1))|0,j=(R()*(NZ+1))|0;if(!nodeOK(i,j)||!degAll(i,j))continue;const n=node(i,j);if(Math.hypot(n.x-player.x,n.z-player.z)>minD*(k>300?.3:1))return n}}
 function offerMission(){const n=randNode(60);mission={stage:'offer',x:n.x,z:n.z,timer:0};beamMat.color.set(0xff3d8b);setM('走到粉色光柱接新活')}
@@ -2047,6 +2069,7 @@ function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),Wc=cv.c
   for(const k of cash)dot(k.x,k.z,2.5,'#5cff7a');
   for(const c of cars)if(c.police&&!c.dead)dot(c.x,c.z,4,'#ff2a3a');
   if(heli)dot(heli.x,heli.z,6,'#ff2a3a');
+  drawRoute(g,S,5*dpr);if(NAV.on){const[X,Y]=S(NAV.x,NAV.z);g.fillStyle='#c77dff';g.strokeStyle='#1a0f2a';g.lineWidth=2*dpr;g.beginPath();g.moveTo(X,Y);g.arc(X,Y-14*dpr,8*dpr,Math.PI*.8,Math.PI*2.2);g.closePath();g.fill();g.stroke()}
   if(beamMat.visible)label(mission.x,mission.z,'任务','#'+beamMat.color.getHexString());
   const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z,h=player.car?player.car.h:player.rot,[PX,PY]=S(px,pz);
   g.save();g.translate(PX,PY);g.rotate(-h+Math.PI);g.scale(dpr,dpr);g.fillStyle='#ff3d8b';g.strokeStyle='#000';g.lineWidth=2;g.beginPath();g.moveTo(0,-11);g.lineTo(8,9);g.lineTo(-8,9);g.closePath();g.fill();g.stroke();g.restore()}
@@ -2056,16 +2079,18 @@ function mapZoomAt(f,sx,sy){const cv=$('bmc'),r=cv.getBoundingClientRect(),dpr=M
   mapView.zoom=clamp(mapView.zoom*f,1,10);const s1=mapBase(Wc,Hc)*mapView.zoom;mapView.cx=wx-((sx-r.left)*dpr-Wc/2)/s1;mapView.cz=wz-((sy-r.top)*dpr-Hc/2)/s1;mapClamp();drawBigMap()}
 function mapClamp(){const k=1-1/mapView.zoom;mapView.cx=clamp(mapView.cx,-HALFX*1.15*k,HALFX*1.15*k);mapView.cz=clamp(mapView.cz,-HALFZ*1.25*k,HALFZ*1.25*k)}
 function mapCenterMe(z){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;if(z)mapView.zoom=Math.max(mapView.zoom,z);mapView.cx=px;mapView.cz=pz;mapClamp();drawBigMap()}
-(function(){const cv=$('bmc'),pts=new Map();let pinch0=0,zoom0=1;
+(function(){const cv=$('bmc'),pts=new Map();let pinch0=0,zoom0=1,tap=null;
   cv.addEventListener('wheel',e=>{e.preventDefault();mapZoomAt(Math.exp(-e.deltaY*.0015),e.clientX,e.clientY)},{passive:false});
-  cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});cv.style.cursor='grabbing';
+  cv.addEventListener('pointerdown',e=>{tap=pts.size?null:{x:e.clientX,y:e.clientY,t:performance.now()};cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});cv.style.cursor='grabbing';
     if(pts.size===2){const[a,b]=[...pts.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);zoom0=mapView.zoom}});
-  cv.addEventListener('pointermove',e=>{const p0=pts.get(e.pointerId);if(!p0)return;const dpr=Math.min(devicePixelRatio,2),s=mapBase(cv.width,cv.height)*mapView.zoom;
+  cv.addEventListener('pointermove',e=>{const p0=pts.get(e.pointerId);if(!p0)return;if(tap&&Math.hypot(e.clientX-tap.x,e.clientY-tap.y)>8)tap=null;if(pts.size>1)tap=null;const dpr=Math.min(devicePixelRatio,2),s=mapBase(cv.width,cv.height)*mapView.zoom;
     if(pts.size===1){mapView.cx-=(e.clientX-p0.x)*dpr/s;mapView.cz-=(e.clientY-p0.y)*dpr/s;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});mapClamp();drawBigMap()}
     else if(pts.size===2){pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const[a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0>0)mapZoomAt(zoom0*d/pinch0/mapView.zoom,(a.x+b.x)/2,(a.y+b.y)/2)}});
-  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch0=0;if(!pts.size)cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  const up=e=>{if(e.type==='pointerup'&&tap&&pts.size===1&&performance.now()-tap.t<500){const r=cv.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,2),s0=mapBase(cv.width,cv.height)*mapView.zoom;
+      const wx=mapView.cx+((e.clientX-r.left)*dpr-cv.width/2)/s0,wz=mapView.cz+((e.clientY-r.top)*dpr-cv.height/2)/s0;
+      if(NAV.on&&Math.hypot(wx-NAV.x,wz-NAV.z)*s0/dpr<18)clearNav('已取消导航');else setNav(wx,wz);drawBigMap()}tap=null;pts.delete(e.pointerId);if(pts.size<2)pinch0=0;if(!pts.size)cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
   const mid=()=>{const r=cv.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]};
-  $('bmIn').addEventListener('click',()=>mapZoomAt(1.6,...mid()));$('bmOut').addEventListener('click',()=>mapZoomAt(1/1.6,...mid()));$('bmMe').addEventListener('click',()=>mapCenterMe(3));
+  $('bmIn').addEventListener('click',()=>mapZoomAt(1.6,...mid()));$('bmOut').addEventListener('click',()=>mapZoomAt(1/1.6,...mid()));$('bmMe').addEventListener('click',()=>mapCenterMe(3));$('bmNavX').addEventListener('click',()=>{clearNav('已取消导航');drawBigMap()});
 })();
 function drawMini(){const s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
   mini.fillStyle='#1fa3c4';mini.fillRect(0,0,300,300);
@@ -2080,10 +2105,12 @@ function drawMini(){const s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?playe
   mini.strokeStyle='#55505f';mini.lineWidth=RD*s;for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);mini.beginPath();mini.moveTo(x0*s,z0*s);mini.lineTo(x1*s,z1*s);mini.stroke()}
   mini.fillStyle='#fff';mini.fillRect((villa.x-15)*s,(villa.z-11)*s,30*s,22*s);mini.fillStyle='#ff2a3a';mini.fillRect((hospital.x-8)*s,(hospital.z-2.5)*s,16*s,5*s);mini.fillRect((hospital.x-2.5)*s,(hospital.z-8)*s,5*s,16*s);mini.fillStyle='#4a7ab0';mini.beginPath();mini.arc(station.x*s,station.z*s,7*s,0,7);mini.fill();
   for(const c of cars)if(c.police&&!c.dead){mini.fillStyle=((performance.now()/200)|0)%2?'#f00':'#04f';mini.fillRect(c.x*s-3,c.z*s-3,6,6)}
+  drawRoute(mini,(x,z)=>[x*s,z*s],3.2);if(NAV.on){mini.fillStyle='#c77dff';mini.beginPath();mini.arc(NAV.x*s,NAV.z*s,5,0,7);mini.fill()}
   if(beamMat.visible){mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(mission.x*s,mission.z*s,6,0,7);mini.fill()}
   mini.restore();
   // 屏外目标箭头
   if(beamMat.visible){const wx=(mission.x-px)*s*z,wz=(mission.z-pz)*s*z,dx=wx*cT-wz*sT,dz=wx*sT+wz*cT;if(Math.hypot(dx,dz)>140){const a=Math.atan2(dz,dx);mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(cx+Math.cos(a)*128,cy+Math.sin(a)*128,14,0,7);mini.fill()}}
+  if(NAV.on){const wx=(NAV.x-px)*s*z,wz=(NAV.z-pz)*s*z,dx=wx*cT-wz*sT,dz=wx*sT+wz*cT;if(Math.hypot(dx,dz)>140){const a=Math.atan2(dz,dx);mini.fillStyle='#c77dff';mini.beginPath();mini.arc(cx+Math.cos(a)*128,cy+Math.sin(a)*128,11,0,7);mini.fill()}}
   // 北方标记
   {const nx=-(-1)*sT*128,ny=-1*cT*128;mini.fillStyle='rgba(10,8,24,.8)';mini.beginPath();mini.arc(cx+nx,cy+ny,15,0,7);mini.fill();mini.fillStyle='#fff';mini.font='bold 20px Rubik,sans-serif';mini.textAlign='center';mini.textBaseline='middle';mini.fillText('N',cx+nx,cy+ny+1)}
   const h=player.car?player.car.h:player.rot;mini.save();mini.translate(cx,cy);mini.rotate(Math.atan2(Math.cos(h),Math.sin(h))+th+Math.PI/2);
@@ -2163,7 +2190,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   for(const f of[...fxs]){f.t+=dt;if(f.smoke){f.m.position.y+=dt*3;f.m.material.opacity=.6-f.t*.4}else{f.m.scale.setScalar(1+f.t*2);f.m.material.opacity=.9-f.t}if(f.t>1.4){scene.remove(f.m);f.m.geometry.dispose();f.m.material.dispose();fxs.splice(fxs.indexOf(f),1)}}
   for(const t of[...tracers])if((t.t-=dt)<0){scene.remove(t.l);t.l.geometry.dispose();t.l.material.dispose();tracers.splice(tracers.indexOf(t),1)}
   if(player.wanted>0&&(chaseT-=dt)<=0){chaseT=.8;chaseMap()}
-  updStream();syncDrivers();updLights();updDayNight(dt);updShops();updRadio();updAch(dt);updWanted(dt);updMission(dt);updAudio(dt,ax,ay);updBubbles(dt);
+  updStream();syncDrivers();updLights();updDayNight(dt);updShops();updRadio();updAch(dt);updWanted(dt);updMission(dt);updNav(dt);updAudio(dt,ax,ay);updBubbles(dt);
   if(player.hp<=0&&!cut)startCut('dead');else if(!player.car&&player.wanted===0)player.hp=Math.min(100,player.hp+dt*2);
   // 逮捕判定：有通缉时，警员贴身（步行时 2 米内且没在跑）或你的车停下、警员在 6 米内，持续一会儿就被捕
   if(!cut&&player.wanted>0){let near=false;for(const q of peds)if(q.cop&&!q.dead&&!(q.knock>0)){const d=Math.hypot(q.x-player.x,q.z-player.z);
@@ -2263,7 +2290,7 @@ let cityReady=false;updDayNight(0);
 for(const b of document.querySelectorAll('.qrow button[data-q]')){b.classList.toggle('on',b.dataset.q===QK);b.setAttribute('aria-checked',b.dataset.q===QK);
   b.addEventListener('click',()=>{applyQuality(b.dataset.q);for(const x of document.querySelectorAll('.qrow button[data-q]')){x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)}})}
 for(const b of document.querySelectorAll('#steerRow button'))b.addEventListener('click',()=>setSteer(b.dataset.s));setSteer(STEER);
-$('shopClose').addEventListener('click',closeShop);$('shop').addEventListener('click',e=>{if(e.target.id==='shop')closeShop()});addEventListener('keydown',e=>{if(shopOpen&&(e.code==='Escape'||e.code==='KeyE'))closeShop()});$('bmStats').addEventListener('click',()=>{const sp=$('statsPanel');sp.hidden=!sp.hidden;if(!sp.hidden)renderStats()});
+$('navX').addEventListener('click',()=>clearNav('已取消导航'));$('shopClose').addEventListener('click',closeShop);$('shop').addEventListener('click',e=>{if(e.target.id==='shop')closeShop()});addEventListener('keydown',e=>{if(shopOpen&&(e.code==='Escape'||e.code==='KeyE'))closeShop()});$('bmStats').addEventListener('click',()=>{const sp=$('statsPanel');sp.hidden=!sp.hidden;if(!sp.hidden)renderStats()});
 $('wpn').addEventListener('click',nextWeapon);$('wpn').addEventListener('touchend',e=>{e.preventDefault();nextWeapon()});setWeapon(0);
 offerMission();cam.position.set(player.x,40,player.z-40);
 for(const[id,k]of[['pickF','heroF'],['pickM','heroM']])$(id).addEventListener('click',()=>{setHero(k);
