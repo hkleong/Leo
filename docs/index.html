@@ -788,6 +788,53 @@ function buildJobContent(job){const{i,j}=job;
 // 公共建筑前广场：浅色铺地 + 花坛 + 矮墙
 function plaza(x,z,w,d,col){const pl=tPlane(w,d,groundMat('stone',col|0x808080));pl.rotation.x=-Math.PI/2;pl.position.set(x,.1,z);pl.receiveShadow=true;scene.add(pl)}
 // 医院：比普通楼更宽更高，白色主楼 + 青色眉檐 + 红十字 + 急诊门廊 + 楼顶停机坪
+// 写实：白底/色底的普通灯箱招牌
+function plainSign(txt,fg,bg,w,h){const c=document.createElement('canvas');c.width=512;c.height=Math.max(32,Math.round(512*h/w));const g=c.getContext('2d');g.fillStyle=bg;g.fillRect(0,0,c.width,c.height);
+  g.fillStyle=fg;g.font=`bold ${Math.round(c.height*.58)}px "Rubik",Arial,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(txt,c.width/2,c.height*.54);
+  return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)}))}
+// 写实医院：米色混凝土主楼 + 砖砌两翼，层间腰线、厚檐口，楼顶停机坪和设备，混凝土急诊雨棚 + 钢柱
+function buildHospitalReal(H){const CON=0xa9a49b,BEI=0xe6e0d4;
+  plaza(H.x,H.z,H.w-6,H.d-6,0xb0aca6);
+  const main=facadeBox(52,16,24,'clinic',BEI);main.position.set(H.x,8,H.z-8);scene.add(main);
+  for(let y=6.3;y<16;y+=5){const bl=box(52.3,.3,24.3,CON);bl.position.set(H.x,y,H.z-8);scene.add(bl)}
+  const cor=box(53.4,.9,25.4,CON);cor.position.set(H.x,16.45,H.z-8);scene.add(cor);const par=box(52.4,1.2,24.4,CON);par.position.set(H.x,17.3,H.z-8);scene.add(par);
+  for(const sd of[-1,1]){const wing=facadeBox(14,10,16,'brickTan',0xc8b8a0);wing.position.set(H.x+sd*28,5,H.z+4);scene.add(wing);const wc=box(14.8,.8,16.8,CON);wc.position.set(H.x+sd*28,10.4,H.z+4);scene.add(wc);roofJunk(H.x+sd*28,H.z+4,12,14,10.8)}
+  const hp=new THREE.Mesh(new THREE.CylinderGeometry(8,8,.4,24),M(0x3a3a44));hp.position.set(H.x+12,18.1,H.z-8);scene.add(hp);
+  const hc=document.createElement('canvas');hc.width=hc.height=128;const hg=hc.getContext('2d');hg.strokeStyle='#ffe14d';hg.lineWidth=8;hg.beginPath();hg.arc(64,64,54,0,7);hg.stroke();hg.fillStyle='#fff';hg.font='bold 80px sans-serif';hg.textAlign='center';hg.textBaseline='middle';hg.fillText('H',64,68);
+  const hm=new THREE.Mesh(new THREE.PlaneGeometry(14,14),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(hc),transparent:true}));hm.rotation.x=-Math.PI/2;hm.position.set(H.x+12,18.35,H.z-8);scene.add(hm);
+  roofJunk(H.x-13,H.z-8,20,18,17.9);
+  const cross=(x,y,z,sz)=>{for(const[a,b2]of[[sz,sz*.32],[sz*.32,sz]]){const c=new THREE.Mesh(new THREE.BoxGeometry(a,b2,.3),new THREE.MeshBasicMaterial({color:0xd81e28}));c.position.set(x,y,z);scene.add(c)}};
+  cross(H.x-14,12,H.z+4.25,4.6);const cb=box(6.4,6.4,.5,0xf4f4f2);cb.position.set(H.x-14,12,H.z+4.05);scene.add(cb);
+  const can=box(22,.7,8,CON);can.position.set(H.x,5.6,H.z+8);scene.add(can);
+  for(const k of[-1,1]){const c=box(.5,5.2,.5,0x6a6a70);c.position.set(H.x+k*9.5,2.6,H.z+11.5);scene.add(c)}
+  const gl=new THREE.Mesh(new THREE.BoxGeometry(14,4.2,.2),winCool);gl.position.set(H.x,2.3,H.z+4.12);scene.add(gl);
+  const s1=plainSign('急诊  EMERGENCY','#c81e28','#f4f4f2',14,1.6);s1.position.set(H.x,5.6,H.z+12.06);scene.add(s1);
+  const s2=plainSign('HOSPITAL','#ffffff','#b8202a',16,2.4);s2.position.set(H.x,14.1,H.z+4.25);scene.add(s2);
+  solids.push({x0:H.x-26,x1:H.x+26,z0:H.z-20,z1:H.z+4},{x0:H.x-35,x1:H.x-21,z0:H.z-4,z1:H.z+12},{x0:H.x+21,x1:H.x+35,z0:H.z-4,z1:H.z+12});
+  for(const sd of[-1,1])palm(H.x+sd*16,H.z+26)}
+// 写实警察局：红砖主楼和两翼 + 中间米色石材入口楼，檐口、方形石柱雨棚、台阶、蓝色招牌和门灯、楼顶天线
+function buildStationReal(S){const CON=0xa49f96,BRK=0x9a5a44,STN=0xd8d2c4;
+  plaza(S.x,S.z,S.w-6,S.d-6,0xa8a4a0);
+  for(const sd of[-1,1]){const wg=facadeBox(11,8,18,'brick',BRK);wg.position.set(S.x+sd*27,4,S.z-4);scene.add(wg);const wc=box(11.8,.7,18.8,CON);wc.position.set(S.x+sd*27,8.35,S.z-4);scene.add(wc);
+    const fp=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,14,8),M(0xb8bcc4));fp.position.set(S.x+sd*14,7,S.z+26);scene.add(fp);
+    const fl=box(3,1.8,.08,sd<0?0x1c2a4a:0xd8d8d8);fl.position.set(S.x+sd*14+1.5,13,S.z+26);scene.add(fl);palm(S.x+sd*26,S.z+26)}
+  solids.push({x0:S.x-33,x1:S.x+33,z0:S.z-13,z1:S.z+5});
+  const b1=facadeBox(42,11,24,'brick',BRK);b1.position.set(S.x,5.5,S.z-6);scene.add(b1);
+  const c1=box(43.2,.8,25.2,CON);c1.position.set(S.x,11.4,S.z-6);scene.add(c1);const p1=box(42.4,1,24.4,CON);p1.position.set(S.x,12.2,S.z-6);scene.add(p1);roofJunk(S.x-11,S.z-9,14,12,12.7);
+  const b2=facadeBox(16,19,11,'clinic',STN);b2.position.set(S.x,9.5,S.z+4);scene.add(b2);
+  const c2=box(17,.8,12,CON);c2.position.set(S.x,19.4,S.z+4);scene.add(c2);const t2=box(12,2.2,8,CON);t2.position.set(S.x,20.9,S.z+4);scene.add(t2);
+  const mast=new THREE.Mesh(cylG(.1,.25,8,6),M(0x6a6a70));mast.position.set(S.x+3,26,S.z+4);scene.add(mast);const rl=new THREE.Mesh(new THREE.SphereGeometry(.28,8,6),new THREE.MeshBasicMaterial({color:0xff2a2a}));rl.position.set(S.x+3,30.2,S.z+4);scene.add(rl);
+  const can=box(26,.6,6,CON);can.position.set(S.x,5.6,S.z+12);scene.add(can);
+  for(const k of[-2,-1,1,2]){const c=box(.9,5.2,.9,STN);c.position.set(S.x+k*5.5,2.6,S.z+14.4);scene.add(c)}
+  for(let k=0;k<3;k++){const st=box(18,.25,1.2,STN);st.position.set(S.x,.13+k*.25,S.z+12.6-k*1);scene.add(st)}
+  const gl=new THREE.Mesh(new THREE.BoxGeometry(12,4.2,.2),winWarm);gl.position.set(S.x,2.3,S.z+9.6);scene.add(gl);
+  for(const sd of[-1,1]){const lp=new THREE.Mesh(new THREE.SphereGeometry(.45,10,8),new THREE.MeshBasicMaterial({color:0x4a7aff}));lp.position.set(S.x+sd*7,3.8,S.z+9.9);scene.add(lp)}
+  const bc=document.createElement('canvas');bc.width=bc.height=128;const g=bc.getContext('2d');g.fillStyle='#b8902e';g.beginPath();
+  for(let k=0;k<12;k++){const a=k/12*Math.PI*2,r=k%2?40:60;g.lineTo(64+Math.cos(a)*r,64+Math.sin(a)*r)}g.fill();g.fillStyle='#1b2a4a';g.beginPath();g.arc(64,64,30,0,7);g.fill();
+  g.fillStyle='#fff';g.font='bold 22px sans-serif';g.textAlign='center';g.fillText('警',64,72);
+  const badge=new THREE.Mesh(new THREE.PlaneGeometry(6,6),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(bc),transparent:true}));badge.position.set(S.x,15.5,S.z+9.62);scene.add(badge);
+  const sg=plainSign('POLICE  警察局','#ffffff','#1c3a7a',14,1.8);sg.position.set(S.x,5.6,S.z+15.06);scene.add(sg);
+  solids.push({x0:S.x-21,x1:S.x+21,z0:S.z-18,z1:S.z+10})}
 function buildHospital(H){const wht=0xf6f8fa,tr=0x2fb5c0;
   plaza(H.x,H.z,H.w-6,H.d-6,0xb9b3c4);
   const main=facadeBox(52,16,24,'clinic',0xf4f6f8);main.position.set(H.x,8,H.z-8);scene.add(main);
@@ -809,8 +856,8 @@ function buildHospital(H){const wht=0xf6f8fa,tr=0x2fb5c0;
   solids.push({x0:H.x-26,x1:H.x+26,z0:H.z-20,z1:H.z+4},{x0:H.x-35,x1:H.x-21,z0:H.z-4,z1:H.z+12},{x0:H.x+21,x1:H.x+35,z0:H.z-4,z1:H.z+12});
   for(const sd of[-1,1])palm(H.x+sd*16,H.z+26)}
 // 警察局（参考图 6）：两层粉彩装饰艺术楼，中央青白塔楼 + 警徽，门廊立柱，眉檐窗带；两侧加翼楼和前广场，比普通楼更宽敞
-buildHospital(hospital);
-{const S=station;const pink=0xf2b8d0,teal=0xb8f0ec,tr=0x22d3ee;
+(REAL?buildHospitalReal:buildHospital)(hospital);
+if(REAL)buildStationReal(station);else{const S=station;const pink=0xf2b8d0,teal=0xb8f0ec,tr=0x22d3ee;
  plaza(S.x,S.z,S.w-6,S.d-6,0xc4b2c0);
  for(const sd of[-1,1]){const wg=facadeBox(11,8,18,'hotel',0xffc8d6);wg.position.set(S.x+sd*27,4,S.z-4);scene.add(wg);
    const fp=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,14,8),M(0xdde2ea));fp.position.set(S.x+sd*14,7,S.z+26);scene.add(fp);
@@ -2933,7 +2980,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.17.6';
+const VERSION='v0.17.7';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3099,7 +3146,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.17','载具与建筑重做',[['0.17.6','写实画风下楼的外形重做：去掉装饰艺术风格的圆角塔、竖鳍和阶梯楼顶，改为方正的砖砌公寓、商住楼和带裙楼、退台的办公楼；加檐口、腰线、窗式空调、楼顶楼梯间、机房和天线'],['0.17.5','建筑写实化：外墙、房屋和地面配色降低饱和度；外墙贴图加污渍、雨水痕和墙脚发黑；楼顶加空调外机、水箱、天线、通风管；砖楼加消防梯；高楼顶部霓虹环换成天线红灯。修复车灯有时消失：车灯、尾灯、保险杠、格栅、车牌原来被埋在车身倒角里，现在移到车身表面；车灯光晕按车身真实长度放置。修复贴图闪烁：提高远处深度精度，路面、标线、斑马线加偏移，不再互相闪烁'],['0.17.0','写实画风下所有载具重做细节：车身下部压暗、门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、加油口、转向灯和倒车灯、大灯镀铬框、车轮螺母；皮卡/面包车/巴士加挡泥板；巴士加折叠门、路牌灯箱、车窗立柱；面包车加侧滑门和后门缝、滑轨；摩托车加前后挡泥板、后视镜、发动机散热片、刹车盘、车牌、脚踏；踏板车加后货架、脚踏板、车牌、后视镜']]],
+ ['v0.17','载具与建筑重做',[['0.17.7','写实画风下医院和警察局重做：医院改为米色混凝土主楼 + 砖砌两翼、层间腰线、厚檐口、混凝土急诊雨棚和钢柱、普通灯箱招牌，楼顶停机坪旁加设备；警察局改为红砖主楼和两翼 + 石材入口楼、方形石柱、台阶、蓝色招牌和门灯、楼顶天线'],['0.17.6','写实画风下楼的外形重做：去掉装饰艺术风格的圆角塔、竖鳍和阶梯楼顶，改为方正的砖砌公寓、商住楼和带裙楼、退台的办公楼；加檐口、腰线、窗式空调、楼顶楼梯间、机房和天线'],['0.17.5','建筑写实化：外墙、房屋和地面配色降低饱和度；外墙贴图加污渍、雨水痕和墙脚发黑；楼顶加空调外机、水箱、天线、通风管；砖楼加消防梯；高楼顶部霓虹环换成天线红灯。修复车灯有时消失：车灯、尾灯、保险杠、格栅、车牌原来被埋在车身倒角里，现在移到车身表面；车灯光晕按车身真实长度放置。修复贴图闪烁：提高远处深度精度，路面、标线、斑马线加偏移，不再互相闪烁'],['0.17.0','写实画风下所有载具重做细节：车身下部压暗、门缝、车窗镀铬框、雨刷、车顶流水槽、前车牌、排气管、侧标志灯、天线、加油口、转向灯和倒车灯、大灯镀铬框、车轮螺母；皮卡/面包车/巴士加挡泥板；巴士加折叠门、路牌灯箱、车窗立柱；面包车加侧滑门和后门缝、滑轨；摩托车加前后挡泥板、后视镜、发动机散热片、刹车盘、车牌、脚踏；踏板车加后货架、脚踏板、车牌、后视镜']]],
  ['v0.16','写实画风',[['0.16.3','走近任务时弹出选项（接活 / 对话 / 接听电话 / 接受赛车挑战），按 E 或点击按钮才开始'],['0.16.2','写实人物：脸改为椭圆、下巴收窄；脖子更粗更短；四肢按肌肉形状粗细变化（肩头、上臂、前臂、大腿、小腿肚）；持枪动作重做：手枪平时举在胸前，瞄准时双手握枪，步枪平时低位双手持、瞄准时抵肩'],['0.16.1','写实人物比例改为结实型：肩更宽、躯干更厚、四肢更粗，腿不再过长，头部比例调整'],['0.16.0','新增“写实”画风（默认），参考老式 3D 游戏“低多边形 + 写实光影”的做法，人物和车辆仍是原创设计：去掉卡通描边和色阶，改为平滑光照与高光；人物头部缩小、腿加长，身材接近真人比例，加立体鼻子和下巴，脸部画上眼窝、鼻梁、颧骨、下颌的明暗，五官缩小；衣服加褶皱；车身更方正，加白边轮胎、镀铬轮毂盖、镀铬保险杠和侧面腰线、前格栅、车身下沿裙边；整体颜色更沉稳。主页和手机设置可切回“卡通”画风']]],
  ['v0.15','画面升级',[['0.15.0','泛光、按时间调色与暗角、太阳光束、全新海面（波纹、倒影、浪花）、湿路面倒影、接触阴影、刹车灯与车头灯光晕、刹车痕与轮胎烟、车漆反光、爆炸火球与烟柱、海鸥、沙尘、路灯光柱、云影；手机设置可开关特效']]],
  ['v0.14','玩法大更新',[['0.14.2','所有载具按模型实际尺寸计算碰撞，摩托车更窄'],['0.14.1','主线金色问号、零活粉色问号（生成在人行道上）、街头事件橙色感叹号'],
