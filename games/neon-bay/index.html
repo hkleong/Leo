@@ -159,7 +159,7 @@ body.touch #prompt b{display:none}@keyframes pIn{from{opacity:0;transform:transl
 <div id="logPanel" hidden><div class="shop-card"><div class="bm-top"><b>更新内容</b><button id="logClose">关闭</button></div><div id="logBody"></div></div></div>
 <div id="shop" hidden><div class="shop-card"><div class="bm-top"><b id="shopTitle"></b><button id="shopClose">离开</button></div><div id="shopList"></div></div></div>
 <div id="bigmap" hidden><div class="bm-top"><b>C VI 地图</b><span><button id="bmStats">统计 · 成就</button> <button id="bmClose" aria-label="关闭地图">关闭</button></span></div><div id="statsPanel" hidden><div id="statsBody"></div></div><div class="bm-wrap"><canvas id="bmc"></canvas><div class="bm-zoom"><button id="bmIn" aria-label="放大">＋</button><button id="bmOut" aria-label="缩小">－</button><button id="bmNavX" aria-label="清除导航" style="font-size:13px">✕</button><button id="bmMe" aria-label="回到我的位置" style="font-size:15px">◎</button></div></div>
-  <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#c77dff"></i>导航（点地图设置）</span><span><i style="background:#ffc83d"></i>主线</span><span><i style="background:#ffe14d"></i>零活 / 待售物业</span><span><i style="background:#ff9a3d"></i>街头事件</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#ff2a3a"></i>医院</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
+  <div class="bm-legend"><span><i style="background:#ff3d8b"></i>你</span><span><i style="background:#c77dff"></i>导航（点地图设置）</span><span><i style="background:#ffc83d"></i>主线</span><span><i style="background:#ffe14d"></i>零活 / 待售物业</span><span><i style="background:#ff9a3d"></i>街头事件</span><span><i style="background:#2fbf5a"></i>青蛇帮</span><span><i style="background:#d23a3a"></i>赤狼帮</span><span><i style="background:#ffc83d"></i>你的地盘</span><span><i style="background:#ff2a3a"></i>警察</span><span><i style="background:#fff"></i>别墅</span><span><i style="background:#4a7ab0"></i>警察局</span><span><i style="background:#ff2a3a"></i>医院</span><span><i style="background:#22d3ee"></i>停车场</span><span><i style="background:#5cff7a"></i>现金</span></div></div>
 <div id="touch" data-mode="foot">
   <div id="stick" class="foot"><div id="knob"></div></div>
   <div class="tb foot big hot" id="bF" style="right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(34px + env(safe-area-inset-bottom,0px))">攻击</div>
@@ -2000,6 +2000,7 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
     if(p.knock<=0){p.mesh.rotation.x=0;p.flee=p.pers==='timid'?14:6;p.thug=0;if(p.pers==='tough'&&!p.cop&&!p.robber){p.thug=1;p.thugT=10;p.flee=0;say(p,'thug','你找死！')}else if(p.pers==='grumpy')say(p,'hurt','你等着！');if(p.bench){p.bench.used=null;p.bench=null}p.act='walk'}return}
   const pd=Math.hypot(player.x-p.x,player.z-p.z);
   for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.abs(c.x-p.x)<14&&Math.abs(c.z-p.z)<14&&carDist(c,p.x,p.z)<.45){killPed(p,c===player.car);return}
+  if(p.gang&&gangPed(p,dt,pd))return;
   // 主线里的混混：靠近就冲上来打你
   if(p.thug&&p.thugT!==undefined&&(p.thugT-=dt)<=0){p.thug=0;p.thugT=undefined;p.act='walk';p.flee=4}
   if(p.thug){const dx=player.x-p.x,dz=player.z-p.z,d=Math.hypot(dx,dz);let st='idle',k=0,ex=0;p.rot=Math.atan2(dx,dz);
@@ -2089,7 +2090,7 @@ function addBench(x,z,rot){if(guard('bench',x,z,1))return;const B=new Bld();B.ad
   const m=B.build(vcMat,OL_C);m.position.set(x,0,z);m.rotation.y=rot;scene.add(m);benches.push({x:x+Math.sin(rot)*.1,z:z+Math.cos(rot)*.1,rot,used:null})}
 function freeBench(x,z){let best=null,bd=1e9;for(const b of benches){if(b.used&&peds.includes(b.used)&&!b.used.dead)continue;b.used=null;const d=Math.hypot(b.x-x,b.z-z);if(d<bd){bd=d;best=b}}return bd<160?best:null}
 function killPed(p,byPlayer){if(byPlayer&&!p.robber)STATS.kills++;p.dead=.01;p.mesh.rotation.x=-Math.PI/2;p.mesh.position.y=.4;beep(160,.2,'triangle',.08);
-  if(byPlayer){if(!p.robber)addHeat(1);dropCash(p.x,p.z,rr(10,60)|0)}}
+  if(byPlayer){if(!p.robber)addHeat(p.gang?(GW?0:.35):1);if(p.gang&&!GW)gangProvoke(p.gang,p.x,p.z);dropCash(p.x,p.z,rr(10,60)|0)}}
 
 // ===== 钱 =====
 const cash=[];const cashMat=new THREE.MeshBasicMaterial({color:0x5cff7a}),cashGeo=new THREE.BoxGeometry(1,.5,1);
@@ -2160,13 +2161,13 @@ function fire(w=WEAPONS[2]){buzz(w.id==='rifle'?15:30);player.aimT=.35;muzzle();
   const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(player.x,2.4,player.z),new THREE.Vector3(player.x+fx*bd,2,player.z+fz*bd)]);
   const l=new THREE.Line(g,new THREE.LineBasicMaterial({color:0xffe14d}));scene.add(l);tracers.push({l,t:.08});
   for(const p of peds)if(!p.dead&&Math.hypot(p.x-player.x,p.z-player.z)<40)p.flee=6;
-  addHeat(w.heat*(copWitness(player.x,player.z)?1:.35));
+  addHeat(w.heat*(copWitness(player.x,player.z)?1:.35)*(GW?.25:1));
   if(!best)return;if(best.mesh.userData.limbs)killPed(best,true);else{best.hp-=w.dmg;if(best.police)addHeat(.5);if(best.driver==='ai'&&best.hp>0)best.speed=0}}
 
 function doPunch(){SFX.whoosh();if(player.car)return;
   const fx=Math.sin(player.rot),fz=Math.cos(player.rot);
   for(const p of peds){if(p.dead||p.knock>0)continue;const dx=p.x-player.x,dz=p.z-player.z,f=dx*fx+dz*fz,sd=Math.abs(dx*fz-dz*fx);
-    if(f>0&&f<1.9&&sd<1){SFX.punch();setTimeout(()=>say(p,p.cop?'cop':'hurt'),250);p.knock=3;p.x+=fx*.8;p.z+=fz*.8;addHeat(p.cop?1:p.robber||p.thug?0:.3);if(!p.cop&&R()<.4)dropCash(p.x,p.z,rr(5,40)|0);
+    if(f>0&&f<1.9&&sd<1){SFX.punch();setTimeout(()=>say(p,p.cop?'cop':'hurt'),250);p.knock=3;p.x+=fx*.8;p.z+=fz*.8;addHeat(p.cop?1:p.robber||p.thug||p.gang?0:.3);if(p.gang){p.downs++;gangProvoke(p.gang,p.x,p.z);if(p.downs>=3)killPed(p,true)}if(!p.cop&&R()<.4)dropCash(p.x,p.z,rr(5,40)|0);
       for(const o of peds)if(!o.dead&&!o.cop&&o!==p&&Math.hypot(o.x-p.x,o.z-p.z)<15)o.flee=5;return}}}
 // 附近有没有警察看着：警车 60 米内、步行警员 40 米内、直升机光柱下
 function copWitness(x,z){for(const c of cars)if(c.police&&!c.dead&&c!==player.car&&Math.hypot(c.x-x,c.z-z)<60)return true;
@@ -2187,7 +2188,7 @@ const ENTER_R=7;function nearCar(){return cars.some(c=>!c.dead&&c!==player.car&&
 const DRIVER_LOOKS=['chef','suit','biker','tourist','elder','skater','tank','sundress','selfie','skater8'];
 function seatPose(m,bike){pose(m,'sit',0,0);const r=m.userData.rig;if(!r)return;r.spine.position.y=.78+LEGX*.5;for(const s2 of r.shs){s2.rotation.x=-1.05;s2.rotation.z=s2.userData.z0*-1.5}for(const e of r.els)e.rotation.x=-.55};
 function bikePose(m){const r=m.userData.rig;if(!r)return;r.spine.position.y=.86+LEGX*.5;r.spine.rotation.x=.38;for(const[k,h]of r.hips.entries()){h.rotation.x=-1.15;h.rotation.z=(k?1:-1)*.16}for(const n of r.knees)n.rotation.x=1.55;for(const s2 of r.shs){s2.rotation.x=-1.25;s2.rotation.z=s2.userData.z0*-.6}for(const e of r.els)e.rotation.x=-.35}
-function addDriver(c){const se=c.mesh.userData.seat;if(!se||c.driverMesh)return;const m=makePerson(c.police?['cop','copF','copHelmet'][(R()*3)|0]:DRIVER_LOOKS[(R()*DRIVER_LOOKS.length)|0]);
+function addDriver(c){const se=c.mesh.userData.seat;if(!se||c.driverMesh)return;const m=makePerson(c.police?['cop','copF','copHelmet'][(R()*3)|0]:c.gangCar?c.gangCar.looks[0]:DRIVER_LOOKS[(R()*DRIVER_LOOKS.length)|0]);
   scene.remove(m);const k=se.k/CS;m.scale.setScalar(k);m.position.set(se.x,se.y-.78*k,se.z);seatPose(m);if(c.mesh.userData.bike)bikePose(m);c.mesh.add(m);c.driverMesh=m;c.driverLook=m.userData.look}
 function syncDrivers(){for(const c of cars){if(c.dead)continue;if(c.driverMesh)c.driverMesh.visible=Math.hypot(c.x-cam.position.x,c.z-cam.position.z)<Q.lod;const want=(c.driver==='ai'||c.driver==='cop')&&!c.jacking;
   if(want&&!c.driverMesh)addDriver(c);else if(!want&&c.driverMesh&&!c.jacking){c.mesh.remove(c.driverMesh);c.driverMesh.traverse(o=>{if(o.geometry&&o.geometry.userData.own)o.geometry.dispose()});c.driverMesh=null}}}
@@ -2409,13 +2410,14 @@ function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),Wc=cv.c
   g.fillStyle='#c9c0d0';for(const[x,z,w,d]of brokenStrips)g.fillRect(x-w/2-1,z-d/2-1,w+2,d+2);
   for(const[i,j]of VALID)if(DIAG.has(i+','+j)){g.fillStyle='#5fb565';g.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}
   g.strokeStyle='#55505f';g.lineWidth=RD;g.lineCap='round';for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);g.beginPath();g.moveTo(x0,z0);g.lineTo(x1,z1);g.stroke()}
+  drawGangZones(g);
   // 放大后画出楼房轮廓
   if(mapView.zoom>=2.2){g.fillStyle='rgba(120,100,140,.55)';for(const o of solids)if(o.x1-o.x0<80)g.fillRect(o.x0,o.z0,o.x1-o.x0,o.z1-o.z0)}
   g.setTransform(1,0,0,1,0,0);
   const fs=Math.round(13*dpr),label=(x,z,txt,col)=>{const[X,Y]=S(x,z);g.fillStyle=col;g.strokeStyle='#000';g.lineWidth=2*dpr;g.beginPath();g.arc(X,Y,6*dpr,0,7);g.fill();g.stroke();
     g.font=`700 ${fs}px Rubik,system-ui,sans-serif`;g.textAlign='center';g.lineWidth=3.5*dpr;g.strokeText(txt,X,Y-10*dpr);g.fillStyle='#fff';g.fillText(txt,X,Y-10*dpr)};
   const dot=(x,z,r,col)=>{const[X,Y]=S(x,z);g.fillStyle=col;g.beginPath();g.arc(X,Y,r*dpr,0,7);g.fill()};
-  label(villa.x,villa.z,'海边别墅','#fff');label(station.x,station.z,'警察局','#4a7ab0');label(hospital.x,hospital.z,'医院','#ff2a3a');for(const sh of SHOPS)label(sh.x,sh.z,sh.kind==='gun'?'枪店':'喷漆店',sh.kind==='gun'?'#ff3d3d':'#22d3ee');label(LOT.x,LOT.z,'停车场','#22d3ee');label(HOME.x,HOME.z,'我的家','#2a6fd0');for(const pl of PLACES)if(pl.pad)label(pl.x,pl.z,pl.name,'#'+pl.col.toString(16).padStart(6,'0'));for(const pr of PROPS)if(pr.pad)label(pr.x,pr.z,(OWNP[pr.id]?'✓ ':'')+pr.name,OWNP[pr.id]?'#5cff7a':'#ffe14d');if(sBeam.visible)label(STORY.x,STORY.z,'主线','#ffc83d');if(EVT&&eBeam.visible)label(EVT.x,EVT.z,EVT.name,'#ff9a3d');
+  label(villa.x,villa.z,'海边别墅','#fff');label(station.x,station.z,'警察局','#4a7ab0');label(hospital.x,hospital.z,'医院','#ff2a3a');for(const sh of SHOPS)label(sh.x,sh.z,sh.kind==='gun'?'枪店':'喷漆店',sh.kind==='gun'?'#ff3d3d':'#22d3ee');label(LOT.x,LOT.z,'停车场','#22d3ee');label(HOME.x,HOME.z,'我的家','#2a6fd0');for(const pl of PLACES)if(pl.pad)label(pl.x,pl.z,pl.name,'#'+pl.col.toString(16).padStart(6,'0'));for(const pr of PROPS)if(pr.pad)label(pr.x,pr.z,(OWNP[pr.id]?'✓ ':'')+pr.name,OWNP[pr.id]?'#5cff7a':'#ffe14d');for(const gg of GANGS)if(gg.set)label(gg.cx,gg.cz,gg.own?'你的地盘':gg.name,gg.own?'#ffc83d':'#'+gg.col.toString(16).padStart(6,'0'));if(sBeam.visible)label(STORY.x,STORY.z,'主线','#ffc83d');if(EVT&&eBeam.visible)label(EVT.x,EVT.z,EVT.name,'#ff9a3d');
   for(const k of cash)dot(k.x,k.z,2.5,'#5cff7a');
   for(const c of cars)if(c.police&&!c.dead)dot(c.x,c.z,4,'#ff2a3a');
   if(heli)dot(heli.x,heli.z,6,'#ff2a3a');
@@ -2502,7 +2504,7 @@ function updCut(dt){const c=cut;c.t+=dt;const T=c.t;
 function respawnAt(type){if(type==='dead')STATS.deaths++;else STATS.busted++;const fee=Math.floor(player.money*.1),P0=type==='dead'?hospital:station;ensureAround(P0.x,P0.z+24);player.money-=fee;player.heat=0;player.wanted=0;player.hp=100;player.dispatch=0;player.bustT=0;
   player.x=P0.x+rr(0,3);player.z=P0.z+24;player.rot=0;player.y=0;player.vy=0;camYaw=Math.PI;player.mesh.rotation.order='XYZ';player.mesh.rotation.set(0,0,0);player.swim=false;player.mesh.visible=true;
   for(const c of cars.filter(c=>c.police&&!c.patrol))removeCar(c);for(const q of[...peds])if(q.cop)dropPed(q);if(heli){scene.remove(heli.g,heli.cone,heli.spot);heli=null}
-  if(mission.stage==='run')fail('任务失败');storyFail('主线任务失败，稍后重来');
+  if(GW)endWar(false);for(const g of GANGS)g.hot=0;for(const q of peds)if(q.gang&&q.hostile){q.hostile=0;if(q.gun)q.gun.visible=false}if(mission.stage==='run')fail('任务失败');storyFail('主线任务失败，稍后重来');
   setTimeout(()=>toast(type==='dead'?`出院了  医药费 -$${fee}`:`保释出来了  罚款 -$${fee}`),500)}
 function step(){requestAnimationFrame(step);try{frame()}catch(e){console.error(e)}}
 function frame(){const te=document.getElementById('touch'),tm=layoutOn?te.dataset.mode:player.car?'drive':'foot';if(te.dataset.mode!==tm){te.dataset.mode=tm;for(const k in tb_)tb_[k]=false;te.querySelectorAll('.tb.on').forEach(e=>e.classList.remove('on'));if(STEER!=='stick'){stick.x=stick.y=0;document.getElementById('knob').style.transform=''}}
@@ -2534,7 +2536,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
     if(player.y>.05)st='jump';else if(player.punchT>0){st='punch';ex=(.42-player.punchT)/.42}else if(player.swingT>0){st='swing';ex=(.5-player.swingT)/.5}else if(aiming||player.aimT>0){st='aim';pk=aiming?(Math.abs(ay)>.15?1:0):(moving?1:0)}
     else if(moving){st=run?'run':'walk';pk=1}
     player.t+=dt;footRender(st,pk,ex,moving,dt)}
-  for(const c of[...cars]){if(c.dead||c===player.car)continue;if(c.hold){c.speed=0;continue}if(c.police)driveCop(c,dt);else if(c.driver==='ai')driveAI(c,dt);else{c.speed*=1-2*dt;if(Math.abs(c.speed)>.3)carPhysics(c,0,0,true,dt)}}
+  for(const c of[...cars]){if(c.dead||c===player.car)continue;if(c.hold){c.speed=0;continue}if(c.police)driveCop(c,dt);else if(c.gangCar&&c.driver==='ai')driveGang(c,dt);else if(c.driver==='ai')driveAI(c,dt);else{c.speed*=1-2*dt;if(Math.abs(c.speed)>.3)carPhysics(c,0,0,true,dt)}}
   for(const p of[...peds])updPed(p,dt);
   // 远处回收 + 补充
   for(const c of[...cars])if(c.driver==='ai'&&!c.parked&&!c.street&&!c.target&&Math.hypot(c.x-player.x,c.z-player.z)>220)removeCar(c);
@@ -3041,7 +3043,7 @@ const UMB_COLS=[0xff3d8b,0x22d3ee,0xffe14d,0x1a1a1a,0x8a5cff,0xf4f4f4],umbGeo=ne
 function umbMesh(col){const g=new THREE.Group(),m=umbMats[col]||(umbMats[col]=new THREE.MeshToonMaterial({color:col,gradientMap:toonGrad,side:THREE.DoubleSide}));
   const can=new THREE.Mesh(umbGeo,m);can.position.y=2.42;can.castShadow=true;const pole=new THREE.Mesh(umbPole,M(0x2a2a2a));pole.position.y=1.85;g.add(can,pole);g.position.set(.2,0,.3);return g}
 let umbT=0;
-function updUmbrellas(){const want=WX.rain>.4;for(const p of peds){if(p.dead||p.cop||p.thug||p.robber||p.keep)continue;
+function updUmbrellas(){const want=WX.rain>.4;for(const p of peds){if(p.dead||p.cop||p.thug||p.robber||p.keep||p.gang)continue;
   if(want&&!p.umbChk){p.umbChk=1;if(R()<.75){p.umb=umbMesh(UMB_COLS[(R()*UMB_COLS.length)|0]);p.mesh.add(p.umb)}else if(/talk|dance|selfie|idle|sit/.test(p.act)){if(p.bench){p.bench.used=null;p.bench=null}p.act='walk';p.partner=null}}
   else if(!want&&p.umbChk){p.umbChk=0;if(p.umb){p.mesh.remove(p.umb);p.umb=null}}}}
 // 白天遛狗的人
@@ -3105,7 +3107,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.23.0';
+const VERSION='v0.24.0';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3271,6 +3273,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
+ ['v0.24','帮派',[['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里开枪加通缉更少']]],
  ['v0.23','城市生活',[['0.23.0','新增服装店（换上衣、裤子、帽子、鞋）、理发店（换发型、染发、胡子）、海湾银行（撬金库，出门 4 星通缉，每天一次）；手机新增“出行”（打车直达，按距离收费）和“每日挑战”（每天 3 个，各 $800）；家可以装修（大屏电视、真皮沙发、成就奖杯墙）和扩建车库（停 3 辆）；可以找小贩买热狗、给街头艺人打赏；E 键提示按距离优先最近的；城市生成更平滑并按车速预加载；没被警察看到时开枪加星更少、更容易甩掉；零活奖励 ×1.6、主线奖励 ×1.5；竞速时间按实际距离计算；主线第一章阿杰会给一辆旧车；手机关闭多重采样省性能']]],
  ['v0.22','生活',[['0.22.4','内存优化：城市几何体上传到显卡后释放内存里的副本，内存占用减半（约 430MB → 210MB），手机上更不容易闪退重载'],['0.22.3','修复从车库开出的车（特别是皮卡）卡住不能动；室内用单独的调色，开泛光也不会太亮；房间和家具按人物比例放大；晚上更亮一些'],['0.22.2','肩膀边角加圆弧；卡通画风也换成新的连续身体（带描边）、C 形手和方块鞋'],['0.22.1','肩线拉平：上身顶部做成平的，肩膀和身体齐平，不再从肩膀斜着往脖子收'],['0.22.0','左右手掌方向修正（掌心朝身体）；每个人身高、胖瘦不同，女性胸部更明显；路人有不同性格（友善、暴躁、胆小、强硬：说话和被打后的反应不同）；新增职业路人：小贩（推车叫卖）、清洁工（扫地）、施工工人（打钻、摆路锥）、街头艺人（弹吉他、有琴盒）；可以进入建筑：主角的家（睡觉存档、吃东西、看电视、换主角，带一个能保存的车库）、海边别墅（购买后可进入）、便利店、酒吧、夜店、车库（不用买也能进去，花钱买东西；买下后免费）']]],
  ['v0.21','人物重建',[['0.21.1','手臂调整：更粗、加圆形肩头和三角肌、肘部不再过细、前臂上粗下细；上身肩部加宽，手臂从肩角长出来'],['0.21.0','写实人物身体重做：不再用胶囊、球体拼接，改为按真人比例放样的连续低多边形网格（骨盆、上身、脖子、上臂、前臂、大腿、小腿），节与节在关节处共用一圈顶点，蒙皮权重在关节处各占一半，弯曲时自然衔接；保留原创的服装配色和图案']]],
@@ -3516,18 +3519,116 @@ function homeUpgradePanel(){shopOpen=true;const el=$('shop');el.hidden=false;$('
     if(INSIDE&&ROOMS.home&&INSIDE.r===ROOMS.home){const r=makeRoom('home');ROOMS.home=r;const ix=player.ix,iz=player.iz;INSIDE.r=r;r.scene.add(player.mesh);player.ix=ix;player.iz=iz}else delete ROOMS.home;homeUpgradePanel()}}
 const garageCap=()=>HOMEUP.garage?3:1;
 
+// ===== 帮派：两个帮派各占一片街区。惹了他们会围上来打你、开车追杀；打赢地盘战后地盘归你，每天收保护费 =====
+Object.assign(LOOKS,{
+ gangS:{shirt:0x1f8a3e,tank:1,sleeve:'none',tattoo:1,pants:0x2a2f3a,shoes:0xf4f4f4,hat:'bandana',hatCol:0x2fbf5a,beard:1,skin:0xb97a52,chain:1,big:1},
+ gangS2:{shirt:0x111111,jacket:0x1f8a3e,sleeve:'long',pants:0x1a1a1a,shoes:0x2fbf5a,hat:'capBack',hatCol:0x2fbf5a,hair:'buzz',skin:0x8d5a3b,chain:1},
+ gangSF:{shirt:0x2fbf5a,crop:1,sleeve:'none',pants:0x2a2f3a,shoes:0xf4f4f4,hair:'long',hairCol:0x1a1210,fem:1,skin:0xb97a52,glasses:0x111111},
+ gangW:{shirt:0xc8302f,sleeve:'short',pants:0x1a1a1a,shoes:0x111111,boots:1,hat:'bandana',hatCol:0xd23a3a,hair:'buzz',skin:0xd9a17a,tattoo:1,big:1,belt:1},
+ gangW2:{shirt:0x1a1a1a,vest:0xb02a2a,sleeve:'none',tattoo:1,pants:0x262b36,shoes:0xd23a3a,hair:'slick',hairCol:0x1a1a1a,beard:1,skin:0xc98d64,glasses:0x111111},
+ gangWF:{shirt:0xd23a3a,crop:1,sleeve:'none',pants:0x1a1a1a,shoes:0x111111,boots:1,hair:'pony',hairCol:0x1a1210,fem:1,skin:0xc98d64,hoops:1}});
+Object.assign(LINES,{gang:['这是我们的地盘','看什么看？','走错路了吧？','快滚','别在这晃'],gangHit:['兄弟们，上！','弄他！','敢来这撒野？','别让他跑了！']});
+const GANGS=[{id:'snake',name:'青蛇帮',col:0x2fbf5a,looks:['gangS','gangS2','gangSF'],car:'convertible'},
+             {id:'wolf',name:'赤狼帮',col:0xd23a3a,looks:['gangW','gangW2','gangWF'],car:'pickup'}];
+{const bad=new Set([VB,SB,LB,HB].map(b=>b[0]+','+b[1])),hc=cellOf(HOME.x,HOME.z),used=new Set();
+ const pads=[...PLACES,...PROPS,...SHOPS].filter(q=>q.x!==undefined);
+ const avoid=(i,j)=>{if(bad.has(i+','+j)||used.has(i+','+j)||DIAG.has(i+','+j))return true;if(Math.abs(i-hc[0])<3&&Math.abs(j-hc[1])<3)return true;const c=bcen(i,j);
+   return pads.some(q=>Math.hypot(q.x-c.x,q.z-c.z)<55)||Math.hypot(c.x-SPN.x,c.z-SPN.z)<260};
+ const targets=[[.45,.25],[.8,.75]];
+ GANGS.forEach((g,k)=>{const[tx,tz]=targets[k];const c=VALID.filter(([i,j])=>!avoid(i,j)).sort((a,b)=>Math.hypot(a[0]/NX-tx,a[1]/NZ-tz)-Math.hypot(b[0]/NX-tx,b[1]/NZ-tz))[0];if(!c)return;
+   g.blocks=VALID.filter(([i,j])=>Math.abs(i-c[0])<=1&&Math.abs(j-c[1])<=1&&!avoid(i,j));g.set=new Set(g.blocks.map(b=>b[0]+','+b[1]));g.blocks.forEach(b=>used.add(b[0]+','+b[1]));
+   const ce=bcen(...c);g.cx=ce.x;g.cz=ce.z;const hq=sidePt(c[0],c[1],perim(bdim(c[0],c[1]))*.1);g.hx=hq.x;g.hz=hq.z;g.mk=makeMarker();g.hot=0;g.carT=0;g.own=false})}
+let GW=null,GDAY=null,GZONE=null,gangTick=0;
+const gangAt=(x,z)=>{const[i,j]=cellOf(x,z);return GANGS.find(g=>g.set&&g.set.has(i+','+j))||null};
+function gangMembers(g){return peds.filter(p=>p.gang===g&&!p.dead)}
+function spawnGangPed(g,x,z,hostile){const p=spawnPed(x,z,g.looks[(R()*g.looks.length)|0]);if(!p)return null;
+  p.gang=g;p.partner=null;p.onPath=false;p.act='warm';p.pers='tough';p.downs=0;
+  if(R()<.45){p.gun=weaponMesh('pistol');p.mesh.userData.rig.hands[1].add(p.gun);p.gun.visible=false;p.shootT=rr(.6,1.4)}
+  if(hostile)gangHostile(p);return p}
+function gangHostile(p){if(p.hostile)return;p.hostile=1;p.flee=0;p.act='walk';if(p.gun)p.gun.visible=true;if(R()<.5)say(p,'gangHit')}
+function gangProvoke(g,x,z){for(const p of gangMembers(g))if(Math.hypot(p.x-x,p.z-z)<45)gangHostile(p);
+  if(g.hot<=0)toast('惹到'+g.name+'了！小心他们开车来追');g.hot=75;if(g.carT<=0)g.carT=rr(4,8)}
+// 帮派成员：平时站着聊天；被惹了就冲上来（有枪的远远开枪，没枪的近身打）
+function gangPed(p,dt,pd){
+  if(!p.hostile){if(p.flee>0&&pd<45){gangProvoke(p.gang,p.x,p.z);p.flee=0}
+    if(p.hostile)return true;
+    if(!player.car&&pd<7&&performance.now()-(p.lastSay||0)>7000&&R()<dt*1.5){p.rot=Math.atan2(player.x-p.x,player.z-p.z);say(p,'gang')}
+    if(!player.car&&pd<10&&player.aiming)gangProvoke(p.gang,p.x,p.z);
+    p.flee=0;return false}
+  const tx=player.car?player.car.x:player.x,tz=player.car?player.car.z:player.z,dx=tx-p.x,dz=tz-p.z,d=Math.hypot(dx,dz)||1;
+  if(d>110||cut){p.hostile=0;if(p.gun)p.gun.visible=false;p.act='walk';p.onPath=false;return false}
+  p.rot=Math.atan2(dx,dz);let st='idle',k=0,ex=0;
+  const run=sp=>{const nx=p.x+dx/d*sp*dt,nz=p.z+dz/d*sp*dt;if(!hit(nx,p.z,.6))p.x=nx;if(!hit(p.x,nz,.6))p.z=nz;st='run';k=1};
+  if(p.gun){if(d>18)run(6.2);else{st='aim';p.shootT-=dt;if(p.shootT<=0){p.shootT=rr(1.3,2.1);copShoot(p,d)}}}
+  else if(player.car){if(d>9)run(5.6)}
+  else if(d>1.5)run(5.8);
+  else{p.hitT=(p.hitT??.4)-dt;st='punch';ex=1-Math.max(0,p.hitT)/1.1;if(p.hitT<=0){p.hitT=1.1;player.hp-=5;flashHurt();SFX.punch()}}
+  p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.rot;pose(p.mesh,st,p.t,k,ex);return true}
+// 帮派追杀车：沿路追过来，靠近后车上的人开枪
+function spawnGangCar(g){for(let k=0;k<40;k++){const i=(R()*(NX+1))|0,j=(R()*(NZ+1))|0;if(!nodeOK(i,j)||!degAll(i,j))continue;const n=node(i,j),d=Math.hypot(n.x-player.x,n.z-player.z);
+  if(d>110&&d<220){const c=makeCar(n.x,n.z,0,{kind:g.car,color:g.col});c.gangCar=g;c.hp*=1.3;c.hpMax=c.hp;c.chaseT=70;c.ni=i;c.nj=j;c.dx=0;c.dz=0;c.chase=true;chaseMap();c.nd=null;
+    const[a,b]=aiChoose(c);c.dx=a;c.dz=b;c.ni+=a;c.nj+=b;const ln=laneOf(i,j,c.ni,c.nj);c.x=ln.ax+ln.ux*(RD/2+3);c.z=ln.az+ln.uz*(RD/2+3);c.h=Math.atan2(ln.ux,ln.uz);return c}}}
+function driveGang(c,dt){const g=c.gangCar,tx=player.car?player.car.x:player.x,tz=player.car?player.car.z:player.z,d=Math.hypot(tx-c.x,tz-c.z);c.chaseT-=dt;
+  if(c.chaseT<=0||g.hot<=0||d>280||cut){c.gangCar=null;c.chase=false;driveAI2(c,dt);return}
+  if(d>45&&c.ni!==undefined&&!(c.rev>0)){if(!c.chase){c.chase=true;c.nd=null}driveAI(c,dt)}
+  else{c.chase=false;const want=Math.atan2(tx-c.x,tz-c.z),diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;
+    if(c.rev>0){c.rev-=dt;carPhysics(c,-1,-clamp(diff*2,-1,1),false,dt)}
+    else{const near=d<14&&(!player.car||Math.abs(player.car.speed)<4);carPhysics(c,near?0:1,clamp(diff*2.5,-1,1),near||Math.abs(diff)>1.2&&c.speed>18,dt);
+      if(Math.abs(c.speed)<2){if((c.stuck+=dt)>1.2){c.rev=1;c.stuck=0}}else c.stuck=0}}
+  if(d<28){c.shootT=(c.shootT??1.4)-dt;if(c.shootT<=0){c.shootT=rr(1.1,1.8);copShoot({x:c.x,z:c.z},d)}}
+  if(d<8&&!player.car&&Math.abs(c.speed)<4&&!c.dropped){c.dropped=1;for(let k=0;k<2;k++){const q=spawnGangPed(g,c.x+(k?-3.5:3.5)*Math.cos(c.h),c.z-(k?-3.5:3.5)*Math.sin(c.h),true);if(q&&!q.gun){q.gun=weaponMesh('pistol');q.mesh.userData.rig.hands[1].add(q.gun);q.shootT=1}}}}
+// 地盘战：在帮派据点（帮派颜色的感叹号）开打，连赢三波就把地盘抢过来
+function startWar(g){if(GW||player.wanted>0)return;GW={g,wave:0,list:[],t:0};g.hot=0;nextWave();toast('地盘战开始！打倒'+g.name+'的人')}
+function nextWave(){const g=GW.g;GW.wave++;GW.list=[];const n=2+GW.wave*2;
+  for(let k=0;k<n;k++){const a=R()*6.28,r=rr(24,38);let x=g.hx+Math.cos(a)*r,z=g.hz+Math.sin(a)*r;if(hit(x,z,.8)){x=g.hx+Math.cos(a)*8;z=g.hz+Math.sin(a)*8}
+    const p=spawnGangPed(g,x,z,true);if(p){p.keep=1;GW.list.push(p)}}
+  if(GW.wave>=2){g.hot=60;g.carT=GW.wave===3?.5:3}
+  if(GW.wave>1)toast(`第 ${GW.wave} 波来了！`)}
+function endWar(ok){const g=GW.g;for(const p of GW.list)if(peds.includes(p))p.keep=0;GW=null;setS2('');
+  if(ok){g.own=true;g.hot=0;for(const p of gangMembers(g)){p.hostile=0;p.gang=null;p.flee=12;if(p.gun)p.gun.visible=false}
+    player.money+=2500;STATS.turf=(STATS.turf||0)+1;toast(`🏴 ${g.name}的地盘归你了！+$2,500，以后每天收保护费 $400`);beep(660,.15);setTimeout(()=>beep(990,.25),160)}
+  else toast('地盘战失败')}
+function updWar(dt){const g=GW.g;GW.t+=dt;
+  if(player.hp<=0||Math.hypot(player.x-g.hx,player.z-g.hz)>170&&!(player.car&&Math.hypot(player.car.x-g.hx,player.car.z-g.hz)<170)){endWar(false);return}
+  const left=GW.list.filter(p=>peds.includes(p)&&!p.dead).length;
+  if(left===0){if(GW.wave>=3){endWar(true);return}nextWave();return}
+  setS2(`地盘战 · ${g.name} · 第 ${GW.wave}/3 波 · 还剩 ${left} 人`)}
+function updGang(dt){if(INSIDE)return;
+  if(GW)updWar(dt);
+  const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z,t=performance.now()/1000;
+  for(const g of GANGS){if(!g.set)continue;
+    if(g.hot>0)g.hot-=dt*(Math.hypot(px-g.cx,pz-g.cz)>320?3:1);
+    // 追杀车
+    if(g.hot>0&&!g.own){g.carT-=dt;if(g.carT<=0){g.carT=rr(18,28);if(cars.filter(c=>c.gangCar===g&&!c.dead).length<(GW?2:1))spawnGangCar(g)}}
+    const near=Math.hypot(g.hx-px,g.hz-pz);
+    setMarker(g.mk,!g.own&&!GW&&near<600&&player.wanted===0,g.hx,g.hz,'!',g.col,t);
+    if(!g.own&&!GW&&!player.car&&player.wanted===0&&near<3.2)setPrompt('抢 '+g.name+' 的地盘',()=>startWar(g),near)}
+  if((gangTick-=dt)>0)return;gangTick=.6;
+  // 进出地盘提示
+  const z=gangAt(px,pz);if(z!==GZONE){GZONE=z;if(z)toast(z.own?'你的地盘（原'+z.name+'）':'进入'+z.name+'的地盘')}
+  // 每天收保护费
+  if(GDAY===null)GDAY=DAYN;else if(DAYN!==GDAY){GDAY=DAYN;const n=GANGS.filter(g=>g.own).length;if(n){player.money+=400*n;toast(`收到保护费 $${400*n}`)}}
+  // 刷帮派成员：一小撮一小撮站在自家地盘的人行道上
+  for(const g of GANGS){if(!g.set||g.own||Math.hypot(g.cx-px,g.cz-pz)>260)continue;
+    if(gangMembers(g).length>=(MOBILE?6:9)||R()>.5)continue;
+    const b=g.blocks[(R()*g.blocks.length)|0],pt=sidePt(b[0],b[1],R()*perim(bdim(b[0],b[1])));if(Math.hypot(pt.x-px,pt.z-pz)<45)continue;
+    const n=2+((R()*2)|0),grp=[];for(let k=0;k<n;k++){const a=k/n*6.28,q=spawnGangPed(g,pt.x+Math.cos(a)*1.3,pt.z+Math.sin(a)*1.3,g.hot>0);if(q)grp.push(q)}
+    for(const q of grp)q.rot=Math.atan2(pt.x-q.x,pt.z-q.z)}}
+// 地图上画地盘
+function drawGangZones(g2){for(const g of GANGS){if(!g.set)continue;const c=g.own?'rgba(255,200,61,.45)':'rgba('+[(g.col>>16)&255,(g.col>>8)&255,g.col&255].join(',')+',.38)';g2.fillStyle=c;
+  for(const[i,j]of g.blocks)g2.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}}
 function updExtra(dt){const e=Math.sin((gameHour-6)/24*Math.PI*2);NIGHT=clamp((-e+.12)/.3,0,1);
-  updStory(dt);updProps(dt);updInteract();updNpcTalk();updChallenges(dt);updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updGfx(dt);updPerf();
+  updStory(dt);updProps(dt);updInteract();updNpcTalk();updChallenges(dt);updGang(dt);updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updGfx(dt);updPerf();
   if(PROMPT&&(PROMPT.t!==last||cut||boarding)){PROMPT=null;$('prompt').hidden=true}
   if((umbT-=dt)<=0){umbT=1;updUmbrellas()}}
 
 // ===== 存档：每 5 秒、切到后台时自动保存（钱、主角、武器、位置、是否通关），页面刷新后可以接着玩 =====
 const SAVE_KEY='neonbay-save-v1';
-function snapshotState(){return{own:OWN,stats:STATS,ach:ACH_DONE,radio:radioIdx,hour:gameHour,money:player.money,hero:heroLook,w:wIdx,won,finished,x:player.car?player.car.x:player.x,z:player.car?player.car.z:player.z,story:{ch:STORY.ch,done:STORY.done},home:HOME.cars,outfits:OUTFITS,homeup:HOMEUP,chal:CHAL,dayn:DAYN,heistDay:HEIST_DAY,ownp:OWNP,garage:GARAGE,wx:WX.kind}}
+function snapshotState(){return{own:OWN,stats:STATS,ach:ACH_DONE,radio:radioIdx,hour:gameHour,money:player.money,hero:heroLook,w:wIdx,won,finished,x:player.car?player.car.x:player.x,z:player.car?player.car.z:player.z,story:{ch:STORY.ch,done:STORY.done},home:HOME.cars,outfits:OUTFITS,homeup:HOMEUP,chal:CHAL,dayn:DAYN,heistDay:HEIST_DAY,ownp:OWNP,garage:GARAGE,wx:WX.kind,turf:GANGS.filter(g=>g.own).map(g=>g.id)}}
 function saveGame(){if(!running)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshotState()))}catch(e){}}
 function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'null')}catch(e){return null}}
 function pickHeroUI(k){setHero(k);for(const b of document.querySelectorAll('.hero')){const on=b.id===(k==='heroM'?'pickM':'pickF');b.classList.toggle('on',on);b.setAttribute('aria-checked',on)}}
-function applyState(st){if(!st)return;if(st.own)Object.assign(OWN,st.own);if(st.stats)Object.assign(STATS,st.stats);if(st.ach)Object.assign(ACH_DONE,st.ach);if(Number.isFinite(st.radio))radioIdx=st.radio;if(Number.isFinite(st.hour))gameHour=st.hour;if(Number.isFinite(st.x))ensureAround(st.x,st.z);player.money=st.money|0;won=!!st.won;finished=!!st.finished;if(st.hero)pickHeroUI(st.hero);if(st.story){STORY.ch=st.story.ch|0;STORY.done=!!st.story.done;if(STORY.done)$('storyBox').hidden=true}if(st.ownp)Object.assign(OWNP,st.ownp);if(Array.isArray(st.home))HOME.cars=st.home.slice(0,3);else if(st.home&&st.home.kind)HOME.cars=[st.home];if(st.outfits)Object.assign(OUTFITS,st.outfits);if(st.homeup)Object.assign(HOMEUP,st.homeup);if(Number.isFinite(st.dayn))DAYN=st.dayn;if(st.chal&&st.chal.list)CHAL=st.chal;if(Number.isFinite(st.heistDay))HEIST_DAY=st.heistDay;if(Array.isArray(st.garage)){GARAGE.length=0;GARAGE.push(...st.garage.slice(0,4))}if(st.wx&&WKINDS[st.wx])setWeather(st.wx,true);PROPS.forEach(propRefresh);
+function applyState(st){if(!st)return;if(st.own)Object.assign(OWN,st.own);if(st.stats)Object.assign(STATS,st.stats);if(st.ach)Object.assign(ACH_DONE,st.ach);if(Number.isFinite(st.radio))radioIdx=st.radio;if(Number.isFinite(st.hour))gameHour=st.hour;if(Number.isFinite(st.x))ensureAround(st.x,st.z);player.money=st.money|0;won=!!st.won;finished=!!st.finished;if(st.hero)pickHeroUI(st.hero);if(st.story){STORY.ch=st.story.ch|0;STORY.done=!!st.story.done;if(STORY.done)$('storyBox').hidden=true}if(st.ownp)Object.assign(OWNP,st.ownp);if(Array.isArray(st.home))HOME.cars=st.home.slice(0,3);else if(st.home&&st.home.kind)HOME.cars=[st.home];if(st.outfits)Object.assign(OUTFITS,st.outfits);if(st.homeup)Object.assign(HOMEUP,st.homeup);if(Number.isFinite(st.dayn))DAYN=st.dayn;if(st.chal&&st.chal.list)CHAL=st.chal;if(Number.isFinite(st.heistDay))HEIST_DAY=st.heistDay;if(Array.isArray(st.garage)){GARAGE.length=0;GARAGE.push(...st.garage.slice(0,4))}if(st.wx&&WKINDS[st.wx])setWeather(st.wx,true);if(Array.isArray(st.turf))for(const g of GANGS)g.own=st.turf.includes(g.id);PROPS.forEach(propRefresh);
   if(Number.isFinite(st.x)&&onIsland(st.x,st.z,8)&&!hit(st.x,st.z,1)){player.x=st.x;player.z=st.z}setWeapon(st.w|0)}
 function beginPlay(msg){$('title').hidden=true;running=true;last=performance.now();if(ac)ac.resume&&ac.resume();toast(msg)}
 setInterval(saveGame,5000);addEventListener('visibilitychange',()=>{if(document.hidden)saveGame()});addEventListener('pagehide',saveGame);
