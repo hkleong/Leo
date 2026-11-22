@@ -455,7 +455,7 @@ const zebraMat=new THREE.MeshBasicMaterial({color:0xf4f0e6});
 for(const[i,j]of VALID)for(const k of[1,2]){const ni=i+NB[k][0],nj=j+NB[k][1];if(!blockOK(ni,nj)||!sideEdge(i,j,k))continue;const L=sideLen(bdim(i,j),k);
   for(const fc of[CR,L-CR]){const a=sidePt(i,j,sOf(i,j,k,fc)),b=sidePt(ni,nj,sOf(ni,nj,(k+2)%4,L-fc));
     const len=Math.hypot(b.x-a.x,b.z-a.z),ux=(b.x-a.x)/len,uz=(b.z-a.z)/len;
-    for(let t=1.2;t<len-.8;t+=1.5){const m=new THREE.Mesh(new THREE.PlaneGeometry(.75,4),zebraMat);m.position.set(a.x+ux*t,.035,a.z+uz*t);m.rotation.set(-Math.PI/2,0,Math.abs(ux)>.5?0:Math.PI/2);scene.add(m)}}}
+    for(let t=1.2;t<len-.8;t+=1.5){const zx=a.x+ux*t,zz=a.z+uz*t;if([...DIAG].some(([dk,dt2])=>{const[x0,z0,x1,z1]=diagSeg(dk,dt2);return segDist(zx,zz,x0,z0,x1,z1)<RD/2+1.5}))continue;const m=new THREE.Mesh(new THREE.PlaneGeometry(.75,4),zebraMat);m.position.set(a.x+ux*t,.035,a.z+uz*t);m.rotation.set(-Math.PI/2,0,Math.abs(ux)>.5?0:Math.PI/2);scene.add(m)}}}
 // 路灯
 const lampMat=new THREE.MeshBasicMaterial({color:0xfff0b0});
 for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!deg(i,j))continue;const x=rx(i)+RD/2+1.2,z=rz(j)+RD/2+1.2;if(guard('lamp',x,z,.3))continue;
@@ -1190,6 +1190,7 @@ function carPhysics(c,thr,steer,brake,dt){
   if(thr>0)c.speed+=thr*(c.speed<0?40:sp.acc)*dt;else if(thr<0)c.speed+=thr*(c.speed>0?36:12)*dt;else c.speed*=1-1.2*dt;
   if(brake)c.speed*=1-3*dt;
   c.speed=clamp(c.speed,-12,max);
+  if(c===player.car){c.steerS=(c.steerS||0)+(steer-(c.steerS||0))*Math.min(1,dt*(steer?7:10));steer=c.steerS*(1/(1+Math.max(0,Math.abs(c.speed)-18)/26))}
   c.h+=steer*clamp(c.speed/10,-1,1)*(brake?sp.steer+.8:sp.steer)*dt;
   const nx=c.x+Math.sin(c.h)*c.speed*dt,nz=c.z+Math.cos(c.h)*c.speed*dt;
   if(hit(nx,nz,2.3)){if(Math.abs(c.speed)>14){crashFx(c);c.hp-=Math.abs(c.speed)*.6}c.speed*=-.3;}
@@ -1204,7 +1205,12 @@ function carPhysics(c,thr,steer,brake,dt){
 // ===== 交通 AI =====
 const node=(i,j)=>({x:rx(i),z:rz(j)});
 // 下一个路口往哪走：优先直行，不掉头（死路才掉头）
-function aiChoose(c){const d=DIRS8.filter(([a,b])=>linkOK(c.ni,c.nj,a,b)&&!(a===-c.dx&&b===-c.dz));if(!d.length)return[-c.dx,-c.dz];
+// 追捕路线：每 0.8 秒从玩家最近的路口出发，算出每个路口到玩家要走几步
+let CHASE=null,chaseT=0;
+function chaseMap(){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;let best=null,bd=1e9;
+  for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!degAll(i,j))continue;const d=Math.hypot(rx(i)-px,rz(j)-pz);if(d<bd){bd=d;best=[i,j]}}
+  const dist=new Map(),q=[best];dist.set(best+'',0);while(q.length){const[i,j]=q.shift(),d0=dist.get(i+','+j);for(const[a,b]of DIRS8)if(linkOK(i,j,a,b)){const k=(i+a)+','+(j+b);if(!dist.has(k)){dist.set(k,d0+1);q.push([i+a,j+b])}}}CHASE=dist}
+function aiChoose(c){if(c.chase&&CHASE){let best=null,bd=1e9;for(const[a,b]of DIRS8)if(linkOK(c.ni,c.nj,a,b)){const d=CHASE.get((c.ni+a)+','+(c.nj+b))??1e9;if(d<bd||(d===bd&&a===c.dx&&b===c.dz)){bd=d;best=[a,b]}}if(best)return best}const d=DIRS8.filter(([a,b])=>linkOK(c.ni,c.nj,a,b)&&!(a===-c.dx&&b===-c.dz));if(!d.length)return[-c.dx,-c.dz];
   const st=d.find(([a,b])=>a===c.dx&&b===c.dz);if(st&&R()<.55)return st;return d[(R()*d.length)|0]}
 function aiPickNext(c){const[a,b]=c.nd||aiChoose(c);c.nd=null;c.dx=a;c.dz=b;c.ni+=a;c.nj+=b}
 // 车道线：从上一个路口到下一个路口，向右偏 LANE
@@ -1235,10 +1241,10 @@ function driveAI(c,dt){let ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj);
   if(block&&!c.redStop){c.blockT=(c.blockT||0)+dt;if(c.blockT>4){if(!c.honked&&Math.hypot(c.x-player.x,c.z-player.z)<50){c.honked=1;SFX.horn()}block=false;if(c.blockT>7)c.blockT=0}}else{c.blockT=0;c.honked=0}
   block=block||bPed;
   // 红灯 / 黄灯：在停止线前停下（已经进入路口的车继续通过）
-  if(!c.police||player.wanted===0){const grp=c.dz&&!c.dx?'b':'a';const stopD=rem-RD*.5-1.5;
+  if(!c.chase&&(!c.police||player.wanted===0)){const grp=c.dz&&!c.dx?'b':'a';const stopD=rem-RD*.5-1.5;
     if(degAll(c.ni,c.nj)>=3&&LSTATE[grp]!=='g'&&stopD>-.5&&stopD<4+Math.abs(c.speed)*.7){block=true;c.redStop=1}else c.redStop=0}
-  const target=turning||Math.abs(diff)>.35?8:16;
-  carPhysics(c,block?0:(c.speed<(c.blockT>4?4:target)?.6:0),clamp(diff*2.5,-1,1),block,dt);
+  const target=c.chase?(turning||Math.abs(diff)>.35?14:36):turning||Math.abs(diff)>.35?8:16;if(c.chase){bPed=false;block=false}
+  carPhysics(c,block?0:(c.speed<(c.blockT>4?4:target)?(c.chase?1:.6):0),clamp(diff*2.5,-1,1),block,dt);
   if(Math.abs(c.speed)<.5&&!block){if((c.stuck+=dt)>3){c.x=tx;c.z=tz;c.h=Math.atan2(ln.ux,ln.uz);c.stuck=0}}else c.stuck=0}
 
 // ===== 行人 =====
@@ -1375,8 +1381,12 @@ function updWanted(dt){const w=clamp(Math.ceil(player.heat-.001),0,5);
   if(player.wanted===0)for(const c of cops)if(!c.patrol&&Math.hypot(c.x-player.x,c.z-player.z)>120){removeCar(c)}
   for(const c of cops)for(const s of c.siren)s.visible=player.wanted>0&&((performance.now()/150)|0)%2===(c.siren.indexOf(s))}
 function spawnCop(){for(let k=0;k<40;k++){const i=(R()*(NX+1))|0,j=(R()*(NZ+1))|0;if(!nodeOK(i,j)||!degAll(i,j))continue;const n=node(i,j),d=Math.hypot(n.x-player.x,n.z-player.z);
-  if(nodeOK(i,j)&&d>150&&d<260){const c=makeCar(n.x,n.z,Math.atan2(player.x-n.x,player.z-n.z),{police:true,kind:player.wanted>=3&&R()<.5?'suv':'police'});return c}}}
-function driveCop(c,dt){if(c.patrol&&c.driver==='ai'&&player.wanted===0){driveAI(c,dt);return}
+  if(nodeOK(i,j)&&d>150&&d<260){const c=makeCar(n.x,n.z,0,{police:true,kind:player.wanted>=3&&R()<.5?'suv':'police'});c.ni=i;c.nj=j;c.dx=0;c.dz=0;c.chase=true;if(!CHASE)chaseMap();c.nd=null;
+    const[a,b]=aiChoose(c);c.dx=a;c.dz=b;c.ni+=a;c.nj+=b;const ln=laneOf(i,j,c.ni,c.nj);c.x=ln.ax+ln.ux*(RD/2+3);c.z=ln.az+ln.uz*(RD/2+3);c.h=Math.atan2(ln.ux,ln.uz);return c}}}
+function driveCop(c,dt){if(c.patrol&&c.driver==='ai'&&player.wanted===0){c.chase=false;driveAI(c,dt);return}
+  // 离得远：沿路追；离得近（45 米内）：直接冲过去
+  if(player.wanted>0){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
+    if(Math.hypot(px-c.x,pz-c.z)>45&&c.ni!==undefined&&!(c.rev>0)){if(!c.chase){c.chase=true;c.nd=null}driveAI(c,dt);return}c.chase=false}
   const tx=player.car?player.car.x:player.x,tz=player.car?player.car.z:player.z;
   if(player.wanted===0){driveAI2(c,dt);return}
   const want=Math.atan2(tx-c.x,tz-c.z);let diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;const d=Math.hypot(tx-c.x,tz-c.z);
@@ -1694,6 +1704,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   for(const k of[...cash]){k.m.rotation.y+=dt*3;if(Math.hypot(k.x-player.x,k.z-player.z)<3){player.money+=k.v;beep(1200,.08,'sine',.08);scene.remove(k.m);cash.splice(cash.indexOf(k),1)}}
   for(const f of[...fxs]){f.t+=dt;if(f.smoke){f.m.position.y+=dt*3;f.m.material.opacity=.6-f.t*.4}else{f.m.scale.setScalar(1+f.t*2);f.m.material.opacity=.9-f.t}if(f.t>1.4){scene.remove(f.m);f.m.geometry.dispose();f.m.material.dispose();fxs.splice(fxs.indexOf(f),1)}}
   for(const t of[...tracers])if((t.t-=dt)<0){scene.remove(t.l);t.l.geometry.dispose();t.l.material.dispose();tracers.splice(tracers.indexOf(t),1)}
+  if(player.wanted>0&&(chaseT-=dt)<=0){chaseT=.8;chaseMap()}
   updStream();syncDrivers();updLights();updDayNight(dt);updWanted(dt);updMission(dt);updAudio(dt,ax,ay);updBubbles(dt);
   if(player.hp<=0&&!cut)startCut('dead');else if(!player.car&&player.wanted===0)player.hp=Math.min(100,player.hp+dt*2);
   // 逮捕判定：有通缉时，警员贴身（步行时 2 米内且没在跑）或你的车停下、警员在 6 米内，持续一会儿就被捕
