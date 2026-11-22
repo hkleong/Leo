@@ -179,14 +179,21 @@ const SPN=(()=>{let best=null;for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++)if(nod
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x2b1b4a);scene.fog=new THREE.Fog(0xc8607a,110,440);
 // 天空：顶部 / 中段 / 地平线三段渐变 + 太阳 + 夜晚的星星和月亮（颜色由昼夜循环每帧更新）
-const SKYU={uSun:{value:new THREE.Vector3(.9,.06,-.3).normalize()},uTop:{value:new THREE.Color()},uMid:{value:new THREE.Color()},uHor:{value:new THREE.Color()},uNight:{value:0},uSunI:{value:1}};
+const SKYU={uSun:{value:new THREE.Vector3(.9,.06,-.3).normalize()},uTop:{value:new THREE.Color()},uMid:{value:new THREE.Color()},uHor:{value:new THREE.Color()},uNight:{value:0},uSunI:{value:1},uTime:{value:0},uCloud:{value:new THREE.Color(1,1,1)},uCloudSh:{value:new THREE.Color(.6,.6,.7)}};
 const sky=new THREE.Mesh(new THREE.SphereGeometry(800,32,20),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,uniforms:SKYU,
   vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`uniform vec3 uSun,uTop,uMid,uHor;uniform float uNight,uSunI;varying vec3 vP;
+  fragmentShader:`uniform vec3 uSun,uTop,uMid,uHor,uCloud,uCloudSh;uniform float uNight,uSunI,uTime;varying vec3 vP;
+   float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+   float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1,0)),f.x),mix(h2(i+vec2(0,1)),h2(i+vec2(1,1)),f.x),f.y);}
+   float fbm(vec2 p){float v=0.,a=.5;for(int k=0;k<5;k++){v+=a*n2(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
    float hash(vec3 p){p=fract(p*.3183+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
    void main(){float h=vP.y;vec3 c=h>.18?mix(uMid,uTop,smoothstep(.18,.6,h)):mix(uHor,uMid,smoothstep(-.02,.18,h));
    float sd=distance(vP,uSun);c+=uSunI*(vec3(1.,.85,.5)*smoothstep(.07,.05,sd)+vec3(1.,.55,.3)*.35*smoothstep(.5,.0,sd));
    vec3 g=floor(vP*180.);float st=step(.997,hash(g))*smoothstep(.05,.3,h);c+=vec3(st)*uNight*(.6+.4*hash(g+3.));
+   // 云：把视线投到一层高空平面上，用分形噪声算云量，随时间慢慢飘
+   if(h>.02){vec2 cp=vP.xz/(h+.08)*1.6+vec2(uTime*.012,uTime*.004);float d=fbm(cp),d2=fbm(cp+vec2(.15,.1));
+     float cov=smoothstep(.5,.78,d)*smoothstep(.02,.16,h)*(1.-smoothstep(.75,1.,h));float sh=clamp((d-d2)*3.+.5,0.,1.);
+     vec3 cc=mix(uCloudSh,uCloud,sh);cc+=vec3(1.,.7,.45)*uSunI*.35*smoothstep(.6,0.,distance(vP,uSun));c=mix(c,cc,cov*.9);}
    float md=distance(vP,-uSun);c+=uNight*(vec3(.95,.95,1.)*smoothstep(.045,.035,md)+vec3(.4,.45,.7)*.25*smoothstep(.35,.0,md));
    gl_FragColor=vec4(c,1.);}`}));
 sky.renderOrder=-1;scene.add(sky);
@@ -1557,6 +1564,7 @@ function updDayNight(dt){gameHour=(gameHour+dt*DAY_SPEED)%24;const ph=(gameHour-
   // 天空三段颜色：白天 ↔ 黄昏 ↔ 夜晚
   const toDay=Math.min(1,Math.max(0,(e-.04)/.36)),toNight=Math.min(1,Math.max(0,(-e-.02)/.18));
   ['uTop','uMid','uHor'].forEach((k,i)=>{const col=SKYU[k].value;mixHex(PAL.dusk[i],PAL.day[i],toDay,col);if(toNight>0)col.lerp(_ca.set(PAL.night[i]),toNight)});
+  SKYU.uTime.value+=dt*60;SKYU.uCloud.value.set(0xffd2c8).lerp(_ca.set(0xffffff),toDay).lerp(_ca.set(0x3a4266),toNight);SKYU.uCloudSh.value.set(0x9a6a9a).lerp(_ca.set(0xb8c4d8),toDay).lerp(_ca.set(0x161a30),toNight);
   SKYU.uNight.value=toNight;SKYU.uSunI.value=Math.max(0,Math.min(1,(e+.08)/.12));
   scene.fog.color.copy(SKYU.uHor.value).lerp(SKYU.uMid.value,.35);scene.background.copy(SKYU.uMid.value);
   // 太阳 / 月光：白天暖白，黄昏橙，夜里换成偏蓝的月光
