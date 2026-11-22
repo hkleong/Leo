@@ -136,6 +136,7 @@ canvas{display:block}
     <button class="hero on" id="pickF" role="radio" aria-checked="true"><img src="art/hero_f.jpg" alt=""><span>玛雅</span><small>花衬衫 · 破洞牛仔裤</small></button>
     <button class="hero" id="pickM" role="radio" aria-checked="false"><img src="art/hero_m.jpg" alt=""><span>科尔</span><small>牛仔夹克 · 工装靴</small></button>
   </div>
+  <div class="qrow" id="styleRow" role="radiogroup" aria-label="画风"><span>画风</span><button data-style="real">写实</button><button data-style="toon">卡通</button></div>
   <div class="qrow" id="steerRow" role="radiogroup" aria-label="手机驾驶"><span>开车转向</span><button data-s="btn">按钮</button><button data-s="stick">摇杆</button></div>
   <div class="qrow" role="radiogroup" aria-label="画质"><span>画质</span><button data-q="low">流畅</button><button data-q="mid">标准</button><button data-q="high">高清</button></div>
   <button id="start">开始游戏</button>
@@ -173,6 +174,9 @@ canvas{display:block}
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+// ===== 画风：写实（低多边形 + 写实光照和贴图，人物比例更接近真人）或 卡通（色阶着色 + 描边）=====
+const REAL=(()=>{try{return localStorage.getItem('nby-style')!=='toon'}catch(e){return true}})();
+if(REAL){const P=THREE.MeshPhongMaterial;THREE.MeshToonMaterial=class extends P{constructor(p={}){const q=Object.assign({},p);delete q.gradientMap;super(q);this.userData.toonish=1;this.shininess=14;this.specular.setHex(0x1a1a1a)}}}
 // ===== 基础 =====
 let R=Math.random;const rr=(a,b)=>a+R()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 // 固定随机种子：地图布局、楼房每次打开都一样（城市生成完后换回普通随机）
@@ -966,7 +970,7 @@ const vcCarMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGra
 const lightVC=new THREE.MeshBasicMaterial({vertexColors:true});
 function outlineMat(t){const m=new THREE.MeshBasicMaterial({color:0x1a0f2a,side:THREE.BackSide});
   m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <begin_vertex>','vec3 transformed=position+normal*'+t.toFixed(3)+';')};m.customProgramCacheKey=()=>'ol'+t;return m}
-const OL_P=outlineMat(.018),OL_C=outlineMat(.035);
+const OL_P=outlineMat(.018),OL_C=outlineMat(.035);if(REAL)OL_P.visible=OL_C.visible=false;
 const _c=new THREE.Color();
 class Bld{constructor(){this.parts=[];this.extra=[]}
   add(geo,col,p=[0,0,0],r=[0,0,0],s=[1,1,1]){const m=new THREE.Matrix4().compose(new V3(...p),new THREE.Quaternion().setFromEuler(new THREE.Euler(...r)),new V3(...s));
@@ -1062,10 +1066,10 @@ function faceMat(o){const key=JSON.stringify(o);if(faceCache[key])return faceCac
   for(const sd of[-1,1]){const[cx,cy]=P(sd*.11,-.06),gr=g.createRadialGradient(cx,cy,0,cx,cy,26);gr.addColorStop(0,o.fem?'rgba(235,110,120,.2)':'rgba(170,80,60,.1)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(cx-30,cy-30,60,60)}
   const sp=mulberry(7);
   // 眼睛：眼白、虹膜、瞳孔、高光、上眼睑线（女性加睫毛和眼尾）
-  for(const sd of[-1,1]){const[ex,ey]=P(sd*.075,.03),w=21,h=11;
+  for(const sd of[-1,1]){const[ex,ey]=P(sd*.075,.03),w=REAL?16:21,h=REAL?8.5:11;
     g.save();g.beginPath();g.moveTo(ex-w,ey);g.quadraticCurveTo(ex,ey-h*1.25,ex+w,ey);g.quadraticCurveTo(ex,ey+h,ex-w,ey);g.closePath();g.fillStyle='#fbf7f2';g.fill();g.clip();
-    g.fillStyle=o.iris;g.beginPath();g.arc(ex+sd*-1,ey,8.5,0,7);g.fill();g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.arc(ex+sd*-1,ey,8.5,Math.PI*1.1,Math.PI*1.9);g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.3)';g.stroke();
-    g.fillStyle='#120c0a';g.beginPath();g.arc(ex+sd*-1,ey,4,0,7);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(ex+sd*-1+2.5,ey-3,2,0,7);g.fill();
+    g.fillStyle=o.iris;g.beginPath();g.arc(ex+sd*-1,ey,REAL?6.4:8.5,0,7);g.fill();g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.arc(ex+sd*-1,ey,REAL?6.4:8.5,Math.PI*1.1,Math.PI*1.9);g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.3)';g.stroke();
+    g.fillStyle='#120c0a';g.beginPath();g.arc(ex+sd*-1,ey,REAL?3:4,0,7);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(ex+sd*-1+2.5,ey-3,2,0,7);g.fill();
     g.fillStyle='rgba(0,0,0,.18)';g.fillRect(ex-w,ey-h*1.3,w*2,h*.6);g.restore();
     g.strokeStyle='#1a120e';g.lineWidth=o.fem?3.4:2.6;g.lineCap='round';g.beginPath();g.moveTo(ex-w,ey+1);g.quadraticCurveTo(ex,ey-h*1.3,ex+w+(o.fem?3:0),ey-(o.fem?3:0));g.stroke();
     if(o.fem){g.lineWidth=1.6;for(let k=0;k<4;k++){const t=.55+k*.15,lx=ex+(sd>0?1:-1)*w*(t-.5)*2;g.beginPath();g.moveTo(lx,ey-h*.9+k);g.lineTo(lx+(sd>0?3:-3),ey-h*1.4+k);g.stroke()}}
@@ -1172,8 +1176,9 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
   // —— 骨架：躯干（含头和手臂）挂在髋部 spine 上，方便前倾、扭腰
   const spine=new THREE.Group();spine.position.y=1.38;g.add(spine);
   const body=B.build(vcPersonMat);body.position.y=-1.38;spine.add(body);
+  const HK=REAL?.8:1,HP=2.3;if(REAL){const G=body.children[0].geometry,P=G.attributes.position;for(let i=0;i<P.count;i++){const y=P.getY(i);if(y<HP-.06)continue;const f=1-(1-HK)*clamp((y-HP+.06)/.14,0,1);P.setXYZ(i,P.getX(i)*f,HP+(y-HP)*f,P.getZ(i)*f)}P.needsUpdate=true;G.computeBoundingSphere()}
   {const fm=faceMat({skin,brow:L.hairCol??(L.beardCol||0x2a1a12),fem,beard:L.beard?(L.stubble?'stub':'full'):0,beardCol:L.beardCol??hairC,must:!!L.mustache,iris:IRIS[(fr()*IRIS.length)|0],lip:LIPS[(fr()*LIPS.length)|0]});
-   const fg=gget('faceGeo',()=>new THREE.SphereGeometry(.2,24,18,Math.PI/2-FPHI/2,FPHI,FT0,FTL));const face=new THREE.Mesh(fg,fm);face.scale.set(1.006,1.166,1.056);face.position.set(0,hy,0);face.renderOrder=3;body.add(face)}
+   const fg=gget('faceGeo',()=>new THREE.SphereGeometry(.2,24,18,Math.PI/2-FPHI/2,FPHI,FT0,FTL));const face=new THREE.Mesh(fg,fm);face.scale.set(1.006*HK,1.166*HK,1.056*HK);face.position.set(0,HP+(hy-HP)*HK,0);face.renderOrder=3;body.add(face)}
   // —— 腿：大腿（绕髋）+ 小腿（绕膝）
   const legCol=(x,y,z)=>{if(L.dress)return skin;
     if(L.shorts&&y<-.42)return L.socks&&y<-1.08?L.socks:skin;
@@ -2323,7 +2328,7 @@ for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
 const vcPlainMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad});
 function mergeInto(list,grp){const groups=new Map(),PLAIN='plain';
   for(const o of list){if(!o.isMesh||Array.isArray(o.material)||(o.material&&(o.material.transparent||o.material.vertexColors))){grp.add(o);continue}
-    const m=o.material,key=(m.isMeshToonMaterial&&!m.map&&!m.emissiveMap)?PLAIN:m;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o)}
+    const m=o.material,key=((m.isMeshToonMaterial||m.userData.toonish)&&!m.map&&!m.emissiveMap)?PLAIN:m;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o)}
   for(const[key,lst]of groups){if(lst.length<2&&key!==PLAIN){grp.add(lst[0]);continue}const pos=[],nor=[],uv=[],tl=[],cl=[];let cast=false;
     for(const o of lst){o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);
       const P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv,T=g.attributes.tileR,c=o.material.color;
@@ -2584,6 +2589,7 @@ function phOpen(id){phTime();const A=APPS.find(a=>a[0]===id);$('phTitle').textCo
    case'set':h+=`<div class="ph-list">
      <div class="ph-card"><b>画质</b><div class="row" style="margin-top:6px;justify-content:flex-start">${Object.entries(QUALITY).map(([k,q])=>`<button class="ph-btn ${k===QK?'':'alt'}" data-q="${k}">${q.name}</button>`).join('')}</div></div>
      <div class="ph-card"><div class="row"><span><b>自动画质</b><br>卡顿时自动降低分辨率</span><button class="ph-btn ${PERF.on?'':'alt'}" data-tg="perf">${PERF.on?'开':'关'}</button></div></div>
+     <div class="ph-card"><div class="row"><span><b>画风</b><br>切换后会自动重新载入</span><span><button class="ph-btn ${REAL?'':'alt'}" data-style="real">写实</button> <button class="ph-btn ${REAL?'alt':''}" data-style="toon">卡通</button></span></div></div>
      <div class="ph-card"><div class="row"><span><b>画面特效</b><br>泛光、光束、调色</span><button class="ph-btn ${POST.on?'':'alt'}" data-tg="post">${POST.on?'开':'关'}</button></div></div>
      <div class="ph-card"><div class="row"><span><b>震动反馈</b></span><button class="ph-btn ${self.__novib?'alt':''}" data-tg="vib">${self.__novib?'关':'开'}</button></div></div>
      <div class="ph-card"><div class="row"><span><b>声音</b></span><button class="ph-btn ${muted?'alt':''}" data-tg="mute">${muted?'关':'开'}</button></div></div>
@@ -2596,9 +2602,12 @@ function phOpen(id){phTime();const A=APPS.find(a=>a[0]===id);$('phTitle').textCo
   B.querySelectorAll('[data-call]').forEach(b=>b.onclick=()=>callCar(+b.dataset.call));
   B.querySelectorAll('[data-radio]').forEach(b=>b.onclick=()=>{radioIdx=+b.dataset.radio;radioStep=0;phOpen('radio')});
   B.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{applyQuality(b.dataset.q);PERF.scale=1;syncQualityUI();phOpen('set')});
+  B.querySelectorAll('[data-style]').forEach(b=>b.onclick=()=>setStyle(b.dataset.style));
   B.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{setSteer(b.dataset.st);phOpen('set')});
   B.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{const t=b.dataset.tg;
     if(t==='perf'){PERF.on=!PERF.on;if(!PERF.on)resetPerf();saveSet()}else if(t==='post'){POST.on=!POST.on;saveSet()}else if(t==='vib'){self.__novib=!self.__novib;saveSet();buzz(30)}else if(t==='mute')toggleMute();else if(t==='layout'){openPhone(false);startLayout();return}phOpen('set')})}
+function setStyle(v){if((v==='real')===REAL)return;saveGame();try{localStorage.setItem('nby-style',v)}catch(e){}location.reload()}
+for(const b of document.querySelectorAll('#styleRow button')){const on=(b.dataset.style==='real')===REAL;b.classList.toggle('on',on);b.setAttribute('aria-checked',on);b.addEventListener('click',()=>setStyle(b.dataset.style))}
 function syncQualityUI(){for(const x of document.querySelectorAll('.qrow button[data-q]')){x.classList.toggle('on',x.dataset.q===QK);x.setAttribute('aria-checked',x.dataset.q===QK)}}
 $('phoneBtn').addEventListener('click',()=>openPhone(!phoneOpen));$('phoneBtn').addEventListener('touchend',e=>{e.preventDefault();openPhone(!phoneOpen)});
 $('phClose').addEventListener('click',()=>openPhone(false));$('phone').addEventListener('click',e=>{if(e.target.id==='phone')openPhone(false)});
@@ -2818,7 +2827,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.15.0';
+const VERSION='v0.16.0';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -2855,7 +2864,7 @@ function renderMain(){if(!POST.on){ren.setRenderTarget(null);ren.render(scene,ca
 function updGrade(){const e=Math.sin((gameHour-6)/24*Math.PI*2),day=clamp((e-.05)/.3,0,1),dusk=clamp(1-Math.abs(e-.02)/.3,0,1)*(1-NIGHT*.5),u=compM.uniforms,rain=Math.max(WX.rain,WX.fog*.7);
   u.uMul.value.set(1.02,1,.98).lerp(_v3a.set(1.09,.97,.9),dusk).lerp(_v3a.set(.88,.94,1.14),NIGHT);
   u.uAdd.value.set(0,0,0).lerp(_v3a.set(.02,0,.015),dusk).lerp(_v3a.set(0,.005,.035),NIGHT);
-  u.uSat.value=(1.1+.06*dusk-.08*NIGHT)*(1-.22*rain);u.uCon.value=1.05+.03*NIGHT;u.uVig.value=.3+.25*NIGHT;
+  u.uSat.value=(1.1+.06*dusk-.08*NIGHT)*(1-.22*rain)*(REAL?.84:1);u.uCon.value=1.05+.03*NIGHT;u.uVig.value=.3+.25*NIGHT;
   u.uB.value=.32+.95*NIGHT+.2*dusk;brightM.uniforms.uThr.value=.9-.33*NIGHT-.08*dusk;
   // 太阳在屏幕上的位置；在画面里、白天/黄昏、云不多时才有光束
   _sunV.copy(cam.position).addScaledVector(SUN_DIR,700).project(cam);const inV=_sunV.z<1&&Math.abs(_sunV.x)<1.4&&Math.abs(_sunV.y)<1.4;
@@ -2919,7 +2928,7 @@ function updSkid(){const c=player.car;if(!c||c.air||(c.y||0)>.2){skidLast=null;r
 // ---------- 车漆反光（边缘高光，颜色跟着天空）----------
 const RIMU={uRim:{value:new THREE.Color(.6,.6,.7)}};
 vcCarMat.onBeforeCompile=sh=>{sh.uniforms.uRim=RIMU.uRim;sh.fragmentShader='uniform vec3 uRim;\n'+sh.fragmentShader.replace('#include <dithering_fragment>','#include <dithering_fragment>\n{vec3 vv=normalize(vViewPosition);float rim=pow(1.-abs(dot(normalize(vNormal),vv)),2.6);gl_FragColor.rgb+=uRim*rim*.5;}')};
-vcCarMat.customProgramCacheKey=()=>'carRim';vcCarMat.needsUpdate=true;
+vcCarMat.customProgramCacheKey=()=>'carRim';if(REAL){vcCarMat.shininess=70;vcCarMat.specular.setHex(0x555555)}vcCarMat.needsUpdate=true;
 
 // ---------- 爆炸：火球 + 烟柱 ----------
 const BOOMS=[];const boomG=new THREE.SphereGeometry(1,12,10);
@@ -2984,6 +2993,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
+ ['v0.16','写实画风',[['0.16.0','新增“写实”画风（默认）：去掉卡通描边和色阶，改为平滑光照与高光；人物头身比更接近真人、五官缩小；车漆高光更亮、整体颜色更沉稳。主页和手机设置可切回“卡通”画风']]],
  ['v0.15','画面升级',[['0.15.0','泛光、按时间调色与暗角、太阳光束、全新海面（波纹、倒影、浪花）、湿路面倒影、接触阴影、刹车灯与车头灯光晕、刹车痕与轮胎烟、车漆反光、爆炸火球与烟柱、海鸥、沙尘、路灯光柱、云影；手机设置可开关特效']]],
  ['v0.14','玩法大更新',[['0.14.2','所有载具按模型实际尺寸计算碰撞，摩托车更窄'],['0.14.1','主线金色问号、零活粉色问号（生成在人行道上）、街头事件橙色感叹号'],
    ['0.14.0','6 章剧情主线、物业与每日收入、车库存车与叫车、街头随机事件、游戏内手机、摩托翘头/飞台/后空翻、游泳、车辆损坏、天气系统、夜晚灯光、雨天撑伞与海滩篝火、自定义按键布局、自动画质']]],
