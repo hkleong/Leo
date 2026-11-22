@@ -2177,7 +2177,7 @@ function fire(w=WEAPONS[2]){buzz(w.id==='rifle'?15:30);player.aimT=.35;muzzle();
   const g=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(player.x,2.4,player.z),new THREE.Vector3(player.x+fx*bd,2,player.z+fz*bd)]);
   const l=new THREE.Line(g,new THREE.LineBasicMaterial({color:0xffe14d}));scene.add(l);tracers.push({l,t:.08});
   for(const p of peds)if(!p.dead&&Math.hypot(p.x-player.x,p.z-player.z)<40)p.flee=6;
-  addHeat(w.heat*(copWitness(player.x,player.z)?1:.35)*(GW?.25:1));
+  addHeat(w.heat*(copWitness(player.x,player.z)?1:GW?0:.35));
   if(!best)return;if(best.mesh.userData.limbs)killPed(best,true);else{best.hp-=w.dmg;if(best.police)addHeat(.5);if(best.driver==='ai'&&best.hp>0)best.speed=0}}
 
 function doPunch(){SFX.whoosh();if(player.car)return;
@@ -2617,17 +2617,25 @@ for(let k=0;k<12;k++)spawnTraffic();for(let k=0;k<35;k++)spawnPed();
 // 把一批网格合并：贴图集材质合成一个；所有纯色卡通材质按颜色写进顶点色、合成一个；其余按材质合并
 // 合并后的城市几何体：上传到显卡后释放内存里的顶点数组（之后不会再读，省下大量内存）
 function releaseAfterUpload(G){G.computeBoundingSphere();G.computeBoundingBox();for(const k in G.attributes)G.attributes[k].onUpload(function(){this.array=null});if(G.index)G.index.onUpload(function(){this.array=null})}
-const vcPlainMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad});
+const _mN=new THREE.Matrix3();const vcPlainMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad});
 function mergeInto(list,grp){const groups=new Map(),PLAIN='plain';
   for(const o of list){if(!o.isMesh||Array.isArray(o.material)||(o.material&&(o.material.transparent||o.material.vertexColors))){grp.add(o);continue}
     const m=o.material,key=((m.isMeshToonMaterial||m.userData.toonish)&&!m.map&&!m.emissiveMap)?PLAIN:m;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o)}
-  for(const[key,lst]of groups){if(lst.length<2&&key!==PLAIN){grp.add(lst[0]);continue}const pos=[],nor=[],uv=[],tl=[],cl=[];let cast=false;
-    for(const o of lst){o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);
-      const P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv,T=g.attributes.tileR,c=o.material.color;
-      for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0);if(T)tl.push(T.getX(i),T.getY(i),T.getZ(i),T.getW(i));if(key===PLAIN)cl.push(c.r,c.g,c.b)}
-      g.dispose();cast=cast||o.castShadow}
-    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
-    if(tl.length)G.setAttribute('tileR',new THREE.Float32BufferAttribute(tl,4));if(cl.length)G.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));G.userData.merged=1;releaseAfterUpload(G);
+  // 直接写进预分配的类型数组（不复制几何体），比逐个 clone + push 快很多，开车时新街区加载不再卡顿
+  for(const[key,lst]of groups){if(lst.length<2&&key!==PLAIN){grp.add(lst[0]);continue}
+    let n=0,hasT=false,cast=false;for(const o of lst){const g=o.geometry;n+=g.index?g.index.count:g.attributes.position.count;if(g.attributes.tileR)hasT=true}
+    const pos=new Float32Array(n*3),nor=new Float32Array(n*3),uv=new Float32Array(n*2),tl=hasT?new Float32Array(n*4):null,cl=key===PLAIN?new Float32Array(n*3):null;let w=0;
+    for(const o of lst){o.updateMatrix();const e=o.matrix.elements;_mN.getNormalMatrix(o.matrix);const q=_mN.elements,g=o.geometry,I=g.index?g.index.array:null,
+        P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv,T=g.attributes.tileR,cnt=I?I.length:P.count,c=o.material.color;
+      for(let k=0;k<cnt;k++,w++){const v=I?I[k]:k,x=P.getX(v),y=P.getY(v),z=P.getZ(v),w3=w*3;
+        pos[w3]=e[0]*x+e[4]*y+e[8]*z+e[12];pos[w3+1]=e[1]*x+e[5]*y+e[9]*z+e[13];pos[w3+2]=e[2]*x+e[6]*y+e[10]*z+e[14];
+        if(Nn){const a=Nn.getX(v),b=Nn.getY(v),d=Nn.getZ(v),nx=q[0]*a+q[3]*b+q[6]*d,ny=q[1]*a+q[4]*b+q[7]*d,nz=q[2]*a+q[5]*b+q[8]*d,l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;nor[w3]=nx/l;nor[w3+1]=ny/l;nor[w3+2]=nz/l}
+        if(U){uv[w*2]=U.getX(v);uv[w*2+1]=U.getY(v)}
+        if(T){const w4=w*4;tl[w4]=T.getX(v);tl[w4+1]=T.getY(v);tl[w4+2]=T.getZ(v);tl[w4+3]=T.getW(v)}
+        if(cl){cl[w3]=c.r;cl[w3+1]=c.g;cl[w3+2]=c.b}}
+      cast=cast||o.castShadow}
+    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(pos,3));G.setAttribute('normal',new THREE.BufferAttribute(nor,3));G.setAttribute('uv',new THREE.BufferAttribute(uv,2));
+    if(tl)G.setAttribute('tileR',new THREE.BufferAttribute(tl,4));if(cl)G.setAttribute('color',new THREE.BufferAttribute(cl,3));G.userData.merged=1;releaseAfterUpload(G);
     const m=new THREE.Mesh(G,key===PLAIN?vcPlainMat:key);m.castShadow=cast;m.receiveShadow=true;grp.add(m)}return grp}
 // 生成时把 scene.add 截下来，收进这个任务自己的组
 let CAP=null;const _sceneAdd=scene.add.bind(scene);scene.add=function(...o){if(CAP){CAP.push(...o);return this}return _sceneAdd(...o)};
@@ -3289,7 +3297,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.24','帮派',[['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里开枪加通缉更少']]],
+ ['v0.24','帮派',[['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
  ['v0.23','城市生活',[['0.23.0','新增服装店（换上衣、裤子、帽子、鞋）、理发店（换发型、染发、胡子）、海湾银行（撬金库，出门 4 星通缉，每天一次）；手机新增“出行”（打车直达，按距离收费）和“每日挑战”（每天 3 个，各 $800）；家可以装修（大屏电视、真皮沙发、成就奖杯墙）和扩建车库（停 3 辆）；可以找小贩买热狗、给街头艺人打赏；E 键提示按距离优先最近的；城市生成更平滑并按车速预加载；没被警察看到时开枪加星更少、更容易甩掉；零活奖励 ×1.6、主线奖励 ×1.5；竞速时间按实际距离计算；主线第一章阿杰会给一辆旧车；手机关闭多重采样省性能']]],
  ['v0.22','生活',[['0.22.4','内存优化：城市几何体上传到显卡后释放内存里的副本，内存占用减半（约 430MB → 210MB），手机上更不容易闪退重载'],['0.22.3','修复从车库开出的车（特别是皮卡）卡住不能动；室内用单独的调色，开泛光也不会太亮；房间和家具按人物比例放大；晚上更亮一些'],['0.22.2','肩膀边角加圆弧；卡通画风也换成新的连续身体（带描边）、C 形手和方块鞋'],['0.22.1','肩线拉平：上身顶部做成平的，肩膀和身体齐平，不再从肩膀斜着往脖子收'],['0.22.0','左右手掌方向修正（掌心朝身体）；每个人身高、胖瘦不同，女性胸部更明显；路人有不同性格（友善、暴躁、胆小、强硬：说话和被打后的反应不同）；新增职业路人：小贩（推车叫卖）、清洁工（扫地）、施工工人（打钻、摆路锥）、街头艺人（弹吉他、有琴盒）；可以进入建筑：主角的家（睡觉存档、吃东西、看电视、换主角，带一个能保存的车库）、海边别墅（购买后可进入）、便利店、酒吧、夜店、车库（不用买也能进去，花钱买东西；买下后免费）']]],
  ['v0.21','人物重建',[['0.21.1','手臂调整：更粗、加圆形肩头和三角肌、肘部不再过细、前臂上粗下细；上身肩部加宽，手臂从肩角长出来'],['0.21.0','写实人物身体重做：不再用胶囊、球体拼接，改为按真人比例放样的连续低多边形网格（骨盆、上身、脖子、上臂、前臂、大腿、小腿），节与节在关节处共用一圈顶点，蒙皮权重在关节处各占一半，弯曲时自然衔接；保留原创的服装配色和图案']]],
