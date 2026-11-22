@@ -230,6 +230,15 @@ for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t),L=Math.hypot(x1-x0,z1-z0)
   for(let d=RD/2+4;d<L-RD/2-3;d+=10){const dg=new THREE.PlaneGeometry(.5,5);dg.rotateX(-Math.PI/2);const dm=new THREE.Mesh(dg,lineMat);const f=(d+2.5)/L;dm.position.set(x0+(x1-x0)*f,.1,z0+(z1-z0)*f);dm.rotation.y=ang;scene.add(dm)}}
 // 点到线段的距离（斜路街区里种树、放东西时避开路面）
 const segDist=(x,z,x0,z0,x1,z1)=>{const dx=x1-x0,dz=z1-z0,t=clamp(((x-x0)*dx+(z-z0)*dz)/(dx*dx+dz*dz),0,1);return Math.hypot(x-x0-dx*t,z-z0-dz*t)};
+// 是否在路面上（直路、路口、斜路）：小物件放置前检查，在路上就不放
+const SKIP={};
+function onRoad(x,z,m=0){const h=RD/2+m,[ci,cj]=cellOf(x,z);
+  for(let i=Math.max(0,ci-1);i<=Math.min(NX,ci+2);i++)for(let j=Math.max(0,cj-1);j<=Math.min(NZ,cj+2);j++){if(!nodeOK(i,j))continue;
+    if(degAll(i,j)&&Math.abs(x-rx(i))<h&&Math.abs(z-rz(j))<h)return true;
+    if(edgeOK(i,j,1)&&Math.abs(z-rz(j))<h&&x>rx(i)-h&&x<rx(i+1)+h)return true;
+    if(edgeOK(i,j,0)&&Math.abs(x-rx(i))<h&&z>rz(j)-h&&z<rz(j+1)+h)return true}
+  for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);if(segDist(x,z,x0,z0,x1,z1)<h)return true}return false}
+const guard=(name,x,z,m)=>{if(onRoad(x,z,m)){SKIP[name]=(SKIP[name]||0)+1;return true}return false};
 // 断开的路段变成草地带，种几棵椰子树
 const brokenStrips=[];
 for(let i=0;i<NX;i++)for(let j=0;j<=NZ;j++)if(nodeOK(i,j)&&nodeOK(i+1,j)&&EDGE_OFF.has(ek(i,j,1)))brokenStrips.push([(rx(i)+rx(i+1))/2,rz(j),rx(i+1)-rx(i)-RD,RD]);
@@ -449,7 +458,7 @@ for(const[i,j]of VALID)for(const k of[1,2]){const ni=i+NB[k][0],nj=j+NB[k][1];if
     for(let t=1.2;t<len-.8;t+=1.5){const m=new THREE.Mesh(new THREE.PlaneGeometry(.75,4),zebraMat);m.position.set(a.x+ux*t,.035,a.z+uz*t);m.rotation.set(-Math.PI/2,0,Math.abs(ux)>.5?0:Math.PI/2);scene.add(m)}}}
 // 路灯
 const lampMat=new THREE.MeshBasicMaterial({color:0xfff0b0});
-for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!deg(i,j))continue;const x=rx(i)+RD/2-.5,z=rz(j)+RD/2-.5;
+for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!deg(i,j))continue;const x=rx(i)+RD/2+1.2,z=rz(j)+RD/2+1.2;if(guard('lamp',x,z,.3))continue;
   const p1=box(.3,7,.3,0x3a3448);p1.position.set(x,3.5,z);scene.add(p1);
   const arm=box(2,.25,.25,0x3a3448);arm.position.set(x-1,7,z);scene.add(arm);
   const l=new THREE.Mesh(new THREE.BoxGeometry(.8,.3,.5),lampMat);l.position.set(x-1.8,6.8,z);scene.add(l)}
@@ -458,22 +467,23 @@ const _cg={};const cylG=(rt,rb,h,n=10)=>_cg[[rt,rb,h,n]]||(_cg[[rt,rb,h,n]]=new 
 const put=(geo,mat,x,y,z,ry=0)=>{const m=new THREE.Mesh(geo,typeof mat==='number'?M(mat):mat);m.position.set(x,y,z);m.rotation.y=ry;m.castShadow=true;scene.add(m);return m};
 // 红绿灯：东西向、南北向两组交替（共用材质，切换颜色就能让全城的灯一起变）
 const TL={a:[0,1,2].map(()=>new THREE.MeshBasicMaterial({color:0x222222})),b:[0,1,2].map(()=>new THREE.MeshBasicMaterial({color:0x222222}))};
-function trafficLight(x,z,ry,grp){put(cylG(.18,.22,8),0x2a2a32,x,4,z);const ax=Math.sin(ry),az=Math.cos(ry);
+function trafficLight(x,z,ry,grp){if(guard('light',x,z,.6))return;put(cylG(.18,.22,8),0x2a2a32,x,4,z);const ax=Math.sin(ry),az=Math.cos(ry);
   put(new THREE.BoxGeometry(.2,.2,7.5),0x2a2a32,x+ax*3.7,7.8,z+az*3.7,ry);const hx=x+ax*7.2,hz=z+az*7.2;
   put(new THREE.BoxGeometry(.7,2,.3),0x1a1a20,hx,7,hz,ry);for(let k=0;k<3;k++)put(new THREE.SphereGeometry(.24,10,8),TL[grp][k],hx,7.6-k*.6,hz).castShadow=false}
-const signTexS={};function streetSign(x,z,ry,txt){const k=txt;if(!signTexS[k]){const c=document.createElement('canvas');c.width=256;c.height=64;const g=c.getContext('2d');g.fillStyle='#1f7a4a';g.fillRect(0,0,256,64);g.strokeStyle='#fff';g.lineWidth=4;g.strokeRect(4,4,248,56);
+const signTexS={};function streetSign(x,z,ry,txt){if(guard('sign',x,z,.6))return;const k=txt;if(!signTexS[k]){const c=document.createElement('canvas');c.width=256;c.height=64;const g=c.getContext('2d');g.fillStyle='#1f7a4a';g.fillRect(0,0,256,64);g.strokeStyle='#fff';g.lineWidth=4;g.strokeRect(4,4,248,56);
   g.fillStyle='#fff';g.font='bold 34px "Rubik",sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(txt,128,34);signTexS[k]=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),side:THREE.DoubleSide})}
   put(cylG(.1,.1,4.2),0x6a6a72,x,2.1,z);put(new THREE.PlaneGeometry(3,.75),signTexS[k],x,4.3,z,ry)}
 const STREETS=['海风大道','棕榈路','日落街','霓虹路','珊瑚街','冲浪路','椰林街','灯塔路','海湾大道','月光街','渔港路','贝壳街'];
-const props={
+const props0={
   hydrant:(x,z)=>{put(cylG(.3,.34,1),0xd62f2f,x,.5,z);put(cylG(.36,.36,.16),0xd62f2f,x,1.05,z);put(cylG(.12,.12,.8),0xd62f2f,x,.65,z,0).rotation.z=Math.PI/2},
   bin:(x,z)=>{put(cylG(.45,.4,1.3),0x2f6b4a,x,.65,z);put(cylG(.5,.5,.12),0x1f4a32,x,1.36,z)},
   news:(x,z,ry)=>{put(new THREE.BoxGeometry(.9,1.3,.8),0x2f6fd0,x,.65,z,ry);put(new THREE.BoxGeometry(.7,.4,.05),winCool,x+Math.sin(ry)*.42,1.05,z+Math.cos(ry)*.42,ry)},
   meter:(x,z)=>{put(cylG(.07,.07,1.5),0x6a6a72,x,.75,z);put(new THREE.BoxGeometry(.32,.45,.25),0x9aa0aa,x,1.6,z)},
   planter:(x,z)=>{put(new THREE.BoxGeometry(1.4,.7,1.4),0xb8a8b8,x,.35,z);put(new THREE.SphereGeometry(.8,8,6),0x3b9a57,x,1.1,z)},
 };
+const props={};for(const k in props0)props[k]=(x,z,ry)=>{if(!guard(k,x,z,.4))props0[k](x,z,ry)};
 // 公交站：顶棚 + 透明后墙 + 长椅 + 站牌
-function busStop(x,z,ry){const ax=Math.sin(ry),az=Math.cos(ry),px=Math.cos(ry),pz=-Math.sin(ry);
+function busStop(x,z,ry){if(guard('bus',x,z,1.5))return;const ax=Math.sin(ry),az=Math.cos(ry),px=Math.cos(ry),pz=-Math.sin(ry);
   put(new THREE.BoxGeometry(6,.2,2.4),0x22d3ee,x,3.2,z,ry);for(const sd of[-1,1])put(cylG(.1,.1,3.2),0xdde2ea,x+px*sd*2.8-ax*.9,1.6,z+pz*sd*2.8-az*.9);
   const back=put(new THREE.BoxGeometry(5.8,2.6,.08),glassBus,x-ax*1.1,1.6,z-az*1.1,ry);back.castShadow=false;
   put(new THREE.BoxGeometry(4,.18,.7),0xb07a4a,x-ax*.6,.8,z-az*.6,ry);put(new THREE.BoxGeometry(4,.7,.12),0xb07a4a,x-ax*.95,1.2,z-az*.95,ry);
@@ -489,7 +499,7 @@ function streetEdge(x0,z0,x1,z1){const L=Math.hypot(x1-x0,z1-z0),ux=(x1-x0)/L,uz
     // 路边停车格：每格 9 米长，格线画在停车带上
     const SLOT=9;let t0=18;const slots=[];for(let t=t0;t+SLOT<L-18;t+=SLOT){if(hasBus&&sd===busSide&&Math.abs(t+SLOT/2-busT)<10)continue;slots.push(t)}
     for(const t of slots){for(const e of[t,t+SLOT]){const[lx,lz]=at(e,PARK_O);const sg=new THREE.PlaneGeometry(.25,3.6);sg.rotateX(-Math.PI/2);const m=new THREE.Mesh(sg,whiteMat);m.rotation.y=Math.atan2(nx,nz);m.position.set(lx,.035,lz);scene.add(m)}
-      const[x,z]=at(t+SLOT/2,PARK_O);PARK.push({x,z,h:Math.atan2(ux*sd,uz*sd),used:null});if(R()<.3){const[mx,mz]=at(t+SLOT,RD/2+.9);props.meter(mx,mz)}}
+      const[x,z]=at(t+SLOT/2,PARK_O);if(DIAG.size&&[...DIAG].some(([k,tt])=>{const[x0,z0,x1,z1]=diagSeg(k,tt);return segDist(x,z,x0,z0,x1,z1)<RD/2+3}))continue;PARK.push({x,z,h:Math.atan2(ux*sd,uz*sd),used:null});if(R()<.3){const[mx,mz]=at(t+SLOT,RD/2+.9);props.meter(mx,mz)}}
     if(hasBus&&sd===busSide){const[x,z]=at(busT,RD/2+2.2);busStop(x,z,ry+Math.PI)}}}
 for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
   if(edgeOK(i,j,1))JOBS.push({kind:'edge',i,j,h:1,x:(rx(i)+rx(i+1))/2,z:rz(j),r:(rx(i+1)-rx(i))/2,a:[rx(i)+RD/2,rz(j),rx(i+1)-RD/2,rz(j)]});
@@ -552,7 +562,7 @@ buildHospital(hospital);
  const pool=new THREE.Mesh(new THREE.PlaneGeometry(16,8),new THREE.MeshBasicMaterial({color:0x37e0ff}));pool.rotation.x=-Math.PI/2;pool.position.set(villa.x,.1,villa.z+18);scene.add(pool);
  solids.push({x0:villa.x-15,x1:villa.x+15,z0:villa.z-11,z1:villa.z+11});}
 for(let a=0;a<Math.PI*2;a+=.045){const r=ISL(a)-rr(9,16);if(R()<.75)palm(Math.cos(a)*r,Math.sin(a)*r)}
-function palm(x,z){const lean=rr(-.12,.12),lz=rr(-.12,.12);let tx=x,tz=z;
+function palm(x,z){if(guard('palm',x,z,1.2))return;const lean=rr(-.12,.12),lz=rr(-.12,.12);let tx=x,tz=z;
   for(let k=0;k<5;k++){const t=rbox(.75-k*.06,2.1,.75-k*.06,0x8a5a3b,.45);tx+=lean*1.6*k*.3;tz+=lz*1.6*k*.3;t.position.set(tx,1+k*1.9,tz);scene.add(t)}
   for(let k=0;k<7;k++){const l=new THREE.Mesh(leafGeo,M(k%2?0x2fa84f:0x268a44));l.castShadow=true;l.position.set(tx,9.6,tz);l.rotation.y=k*.9+rr(0,.3);l.rotation.z=rr(.05,.25);scene.add(l)}
   const nut=rbox(.9,.7,.9,0x5a3a1a,.48);nut.position.set(tx,9.2,tz);scene.add(nut)}
@@ -1302,7 +1312,7 @@ function updLights(){const t=(performance.now()/1000)%12,set=(g,on)=>{const cs=[
   set('a',t<5?2:t<6?1:0);set('b',t<6?0:t<11?2:1)}
 // 长椅
 let _noPair=false;const benches=[];
-function addBench(x,z,rot){const B=new Bld();B.add(rgeo(1.8,.1,.5,.3),0xb07a4a,[0,.75,0]);B.add(rgeo(1.8,.5,.08,.3),0xb07a4a,[0,1.1,-.24],[-.15,0,0]);
+function addBench(x,z,rot){if(guard('bench',x,z,1))return;const B=new Bld();B.add(rgeo(1.8,.1,.5,.3),0xb07a4a,[0,.75,0]);B.add(rgeo(1.8,.5,.08,.3),0xb07a4a,[0,1.1,-.24],[-.15,0,0]);
   for(const sx of[-.75,.75])for(const sz of[-.18,.18])B.add(rgeo(.08,.75,.08,.3),0x333338,[sx,.37,sz]);
   const m=B.build(vcMat,OL_C);m.position.set(x,0,z);m.rotation.y=rot;scene.add(m);benches.push({x:x+Math.sin(rot)*.1,z:z+Math.cos(rot)*.1,rot,used:null})}
 function freeBench(x,z){let best=null,bd=1e9;for(const b of benches){if(b.used&&peds.includes(b.used)&&!b.used.dead)continue;b.used=null;const d=Math.hypot(b.x-x,b.z-z);if(d<bd){bd=d;best=b}}return bd<160?best:null}
@@ -1644,7 +1654,7 @@ const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!runnin
   for(const p of[...peds])if(Math.hypot(p.x-player.x,p.z-player.z)>200)dropPed(p)
   updParking(dt);
   if(cars.filter(c=>c.driver==='ai'&&!c.patrol).length<14)spawnTraffic();if(cars.filter(c=>c.patrol&&!c.dead).length<2)spawnTraffic(true);if(peds.length<45)spawnPed();
-  if(cash.length<12&&R()<.02){const n=randNode(30);dropCash(n.x+rr(-30,30),n.z+rr(-30,30),(rr(50,300))|0)}
+  if(cash.length<12&&R()<.02){const n=randNode(30);let cx2=n.x,cz2=n.z;for(let k=0;k<12&&onRoad(cx2,cz2,.5);k++){cx2=n.x+rr(-30,30);cz2=n.z+rr(-30,30)}if(!onRoad(cx2,cz2,.5))dropCash(cx2,cz2,(rr(50,300))|0)}
   for(const k of[...cash]){k.m.rotation.y+=dt*3;if(Math.hypot(k.x-player.x,k.z-player.z)<3){player.money+=k.v;beep(1200,.08,'sine',.08);scene.remove(k.m);cash.splice(cash.indexOf(k),1)}}
   for(const f of[...fxs]){f.t+=dt;if(f.smoke){f.m.position.y+=dt*3;f.m.material.opacity=.6-f.t*.4}else{f.m.scale.setScalar(1+f.t*2);f.m.material.opacity=.9-f.t}if(f.t>1.4){scene.remove(f.m);f.m.geometry.dispose();f.m.material.dispose();fxs.splice(fxs.indexOf(f),1)}}
   for(const t of[...tracers])if((t.t-=dt)<0){scene.remove(t.l);t.l.geometry.dispose();t.l.material.dispose();tracers.splice(tracers.indexOf(t),1)}
