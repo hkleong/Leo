@@ -188,7 +188,7 @@ let R=Math.random;const rr=(a,b)=>a+R()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 R=mulberry(20261122);
 // 道路：东西 NX 段、南北 NZ 段，每段间距随机 → 街区大小不一
-const RD=26,NX=18,NZ=8,BLK=70;
+const RD=26,NX=18,NZ=12,BLK=70;
 const LANE=4.4,PARK_O=9.4; // 行车道中心、停车带中心离道路中线的距离（右侧通行）
 const RX=[0],RZ=[0];for(let i=0;i<NX;i++)RX.push(RX[i]+(R()<.3?rr(140,185):rr(76,128)));for(let j=0;j<NZ;j++)RZ.push(RZ[j]+(R()<.3?rr(135,170):rr(76,122)));
 const HALFX=RX[NX]/2,HALFZ=RZ[NZ]/2,HALF=Math.max(HALFX,HALFZ);for(let i=0;i<=NX;i++)RX[i]-=HALFX;for(let j=0;j<=NZ;j++)RZ[j]-=HALFZ;
@@ -202,17 +202,18 @@ function chaikinP(p,n){for(let k=0;k<n;k++){const q=[];for(let i=0;i<p.length;i+
 function polyIn(x,z,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const[xi,zi]=P[i],[xj,zj]=P[j];if((zi>z)!==(zj>z)&&x<(xj-xi)*(z-zi)/(zj-zi)+xi)c=!c}return c}
 function mkPoly(uv,n=3,rough=7){let p=chaikinP(uv.map(([u,v])=>[WU(u),WV(v)]),n);const cx=p.reduce((s,q)=>s+q[0],0)/p.length,cz=p.reduce((s,q)=>s+q[1],0)/p.length;
   return p.map(([x,z],k)=>{const a=Math.atan2(z-cz,x-cx),d=rough*(Math.sin(k*.9)+.6*Math.sin(k*2.3+1)+.4*Math.sin(k*5.1));return[x+Math.cos(a)*d,z+Math.sin(a)*d]})}
-// 岛屿（u 从西到东，v 从北到南）
+// 岛屿（u 从西到东，v 从北到南）；西岛是南北拉长的椭圆，其余的岛压在中间一段高度里
+const MV=a=>a.map(([u,v])=>[u,.16+v*.68]);
 const ISLANDS=[
- {name:'西岛',poly:mkPoly([[.03,.03],[.14,-.03],[.3,.0],[.405,.07],[.425,.24],[.395,.42],[.42,.6],[.4,.8],[.36,.98],[.2,1.04],[.05,.98],[-.03,.8],[.0,.6],[-.04,.42],[-.01,.2]])},
- {name:'崖岛',poly:mkPoly([[.465,.06],[.535,.04],[.565,.18],[.545,.34],[.48,.37],[.445,.22]],3,4)},
- {name:'公园岛',poly:mkPoly([[.455,.56],[.53,.53],[.565,.66],[.55,.83],[.475,.86],[.445,.72]],3,4)},
- {name:'东岛',poly:mkPoly([[.585,-.01],[.75,-.04],[.93,-.01],[1.03,.1],[1.06,.35],[1.05,.6],[1.06,.85],[.97,1.03],[.78,1.05],[.62,1.0],[.585,.85],[.605,.7],[.58,.5],[.6,.3],[.575,.14]])}];
+ {name:'西岛',poly:(()=>{const cx=WU(.205),cz=WV(.5),ax=WU(.405)-cx,az=WV(1.025)-cz,p=[];for(let k=0;k<140;k++){const t=k/140*Math.PI*2,r=1+.018*Math.sin(5*t+1)+.012*Math.sin(11*t);p.push([cx+Math.cos(t)*ax*r,cz+Math.sin(t)*az*r])}return p})()},
+ {name:'崖岛',poly:mkPoly(MV([[.465,.06],[.535,.04],[.565,.18],[.545,.34],[.48,.37],[.445,.22]]),3,4)},
+ {name:'公园岛',poly:mkPoly(MV([[.455,.56],[.53,.53],[.565,.66],[.55,.83],[.475,.86],[.445,.72]]),3,4)},
+ {name:'东岛',poly:mkPoly(MV([[.585,-.01],[.75,-.04],[.93,-.01],[1.03,.1],[1.06,.35],[1.05,.6],[1.06,.85],[.97,1.03],[.78,1.05],[.62,1.0],[.585,.85],[.605,.7],[.58,.5],[.6,.3],[.575,.14]]))}];
 // 台地：比周围高出一截，边缘是悬崖（只有几条坡道能上去）
 const PLATEAUS=[
- {name:'北岭',lv:16,poly:mkPoly([[-.2,-.2],[.27,-.2],[.27,.29],[.13,.36],[-.2,.36]],2,5)},
+ {name:'北岭',lv:16,poly:mkPoly([[-.2,-.2],[.34,-.2],[.34,.2],[.2,.25],[-.2,.25]],2,5)},
  {name:'崖岛',lv:12,poly:null},
- {name:'南山',lv:9,poly:mkPoly([[.56,.63],[.75,.6],[.79,.8],[.74,1.2],[.5,1.2]],2,5)}];
+ {name:'南山',lv:9,poly:mkPoly(MV([[.56,.63],[.75,.6],[.79,.8],[.74,1.2],[.5,1.2]]),2,5)}];
 PLATEAUS[1].poly=ISLANDS[1].poly;
 function LP(x,z){let h=0;for(const p of PLATEAUS)if(p.lv>h&&polyIn(x,z,p.poly))h=p.lv;return h}
 // 到海岸的有向距离（陆地为正，海里为负），5 米一格预先算好
@@ -230,10 +231,12 @@ const inGrid=(i,j)=>i>=0&&j>=0&&i<=NX&&j<=NZ;
 const _nl=new Int8Array((NX+1)*(NZ+1)).fill(-1);
 const nodeLand=(i,j)=>{if(!inGrid(i,j))return false;const k=j*(NX+1)+i;if(_nl[k]<0)_nl[k]=sdfAt(rx(i),rz(j))>26?1:0;return _nl[k]===1};
 const BRIDGE=new Set(),BRSEG=[],BRH=7;
-{const rows=[1,3,5,7].filter(j=>j<NZ);for(const j of rows){let p=-1;for(let i=0;i<=NX;i++){if(!nodeLand(i,j))continue;if(p>=0&&i-p>1){for(let k=p+1;k<i;k++)BRIDGE.add(k+','+j);BRSEG.push({x0:rx(p),x1:rx(i),z:rz(j),j})}p=i}}}
+{const cand=[];for(let j=1;j<NZ;j++){let w=false,e=false;for(let i=0;i<=NX;i++)if(nodeLand(i,j)){if(rx(i)<WU(.42))w=true;else if(rx(i)>WU(.57))e=true}if(w&&e)cand.push(j)}
+ const rows=[];for(const j of cand)if(!rows.length||j-rows[rows.length-1]>=2)rows.push(j);while(rows.length>4)rows.splice(rows.length>>1,1);
+ for(const j of rows){let p=-1;for(let i=0;i<=NX;i++){if(!nodeLand(i,j))continue;if(p>=0&&i-p>1){for(let k=p+1;k<i;k++)BRIDGE.add(k+','+j);BRSEG.push({x0:rx(p),x1:rx(i),z:rz(j),j})}p=i}}}
 const BRW=(i,j)=>BRIDGE.has(i+','+j);
 var CURVE_READY=false;
-function onBridge(x,z){if(CURVE_READY){for(const e of curvesAt(x,z))if(e.br&&x>e.bb[0]&&x<e.bb[1]&&z>e.bb[2]&&z<e.bb[3]&&curveNear(e,x,z).d<RD/2+1)return true;return false}for(const s of BRSEG)if(Math.abs(z-s.z)<RD/2+1&&x>s.x0&&x<s.x1)return true;return false}
+function onBridge(x,z){for(const s of BRSEG)if(Math.abs(z-s.z)<RD/2+1&&x>s.x0&&x<s.x1)return true;return false}
 const onIsland=(x,z,m=0)=>sdfAt(x,z)>m||onBridge(x,z);
 const coastR=(x,z)=>Math.hypot(x,z)+sdfAt(x,z);
 const nodeOK=(i,j)=>inGrid(i,j)&&(nodeLand(i,j)||BRW(i,j));
@@ -278,24 +281,22 @@ const SHOPST=new Map(),SHOPJ=new Set();let SHOP_I=-1;
 const BAND=RD/2+2.5;
 const _ri=x=>{let lo=0,hi=NX;while(lo<hi){const m=(lo+hi+1)>>1;if(RX[m]<=x)lo=m;else hi=m-1}return lo},_rj=z=>{let lo=0,hi=NZ;while(lo<hi){const m=(lo+hi+1)>>1;if(RZ[m]<=z)lo=m;else hi=m-1}return lo};
 // —— 弯道：两边都没有楼的路（海边、岛边、大桥）不再笔直，按平滑的弧线弯过去；两头接路口的地方保持直的
-const CURVE=new Map(),CURVE_CELL=new Map();
-{const sideBlk=(i,j,h)=>h?[[i,j-1],[i,j]]:[[i-1,j],[i,j]]; // 水平路：北、南两侧街区；竖直路：西、东两侧
- for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++)for(const h of[1,0]){if(!edgeOK(i,j,h))continue;const i2=h?i+1:i,j2=h?j:j+1;
-   const br=BRW(i,j)||BRW(i2,j2)||(h&&[.25,.5,.75].some(t=>sdfAt(rx(i)+(rx(i2)-rx(i))*t,rz(j))<4));
-   if(!h&&i===SHOP_I&&SHOPJ.has(j))continue;
-   const sb=sideBlk(i,j,h).map(([a,b])=>blockOK(a,b));if(sb[0]&&sb[1]&&!br)continue;
-   const ax=rx(i),az=rz(j),bx=rx(i2),bz=rz(j2),L=Math.hypot(bx-ax,bz-az),ux=(bx-ax)/L,uz=(bz-az)/L,nx=uz,nz=-ux; // n：路的“右侧”（水平路指向北，竖直路指向西）
-   const mid=L-2*BAND;if(mid<40&&!br)continue;
-   // n 方向：水平路指向北（sideBlk[0]），竖直路指向东（sideBlk[1]）；哪边有楼就往另一边弯
-   const nb=sb[h?0:1],ob=sb[h?1:0];let sg=br?(j%4===1?1:-1):nb?-1:ob?1:(R()<.5?1:-1);
-   let amp=mid<40?0:br?Math.min(mid*.12,16):Math.min(mid*.2,24)*(.65+R()*.35);
-   const mk=a=>{const pts=[];const n=Math.max(8,Math.ceil(L/4));for(let k=0;k<=n;k++){const t=k/n,d=t*L,s=clamp((d-BAND)/mid,0,1),off=a*Math.sin(Math.PI*s)**2;pts.push([ax+ux*d+nx*off*sg,az+uz*d+nz*off*sg])}return pts};
-   let pts=mk(amp);
-   if(!br){for(let tries=0;tries<4&&pts.some(([x,z])=>sdfAt(x,z)<16);tries++){amp*=.5;pts=mk(amp)}if(pts.some(([x,z])=>sdfAt(x,z)<16))continue}
-   if(amp<4&&!br)continue;
-   let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const[x,z]of pts){x0=Math.min(x0,x);x1=Math.max(x1,x);z0=Math.min(z0,z);z1=Math.max(z1,z)}
-   const e={i,j,h,i2,j2,pts,L,br,bb:[x0-BAND,x1+BAND,z0-BAND,z1+BAND]};CURVE.set(ek(i,j,h),e);
-   e.br=br;for(let ci=_ri(e.bb[0]);ci<=_ri(e.bb[1]);ci++)for(let cj=_rj(e.bb[2]);cj<=_rj(e.bb[3]);cj++){const k=ci*100+cj;if(!CURVE_CELL.has(k))CURVE_CELL.set(k,[]);CURVE_CELL.get(k).push(e)}}}
+const CURVE=new Map(),CURVE_CELL=new Map(),RING=[];
+// —— 西岛环岛路：沿着西岛最外一圈路口（8 方向相邻）连成一圈，用平滑曲线穿过这些路口，像椭圆海岸一样弯
+{const isW=(i,j)=>nodeLand(i,j)&&rx(i)<WU(.45);let s=null;for(let j=0;j<=NZ&&!s;j++)for(let i=0;i<=NX&&!s;i++)if(isW(i,j))s=[i,j];
+ if(s){const D=[[-1,0],[-1,-1],[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1]];let c=s,bd=0;const seq=[s];
+   for(let step=0;step<400;step++){let found=null;for(let k=0;k<8;k++){const d=(bd+k)%8,n=[c[0]+D[d][0],c[1]+D[d][1]];if(isW(...n)){found=[n,d];break}}if(!found)break;
+     const[n,d]=found;bd=(d+6)%8;c=n;if(c[0]===s[0]&&c[1]===s[1])break;seq.push(c)}
+   if(seq.length>=6){RING.push(...seq);
+     const N=RING.length,P=RING.map(([i,j])=>[rx(i),rz(j)]),cr=(p0,p1,p2,p3,t)=>{const t2=t*t,t3=t2*t;return .5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t2+(-p0+3*p1-3*p2+p3)*t3)};
+     for(let k=0;k<N;k++){const a=RING[k],b=RING[(k+1)%N],di=b[0]-a[0],dj=b[1]-a[1];const p0=P[(k-1+N)%N],p1=P[k],p2=P[(k+1)%N],p3=P[(k+2)%N];
+       const L=Math.hypot(p2[0]-p1[0],p2[1]-p1[1]),n=Math.max(8,Math.ceil(L/4)),pts=[];for(let q=0;q<=n;q++){const t=q/n;pts.push([cr(p0[0],p1[0],p2[0],p3[0],t),cr(p0[1],p1[1],p2[1],p3[1],t)])}
+       let key,ca=a,cb=b,pp=pts;
+       if(Math.abs(di)+Math.abs(dj)===1){const h=di?1:0,ci=Math.min(a[0],b[0]),cj=Math.min(a[1],b[1]);key=ek(ci,cj,h);EDGE_OFF.delete(key);if(a[0]>b[0]||a[1]>b[1]){ca=b;cb=a;pp=pts.slice().reverse()}}
+       else{const bi=Math.min(a[0],b[0]),bj=Math.min(a[1],b[1]);DIAG.set(bi+','+bj,di===dj?'a':'b');key='D'+bi+','+bj;if(a[0]>b[0]){ca=b;cb=a;pp=pts.slice().reverse()}}
+       let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const[x,z]of pp){x0=Math.min(x0,x);x1=Math.max(x1,x);z0=Math.min(z0,z);z1=Math.max(z1,z)}
+       const e={i:ca[0],j:ca[1],i2:cb[0],j2:cb[1],pts:pp,L,br:false,diag:key[0]==='D',bb:[x0-BAND,x1+BAND,z0-BAND,z1+BAND]};CURVE.set(key,e);
+       for(let ci=_ri(e.bb[0]);ci<=_ri(e.bb[1]);ci++)for(let cj=_rj(e.bb[2]);cj<=_rj(e.bb[3]);cj++){const kk=ci*100+cj;if(!CURVE_CELL.has(kk))CURVE_CELL.set(kk,[]);CURVE_CELL.get(kk).push(e)}}}}}
 // 点到弯道中心线的最近距离、沿路的位置（0~1）
 function curveNear(e,x,z){const P=e.pts;let bd=1e9,bt=0,acc=0,tot=0;for(let k=1;k<P.length;k++)tot+=Math.hypot(P[k][0]-P[k-1][0],P[k][1]-P[k-1][1]);
   for(let k=1;k<P.length;k++){const[ax,az]=P[k-1],[bx,bz]=P[k],dx=bx-ax,dz=bz-az,l2=dx*dx+dz*dz||1,t=clamp(((x-ax)*dx+(z-az)*dz)/l2,0,1),d=Math.hypot(x-ax-dx*t,z-az-dz*t),sl=Math.sqrt(l2);if(d<bd){bd=d;bt=(acc+sl*t)/tot}acc+=sl}return{d:bd,t:bt}}
@@ -303,7 +304,7 @@ function curvesAt(x,z){return CURVE_CELL.get(_ri(x)*100+_rj(z))||[]}
 // 沿着弯道走 d 米（从 a 端量起）的位置和方向
 function curvePt(e,s){const P=e.pts,f=clamp(s,0,1)*(P.length-1),k=Math.min(P.length-2,f|0),u=f-k,a=P[k],b=P[k+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1;return{x:a[0]+dx*u,z:a[1]+dz*u,tx:dx/l,tz:dz/l}}
 // 车道上的点：从 (i0,j0) 往 (i1,j1) 方向走 d 米，靠右 LANE 米（弯道按弧线走）
-function lanePt(i0,j0,i1,j1,d){const fw=i1>i0||j1>j0,key=fw?ek(i0,j0,i1!==i0?1:0):ek(i1,j1,i1!==i0?1:0),e=(i0!==i1)!==(j0!==j1)?CURVE.get(key):null;
+function lanePt(i0,j0,i1,j1,d){const dg=i0!==i1&&j0!==j1,fw=dg?i1>i0:(i1>i0||j1>j0),key=dg?'D'+Math.min(i0,i1)+','+Math.min(j0,j1):fw?ek(i0,j0,i1!==i0?1:0):ek(i1,j1,i1!==i0?1:0),e=CURVE.get(key);
   if(!e){const ln=laneOf(i0,j0,i1,j1);return{x:ln.ax+ln.ux*d,z:ln.az+ln.uz*d}}
   const s=fw?d/e.L:1-d/e.L,p=curvePt(e,s),tx=fw?p.tx:-p.tx,tz=fw?p.tz:-p.tz;return{x:p.x+tz*LANE,z:p.z-tx*LANE}}
 
@@ -427,7 +428,7 @@ for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!degAll(i,j))conti
   if(edgeOK(i,j,0)&&CURVE.has(ek(i,j,0)))curveRoad(CURVE.get(ek(i,j,0)));else if(edgeOK(i,j,0)){const L=rz(j+1)-rz(j);roadPlane(rx(i),rz(j)+L/2,RD,L,i===SHOP_I&&SHOPJ.has(j)?groundMat('stone',0xe8c0a8):asphalt);for(const o of[-1,1])edgeLine(rx(i)+o*(LANE+2.6),rz(j)+L/2,.3,L-RD-2);for(let t=rz(j)+RD/2+4;t<rz(j+1)-RD/2-3;t+=10)dash(rx(i),t+2.5,.5,5)}}
 // 斜路路面（比街区地面略高，盖在人行道和草地上面）
 const diagSeg=(k,t)=>{const[i,j]=k.split(',').map(Number);return t==='a'?[rx(i),rz(j),rx(i+1),rz(j+1)]:[rx(i),rz(j+1),rx(i+1),rz(j)]};
-for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t),L=Math.hypot(x1-x0,z1-z0),ang=Math.atan2(x1-x0,z1-z0);
+for(const[k,t]of DIAG){if(CURVE.has('D'+k)){curveRoad(CURVE.get('D'+k));continue}const[x0,z0,x1,z1]=diagSeg(k,t),L=Math.hypot(x1-x0,z1-z0),ang=Math.atan2(x1-x0,z1-z0);
   const g=new THREE.PlaneGeometry(RD,L);{const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*RD/14,uv.getY(i)*L/14)}g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,asphalt);m.position.set((x0+x1)/2,.09,(z0+z1)/2);m.rotation.y=ang;m.receiveShadow=true;scene.add(m);
   for(let d=RD/2+4;d<L-RD/2-3;d+=10){const dg=new THREE.PlaneGeometry(.5,5);dg.rotateX(-Math.PI/2);const dm=new THREE.Mesh(dg,lineMat);const f=(d+2.5)/L;dm.position.set(x0+(x1-x0)*f,.1,z0+(z1-z0)*f);dm.rotation.y=ang;scene.add(dm)}}
 // 点到线段的距离（斜路街区里种树、放东西时避开路面）
@@ -440,7 +441,7 @@ function onRoad(x,z,m=0){const h=RD/2+m,[ci,cj]=cellOf(x,z);
     if(edgeOK(i,j,1)&&!CURVE.has(ek(i,j,1))&&Math.abs(z-rz(j))<h&&x>rx(i)-h&&x<rx(i+1)+h)return true;
     if(edgeOK(i,j,0)&&!CURVE.has(ek(i,j,0))&&Math.abs(x-rx(i))<h&&z>rz(j)-h&&z<rz(j+1)+h)return true}
   for(const e of curvesAt(x,z))if(x>e.bb[0]&&x<e.bb[1]&&z>e.bb[2]&&z<e.bb[3]&&curveNear(e,x,z).d<h)return true;
-  for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);if(segDist(x,z,x0,z0,x1,z1)<h)return true}return false}
+  for(const[k,t]of DIAG){if(CURVE.has('D'+k))continue;const[x0,z0,x1,z1]=diagSeg(k,t);if(segDist(x,z,x0,z0,x1,z1)<h)return true}return false}
 const guard=(name,x,z,m)=>{if(onRoad(x,z,m)){SKIP[name]=(SKIP[name]||0)+1;return true}return false};
 // 断开的路段变成草地带，种几棵椰子树
 const brokenStrips=[];
@@ -2607,7 +2608,7 @@ function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),Wc=cv.c
   for(const[i,j]of VALID){const c=bcen(i,j);g.fillStyle=parkSpots.some(q=>Math.abs(q[0]-c.x)<1&&Math.abs(q[1]-c.z)<1)?'#5fb565':'#c9c0d0';g.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}
   g.fillStyle='#c9c0d0';for(const[x,z,w,d]of brokenStrips)g.fillRect(x-w/2-1,z-d/2-1,w+2,d+2);
   for(const[i,j]of VALID)if(DIAG.has(i+','+j)){g.fillStyle='#5fb565';g.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}
-  g.strokeStyle='#55505f';g.lineWidth=RD;g.lineCap='round';for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);g.beginPath();g.moveTo(x0,z0);g.lineTo(x1,z1);g.stroke()}for(const e of CURVE.values()){g.beginPath();e.pts.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()}
+  g.strokeStyle='#55505f';g.lineWidth=RD;g.lineCap='round';for(const[k,t]of DIAG){if(CURVE.has('D'+k))continue;const[x0,z0,x1,z1]=diagSeg(k,t);g.beginPath();g.moveTo(x0,z0);g.lineTo(x1,z1);g.stroke()}g.lineCap='round';for(const e of CURVE.values()){g.beginPath();e.pts.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()}
   drawGangZones(g);
   // 放大后画出楼房轮廓
   if(mapView.zoom>=2.2){g.fillStyle='rgba(120,100,140,.55)';for(const o of solids)if(o.x1-o.x0<80)g.fillRect(o.x0,o.z0,o.x1-o.x0,o.z1-o.z0)}
@@ -2652,7 +2653,7 @@ function drawMini(){const s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?playe
   mini.fillStyle='#55505f';for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
     if(edgeOK(i,j,1)&&!CURVE.has(ek(i,j,1)))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,(rx(i+1)-rx(i)+RD)*s,RD*s);if(edgeOK(i,j,0)&&!CURVE.has(ek(i,j,0)))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,RD*s,(rz(j+1)-rz(j)+RD)*s)}
   mini.fillStyle='#c9c0d0';for(const[i,j]of VALID)mini.fillRect((rx(i)+RD/2)*s,(rz(j)+RD/2)*s,bW(i)*s,bD(j)*s);for(const[x,z,w,d]of brokenStrips)mini.fillRect((x-w/2-1)*s,(z-d/2-1)*s,(w+2)*s,(d+2)*s);
-  mini.strokeStyle='#55505f';mini.lineWidth=RD*s;for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);mini.beginPath();mini.moveTo(x0*s,z0*s);mini.lineTo(x1*s,z1*s);mini.stroke()}mini.lineCap='round';for(const e of CURVE.values()){mini.beginPath();e.pts.forEach((p,k)=>k?mini.lineTo(p[0]*s,p[1]*s):mini.moveTo(p[0]*s,p[1]*s));mini.stroke()}mini.lineCap='butt';
+  mini.strokeStyle='#55505f';mini.lineWidth=RD*s;for(const[k,t]of DIAG){if(CURVE.has('D'+k))continue;const[x0,z0,x1,z1]=diagSeg(k,t);mini.beginPath();mini.moveTo(x0*s,z0*s);mini.lineTo(x1*s,z1*s);mini.stroke()}mini.lineCap='round';for(const e of CURVE.values()){mini.beginPath();e.pts.forEach((p,k)=>k?mini.lineTo(p[0]*s,p[1]*s):mini.moveTo(p[0]*s,p[1]*s));mini.stroke()}mini.lineCap='butt';
   mini.fillStyle='#fff';mini.fillRect((villa.x-15)*s,(villa.z-11)*s,30*s,22*s);mini.fillStyle='#ff2a3a';mini.fillRect((hospital.x-8)*s,(hospital.z-2.5)*s,16*s,5*s);mini.fillRect((hospital.x-2.5)*s,(hospital.z-8)*s,5*s,16*s);mini.fillStyle='#4a7ab0';mini.beginPath();mini.arc(station.x*s,station.z*s,7*s,0,7);mini.fill();
   for(const c of cars)if(c.police&&!c.dead){mini.fillStyle=((performance.now()/200)|0)%2?'#f00':'#04f';mini.fillRect(c.x*s-3,c.z*s-3,6,6)}
   drawRoute(mini,(x,z)=>[x*s,z*s],3.2);if(NAV.on){mini.fillStyle='#c77dff';mini.beginPath();mini.arc(NAV.x*s,NAV.z*s,5,0,7);mini.fill()}
