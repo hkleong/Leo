@@ -3493,9 +3493,9 @@ function venueBuild(v){if(SW_ON&&RDIM[v.kind]&&!v.bay){const q=RDIM[v.kind];v.sw
   try{
     if(v.sw){const gh=v.gh,dg=1.6*RS,dh=2.6*RS,sw2=(W-dg)/2;
       at(surfBox(.4,gh,D,'stucco',v.wall),bx-W/2+.2,gh/2,bz);at(surfBox(.4,gh,D,'stucco',v.wall),bx+W/2-.2,gh/2,bz);at(surfBox(W,gh,.4,'stucco',v.wall),bx,gh/2,zf-D+.2);
-      v.wins=[];for(const s2 of[-1,1]){const xa=s2<0?bx-W/2:v.x+dg/2,xb=s2<0?v.x-dg/2:bx+W/2,ww=sw2-2.2;let win=null;
-        if(ww>1.2){const wx=v.x+s2*(dg/2+1.1+ww/2);win={wl:wx-ww/2,wr:wx+ww/2,y0:.95,y1:3.85};v.wins.push(win);
-          at(box(ww,2.9,.05,winGlass),wx,2.4,zf+.02);at(box(ww+.3,.26,.34,v.trim),wx,.82,zf+.36);at(box(ww+.3,.26,.34,v.trim),wx,3.96,zf+.36);at(box(.12,2.9,.2,v.trim),wx,2.4,zf+.3)}
+      v.wins=[];for(const s2 of[-1,1]){const xa=s2<0?bx-W/2:v.x+dg/2,xb=s2<0?v.x-dg/2:bx+W/2,ww=Math.min(sw2-2.4,2.6);let win=null;
+        if(ww>1.2){const wx=(xa+xb)/2,y0=1.35,y1=3.45,ym=(y0+y1)/2;win={wl:wx-ww/2,wr:wx+ww/2,y0,y1};v.wins.push(win);
+          at(box(ww,y1-y0,.05,winGlass),wx,ym,zf+.02);at(box(ww+.3,.22,.34,v.trim),wx,y0-.11,zf+.36);at(box(ww+.3,.22,.34,v.trim),wx,y1+.11,zf+.36);for(const s3 of[-1,1])at(box(.14,y1-y0,.3,v.trim),wx+s3*(ww/2+.07),ym,zf+.33)}
         holeWall(xa,xb,zf+.15,.3,gh,win,(w2,h2,d2)=>surfBox(w2,h2,d2,'stucco',v.wall),at)}
       at(surfBox(dg,gh-dh,.3,'stucco',v.wall),v.x,dh+(gh-dh)/2,zf+.15);
       for(const s2 of[-1,1])at(box(.35,dh+.2,.42,0x2a262c),v.x+s2*(dg/2+.12),(dh+.2)/2,zf+.2);at(box(dg+.6,.35,.42,0x2a262c),v.x,dh+.12,zf+.2);
@@ -3597,12 +3597,22 @@ function updVenues(dt=1/60){updDoors(dt);updSW(dt);const t=.38+.18*Math.sin(perf
 function swRoom(v){if(v.room)return v.room;const q=RDIM[v.kind];const r=ROOMS[v.kind]||(ROOMS[v.kind]=makeRoom(v.kind,v.pr));
   const ax=v.x,az=v.zf-(q[1]/2+.3)*RS,anchor=new THREE.Group();anchor.position.set(ax,0,az);
   for(const o of[...r.scene.children]){if(o.isLight||o===player.mesh)continue;anchor.add(o)}
-  anchor.traverse(o=>{if(o.isMesh){o.receiveShadow=false;o.castShadow=false;if(o.material&&o.material.isMeshBasicMaterial&&o.material.color&&o.material.color.getHex()===0xe6eef4)o.visible=false}});
+  anchor.traverse(o=>{if(o.isMesh){o.receiveShadow=false;o.castShadow=false;if(!o.isSkinnedMesh)o.material=litMat(o.material);if(o.material&&o.material.isMeshBasicMaterial&&o.material.color&&o.material.color.getHex()===0xe6eef4)o.visible=false}});
   {const G0=anchor.children.find(o=>o.isGroup&&Math.abs(o.scale.x-RS)<1e-6);if(G0)for(const o of[...G0.children])if(o.userData.front)G0.remove(o);
    const zc=v.zf-.3*RS/2,th=.3*RS-.02,hh=r.wh*RS,xa=ax-(q[0]/2+.3)*RS,xb=ax+(q[0]/2+.3)*RS,dg=1.6*RS,dh=2.6*RS,mk=(a,b,c)=>tiledBox(a,b,c,r.wm,2.4*RS,2.4*RS),put=(m,x,y,z)=>{m.position.set(x-ax,y,z-az);anchor.add(m)};
    holeWall(xa,ax-dg/2,zc,th,hh,(v.wins||[]).find(w=>w.wr<=ax),mk,put);holeWall(ax+dg/2,xb,zc,th,hh,(v.wins||[]).find(w=>w.wl>=ax),mk,put);put(mk(dg,hh-dh,th),ax,dh+(hh-dh)/2,zc)}
   if(r.door&&r.door.pv)r.door.pv.visible=false;r.door=v.wdoor;r.sw={ax,az,anchor,v};scene.add(anchor);v.room=r;return r}
 let _hemiSave=null;
+// 室内“开着灯”：材质自带一点自发光，从街上看进去是亮的，晚上更明显
+const LIT_GLOW=.3,_litCache=new Map();
+const ATLAS_IN=(()=>{const m=new THREE.MeshToonMaterial({map:ATL.tex,emissiveMap:ATL.etex,emissive:0xffffff,gradientMap:toonGrad});
+  m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <uv_pars_vertex>','#include <uv_pars_vertex>\nattribute vec4 tileR;varying vec4 vTile;varying vec2 vRep;').replace('#include <uv_vertex>','#include <uv_vertex>\nvTile=tileR;vRep=uv;');
+    sh.fragmentShader=sh.fragmentShader.replace('#include <uv_pars_fragment>','#include <uv_pars_fragment>\nvarying vec4 vTile;varying vec2 vRep;\nvec4 atl(sampler2D t){vec2 a=vTile.xy+fract(vRep)*vTile.zw;\n#if __VERSION__>=300\nreturn textureGrad(t,a,dFdx(vRep)*vTile.zw,dFdy(vRep)*vTile.zw);\n#else\nreturn texture2D(t,a);\n#endif\n}')
+      .replace('#include <map_fragment>','vec4 texelColor=atl(map);texelColor=mapTexelToLinear(texelColor);diffuseColor*=texelColor;')
+      .replace('#include <emissivemap_fragment>','totalEmissiveRadiance=diffuseColor.rgb*'+LIT_GLOW.toFixed(2)+';')};
+  m.customProgramCacheKey=()=>'atlasIn';return m})();
+function litMat(m){if(!m||Array.isArray(m)||m.isMeshBasicMaterial||m.transparent)return m;if(m===ATLAS_MAT)return ATLAS_IN;
+  let r=_litCache.get(m);if(r)return r;r=m.clone();if(r.emissive&&r.color){r.emissive.copy(r.color).multiplyScalar(LIT_GLOW);if(r.map){r.emissiveMap=r.map;r.emissive.setScalar(LIT_GLOW)}}_litCache.set(m,r);return r}
 function swEnter(v){const r=swRoom(v);if(v.kind==='club'&&!OWNP.club){if(player.money<50){toast('门票 $50，钱不够');return false}player.money-=50;STATS.spent+=50;toast('门票 -$50')}
   INSIDE={r,ex:v.x,ez:v.z+.6,erot:0,armed:1,sw:1};player.ix=player.x-r.sw.ax;player.iz=player.z-r.sw.az;toggleAim(false);player.danceT=0;INSIDE.cz=null;
   setTimeout(()=>{if(INSIDE&&INSIDE.r===r)toast(r.name)},150);return true}
@@ -3615,7 +3625,7 @@ function swWorld(dt){for(const c of[...cars]){if(c.dead||c===player.car)continue
 const _wc=new THREE.Color(0xfff0dc),_wg=new THREE.Color(0x7a6048),_v1=new THREE.Vector3(1,1,1),_v0=new THREE.Vector3();
 function swBlend(k){if(k<=0)return;const u=compM.uniforms,L=(a,b)=>a+(b-a)*k;
   u.uB.value=L(u.uB.value,.1);u.uRay.value=L(u.uRay.value,0);u.uMul.value.lerp(_v1,k);u.uAdd.value.lerp(_v0,k);u.uSat.value=L(u.uSat.value,1.04);u.uCon.value=L(u.uCon.value,1.03);u.uVig.value=L(u.uVig.value,.28);
-  brightM.uniforms.uThr.value=L(brightM.uniforms.uThr.value,.97);hemi.intensity=L(hemi.intensity,Math.max(hemi.intensity,1.05));hemi.color.lerp(_wc,k);hemi.groundColor.lerp(_wg,k)}
+  brightM.uniforms.uThr.value=L(brightM.uniforms.uThr.value,.97);hemi.intensity=L(hemi.intensity,Math.max(hemi.intensity,.85));hemi.color.lerp(_wc,k);hemi.groundColor.lerp(_wg,k)}
 // 墙上开窗洞：xa~xb 一段墙，win={wl,wr,y0,y1} 处留空
 function holeWall(xa,xb,zc,th,h,win,mk,put){const P=(x0,x1,y0,y1)=>{if(x1-x0<.02||y1-y0<.02)return;const m=mk(x1-x0,y1-y0,th);m.castShadow=false;put(m,(x0+x1)/2,(y0+y1)/2,zc)};
   if(!win){P(xa,xb,0,h);return}P(xa,win.wl,0,h);P(win.wr,xb,0,h);P(win.wl,win.wr,0,win.y0);P(win.wl,win.wr,win.y1,h)}
