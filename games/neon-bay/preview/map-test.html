@@ -318,6 +318,21 @@ const SHOPST=new Map(),SHOPJ=new Set();let SHOP_I=-1;
    for(let j=0;j<NZ;j++){const ok=edgeOK(i,j,0)&&blockOK(i-1,j)&&blockOK(i,j)&&!DIAG.has((i-1)+','+j)&&!DIAG.has(i+','+j)&&blockFlat(i-1,j)&&blockFlat(i,j);if(ok)cur.push(j);else{if(cur.length>run.length)run=cur;cur=[]}}
    if(cur.length>run.length)run=cur;const sc=Math.min(run.length,4)*10-Math.abs(rx(i)-WU(.8))/50;if(run.length>=2&&(!best||sc>best.sc))best={i,run:run.slice(0,4),sc}}
  if(best){SHOP_I=best.i;for(const j of best.run){SHOPST.set((best.i-1)+','+j,'E');SHOPST.set(best.i+','+j,'W');SHOPJ.add(j)}}}
+// —— 大型场地：机场（东岛南部）、监狱（西岛南部）——占几个相连的街区，中间的路去掉
+const ZONES=[],ZONEB=new Set();
+function pickZone(name,u,v,ci,cj){let best=null;
+  for(let i=0;i+ci<=NX;i++)for(let j=0;j+cj<=NZ;j++){let ok=true;for(let a=0;a<ci&&ok;a++)for(let b=0;b<cj&&ok;b++){const I=i+a,J=j+b;if(!blockOK(I,J)||!blockFlat(I,J)||DIAG.has(I+','+J)||SHOPST.has(I+','+J)||ZONEB.has(I+','+J)||hB(I,J)!==hB(i,j))ok=false}
+    if(!ok)continue;const x=(rx(i)+rx(i+ci))/2,z=(rz(j)+rz(j+cj))/2,d=Math.hypot(x-WU(u),z-WV(v));if(!best||d<best.d)best={i,j,d}}
+  if(!best)return null;const Z={name,i0:best.i,j0:best.j,i1:best.i+ci-1,j1:best.j+cj-1};
+  for(let a=0;a<ci;a++)for(let b=0;b<cj;b++)ZONEB.add((Z.i0+a)+','+(Z.j0+b));
+  for(let i=Z.i0;i<=Z.i1+1;i++)for(let j=Z.j0;j<=Z.j1+1;j++){if(i>Z.i0&&i<=Z.i1&&j<=Z.j1)EDGE_OFF.add(ek(i,j,0));if(j>Z.j0&&j<=Z.j1&&i<=Z.i1)EDGE_OFF.add(ek(i,j,1))}
+  Z.x0=rx(Z.i0)+RD/2;Z.x1=rx(Z.i1+1)-RD/2;Z.z0=rz(Z.j0)+RD/2;Z.z1=rz(Z.j1+1)-RD/2;Z.h=hB(Z.i0,Z.j0);ZONES.push(Z);return Z}
+const AIRPORT=pickZone('机场',.835,.82,2,3),PRISON=pickZone('监狱',.165,.84,2,2);
+const inZone=(x,z,m=0)=>{for(const Z of ZONES)if(x>Z.x0-m&&x<Z.x1+m&&z>Z.z0-m&&z<Z.z1+m)return Z;return null};
+// 去掉死胡同（场地切断后留下的断头路），避免车开进去掉头
+{let ch=true;while(ch){ch=false;for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||BRW(i,j))continue;const L=DIRS8.filter(([a,b])=>linkOK(i,j,a,b));if(L.length!==1)continue;const[a,b]=L[0];
+  if(a&&b)DIAG.delete(Math.min(i,i+a)+','+Math.min(j,j+b));else EDGE_OFF.add(a?ek(Math.min(i,i+a),j,1):ek(i,Math.min(j,j+b),0));ch=true}}}
+
 // 地面高度（游戏逻辑和画面共用）：路面按两头路口高度线性过渡，街区内部是街区高度，桥面单独算
 const BAND=RD/2+2.5;
 const _ri=x=>{let lo=0,hi=NX;while(lo<hi){const m=(lo+hi+1)>>1;if(RX[m]<=x)lo=m;else hi=m-1}return lo},_rj=z=>{let lo=0,hi=NZ;while(lo<hi){const m=(lo+hi+1)>>1;if(RZ[m]<=z)lo=m;else hi=m-1}return lo};
@@ -370,18 +385,6 @@ function roadMask(x,z){const S=HG,i=Math.round((x-S.x0)/S.st),j=Math.round((z-S.
  WARPU.uHG.value=t;WARPU.uHGp.value.set(S.x0,S.z0,S.st,0);WARPU.uHGs.value.set(S.nx,S.nz);WARP.gh=(x,z)=>GH(x,z)}
 function GH(x,z){const S=HG,fx=(x-S.x0)/S.st,fz=(z-S.z0)/S.st;if(fx<0||fz<0||fx>=S.nx-1||fz>=S.nz-1)return 0;const i=fx|0,j=fz|0,u=fx-i,v=fz-j,A=S.a,n=S.nx;
   return(A[j*n+i]*(1-u)+A[j*n+i+1]*u)*(1-v)+(A[(j+1)*n+i]*(1-u)+A[(j+1)*n+i+1]*u)*v}
-
-// —— 大型场地：机场（东岛南部）、监狱（西岛南部）——占几个相连的街区，中间的路去掉
-const ZONES=[],ZONEB=new Set();
-function pickZone(name,u,v,ci,cj){let best=null;
-  for(let i=0;i+ci<=NX;i++)for(let j=0;j+cj<=NZ;j++){let ok=true;for(let a=0;a<ci&&ok;a++)for(let b=0;b<cj&&ok;b++){const I=i+a,J=j+b;if(!blockOK(I,J)||!blockFlat(I,J)||DIAG.has(I+','+J)||ZONEB.has(I+','+J)||hB(I,J)!==hB(i,j))ok=false}
-    if(!ok)continue;const x=(rx(i)+rx(i+ci))/2,z=(rz(j)+rz(j+cj))/2,d=Math.hypot(x-WU(u),z-WV(v));if(!best||d<best.d)best={i,j,d}}
-  if(!best)return null;const Z={name,i0:best.i,j0:best.j,i1:best.i+ci-1,j1:best.j+cj-1};
-  for(let a=0;a<ci;a++)for(let b=0;b<cj;b++)ZONEB.add((Z.i0+a)+','+(Z.j0+b));
-  for(let i=Z.i0;i<=Z.i1+1;i++)for(let j=Z.j0;j<=Z.j1+1;j++){if(i>Z.i0&&i<=Z.i1&&j<=Z.j1)EDGE_OFF.add(ek(i,j,0));if(j>Z.j0&&j<=Z.j1&&i<=Z.i1)EDGE_OFF.add(ek(i,j,1))}
-  Z.x0=rx(Z.i0)+RD/2;Z.x1=rx(Z.i1+1)-RD/2;Z.z0=rz(Z.j0)+RD/2;Z.z1=rz(Z.j1+1)-RD/2;Z.h=hB(Z.i0,Z.j0);ZONES.push(Z);return Z}
-const AIRPORT=pickZone('机场',.835,.82,2,3),PRISON=pickZone('监狱',.165,.84,2,2);
-const inZone=(x,z,m=0)=>{for(const Z of ZONES)if(x>Z.x0-m&&x<Z.x1+m&&z>Z.z0-m&&z<Z.z1+m)return Z;return null};
 
 const pickBlock=(f,ex=[],mw=0,md=0)=>{let c=VALID.filter(b=>!DIAG.has(b[0]+','+b[1])&&blockFlat(b[0],b[1])&&!SHOPST.has(b[0]+','+b[1])&&!ex.some(e=>e[0]===b[0]&&e[1]===b[1]));const big=c.filter(b=>bW(b[0])>=mw&&bD(b[1])>=md);if(big.length)c=big;return c.reduce((a,b)=>f(b)>f(a)?b:a)};
 const VB=pickBlock(b=>b[0]/NX+b[1]/NZ,[],50,50),SB=pickBlock(b=>-Math.hypot(b[0]/NX-.3,b[1]/NZ-.5),[VB],68,66),
@@ -513,8 +516,10 @@ sea.rotation.x=-Math.PI/2;sea.position.y=-.6;scene.add(sea);
  const P=g.attributes.position,col=new Float32Array(P.count*3),c=new THREE.Color(),Y=new Float32Array(P.count);
  const SAND=new THREE.Color(0xe8cf98),GRASS=new THREE.Color(REAL?0x6a9a58:0x6fc070),HIGH=new THREE.Color(REAL?0x5a8a4c:0x58a860),ROCK=new THREE.Color(0x8a7f78),SHAL=new THREE.Color(0x7fd6d0),DEEP=new THREE.Color(0x3aa8b8);
  for(let k=0;k<P.count;k++){const x=P.getX(k),z=P.getZ(k),sd=sdfAt(x,z);let y;
-   if(sd>0)y=-(roadMask(x,z)&&!inZone(x,z,-14)?.75:.18);else y=sd>-14?-.95:-.95-Math.min(8,(-sd-14)*.25);
-   if(sd>0&&sd<3&&LP(x,z)===0)y=Math.min(y,-.1+sd*.03);Y[k]=y;P.setY(k,y)}
+   if(sd>0)y=roadMask(x,z)&&!inZone(x,z,-14)?(onRoad(x,z,-4)||GH(x,z)>.05?-.75:-.4):-.18;else y=sd>-14?-.95:-.95-Math.min(8,(-sd-14)*.25);
+   if(sd>0&&sd<3&&LP(x,z)===0)y=Math.min(y,-.1+sd*.03);
+   if(sd>0&&roadMask(x,z))y+=Math.min(0,Gexact(x,z)-GH(x,z)); // 悬崖边的路：高度图在边上被抹平，按精确高度往下压，免得地面盖住路面
+   Y[k]=y;P.setY(k,y)}
  for(let k=0;k<P.count;k++){const x=P.getX(k),z=P.getZ(k),sd=sdfAt(x,z),i=k%nx,j=(k/nx)|0;
    const n=(a,b)=>Y[Math.min(nz-1,Math.max(0,j+b))*nx+Math.min(nx-1,Math.max(0,i+a))];const slope=Math.max(Math.abs(n(1,0)-n(-1,0)),Math.abs(n(0,1)-n(0,-1)))/(2*st);
    const beach=x>WU(.94)?48:14,lp=sd>0?LP(x,z):0;
@@ -572,8 +577,9 @@ function ribbon(P,o0,o1,mat,y,uw,d0=0,d1=1e9){const pos=[],uv=[];let acc=0;const
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(t,2));g.computeVertexNormals();
   {const N=g.attributes.normal;for(let k=0;k<N.count;k++)N.setXYZ(k,0,1,0)}const m=new THREE.Mesh(g,mat);m.receiveShadow=true;scene.add(m);return m}
 function curveRoad(e){const P=e.pts,L=plen(P);ribbon(P,-RD/2,RD/2,asphalt,.02,14);
-  for(const o of[-1,1])ribbon(P,o*(LANE+2.6)-.15,o*(LANE+2.6)+.15,whiteMat,.03,4,RD/2+1,L-RD/2-1);
-  for(let d=RD/2+4;d<L-RD/2-5;d+=10)ribbon(P,-.25,.25,lineMat,.035,4,d,d+5)}
+  // 白边线、黄虚线都从路口外面开始画，不伸进路口
+  for(const o of[-1,1])ribbon(P,o*(LANE+2.6)-.15,o*(LANE+2.6)+.15,whiteMat,.03,4,BAND+2,L-BAND-2);
+  for(let d=BAND+4;d<L-BAND-6;d+=10)ribbon(P,-.25,.25,lineMat,.035,4,d,d+5)}
 // —— 弯道路边：反光桩、外侧路灯
 function curveDeco(e){const P=e.pts,L=plen(P);for(let t=BAND;t<L-BAND;t+=14)for(const s of[-1,1]){const q=ptAt(P,t),x=q.x+q.nx*s*(RD/2+1.6),z=q.z+q.nz*s*(RD/2+1.6);if(sdfAt(x,z)<2)continue;const p=box(.22,1,.22,0xf4f4f4);p.position.set(x,.5,z);scene.add(p);const r=box(.24,.18,.24,0xd83a3a);r.position.set(x,.85,z);scene.add(r)}
   for(let t=BAND+20;t<L-BAND;t+=46){const q=ptAt(P,t),x=q.x+q.nx*(RD/2+2.2),z=q.z+q.nz*(RD/2+2.2);if(sdfAt(x,z)<3)continue;const lp=box(.3,7,.3,0x3a3448);lp.position.set(x,3.5,z);scene.add(lp);const l=new THREE.Mesh(new THREE.BoxGeometry(.9,.3,.9),lampMat);l.position.set(x-q.nx*.9,6.9,z-q.nz*.9);scene.add(l)}}
@@ -886,8 +892,8 @@ const seedR=(...k)=>{let h=2166136261;for(const v of k){h=Math.imul(h^((v*265443
 for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){
   if(!blockOK(i,j))continue;
   const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j);
-  if(ZONEB.has(i+','+j)){BTYPE[i+','+j]='zone';continue}
   const side=tPlane(W+4,D+4,groundMat('sidewalk',0xf0d8e4),Math.ceil((W+4)/4),Math.ceil((D+4)/4));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);
+  if(ZONEB.has(i+','+j)){BTYPE[i+','+j]='zone';continue}
   if(i===VB[0]&&j===VB[1]){villa={x:cx,z:cz};continue}
   if(i===SB[0]&&j===SB[1]){station={x:cx,z:cz,w:W,d:D};continue}
   if(i===HB[0]&&j===HB[1]){hospital={x:cx,z:cz,w:W,d:D};continue}
