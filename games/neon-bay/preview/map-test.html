@@ -232,7 +232,8 @@ const nodeLand=(i,j)=>{if(!inGrid(i,j))return false;const k=j*(NX+1)+i;if(_nl[k]
 const BRIDGE=new Set(),BRSEG=[],BRH=7;
 {const rows=[1,3,5,7].filter(j=>j<NZ);for(const j of rows){let p=-1;for(let i=0;i<=NX;i++){if(!nodeLand(i,j))continue;if(p>=0&&i-p>1){for(let k=p+1;k<i;k++)BRIDGE.add(k+','+j);BRSEG.push({x0:rx(p),x1:rx(i),z:rz(j),j})}p=i}}}
 const BRW=(i,j)=>BRIDGE.has(i+','+j);
-function onBridge(x,z){for(const s of BRSEG)if(Math.abs(z-s.z)<RD/2+1&&x>s.x0&&x<s.x1)return true;return false}
+var CURVE_READY=false;
+function onBridge(x,z){if(CURVE_READY){for(const e of curvesAt(x,z))if(e.br&&x>e.bb[0]&&x<e.bb[1]&&z>e.bb[2]&&z<e.bb[3]&&curveNear(e,x,z).d<RD/2+1)return true;return false}for(const s of BRSEG)if(Math.abs(z-s.z)<RD/2+1&&x>s.x0&&x<s.x1)return true;return false}
 const onIsland=(x,z,m=0)=>sdfAt(x,z)>m||onBridge(x,z);
 const coastR=(x,z)=>Math.hypot(x,z)+sdfAt(x,z);
 const nodeOK=(i,j)=>inGrid(i,j)&&(nodeLand(i,j)||BRW(i,j));
@@ -276,13 +277,46 @@ const SHOPST=new Map(),SHOPJ=new Set();let SHOP_I=-1;
 // 地面高度（游戏逻辑和画面共用）：路面按两头路口高度线性过渡，街区内部是街区高度，桥面单独算
 const BAND=RD/2+2.5;
 const _ri=x=>{let lo=0,hi=NX;while(lo<hi){const m=(lo+hi+1)>>1;if(RX[m]<=x)lo=m;else hi=m-1}return lo},_rj=z=>{let lo=0,hi=NZ;while(lo<hi){const m=(lo+hi+1)>>1;if(RZ[m]<=z)lo=m;else hi=m-1}return lo};
+// —— 弯道：两边都没有楼的路（海边、岛边、大桥）不再笔直，按平滑的弧线弯过去；两头接路口的地方保持直的
+const CURVE=new Map(),CURVE_CELL=new Map();
+{const sideBlk=(i,j,h)=>h?[[i,j-1],[i,j]]:[[i-1,j],[i,j]]; // 水平路：北、南两侧街区；竖直路：西、东两侧
+ for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++)for(const h of[1,0]){if(!edgeOK(i,j,h))continue;const i2=h?i+1:i,j2=h?j:j+1;
+   const br=BRW(i,j)||BRW(i2,j2)||(h&&[.25,.5,.75].some(t=>sdfAt(rx(i)+(rx(i2)-rx(i))*t,rz(j))<4));
+   if(!h&&i===SHOP_I&&SHOPJ.has(j))continue;
+   const sb=sideBlk(i,j,h).map(([a,b])=>blockOK(a,b));if(sb[0]&&sb[1]&&!br)continue;
+   const ax=rx(i),az=rz(j),bx=rx(i2),bz=rz(j2),L=Math.hypot(bx-ax,bz-az),ux=(bx-ax)/L,uz=(bz-az)/L,nx=uz,nz=-ux; // n：路的“右侧”（水平路指向北，竖直路指向西）
+   const mid=L-2*BAND;if(mid<40&&!br)continue;
+   // n 方向：水平路指向北（sideBlk[0]），竖直路指向东（sideBlk[1]）；哪边有楼就往另一边弯
+   const nb=sb[h?0:1],ob=sb[h?1:0];let sg=br?(j%4===1?1:-1):nb?-1:ob?1:(R()<.5?1:-1);
+   let amp=mid<40?0:br?Math.min(mid*.12,16):Math.min(mid*.2,24)*(.65+R()*.35);
+   const mk=a=>{const pts=[];const n=Math.max(8,Math.ceil(L/4));for(let k=0;k<=n;k++){const t=k/n,d=t*L,s=clamp((d-BAND)/mid,0,1),off=a*Math.sin(Math.PI*s)**2;pts.push([ax+ux*d+nx*off*sg,az+uz*d+nz*off*sg])}return pts};
+   let pts=mk(amp);
+   if(!br){for(let tries=0;tries<4&&pts.some(([x,z])=>sdfAt(x,z)<16);tries++){amp*=.5;pts=mk(amp)}if(pts.some(([x,z])=>sdfAt(x,z)<16))continue}
+   if(amp<4&&!br)continue;
+   let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const[x,z]of pts){x0=Math.min(x0,x);x1=Math.max(x1,x);z0=Math.min(z0,z);z1=Math.max(z1,z)}
+   const e={i,j,h,i2,j2,pts,L,br,bb:[x0-BAND,x1+BAND,z0-BAND,z1+BAND]};CURVE.set(ek(i,j,h),e);
+   e.br=br;for(let ci=_ri(e.bb[0]);ci<=_ri(e.bb[1]);ci++)for(let cj=_rj(e.bb[2]);cj<=_rj(e.bb[3]);cj++){const k=ci*100+cj;if(!CURVE_CELL.has(k))CURVE_CELL.set(k,[]);CURVE_CELL.get(k).push(e)}}}
+// 点到弯道中心线的最近距离、沿路的位置（0~1）
+function curveNear(e,x,z){const P=e.pts;let bd=1e9,bt=0,acc=0,tot=0;for(let k=1;k<P.length;k++)tot+=Math.hypot(P[k][0]-P[k-1][0],P[k][1]-P[k-1][1]);
+  for(let k=1;k<P.length;k++){const[ax,az]=P[k-1],[bx,bz]=P[k],dx=bx-ax,dz=bz-az,l2=dx*dx+dz*dz||1,t=clamp(((x-ax)*dx+(z-az)*dz)/l2,0,1),d=Math.hypot(x-ax-dx*t,z-az-dz*t),sl=Math.sqrt(l2);if(d<bd){bd=d;bt=(acc+sl*t)/tot}acc+=sl}return{d:bd,t:bt}}
+function curvesAt(x,z){return CURVE_CELL.get(_ri(x)*100+_rj(z))||[]}
+// 沿着弯道走 d 米（从 a 端量起）的位置和方向
+function curvePt(e,s){const P=e.pts,f=clamp(s,0,1)*(P.length-1),k=Math.min(P.length-2,f|0),u=f-k,a=P[k],b=P[k+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1;return{x:a[0]+dx*u,z:a[1]+dz*u,tx:dx/l,tz:dz/l}}
+// 车道上的点：从 (i0,j0) 往 (i1,j1) 方向走 d 米，靠右 LANE 米（弯道按弧线走）
+function lanePt(i0,j0,i1,j1,d){const fw=i1>i0||j1>j0,key=fw?ek(i0,j0,i1!==i0?1:0):ek(i1,j1,i1!==i0?1:0),e=(i0!==i1)!==(j0!==j1)?CURVE.get(key):null;
+  if(!e){const ln=laneOf(i0,j0,i1,j1);return{x:ln.ax+ln.ux*d,z:ln.az+ln.uz*d}}
+  const s=fw?d/e.L:1-d/e.L,p=curvePt(e,s),tx=fw?p.tx:-p.tx,tz=fw?p.tz:-p.tz;return{x:p.x+tz*LANE,z:p.z-tx*LANE}}
+
+CURVE_READY=true;
+
 const _bok=new Map(),_eok=new Map(),_dg=new Map();const bOKc=(i,j)=>{const k=i*100+j;let v=_bok.get(k);if(v===undefined){v=blockOK(i,j);_bok.set(k,v)}return v},eOKc=(i,j,h)=>{const k=(i*100+j)*2+h;let v=_eok.get(k);if(v===undefined){v=edgeOK(i,j,h);_eok.set(k,v)}return v},dgc=(i,j)=>{const k=i*100+j;let v=_dg.get(k);if(v===undefined){v=nodeOK(i,j)&&degAll(i,j)>0;_dg.set(k,v)}return v};
 function Gexact(x,z){const i=_ri(x),j=_rj(z);
   const ni=(i<NX&&x-RX[i]>RX[i+1]-x)?i+1:i,nj=(j<NZ&&z-RZ[j]>RZ[j+1]-z)?j+1:j;
   const nearX=Math.abs(x-rx(ni))<=BAND,nearZ=Math.abs(z-rz(nj))<=BAND;
   if(nearX&&nearZ&&dgc(ni,nj))return hN(ni,nj);
-  if(nearZ&&i<NX&&eOKc(i,nj,1)){const a=rx(i)+BAND,b=rx(i+1)-BAND,t=clamp((x-a)/(b-a||1),0,1);return hN(i,nj)+(hN(i+1,nj)-hN(i,nj))*t}
-  if(nearX&&j<NZ&&eOKc(ni,j,0)){const a=rz(j)+BAND,b=rz(j+1)-BAND,t=clamp((z-a)/(b-a||1),0,1);return hN(ni,j)+(hN(ni,j+1)-hN(ni,j))*t}
+  {const cs=CURVE_CELL.get(i*100+j);if(cs)for(const e of cs){if(x<e.bb[0]||x>e.bb[1]||z<e.bb[2]||z>e.bb[3])continue;const q=curveNear(e,x,z);if(q.d<=BAND){const d=q.t*e.L,tt=clamp((d-BAND)/(e.L-2*BAND||1),0,1);return hN(e.i,e.j)+(hN(e.i2,e.j2)-hN(e.i,e.j))*tt}}}
+  if(nearZ&&i<NX&&eOKc(i,nj,1)&&!CURVE.has(ek(i,nj,1))){const a=rx(i)+BAND,b=rx(i+1)-BAND,t=clamp((x-a)/(b-a||1),0,1);return hN(i,nj)+(hN(i+1,nj)-hN(i,nj))*t}
+  if(nearX&&j<NZ&&eOKc(ni,j,0)&&!CURVE.has(ek(ni,j,0))){const a=rz(j)+BAND,b=rz(j+1)-BAND,t=clamp((z-a)/(b-a||1),0,1);return hN(ni,j)+(hN(ni,j+1)-hN(ni,j))*t}
   if(i<NX&&j<NZ&&bOKc(i,j)&&x>rx(i)&&z>rz(j))return hB(i,j);
   return sdfAt(x,z)>0?LP(x,z):0}
 const HG=(()=>{const st=2,x0=WU(-.16),z0=WV(-.16),nx=Math.ceil((WU(1.16)-x0)/st)+1,nz=Math.ceil((WV(1.16)-z0)/st)+1,a=new Float32Array(nx*nz);
@@ -389,8 +423,8 @@ const whiteMat=new THREE.MeshBasicMaterial({color:0xf4f0e6,polygonOffset:true,po
 const edgeLine=(x,z,w,d)=>{const a=new THREE.Mesh(new THREE.PlaneGeometry(w,d,Math.max(1,Math.ceil(w/4)),Math.max(1,Math.ceil(d/4))),whiteMat);a.rotation.x=-Math.PI/2;a.position.set(x,.03,z);scene.add(a)};
 const dash=(x,z,w,d)=>{const a=new THREE.Mesh(new THREE.PlaneGeometry(w,d),lineMat);a.rotation.x=-Math.PI/2;a.position.set(x,.03,z);scene.add(a)};
 for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!degAll(i,j))continue;roadPlane(rx(i),rz(j),RD,RD);
-  if(edgeOK(i,j,1)){const L=rx(i+1)-rx(i);roadPlane(rx(i)+L/2,rz(j),L,RD);for(const o of[-1,1])edgeLine(rx(i)+L/2,rz(j)+o*(LANE+2.6),L-RD-2,.3);for(let t=rx(i)+RD/2+4;t<rx(i+1)-RD/2-3;t+=10)dash(t+2.5,rz(j),5,.5)}
-  if(edgeOK(i,j,0)){const L=rz(j+1)-rz(j);roadPlane(rx(i),rz(j)+L/2,RD,L,i===SHOP_I&&SHOPJ.has(j)?groundMat('stone',0xe8c0a8):asphalt);for(const o of[-1,1])edgeLine(rx(i)+o*(LANE+2.6),rz(j)+L/2,.3,L-RD-2);for(let t=rz(j)+RD/2+4;t<rz(j+1)-RD/2-3;t+=10)dash(rx(i),t+2.5,.5,5)}}
+  if(edgeOK(i,j,1)&&CURVE.has(ek(i,j,1)))curveRoad(CURVE.get(ek(i,j,1)));else if(edgeOK(i,j,1)){const L=rx(i+1)-rx(i);roadPlane(rx(i)+L/2,rz(j),L,RD);for(const o of[-1,1])edgeLine(rx(i)+L/2,rz(j)+o*(LANE+2.6),L-RD-2,.3);for(let t=rx(i)+RD/2+4;t<rx(i+1)-RD/2-3;t+=10)dash(t+2.5,rz(j),5,.5)}
+  if(edgeOK(i,j,0)&&CURVE.has(ek(i,j,0)))curveRoad(CURVE.get(ek(i,j,0)));else if(edgeOK(i,j,0)){const L=rz(j+1)-rz(j);roadPlane(rx(i),rz(j)+L/2,RD,L,i===SHOP_I&&SHOPJ.has(j)?groundMat('stone',0xe8c0a8):asphalt);for(const o of[-1,1])edgeLine(rx(i)+o*(LANE+2.6),rz(j)+L/2,.3,L-RD-2);for(let t=rz(j)+RD/2+4;t<rz(j+1)-RD/2-3;t+=10)dash(rx(i),t+2.5,.5,5)}}
 // 斜路路面（比街区地面略高，盖在人行道和草地上面）
 const diagSeg=(k,t)=>{const[i,j]=k.split(',').map(Number);return t==='a'?[rx(i),rz(j),rx(i+1),rz(j+1)]:[rx(i),rz(j+1),rx(i+1),rz(j)]};
 for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t),L=Math.hypot(x1-x0,z1-z0),ang=Math.atan2(x1-x0,z1-z0);
@@ -403,8 +437,9 @@ const SKIP={};
 function onRoad(x,z,m=0){const h=RD/2+m,[ci,cj]=cellOf(x,z);
   for(let i=Math.max(0,ci-1);i<=Math.min(NX,ci+2);i++)for(let j=Math.max(0,cj-1);j<=Math.min(NZ,cj+2);j++){if(!nodeOK(i,j))continue;
     if(degAll(i,j)&&Math.abs(x-rx(i))<h&&Math.abs(z-rz(j))<h)return true;
-    if(edgeOK(i,j,1)&&Math.abs(z-rz(j))<h&&x>rx(i)-h&&x<rx(i+1)+h)return true;
-    if(edgeOK(i,j,0)&&Math.abs(x-rx(i))<h&&z>rz(j)-h&&z<rz(j+1)+h)return true}
+    if(edgeOK(i,j,1)&&!CURVE.has(ek(i,j,1))&&Math.abs(z-rz(j))<h&&x>rx(i)-h&&x<rx(i+1)+h)return true;
+    if(edgeOK(i,j,0)&&!CURVE.has(ek(i,j,0))&&Math.abs(x-rx(i))<h&&z>rz(j)-h&&z<rz(j+1)+h)return true}
+  for(const e of curvesAt(x,z))if(x>e.bb[0]&&x<e.bb[1]&&z>e.bb[2]&&z<e.bb[3]&&curveNear(e,x,z).d<h)return true;
   for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);if(segDist(x,z,x0,z0,x1,z1)<h)return true}return false}
 const guard=(name,x,z,m)=>{if(onRoad(x,z,m)){SKIP[name]=(SKIP[name]||0)+1;return true}return false};
 // 断开的路段变成草地带，种几棵椰子树
@@ -455,13 +490,31 @@ function drapeGroup(g){for(const o of g.children){if(o.geometry&&o.geometry.user
 
 // —— 跨海大桥：桥面、护栏、路灯、桥墩
 const isBridgeE=(i,j)=>BRW(i,j)||BRW(i+1,j)||[.2,.4,.6,.8].some(t=>sdfAt(rx(i)+(rx(i+1)-rx(i))*t,rz(j))<4);
-function bridgeEdge(i,j){const x0=rx(i),x1=rx(i+1),z=rz(j),L=x1-x0,n=Math.ceil(L/5),cx=(x0+x1)/2;
-  const deck=new THREE.Mesh(new THREE.BoxGeometry(L,1.6,RD+3.4,n,1,1),M(0x8c8a90));deck.position.set(cx,-.86,z);scene.add(deck);
-  for(const s of[-1,1]){const cb=new THREE.Mesh(new THREE.BoxGeometry(L,.7,.7,n,1,1),M(0x6e6c74));cb.position.set(cx,.35,z+s*(RD/2+1.3));scene.add(cb);
-    const rl=new THREE.Mesh(new THREE.BoxGeometry(L,.22,.26,n,1,1),M(0xe8e4dc));rl.position.set(cx,1.35,z+s*(RD/2+1.3));scene.add(rl);
-    for(let t=3;t<L;t+=3.5){const p=box(.16,.7,.16,0xe8e4dc);p.position.set(x0+t,1,z+s*(RD/2+1.3));scene.add(p)}
-    for(let t=18;t<L-4;t+=38){const lp=box(.3,7.5,.3,0x3a3448);lp.position.set(x0+t,3.75,z+s*(RD/2+1.8));scene.add(lp);const l=new THREE.Mesh(new THREE.BoxGeometry(.9,.3,.6),lampMat);l.position.set(x0+t,7.3,z+s*(RD/2+.9));scene.add(l)}}
-  for(let t=12;t<L-6;t+=34){const x=x0+t;if(sdfAt(x,z)>-3)continue;const py=box(3.2,34,RD-2,0xa09ea4);py.position.set(x,-18.6,z);scene.add(py);const cap=box(4,1.2,RD+1,0x7a787e);cap.position.set(x,-2.2,z);scene.add(cap)}}
+// 沿折线摆一串小方块（桥面、护栏、路沿）：每段一个，转角处稍微重叠，看起来是连续的
+function alongPts(P,off,w,h,y,col,step=1){for(let k=step;k<P.length;k+=step){const a=P[k-step],b=P[k],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1,nx=dz/l,nz=-dx/l;
+  const m=box(l+.5,h,w,col);m.position.set((a[0]+b[0])/2+nx*off,y,(a[1]+b[1])/2+nz*off);m.rotation.y=Math.atan2(dx,dz)-Math.PI/2;scene.add(m)}}
+function ptAt(P,d){let acc=0;for(let k=1;k<P.length;k++){const a=P[k-1],b=P[k],l=Math.hypot(b[0]-a[0],b[1]-a[1]);if(acc+l>=d){const u=(d-acc)/l,dx=(b[0]-a[0])/l,dz=(b[1]-a[1])/l;return{x:a[0]+(b[0]-a[0])*u,z:a[1]+(b[1]-a[1])*u,nx:dz,nz:-dx}}acc+=l}const a=P[P.length-1];return{x:a[0],z:a[1],nx:0,nz:1}}
+function plen(P){let s=0;for(let k=1;k<P.length;k++)s+=Math.hypot(P[k][0]-P[k-1][0],P[k][1]-P[k-1][1]);return s}
+// —— 跨海大桥（可能是弯的）：桥面、护栏、路灯、桥墩
+function bridgeEdge(e,i,j){const P=e?e.pts:[[rx(i),rz(j)],[rx(i+1),rz(j)]],L=plen(P);
+  alongPts(P,0,RD+3.4,1.6,-.86,0x8c8a90);for(const s of[-1,1]){alongPts(P,s*(RD/2+1.3),.7,.7,.35,0x6e6c74);alongPts(P,s*(RD/2+1.3),.26,.22,1.35,0xe8e4dc)}
+  for(let t=2;t<L;t+=3.5)for(const s of[-1,1]){const q=ptAt(P,t),p=box(.16,.7,.16,0xe8e4dc);p.position.set(q.x+q.nx*s*(RD/2+1.3),1,q.z+q.nz*s*(RD/2+1.3));scene.add(p)}
+  for(let t=18;t<L-4;t+=38)for(const s of[-1,1]){const q=ptAt(P,t),lp=box(.3,7.5,.3,0x3a3448);lp.position.set(q.x+q.nx*s*(RD/2+1.8),3.75,q.z+q.nz*s*(RD/2+1.8));scene.add(lp);const l=new THREE.Mesh(new THREE.BoxGeometry(.9,.3,.9),lampMat);l.position.set(q.x+q.nx*s*(RD/2+.9),7.3,q.z+q.nz*s*(RD/2+.9));scene.add(l)}
+  for(let t=12;t<L-6;t+=34){const q=ptAt(P,t);if(sdfAt(q.x,q.z)>-3)continue;const py=box(3.2,34,RD-2,0xa09ea4);py.position.set(q.x,-18.6,q.z);py.rotation.y=Math.atan2(q.nx,q.nz);scene.add(py);const cap=box(4,1.2,RD+1,0x7a787e);cap.position.set(q.x,-2.2,q.z);cap.rotation.y=Math.atan2(q.nx,q.nz);scene.add(cap)}}
+// —— 弯道路面（开局一次性画好）：柏油带、两侧白线、中间黄虚线
+function ribbon(P,o0,o1,mat,y,uw,d0=0,d1=1e9){const pos=[],uv=[];let acc=0;const n=P.length;
+  for(let k=0;k<n;k++){const a=P[Math.max(0,k-1)],b=P[Math.min(n-1,k+1)],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1,nx=dz/l,nz=-dx/l;if(k)acc+=Math.hypot(P[k][0]-P[k-1][0],P[k][1]-P[k-1][1]);
+    const p=P[k];pos.push([p[0]+nx*o0,p[1]+nz*o0,p[0]+nx*o1,p[1]+nz*o1,acc])}
+  const v=[],t=[];for(let k=1;k<n;k++){const A=pos[k-1],B=pos[k];if(B[4]<d0||A[4]>d1)continue;
+    v.push(A[0],y,A[1],B[0],y,B[1],B[2],y,B[3],A[0],y,A[1],B[2],y,B[3],A[2],y,A[3]);const ua=A[4]/uw,ub=B[4]/uw,w=Math.abs(o1-o0)/uw;t.push(0,ua,0,ub,w,ub,0,ua,w,ub,w,ua)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(t,2));g.computeVertexNormals();
+  {const N=g.attributes.normal;for(let k=0;k<N.count;k++)N.setXYZ(k,0,1,0)}const m=new THREE.Mesh(g,mat);m.receiveShadow=true;scene.add(m);return m}
+function curveRoad(e){const P=e.pts,L=plen(P);ribbon(P,-RD/2,RD/2,asphalt,.02,14);
+  for(const o of[-1,1])ribbon(P,o*(LANE+2.6)-.15,o*(LANE+2.6)+.15,whiteMat,.03,4,RD/2+1,L-RD/2-1);
+  for(let d=RD/2+4;d<L-RD/2-5;d+=10)ribbon(P,-.25,.25,lineMat,.035,4,d,d+5)}
+// —— 弯道路边：反光桩、外侧路灯
+function curveDeco(e){const P=e.pts,L=plen(P);for(let t=BAND;t<L-BAND;t+=14)for(const s of[-1,1]){const q=ptAt(P,t),x=q.x+q.nx*s*(RD/2+1.6),z=q.z+q.nz*s*(RD/2+1.6);if(sdfAt(x,z)<2)continue;const p=box(.22,1,.22,0xf4f4f4);p.position.set(x,.5,z);scene.add(p);const r=box(.24,.18,.24,0xd83a3a);r.position.set(x,.85,z);scene.add(r)}
+  for(let t=BAND+20;t<L-BAND;t+=46){const q=ptAt(P,t),x=q.x+q.nx*(RD/2+2.2),z=q.z+q.nz*(RD/2+2.2);if(sdfAt(x,z)<3)continue;const lp=box(.3,7,.3,0x3a3448);lp.position.set(x,3.5,z);scene.add(lp);const l=new THREE.Mesh(new THREE.BoxGeometry(.9,.3,.9),lampMat);l.position.set(x-q.nx*.9,6.9,z-q.nz*.9);scene.add(l)}}
 // —— 商铺街：临街一排小店（一楼橱窗、楼上住家、遮阳棚、招牌）
 function shopRow(i,j,side){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),s=side==='W'?-1:1,fx=cx+s*(W/2-2.8);let z=cz-D/2+3;const zEnd=cz+D/2-3;
   while(z<zEnd-6){const w=Math.min(rr(9,13),zEnd-z),dd=rr(13,17),h=Math.round(rr(8,13)/2)*2,bx=fx-s*dd/2,bz=z+w/2;
@@ -929,7 +982,7 @@ for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
   if(nodeOK(i,j)&&degAll(i,j)>=3)JOBS.push({kind:'node',i,j,x:rx(i),z:rz(j),r:12})}
 function buildJobContent(job){const{i,j}=job;
   if(job.kind==='block')return buildBlock(i,j);
-  if(job.kind==='edge'){R=seedR(3,i,j,job.h);if(job.h&&isBridgeE(i,j))return bridgeEdge(i,j);streetEdge(...job.a);if(!job.h&&i===SHOP_I&&SHOPJ.has(j))festoon(i,j);return}
+  if(job.kind==='edge'){R=seedR(3,i,j,job.h);const ce=CURVE.get(ek(i,j,job.h));if(ce&&ce.br)return bridgeEdge(ce);if(job.h&&isBridgeE(i,j))return bridgeEdge(null,i,j);if(ce)return curveDeco(ce);streetEdge(...job.a);if(!job.h&&i===SHOP_I&&SHOPJ.has(j))festoon(i,j);return}
   R=seedR(4,i,j);const q=RD/2+.8;trafficLight(rx(i)+q,rz(j)+q,-Math.PI/2,'a');trafficLight(rx(i)-q,rz(j)-q,0,'b');streetSign(rx(i)-q,rz(j)+q,Math.PI/4,STREETS[(i*7+j*3)%STREETS.length])}
 // 公共建筑前广场：浅色铺地 + 花坛 + 矮墙
 function plaza(x,z,w,d,col){const pl=tPlane(w,d,groundMat('stone',col|0x808080));pl.rotation.x=-Math.PI/2;pl.position.set(x,.1,z);pl.receiveShadow=true;scene.add(pl)}
@@ -2091,8 +2144,8 @@ function driveAI(c,dt){let ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj);
   if(rem<RD*.45){aiPickNext(c);ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj);rem=(ln.bx-c.x)*ln.ux+(ln.bz-c.z)*ln.uz}
   // 纯追踪：在车道中心线上往前看 LA 米作为目标点；超出这段路就接到下一段车道上，拐弯自然成弧线
   const prog=(c.x-ln.ax)*ln.ux+(c.z-ln.az)*ln.uz,LA=Math.max(7,Math.abs(c.speed)*.6);let tx,tz;
-  if(prog+LA<=ln.L-RD*.45||!c.nd){const t=Math.min(prog+LA,ln.L);tx=ln.ax+ln.ux*t;tz=ln.az+ln.uz*t}
-  else{const nx2=laneOf(c.ni,c.nj,c.ni+c.nd[0],c.nj+c.nd[1]),e=prog+LA-ln.L+RD*.45;tx=nx2.ax+nx2.ux*e;tz=nx2.az+nx2.uz*e}
+  if(prog+LA<=ln.L-RD*.45||!c.nd){const t=Math.min(prog+LA,ln.L),q=lanePt(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj,t);tx=q.x;tz=q.z}
+  else{const e=prog+LA-ln.L+RD*.45,q=lanePt(c.ni,c.nj,c.ni+c.nd[0],c.nj+c.nd[1],e);tx=q.x;tz=q.z}
   const turning=c.nd&&(c.nd[0]!==c.dx||c.nd[1]!==c.dz)&&rem<RD*1.6;
   const want=Math.atan2(tx-c.x,tz-c.z);let diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;
   let block=false;const fx=Math.sin(c.h),fz=Math.cos(c.h);
@@ -2550,11 +2603,11 @@ function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),Wc=cv.c
   const isl=(m,c)=>{g.fillStyle=c;g.beginPath();for(let k=0;k<=200;k++){const a=k/200*Math.PI*2,r=ISL(a)-m;g.lineTo(Math.cos(a)*r,Math.sin(a)*r)}g.fill()};
   g.imageSmoothingEnabled=true;g.drawImage(LANDCV,LANDCV.X0,LANDCV.Z0,LANDCV.W,LANDCV.H);
   g.fillStyle='#55505f';for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
-    if(edgeOK(i,j,1))g.fillRect(rx(i)-RD/2,rz(j)-RD/2,rx(i+1)-rx(i)+RD,RD);if(edgeOK(i,j,0))g.fillRect(rx(i)-RD/2,rz(j)-RD/2,RD,rz(j+1)-rz(j)+RD)}
+    if(edgeOK(i,j,1)&&!CURVE.has(ek(i,j,1)))g.fillRect(rx(i)-RD/2,rz(j)-RD/2,rx(i+1)-rx(i)+RD,RD);if(edgeOK(i,j,0)&&!CURVE.has(ek(i,j,0)))g.fillRect(rx(i)-RD/2,rz(j)-RD/2,RD,rz(j+1)-rz(j)+RD)}
   for(const[i,j]of VALID){const c=bcen(i,j);g.fillStyle=parkSpots.some(q=>Math.abs(q[0]-c.x)<1&&Math.abs(q[1]-c.z)<1)?'#5fb565':'#c9c0d0';g.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}
   g.fillStyle='#c9c0d0';for(const[x,z,w,d]of brokenStrips)g.fillRect(x-w/2-1,z-d/2-1,w+2,d+2);
   for(const[i,j]of VALID)if(DIAG.has(i+','+j)){g.fillStyle='#5fb565';g.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}
-  g.strokeStyle='#55505f';g.lineWidth=RD;g.lineCap='round';for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);g.beginPath();g.moveTo(x0,z0);g.lineTo(x1,z1);g.stroke()}
+  g.strokeStyle='#55505f';g.lineWidth=RD;g.lineCap='round';for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);g.beginPath();g.moveTo(x0,z0);g.lineTo(x1,z1);g.stroke()}for(const e of CURVE.values()){g.beginPath();e.pts.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()}
   drawGangZones(g);
   // 放大后画出楼房轮廓
   if(mapView.zoom>=2.2){g.fillStyle='rgba(120,100,140,.55)';for(const o of solids)if(o.x1-o.x0<80)g.fillRect(o.x0,o.z0,o.x1-o.x0,o.z1-o.z0)}
@@ -2597,9 +2650,9 @@ function drawMini(){const s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?playe
   const isl=(m,c)=>{mini.fillStyle=c;mini.beginPath();for(let k=0;k<=96;k++){const a=k/96*Math.PI*2,r=(ISL(a)-m)*s;mini.lineTo(Math.cos(a)*r,Math.sin(a)*r)}mini.fill()};
   mini.drawImage(LANDCV,LANDCV.X0*s,LANDCV.Z0*s,LANDCV.W*s,LANDCV.H*s);
   mini.fillStyle='#55505f';for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
-    if(edgeOK(i,j,1))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,(rx(i+1)-rx(i)+RD)*s,RD*s);if(edgeOK(i,j,0))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,RD*s,(rz(j+1)-rz(j)+RD)*s)}
+    if(edgeOK(i,j,1)&&!CURVE.has(ek(i,j,1)))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,(rx(i+1)-rx(i)+RD)*s,RD*s);if(edgeOK(i,j,0)&&!CURVE.has(ek(i,j,0)))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,RD*s,(rz(j+1)-rz(j)+RD)*s)}
   mini.fillStyle='#c9c0d0';for(const[i,j]of VALID)mini.fillRect((rx(i)+RD/2)*s,(rz(j)+RD/2)*s,bW(i)*s,bD(j)*s);for(const[x,z,w,d]of brokenStrips)mini.fillRect((x-w/2-1)*s,(z-d/2-1)*s,(w+2)*s,(d+2)*s);
-  mini.strokeStyle='#55505f';mini.lineWidth=RD*s;for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);mini.beginPath();mini.moveTo(x0*s,z0*s);mini.lineTo(x1*s,z1*s);mini.stroke()}
+  mini.strokeStyle='#55505f';mini.lineWidth=RD*s;for(const[k,t]of DIAG){const[x0,z0,x1,z1]=diagSeg(k,t);mini.beginPath();mini.moveTo(x0*s,z0*s);mini.lineTo(x1*s,z1*s);mini.stroke()}mini.lineCap='round';for(const e of CURVE.values()){mini.beginPath();e.pts.forEach((p,k)=>k?mini.lineTo(p[0]*s,p[1]*s):mini.moveTo(p[0]*s,p[1]*s));mini.stroke()}mini.lineCap='butt';
   mini.fillStyle='#fff';mini.fillRect((villa.x-15)*s,(villa.z-11)*s,30*s,22*s);mini.fillStyle='#ff2a3a';mini.fillRect((hospital.x-8)*s,(hospital.z-2.5)*s,16*s,5*s);mini.fillRect((hospital.x-2.5)*s,(hospital.z-8)*s,5*s,16*s);mini.fillStyle='#4a7ab0';mini.beginPath();mini.arc(station.x*s,station.z*s,7*s,0,7);mini.fill();
   for(const c of cars)if(c.police&&!c.dead){mini.fillStyle=((performance.now()/200)|0)%2?'#f00':'#04f';mini.fillRect(c.x*s-3,c.z*s-3,6,6)}
   drawRoute(mini,(x,z)=>[x*s,z*s],3.2);if(NAV.on){mini.fillStyle='#c77dff';mini.beginPath();mini.arc(NAV.x*s,NAV.z*s,5,0,7);mini.fill()}
