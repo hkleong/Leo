@@ -414,20 +414,22 @@ const winDark=new THREE.MeshBasicMaterial({color:0x2a2350}),winWarm=new THREE.Me
 // 霓虹文字招牌（画布贴图）
 const signWords=['HOTEL','OPEN','CAFÉ','BAR','DISCO','PIZZA','TACOS','MOTEL','24H','霓虹','海风','酒吧','夜市','LIVE','SURF','GYM'];
 const signTex={};
-function signMat(word,col){const k=word+col;if(signTex[k])return signTex[k];const c=document.createElement('canvas');c.width=256;c.height=96;const g=c.getContext('2d');
-  const hex='#'+col.toString(16).padStart(6,'0');g.fillStyle='rgba(20,8,30,.85)';g.fillRect(0,0,256,96);g.strokeStyle=hex;g.lineWidth=5;g.strokeRect(5,5,246,86);
-  g.font='bold 54px "Bungee",Impact,sans-serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor=hex;g.shadowBlur=18;g.fillStyle='#fff';g.fillText(word,128,52);g.fillStyle=hex;g.globalAlpha=.55;g.fillText(word,128,52);
-  const t=new THREE.CanvasTexture(c);return signTex[k]=new THREE.MeshBasicMaterial({map:t})}
+function signMat(word,col){const k=word+col;if(signTex[k])return signTex[k];const c=document.createElement('canvas');c.width=512;c.height=192;const g=c.getContext('2d');g.scale(2,2);
+  const hex='#'+col.toString(16).padStart(6,'0');g.fillStyle='rgba(20,8,30,.88)';g.fillRect(0,0,256,96);g.strokeStyle=hex;g.lineWidth=5;g.strokeRect(5,5,246,86);
+  // 招牌字：先画一层彩色光晕，再画清晰的白字和细描边，远近都看得清
+  g.font='bold 54px "Bungee",Impact,sans-serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor=hex;g.shadowBlur=10;g.fillStyle=hex;g.fillText(word,128,52);
+  g.shadowBlur=0;g.lineWidth=3;g.strokeStyle='rgba(20,8,30,.75)';g.strokeText(word,128,52);g.fillStyle='#fff';g.fillText(word,128,52);g.fillStyle=hex;g.globalAlpha=.55;g.fillText(word,128,52);g.globalAlpha=1;
+  const t=new THREE.CanvasTexture(c);t.anisotropy=8;return signTex[k]=new THREE.MeshBasicMaterial({map:t})}
 const SIGNP=new Map(); // 招牌位置（雨夜倒影用）
 function addSign(x,y,z,ry,w){const word=signWords[(R()*signWords.length)|0],col=neon[(R()*neon.length)|0];
   const m=new THREE.Mesh(new THREE.PlaneGeometry(w,w*.375),signMat(word,col));m.position.set(x,y,z);m.rotation.y=ry;scene.add(m);SIGNP.set(Math.round(x)+','+Math.round(z),[x,y,z,ry,col])}
 // ===== 装饰艺术风楼房（参考图）：粉彩墙、眉檐、窗带、竖向装饰鳍、圆角转角、阶梯楼顶、大玻璃店面 =====
 const winMats=()=>{const r=R();return r<.5?winWarm:r<.68?winCool:winDark};
-function signMatV(word,col){const k='V'+word+col;if(signTex[k])return signTex[k];const c=document.createElement('canvas');c.width=96;c.height=64*word.length+32;const g=c.getContext('2d');
-  const hex='#'+col.toString(16).padStart(6,'0');g.fillStyle='rgba(20,8,30,.9)';g.fillRect(0,0,c.width,c.height);g.strokeStyle=hex;g.lineWidth=5;g.strokeRect(5,5,86,c.height-10);
-  g.font='bold 52px "Bungee",Impact,sans-serif';g.textAlign='center';g.textBaseline='middle';g.shadowColor=hex;g.shadowBlur=16;
-  [...word].forEach((ch,i)=>{g.fillStyle='#fff';g.fillText(ch,48,48+i*64);g.fillStyle=hex;g.globalAlpha=.5;g.fillText(ch,48,48+i*64);g.globalAlpha=1});
-  return signTex[k]=new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)})}
+function signMatV(word,col){const k='V'+word+col;if(signTex[k])return signTex[k];const c=document.createElement('canvas');c.width=192;c.height=(64*word.length+32)*2;const g=c.getContext('2d');g.scale(2,2);const H=64*word.length+32;
+  const hex='#'+col.toString(16).padStart(6,'0');g.fillStyle='rgba(20,8,30,.9)';g.fillRect(0,0,96,H);g.strokeStyle=hex;g.lineWidth=5;g.strokeRect(5,5,86,H-10);
+  g.font='bold 52px "Bungee",Impact,sans-serif';g.textAlign='center';g.textBaseline='middle';
+  [...word].forEach((ch,i)=>{g.shadowColor=hex;g.shadowBlur=9;g.fillStyle=hex;g.fillText(ch,48,48+i*64);g.shadowBlur=0;g.lineWidth=3;g.strokeStyle='rgba(20,8,30,.75)';g.strokeText(ch,48,48+i*64);g.fillStyle='#fff';g.fillText(ch,48,48+i*64);g.fillStyle=hex;g.globalAlpha=.55;g.fillText(ch,48,48+i*64);g.globalAlpha=1});
+  const t=new THREE.CanvasTexture(c);t.anisotropy=8;return signTex[k]=new THREE.MeshBasicMaterial({map:t})}
 const VWORDS=['HOTEL','DECO','NEON','CLUB','CAFE','霓虹','海景','酒店'];
 // 一层楼的外立面：窗带 + 眉檐（四面）
 function floorBand(ox,oz,w,d,y,trim){const wn=new THREE.Mesh(new THREE.BoxGeometry(w+.16,2.2,d+.16),winMats());wn.position.set(ox,y,oz);scene.add(wn);
@@ -3132,7 +3134,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.25.0';
+const VERSION='v0.25.1';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3170,7 +3172,7 @@ function updGrade(){const e=Math.sin((gameHour-6)/24*Math.PI*2),day=clamp((e-.05
   u.uMul.value.set(1.02,1,.98).lerp(_v3a.set(1.09,.97,.9),dusk).lerp(_v3a.set(1.0,1.04,1.16),NIGHT);
   u.uAdd.value.set(0,0,0).lerp(_v3a.set(.02,0,.015),dusk).lerp(_v3a.set(.025,.03,.055),NIGHT);
   u.uSat.value=(1.1+.06*dusk-.08*NIGHT)*(1-.22*rain)*(REAL?.84:1);u.uCon.value=1.05+.03*NIGHT;u.uVig.value=.3+.25*NIGHT;
-  u.uB.value=.32+.95*NIGHT+.2*dusk;brightM.uniforms.uThr.value=.9-.33*NIGHT-.08*dusk;
+  u.uB.value=.16+.38*NIGHT+.1*dusk;brightM.uniforms.uThr.value=.94-.16*NIGHT-.04*dusk;
   // 太阳在屏幕上的位置；在画面里、白天/黄昏、云不多时才有光束
   _sunV.copy(cam.position).addScaledVector(SUN_DIR,700).project(cam);const inV=_sunV.z<1&&Math.abs(_sunV.x)<1.4&&Math.abs(_sunV.y)<1.4;
   raysM.uniforms.uSun.value.set(_sunV.x*.5+.5,_sunV.y*.5+.5);u.uRay.value=inV&&SUN_DIR.y>-.03?(.45*day+.6*dusk)*(1-WX.cover*.8)*(1-NIGHT)*clamp(1.4-Math.hypot(_sunV.x,_sunV.y),0,1):0}
@@ -3298,7 +3300,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.25','推门进店',[['0.25.0','不用再按 E 进门：走到门前门会被推开，走进门洞就进去，出门也是走过去推门；枪店、便利店、酒吧、夜店、服装店、理发店、银行的店里面直接建在楼里，推开门就能看到店内，走进去不切画面，在店里外面的车和行人照常动；店门两边有小窗，里外都能看见，从街上看店里像开着灯，晚上尤其明显；进出门时色调随走进的深度平滑过渡；室内墙面和天花板换成写实贴图；家、别墅、阿杰车库小门也改成推门进入（推开后淡入切到室内）；卷帘门车或人靠近会自动升起；别墅没买时、被通缉时门是锁着的']]],
+ ['v0.25','推门进店',[['0.25.1','泛光减弱一半多（晚上不再糊成一片）；招牌字改成高清、带细描边，远近都看得清'],['0.25.0','不用再按 E 进门：走到门前门会被推开，走进门洞就进去，出门也是走过去推门；枪店、便利店、酒吧、夜店、服装店、理发店、银行的店里面直接建在楼里，推开门就能看到店内，走进去不切画面，在店里外面的车和行人照常动；店门两边有小窗，里外都能看见，从街上看店里像开着灯，晚上尤其明显；进出门时色调随走进的深度平滑过渡；室内墙面和天花板换成写实贴图；家、别墅、阿杰车库小门也改成推门进入（推开后淡入切到室内）；卷帘门车或人靠近会自动升起；别墅没买时、被通缉时门是锁着的']]],
  ['v0.24','帮派',[['0.24.2','写实画风的人物也用卡通画风的脸：圆一点的头型、大眼睛，去掉了单独凸出来的鼻子和下巴；身体、衣服和光影不变'],['0.24.1','所有能进的地方都有了自己的楼：枪店、喷漆店、便利店、阿杰车库、酒吧、夜店、服装店、理发店、银行，门口有发光脚垫，走到门口按 E 进去；枪店现在是能走进去的店，在柜台买东西；喷漆店和阿杰车库是车间，开着车从卷帘门开进去才弹出菜单，关掉菜单车就自己开出门外；原来门口的立杆招牌改成挂在门头上'],['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
  ['v0.23','城市生活',[['0.23.0','新增服装店（换上衣、裤子、帽子、鞋）、理发店（换发型、染发、胡子）、海湾银行（撬金库，出门 4 星通缉，每天一次）；手机新增“出行”（打车直达，按距离收费）和“每日挑战”（每天 3 个，各 $800）；家可以装修（大屏电视、真皮沙发、成就奖杯墙）和扩建车库（停 3 辆）；可以找小贩买热狗、给街头艺人打赏；E 键提示按距离优先最近的；城市生成更平滑并按车速预加载；没被警察看到时开枪加星更少、更容易甩掉；零活奖励 ×1.6、主线奖励 ×1.5；竞速时间按实际距离计算；主线第一章阿杰会给一辆旧车；手机关闭多重采样省性能']]],
  ['v0.22','生活',[['0.22.4','内存优化：城市几何体上传到显卡后释放内存里的副本，内存占用减半（约 430MB → 210MB），手机上更不容易闪退重载'],['0.22.3','修复从车库开出的车（特别是皮卡）卡住不能动；室内用单独的调色，开泛光也不会太亮；房间和家具按人物比例放大；晚上更亮一些'],['0.22.2','肩膀边角加圆弧；卡通画风也换成新的连续身体（带描边）、C 形手和方块鞋'],['0.22.1','肩线拉平：上身顶部做成平的，肩膀和身体齐平，不再从肩膀斜着往脖子收'],['0.22.0','左右手掌方向修正（掌心朝身体）；每个人身高、胖瘦不同，女性胸部更明显；路人有不同性格（友善、暴躁、胆小、强硬：说话和被打后的反应不同）；新增职业路人：小贩（推车叫卖）、清洁工（扫地）、施工工人（打钻、摆路锥）、街头艺人（弹吉他、有琴盒）；可以进入建筑：主角的家（睡觉存档、吃东西、看电视、换主角，带一个能保存的车库）、海边别墅（购买后可进入）、便利店、酒吧、夜店、车库（不用买也能进去，花钱买东西；买下后免费）']]],
