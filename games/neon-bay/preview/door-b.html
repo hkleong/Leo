@@ -3426,7 +3426,7 @@ function roomGrade(){const u=compM.uniforms;u.uB.value=.1;u.uRay.value=0;u.uMul.
 function updRoom(dt,ax,ay){if(INSIDE.sw&&player.iz>INSIDE.r.b.z1+.3*RS+.3){swExit();return}roomGrade();updHeist(dt);const r=INSIDE.r,mag=Math.min(1,Math.hypot(ax,ay)),moving=mag>.15&&!(player.danceT>0);player.t+=dt;
   if(moving){const want=camYaw-Math.atan2(ax,ay);player.rot+=angDiff(want,player.rot)*Math.min(1,dt*12);const sp=(keys.ShiftLeft||tb_.Run?6:3.6)*(touchMode?Math.max(.4,mag):1),nx=player.ix+Math.sin(want)*sp*dt,nz=player.iz+Math.cos(want)*sp*dt;
     if(!roomHit(r,nx,player.iz))player.ix=nx;if(!roomHit(r,player.ix,nz))player.iz=nz}
-  player.danceT=(player.danceT||0)-dt;const m=player.mesh,OX=INSIDE.sw?r.sw.ax:0,OZ=INSIDE.sw?r.sw.az:0;m.position.set(player.ix+OX,0,player.iz+OZ);if(INSIDE.sw){player.x=player.ix+OX;player.z=player.iz+OZ}m.rotation.set(0,player.rot,0);pose(m,player.danceT>0?'dance':moving?'walk':'idle',player.t,moving?1:0);holdPose(moving?'walk':'idle');
+  player.danceT=(player.danceT||0)-dt;const m=player.mesh,OX=INSIDE.sw?r.sw.ax:0,OZ=INSIDE.sw?r.sw.az:0;m.position.set(player.ix+OX,INSIDE.sw?SW_Y:0,player.iz+OZ);if(INSIDE.sw){player.x=player.ix+OX;player.z=player.iz+OZ}m.rotation.set(0,player.rot,0);pose(m,player.danceT>0?'dance':moving?'walk':'idle',player.t,moving?1:0);holdPose(moving?'walk':'idle');
   for(const n of r.npcs)pose(n.m,n.st,player.t+n.off,0);for(const f of r.anim)f(player.t);
   if(moving&&camHold<=0)camYaw+=angDiff(player.rot,camYaw)*Math.min(1,dt*2.2);camHold-=dt;
   const cd=4.6;let cx=player.ix-Math.sin(camYaw)*cd,cz=player.iz-Math.cos(camYaw)*cd;cx=clamp(cx,r.b.x0+.3,r.b.x1-.3);cz=clamp(cz,r.b.z0+.3,INSIDE.sw&&player.iz>r.b.z1-3.2&&r.door&&r.door.open>.3?r.b.z1+7:r.b.z1-.3);
@@ -3595,24 +3595,26 @@ function updVenues(dt=1/60){updDoors(dt);updSW(dt);const t=.38+.18*Math.sin(perf
 // 无缝室内：店里面就建在楼里，推开门就能看到里面，走进去不切场景
 // =====================================================================
 function swRoom(v){if(v.room)return v.room;const q=RDIM[v.kind];const r=ROOMS[v.kind]||(ROOMS[v.kind]=makeRoom(v.kind,v.pr));
-  const ax=v.x,az=v.zf-(q[1]/2+.3)*RS,anchor=new THREE.Group();anchor.position.set(ax,0,az);
+  const ax=v.x,az=v.zf-(q[1]/2+.3)*RS,anchor=new THREE.Group();anchor.position.set(ax,SW_Y,az);
   for(const o of[...r.scene.children]){if(o.isLight||o===player.mesh)continue;anchor.add(o)}
   anchor.traverse(o=>{if(o.isMesh){o.receiveShadow=false;o.castShadow=false;if(!o.isSkinnedMesh)o.material=litMat(o.material);if(o.material&&o.material.isMeshBasicMaterial&&o.material.color&&o.material.color.getHex()===0xe6eef4)o.visible=false}});
   {const G0=anchor.children.find(o=>o.isGroup&&Math.abs(o.scale.x-RS)<1e-6);if(G0)for(const o of[...G0.children])if(o.userData.front)G0.remove(o);
-   const zc=v.zf-.3*RS/2,th=.3*RS-.02,hh=r.wh*RS,xa=ax-(q[0]/2+.3)*RS,xb=ax+(q[0]/2+.3)*RS,dg=1.6*RS,dh=2.6*RS,mk=(a,b,c)=>tiledBox(a,b,c,r.wm,2.4*RS,2.4*RS),put=(m,x,y,z)=>{m.position.set(x-ax,y,z-az);anchor.add(m)};
+   const zc=v.zf-.3*RS/2,th=.3*RS-.02,hh=r.wh*RS,xa=ax-(q[0]/2+.3)*RS,xb=ax+(q[0]/2+.3)*RS,dg=1.6*RS,dh=2.6*RS,mk=(a,b,c)=>tiledBox(a,b,c,r.wm,2.4*RS,2.4*RS),put=(m,x,y,z)=>{m.position.set(x-ax,y-SW_Y,z-az);anchor.add(m)};
    holeWall(xa,ax-dg/2,zc,th,hh,(v.wins||[]).find(w=>w.wr<=ax),mk,put);holeWall(ax+dg/2,xb,zc,th,hh,(v.wins||[]).find(w=>w.wl>=ax),mk,put);put(mk(dg,hh-dh,th),ax,dh+(hh-dh)/2,zc)}
   if(r.door&&r.door.pv)r.door.pv.visible=false;r.door=v.wdoor;r.sw={ax,az,anchor,v};scene.add(anchor);v.room=r;return r}
-let _hemiSave=null;
+let _hemiSave=null;const SW_Y=.13; // 店内地板略高于街面，避免和楼下的人行道地面重叠闪烁
 // 室内“开着灯”：材质自带一点自发光，从街上看进去是亮的，晚上更明显
-const LIT_GLOW=.3,_litCache=new Map();
+const LIT_GLOW=.3,_litCache=new Map(),_litList=[],LITU={value:.3},LITW={value:new THREE.Color(1,1,1)};
 const ATLAS_IN=(()=>{const m=new THREE.MeshToonMaterial({map:ATL.tex,emissiveMap:ATL.etex,emissive:0xffffff,gradientMap:toonGrad});
   m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <uv_pars_vertex>','#include <uv_pars_vertex>\nattribute vec4 tileR;varying vec4 vTile;varying vec2 vRep;').replace('#include <uv_vertex>','#include <uv_vertex>\nvTile=tileR;vRep=uv;');
-    sh.fragmentShader=sh.fragmentShader.replace('#include <uv_pars_fragment>','#include <uv_pars_fragment>\nvarying vec4 vTile;varying vec2 vRep;\nvec4 atl(sampler2D t){vec2 a=vTile.xy+fract(vRep)*vTile.zw;\n#if __VERSION__>=300\nreturn textureGrad(t,a,dFdx(vRep)*vTile.zw,dFdy(vRep)*vTile.zw);\n#else\nreturn texture2D(t,a);\n#endif\n}')
+    sh.uniforms.uGlow=LITU;sh.uniforms.uWarm=LITW;sh.fragmentShader=sh.fragmentShader.replace('#include <uv_pars_fragment>','#include <uv_pars_fragment>\nuniform float uGlow;uniform vec3 uWarm;varying vec4 vTile;varying vec2 vRep;\nvec4 atl(sampler2D t){vec2 a=vTile.xy+fract(vRep)*vTile.zw;\n#if __VERSION__>=300\nreturn textureGrad(t,a,dFdx(vRep)*vTile.zw,dFdy(vRep)*vTile.zw);\n#else\nreturn texture2D(t,a);\n#endif\n}')
       .replace('#include <map_fragment>','vec4 texelColor=atl(map);texelColor=mapTexelToLinear(texelColor);diffuseColor*=texelColor;')
-      .replace('#include <emissivemap_fragment>','totalEmissiveRadiance=diffuseColor.rgb*'+LIT_GLOW.toFixed(2)+';')};
+      .replace('#include <emissivemap_fragment>','totalEmissiveRadiance=diffuseColor.rgb*uGlow*uWarm;')};
   m.customProgramCacheKey=()=>'atlasIn';return m})();
 function litMat(m){if(!m||Array.isArray(m)||m.isMeshBasicMaterial||m.transparent)return m;if(m===ATLAS_MAT)return ATLAS_IN;
-  let r=_litCache.get(m);if(r)return r;r=m.clone();if(r.emissive&&r.color){r.emissive.copy(r.color).multiplyScalar(LIT_GLOW);if(r.map){r.emissiveMap=r.map;r.emissive.setScalar(LIT_GLOW)}}_litCache.set(m,r);return r}
+  let r=_litCache.get(m);if(r)return r;r=m.clone();if(r.emissive&&r.color){r.emissive.copy(r.color).multiplyScalar(LIT_GLOW);if(r.map){r.emissiveMap=r.map;r.emissive.setScalar(LIT_GLOW)}_litList.push([r,r.emissive.clone().multiplyScalar(1/LIT_GLOW)])}_litCache.set(m,r);return r}
+// 室内亮度：在街上看时（尤其晚上）店里像开着暖色灯，亮度不受外面夜色影响；走进去后慢慢回到正常
+function setLitGlow(k){const out=.26+.1*NIGHT,g=out+(.3-out)*k;LITU.value=g;LITW.value.setRGB(1,1-.15*NIGHT*(1-k),1-.36*NIGHT*(1-k));for(const[m,b]of _litList)m.emissive.copy(b).multiplyScalar(g).multiply(LITW.value)}
 function swEnter(v){const r=swRoom(v);if(v.kind==='club'&&!OWNP.club){if(player.money<50){toast('门票 $50，钱不够');return false}player.money-=50;STATS.spent+=50;toast('门票 -$50')}
   INSIDE={r,ex:v.x,ez:v.z+.6,erot:0,armed:1,sw:1};player.ix=player.x-r.sw.ax;player.iz=player.z-r.sw.az;toggleAim(false);player.danceT=0;INSIDE.cz=null;
   setTimeout(()=>{if(INSIDE&&INSIDE.r===r)toast(r.name)},150);return true}
@@ -3641,7 +3643,8 @@ function updSW(dt){const t=performance.now()/1000;
       // 保险：在门口被墙“夹住”就推到门前空地
       if(!INSIDE&&!player.car&&onBlk&&hit(player.x,player.z,.6)&&!hit(v.x,v.zf+1.3,.6)){player.x=v.x;player.z=v.zf+1.3}w.blk.x0=open?1e9:w.bx0;w.blk.x1=open?1e9:w.bx1}
     // 从外面走进门洞 → 进店
-    if(w&&!INSIDE&&!player.car&&!cut&&w.open>.5&&player.z<v.zf-.15&&player.z>v.zf-2.5&&Math.abs(player.x-v.x)<w.w/2)swEnter(v)}}
+    if(w&&!INSIDE&&!player.car&&!cut&&w.open>.5&&player.z<v.zf-.15&&player.z>v.zf-2.5&&Math.abs(player.x-v.x)<w.w/2)swEnter(v)}
+  {let k=0;if(INSIDE&&INSIDE.sw){const r=INSIDE.r,t=clamp((r.b.z1+.3*RS-player.iz)/4,0,1);k=t*t*(3-2*t)}setLitGlow(k)}}
 
 // 车间菜单关掉 = 把车开出门外
 function bayExit(){const c=player.car;if(!c)return;for(const b of[...SHOPS.map(s=>s.bay),...PROPS.map(p=>p.bay)])if(b&&inBay(b,c.x,c.z)){c.x=b.x;c.z=b.zf+5.5;c.h=0;c.speed=0;c.mesh.position.set(c.x,c.mesh.position.y,c.z);c.mesh.rotation.y=0;camYaw=0;return}}
