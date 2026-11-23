@@ -1177,11 +1177,12 @@ const JOB_KEYS=['vendor','sweeper','worker','busker'];
 const FPHI=2.1,FT0=Math.PI*.27,FTL=Math.PI*.62,faceCache={};
 // 头部局部坐标 (x,y) → 贴图上的位置（0~1）
 function facePt(x,y){const th=Math.acos(clamp(y/1.16/.2,-1,1)),ph=Math.asin(clamp(x/.2/Math.sin(th),-1,1));return[.5+ph/FPHI,(th-FT0)/FTL]}
+const RFACE=false; // 写实画风也用卡通脸（大眼睛、不画写实阴影）
 function faceMat(o){const key=JSON.stringify(o);if(faceCache[key])return faceCache[key];
   const S=256,c=document.createElement('canvas');c.width=c.height=S;const g=c.getContext('2d');const P=(x,y)=>{const[u,v]=facePt(x,y);return[u*S,v*S]};
   const sk=new THREE.Color(o.skin),shade='#'+sk.clone().multiplyScalar(.72).getHexString(),deep='#'+sk.clone().multiplyScalar(.55).getHexString();
   const hair='#'+new THREE.Color(o.brow).getHexString();
-  if(REAL){const sh=(x,y,r,a,rgb)=>{const[cx,cy]=P(x,y),gr=g.createRadialGradient(cx,cy,0,cx,cy,r);gr.addColorStop(0,`rgba(${rgb},${a})`);gr.addColorStop(1,`rgba(${rgb},0)`);g.fillStyle=gr;g.fillRect(cx-r,cy-r,r*2,r*2)};
+  if(RFACE){const sh=(x,y,r,a,rgb)=>{const[cx,cy]=P(x,y),gr=g.createRadialGradient(cx,cy,0,cx,cy,r);gr.addColorStop(0,`rgba(${rgb},${a})`);gr.addColorStop(1,`rgba(${rgb},0)`);g.fillStyle=gr;g.fillRect(cx-r,cy-r,r*2,r*2)};
     const D='60,28,18',H='255,238,222';
     for(const sd of[-1,1]){sh(sd*.078,.04,26,.2,D);sh(sd*.14,-.06,34,.13,D);sh(sd*.11,-.005,16,.14,H)}
     sh(0,.01,12,.25,H);sh(0,-.07,9,.2,H);sh(0,.16,44,.12,H);sh(0,-.2,44,.28,D);sh(0,-.155,14,.12,H);
@@ -1190,10 +1191,10 @@ function faceMat(o){const key=JSON.stringify(o);if(faceCache[key])return faceCac
   for(const sd of[-1,1]){const[cx,cy]=P(sd*.11,-.06),gr=g.createRadialGradient(cx,cy,0,cx,cy,26);gr.addColorStop(0,o.fem?'rgba(235,110,120,.2)':'rgba(170,80,60,.1)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(cx-30,cy-30,60,60)}
   const sp=mulberry(7);
   // 眼睛：眼白、虹膜、瞳孔、高光、上眼睑线（女性加睫毛和眼尾）
-  for(const sd of[-1,1]){const[ex,ey]=P(sd*.075,.03),w=REAL?16:21,h=REAL?8.5:11;
+  for(const sd of[-1,1]){const[ex,ey]=P(sd*.075,.03),w=RFACE?16:21,h=RFACE?8.5:11;
     g.save();g.beginPath();g.moveTo(ex-w,ey);g.quadraticCurveTo(ex,ey-h*1.25,ex+w,ey);g.quadraticCurveTo(ex,ey+h,ex-w,ey);g.closePath();g.fillStyle='#fbf7f2';g.fill();g.clip();
-    g.fillStyle=o.iris;g.beginPath();g.arc(ex+sd*-1,ey,REAL?6.4:8.5,0,7);g.fill();g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.arc(ex+sd*-1,ey,REAL?6.4:8.5,Math.PI*1.1,Math.PI*1.9);g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.3)';g.stroke();
-    g.fillStyle='#120c0a';g.beginPath();g.arc(ex+sd*-1,ey,REAL?3:4,0,7);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(ex+sd*-1+2.5,ey-3,2,0,7);g.fill();
+    g.fillStyle=o.iris;g.beginPath();g.arc(ex+sd*-1,ey,RFACE?6.4:8.5,0,7);g.fill();g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.arc(ex+sd*-1,ey,RFACE?6.4:8.5,Math.PI*1.1,Math.PI*1.9);g.lineWidth=3;g.strokeStyle='rgba(0,0,0,.3)';g.stroke();
+    g.fillStyle='#120c0a';g.beginPath();g.arc(ex+sd*-1,ey,RFACE?3:4,0,7);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(ex+sd*-1+2.5,ey-3,2,0,7);g.fill();
     g.fillStyle='rgba(0,0,0,.18)';g.fillRect(ex-w,ey-h*1.3,w*2,h*.6);g.restore();
     g.strokeStyle='#1a120e';g.lineWidth=o.fem?3.4:2.6;g.lineCap='round';g.beginPath();g.moveTo(ex-w,ey+1);g.quadraticCurveTo(ex,ey-h*1.3,ex+w+(o.fem?3:0),ey-(o.fem?3:0));g.stroke();
     if(o.fem){g.lineWidth=1.6;for(let k=0;k<4;k++){const t=.55+k*.15,lx=ex+(sd>0?1:-1)*w*(t-.5)*2;g.beginPath();g.moveTo(lx,ey-h*.9+k);g.lineTo(lx+(sd>0?3:-3),ey-h*1.4+k);g.stroke()}}
@@ -1334,7 +1335,7 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
   for(const sd of[-1,1]){B.add(sph(.05,12,10),skin,[sd*.198,hy-.005,-.01],[0,sd*.25,0],[.42,1,.75]);B.add(sph(.026,10,8),new THREE.Color(skin).multiplyScalar(.8).getHex(),[sd*.205,hy-.005,-.005],[0,0,0],[.3,.8,.6])}
   // 脖子
   if(!NEWB)B.add(cyl(.072,.085,.2,16),skin,[0,hy-.25,-.01]);
-  if(REAL){B.add(sph(.042,10,8),skin,[0,hy-.035,.195],[-.25,0,0],[.75,1.35,1]);B.add(sph(.05,10,8),skin,[0,hy-.16,.17],[0,0,0],[1.4,.8,.9])} // 鼻子、下巴
+  if(REAL&&RFACE){B.add(sph(.042,10,8),skin,[0,hy-.035,.195],[-.25,0,0],[.75,1.35,1]);B.add(sph(.05,10,8),skin,[0,hy-.16,.17],[0,0,0],[1.4,.8,.9])} // 鼻子、下巴
   const fr=mulberry((lookKey||'x').length*131+((R()*1000)|0));
   // 头发
   const hk=[1,1.16,1.05],cap=(r,tl,col=hairC)=>B.add(sph(r,16,8,0,Math.PI*2,0,tl),col,[0,hy+.01,-.005],[0,0,0],hk);
@@ -1363,16 +1364,16 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
   // —— 骨架：躯干（含头和手臂）挂在髋部 spine 上，方便前倾、扭腰
   const spine=new THREE.Group();spine.position.y=1.38+LEGX;g.add(spine);
   const body=B.build(vcPersonMat);body.position.y=-1.38;spine.add(body);
-  const HK=REAL?.9:1,HP=2.3,HC=HP+(hy-HP)*HK;
+  const HK=REAL&&RFACE?.9:1,HP=2.3,HC=HP+(hy-HP)*HK;
   const hw=(x,y,z)=>{if(y<HP-.06){return[x,y,z];let X=x,Z=y>1.3?z*1.14:z;const G2=(c,w)=>Math.exp(-(((y-c)/w)**2));
       const wa=G2(1.68,.1);X*=1-(fem?.16:.08)*wa;Z*=1-.05*wa;X*=1+(fem?.11:.035)*G2(1.45,.1);if(!fem)X*=1+.06*G2(2.0,.12);
       if(Z>0){const ch=G2(1.97,.12);Z+=(fem?.065*Math.exp(-(((Math.abs(X)-.09)/.07)**2)):.035*Math.exp(-(((Math.abs(X)-.08)/.1)**2)))*ch}
       else{Z-=.045*G2(1.42,.09)*Math.exp(-(((Math.abs(X)-.08)/.09)**2));if(y>1.75&&y<2.12)Z*=.93}
-      return[X,y,Z]}const f=1-(1-HK)*clamp((y-HP+.06)/.14,0,1);let X=x*f,Y=HP+(y-HP)*f,Z=z*f;
+      return[X,y,Z]}if(!RFACE)return[x,y,z];const f=1-(1-HK)*clamp((y-HP+.06)/.14,0,1);let X=x*f,Y=HP+(y-HP)*f,Z=z*f;
     const b=clamp((Y-HP-.02)/.1,0,1);if(b>0){const lo=clamp((HC-Y)/.2,0,1);X*=1-b*(.13+.15*lo);Z*=1-b*(.03+.07*lo);Y=HC+(Y-HC)*(1+.12*b)-.035*b}return[X,Y,Z]};
   if(REAL){const G=body.children[0].geometry,P=G.attributes.position;for(let i=0;i<P.count;i++){const[X,Y,Z]=hw(P.getX(i),P.getY(i),P.getZ(i));P.setXYZ(i,X,Y,Z)}P.needsUpdate=true;G.computeBoundingSphere()}
   {const fm=faceMat({skin,brow:L.hairCol??(L.beardCol||0x2a1a12),fem,beard:L.beard?(L.stubble?'stub':'full'):0,beardCol:L.beardCol??hairC,must:!!L.mustache,iris:IRIS[(fr()*IRIS.length)|0],lip:LIPS[(fr()*LIPS.length)|0]});
-   const fg=gget('faceGeo',()=>new THREE.SphereGeometry(.2,24,18,Math.PI/2-FPHI/2,FPHI,FT0,FTL));let face;if(REAL){const fgr=gget('faceGeoR'+hy,()=>{const q=fg.clone(),P=q.attributes.position;for(let i=0;i<P.count;i++){const[X,Y,Z]=hw(P.getX(i)*1.006,P.getY(i)*1.166+hy,P.getZ(i)*1.056);P.setXYZ(i,X,Y,Z)}q.computeVertexNormals();return q});face=new THREE.Mesh(fgr,fm)}
+   const fg=gget('faceGeo',()=>new THREE.SphereGeometry(.2,24,18,Math.PI/2-FPHI/2,FPHI,FT0,FTL));let face;if(REAL&&RFACE){const fgr=gget('faceGeoR'+hy,()=>{const q=fg.clone(),P=q.attributes.position;for(let i=0;i<P.count;i++){const[X,Y,Z]=hw(P.getX(i)*1.006,P.getY(i)*1.166+hy,P.getZ(i)*1.056);P.setXYZ(i,X,Y,Z)}q.computeVertexNormals();return q});face=new THREE.Mesh(fgr,fm)}
    else{face=new THREE.Mesh(fg,fm);face.scale.set(1.006,1.166,1.056);face.position.set(0,hy,0)}face.renderOrder=3;body.add(face)}
   // —— 腿：大腿（绕髋）+ 小腿（绕膝）
   const legCol=(x,y,z)=>{if(L.dress)return skin;
@@ -3115,7 +3116,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.24.1';
+const VERSION='v0.24.2';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3281,7 +3282,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.24','帮派',[['0.24.1','所有能进的地方都有了自己的楼：枪店、喷漆店、便利店、阿杰车库、酒吧、夜店、服装店、理发店、银行，门口有发光脚垫，走到门口按 E 进去；枪店现在是能走进去的店，在柜台买东西；喷漆店和阿杰车库是车间，开着车从卷帘门开进去才弹出菜单，关掉菜单车就自己开出门外；原来门口的立杆招牌改成挂在门头上'],['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
+ ['v0.24','帮派',[['0.24.2','写实画风的人物也用卡通画风的脸：圆一点的头型、大眼睛，去掉了单独凸出来的鼻子和下巴；身体、衣服和光影不变'],['0.24.1','所有能进的地方都有了自己的楼：枪店、喷漆店、便利店、阿杰车库、酒吧、夜店、服装店、理发店、银行，门口有发光脚垫，走到门口按 E 进去；枪店现在是能走进去的店，在柜台买东西；喷漆店和阿杰车库是车间，开着车从卷帘门开进去才弹出菜单，关掉菜单车就自己开出门外；原来门口的立杆招牌改成挂在门头上'],['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
  ['v0.23','城市生活',[['0.23.0','新增服装店（换上衣、裤子、帽子、鞋）、理发店（换发型、染发、胡子）、海湾银行（撬金库，出门 4 星通缉，每天一次）；手机新增“出行”（打车直达，按距离收费）和“每日挑战”（每天 3 个，各 $800）；家可以装修（大屏电视、真皮沙发、成就奖杯墙）和扩建车库（停 3 辆）；可以找小贩买热狗、给街头艺人打赏；E 键提示按距离优先最近的；城市生成更平滑并按车速预加载；没被警察看到时开枪加星更少、更容易甩掉；零活奖励 ×1.6、主线奖励 ×1.5；竞速时间按实际距离计算；主线第一章阿杰会给一辆旧车；手机关闭多重采样省性能']]],
  ['v0.22','生活',[['0.22.4','内存优化：城市几何体上传到显卡后释放内存里的副本，内存占用减半（约 430MB → 210MB），手机上更不容易闪退重载'],['0.22.3','修复从车库开出的车（特别是皮卡）卡住不能动；室内用单独的调色，开泛光也不会太亮；房间和家具按人物比例放大；晚上更亮一些'],['0.22.2','肩膀边角加圆弧；卡通画风也换成新的连续身体（带描边）、C 形手和方块鞋'],['0.22.1','肩线拉平：上身顶部做成平的，肩膀和身体齐平，不再从肩膀斜着往脖子收'],['0.22.0','左右手掌方向修正（掌心朝身体）；每个人身高、胖瘦不同，女性胸部更明显；路人有不同性格（友善、暴躁、胆小、强硬：说话和被打后的反应不同）；新增职业路人：小贩（推车叫卖）、清洁工（扫地）、施工工人（打钻、摆路锥）、街头艺人（弹吉他、有琴盒）；可以进入建筑：主角的家（睡觉存档、吃东西、看电视、换主角，带一个能保存的车库）、海边别墅（购买后可进入）、便利店、酒吧、夜店、车库（不用买也能进去，花钱买东西；买下后免费）']]],
  ['v0.21','人物重建',[['0.21.1','手臂调整：更粗、加圆形肩头和三角肌、肘部不再过细、前臂上粗下细；上身肩部加宽，手臂从肩角长出来'],['0.21.0','写实人物身体重做：不再用胶囊、球体拼接，改为按真人比例放样的连续低多边形网格（骨盆、上身、脖子、上臂、前臂、大腿、小腿），节与节在关节处共用一圈顶点，蒙皮权重在关节处各占一半，弯曲时自然衔接；保留原创的服装配色和图案']]],
