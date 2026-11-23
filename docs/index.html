@@ -294,6 +294,8 @@ const box=(w,h,d,c)=>{if(c&&c.atlas)return atlasMesh(new THREE.BoxGeometry(w,h,d
 
 // ===== 城市 =====
 const solids=[]; // {x0,x1,z0,z1}
+const VENUE_R=[]; // 能进的店的楼占的地（生成街区时让开）
+function nearVenue(x,z,m){for(const q of VENUE_R)if(x>q.x0-m&&x<q.x1+m&&z>q.z0-m&&z<q.z1+m)return true;return false}
 function islandShape(m){const sh=new THREE.Shape();for(let k=0;k<=160;k++){const a=k/160*Math.PI*2,r=ISL(a)-m;const x=Math.cos(a)*r,z=Math.sin(a)*r;k?sh.lineTo(x,-z):sh.moveTo(x,-z)}return sh}
 // ===== 地面贴图：柏油、人行道地砖、草地、沙滩、浅水、石板广场（原创绘制，按米平铺）=====
 const GT={};
@@ -691,13 +693,14 @@ function buildBlock(i,j){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),t=BTYPE[i+',
   const nx=W>104?3:W>64?2:1,nz=D>104?3:D>64?2:1,lw=W/nx,ld=D/nz;
   for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){
     const ox=cx-W/2+lw*(a+.5),oz=cz-D/2+ld*(b+.5);
-    if(nx*nz>1&&R()<.2){palm(ox,oz);continue}
+    if(nx*nz>1&&R()<.2){if(!nearVenue(ox,oz,3))palm(ox,oz);continue}
     const w=nx*nz===1?Math.min(W,D)*rr(.48,.62):Math.max(18,Math.min(lw,ld)-rr(10,16));
     const dist=Math.hypot(ox/HALFX,oz/HALFZ),h=dist<.28?Math.round(rr(28,64)/4)*4:dist<.5&&R()<.35?Math.round(rr(16,28)/4)*4:Math.round(rr(8,16)/4)*4;
+    if(nearVenue(ox,oz,w/2+2))continue;
     addBuilding(ox,oz,w,h);
     solids.push({x0:ox-w/2,x1:ox+w/2,z0:oz-w/2,z1:oz+w/2});
   }
-  palm(cx-W/2+2,cz-D/2+2);palm(cx+W/2-2,cz+D/2-2)}
+  if(!nearVenue(cx-W/2+2,cz-D/2+2,2))palm(cx-W/2+2,cz-D/2+2);if(!nearVenue(cx+W/2-2,cz+D/2-2,2))palm(cx+W/2-2,cz+D/2-2)}
 const plate=groundMat('sidewalk',0xf0d8e4);
 for(const[x,z,w,d]of brokenStrips){const m=tPlane(w,d,plate);m.rotation.x=-Math.PI/2;m.position.set(x,.05,z);m.receiveShadow=true;scene.add(m)}
 for(let i=1;i<NX;i++)for(let j=1;j<NZ;j++)if(nodeOK(i,j)&&!deg(i,j)&&blockOK(i-1,j-1)&&blockOK(i,j-1)&&blockOK(i-1,j)&&blockOK(i,j)){const m=tPlane(RD+4,RD+4,plate);m.rotation.x=-Math.PI/2;m.position.set(rx(i),.05,rz(j));scene.add(m)}
@@ -788,12 +791,12 @@ const PARK=[];
 function streetEdge(x0,z0,x1,z1){const L=Math.hypot(x1-x0,z1-z0),ux=(x1-x0)/L,uz=(z1-z0)/L,nx=uz,nz=-ux; // n 指向前进方向的右侧
   const hasBus=L>105&&R()<.45,busSide=R()<.5?1:-1,busT=L/2;
   for(const sd of[-1,1]){const at=(t,o)=>[x0+ux*t+nx*o*sd,z0+uz*t+nz*o*sd];const ry=Math.atan2(nx*sd,nz*sd); // 朝路面外侧
-    const pick=['hydrant','bin','news','planter'];for(const t of[13,L-13]){const[x,z]=at(t,RD/2+1.2);props[pick[(R()*pick.length)|0]](x,z,ry+Math.PI)}
+    const pick=['hydrant','bin','news','planter'];for(const t of[13,L-13]){const[x,z]=at(t,RD/2+1.2);const pk=pick[(R()*pick.length)|0];if(!nearVenue(x,z,7))props[pk](x,z,ry+Math.PI)}
     // 路边停车格：每格 9 米长，格线画在停车带上
     const SLOT=9;let t0=18;const slots=[];for(let t=t0;t+SLOT<L-18;t+=SLOT){if(hasBus&&sd===busSide&&Math.abs(t+SLOT/2-busT)<10)continue;slots.push(t)}
     for(const t of slots){for(const e of[t,t+SLOT]){const[lx,lz]=at(e,PARK_O);const sg=new THREE.PlaneGeometry(.25,3.6);sg.rotateX(-Math.PI/2);const m=new THREE.Mesh(sg,whiteMat);m.rotation.y=Math.atan2(nx,nz);m.position.set(lx,.035,lz);scene.add(m)}
-      const[x,z]=at(t+SLOT/2,PARK_O);if(DIAG.size&&[...DIAG].some(([k,tt])=>{const[x0,z0,x1,z1]=diagSeg(k,tt);return segDist(x,z,x0,z0,x1,z1)<RD/2+3}))continue;PARK.push({x,z,h:Math.atan2(ux*sd,uz*sd),used:null});if(R()<.3){const[mx,mz]=at(t+SLOT,RD/2+.9);props.meter(mx,mz)}}
-    if(hasBus&&sd===busSide){const[x,z]=at(busT,RD/2+2.2);busStop(x,z,ry+Math.PI)}}}
+      const[x,z]=at(t+SLOT/2,PARK_O);if(DIAG.size&&[...DIAG].some(([k,tt])=>{const[x0,z0,x1,z1]=diagSeg(k,tt);return segDist(x,z,x0,z0,x1,z1)<RD/2+3}))continue;if(nearVenue(x,z,9))continue;PARK.push({x,z,h:Math.atan2(ux*sd,uz*sd),used:null});if(R()<.3){const[mx,mz]=at(t+SLOT,RD/2+.9);props.meter(mx,mz)}}
+    if(hasBus&&sd===busSide){const[x,z]=at(busT,RD/2+2.2);if(!nearVenue(x,z,6))busStop(x,z,ry+Math.PI)}}}
 for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
   if(edgeOK(i,j,1))JOBS.push({kind:'edge',i,j,h:1,x:(rx(i)+rx(i+1))/2,z:rz(j),r:(rx(i+1)-rx(i))/2,a:[rx(i)+RD/2,rz(j),rx(i+1)-RD/2,rz(j)]});
   if(edgeOK(i,j,0))JOBS.push({kind:'edge',i,j,h:0,x:rx(i),z:(rz(j)+rz(j+1))/2,r:(rz(j+1)-rz(j))/2,a:[rx(i),rz(j)+RD/2,rx(i),rz(j+1)-RD/2]});
@@ -2358,9 +2361,7 @@ function renderStats(el=$('statsBody')){const km=(STATS.dist/1000).toFixed(1);
 const SHOPS=[];let shopOpen=false,shopNear=null;
 function addShop(kind,i,j){const b=bcen(i,j),x=b.x,z=b.z+bD(j)/2-3,col=kind==='gun'?0xff3d3d:0x22d3ee;
   const pad=new THREE.Mesh(new THREE.CylinderGeometry(kind==='gun'?2.4:5,kind==='gun'?2.4:5,.2,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.55}));pad.position.set(x,.15,z);scene.add(pad);
-  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,6,8),M(0x3a3448));pole.position.set(x+(kind==='gun'?3:6.5),3,z);scene.add(pole);
-  const sg=new THREE.Mesh(new THREE.PlaneGeometry(6,2.25),signMat(kind==='gun'?'GUNS':'PAINT',col));sg.position.set(x+(kind==='gun'?3:6.5),6.6,z);scene.add(sg);
-  const sg2=sg.clone();sg2.rotation.y=Math.PI;scene.add(sg2);SHOPS.push({kind,x,z,pad,r:kind==='gun'?2.6:5.5})}
+  SHOPS.push({kind,x,z,pad,r:kind==='gun'?2.6:5.5})}
 {const bl=VALID.filter(([i,j])=>BTYPE[i+','+j]==='bld').sort((a,b)=>{const A=bcen(...a),B=bcen(...b);return Math.hypot(A.x-SPN.x,A.z-SPN.z)-Math.hypot(B.x-SPN.x,B.z-SPN.z)});
  if(bl.length)addShop('gun',...bl[Math.min(2,bl.length-1)]);const mid=bl.slice().sort((a,b)=>Math.abs(bcen(...a).x)-Math.abs(bcen(...b).x));if(mid.length)addShop('paint',...mid[0])}
 const SHOP_ITEMS={gun:[['pistol','手枪',800,'每发伤害高，射程 48 米'],['rifle','自动步枪',3000,'按住连射，射程 62 米'],['heal','急救包',150,'血量回满']],
@@ -2369,7 +2370,7 @@ function openShop(sh){shopOpen=true;shopNear=sh;const el=$('shop');el.hidden=fal
   $('shopList').innerHTML=SHOP_ITEMS[sh.kind].map(([id,n,price,desc])=>{const owned=OWN[id];const dis=owned||player.money<price||(id==='heal'&&player.hp>=100)||((id==='paint'||id==='repair')&&!player.car)||(id==='repair'&&player.car&&player.car.hp>=player.car.hpMax&&!player.car.doorOff);
     return `<button class="item" data-id="${id}" ${dis?'disabled':''}><b>${n}</b><span>${desc}</span><em>${owned?'已拥有':'$'+price}</em></button>`}).join('')+`<p class="money">现金 $${player.money.toLocaleString()}</p>`;
   for(const b of el.querySelectorAll('.item'))b.onclick=()=>buy(b.dataset.id)}
-function closeShop(){shopOpen=false;$('shop').hidden=true;last=performance.now()}
+function closeShop(){shopOpen=false;$('shop').hidden=true;last=performance.now();bayExit()}
 function buy(id){const it=SHOP_ITEMS[shopNear.kind].find(x=>x[0]===id);if(!it||player.money<it[2])return;player.money-=it[2];STATS.spent+=it[2];beep(660,.08);setTimeout(()=>beep(990,.12),80);
   if(id==='heal')player.hp=100;else if(id==='repair'){const c=player.car;repaint(c,c.col);c.hp=c.hpMax;c.burn=0;c.burnWarn=0;toast('修好了，跟新的一样')}else if(id==='paint'){const c=player.car;const cols=carColors.filter(x=>x!==c.col);const col=cols[(Math.random()*cols.length)|0];repaint(c,col);STATS.sprays=(STATS.sprays||0)+1;
     if(player.wanted>0&&!copWitness(c.x,c.z)){player.heat=0;toast('换了颜色，警察认不出你了')}else toast(player.wanted>0?'被警察看着呢，通缉没消':'焕然一新')}
@@ -2377,7 +2378,7 @@ function buy(id){const it=SHOP_ITEMS[shopNear.kind].find(x=>x[0]===id);if(!it||p
   openShop(shopNear)}
 function repaint(c,col){const old=c.mesh,{g,siren}=carMesh(c.kind,col);g.position.copy(old.position);g.rotation.copy(old.rotation);scene.remove(old);scene.add(g);c.mesh=g;c.col=col;if(siren)c.siren=siren;c.doorOff=0;c.fire=null;c.beam=null}
 function updShops(){let near=null;for(const sh of SHOPS){sh.pad.material.opacity=.35+.25*Math.sin(performance.now()/300);const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
-    if(Math.hypot(sh.x-px,sh.z-pz)<sh.r&&(sh.kind==='gun'?!player.car:player.car&&Math.abs(player.car.speed)<4))near=sh}
+    if(sh.kind==='paint'&&player.car&&inBay(sh.bay,px,pz)&&Math.abs(player.car.speed)<4)near=sh}
   if(near&&!near.entered){near.entered=true;openShop(near)}for(const sh of SHOPS)if(sh!==near)sh.entered=false}
 
 // ===== 车载电台：用合成器实时演奏，上车自动开，下车淡出 =====
@@ -2783,11 +2784,10 @@ function updStory(dt){const C=CHAPTERS[STORY.ch];$('sname').textContent=storyNam
 const PROPS=[{id:'store',name:'24 小时便利店',price:6000,inc:250,col:0x5cff7a,word:'24H'},{id:'garage',name:'阿杰车库',price:9000,inc:150,col:0x22d3ee,word:'AUTO',garage:1},
   {id:'bar',name:'海风酒吧',price:16000,inc:600,col:0xff3d8b,word:'BAR'},{id:'club',name:'霓虹夜店',price:24000,inc:1000,col:0x8a5cff,word:'DISCO'}];
 const OWNP={},GARAGE=[];let PROP_H=null;
-{const bl=VALID.filter(([i,j])=>BTYPE[i+','+j]==='bld').map(b=>({b,c:bcen(...b)})).filter(o=>!SHOPS.some(sh=>Math.hypot(sh.x-o.c.x,sh.z-o.c.z)<40))
+{const bl=VALID.filter(([i,j])=>BTYPE[i+','+j]==='bld').map(b=>({b,c:bcen(...b)})).filter(o=>!SHOPS.some(sh=>Math.hypot(sh.x-o.c.x,sh.z-o.c.z)<40||cellOf(sh.x,sh.z)+''===o.b+''))
    .sort((a,b)=>Math.hypot(a.c.x-SPN.x,a.c.z-SPN.z)-Math.hypot(b.c.x-SPN.x,b.c.z-SPN.z));
  const picks=[4,9,15,22];PROPS.forEach((pr,k)=>{const e=bl[Math.min(picks[k],bl.length-1)];if(!e)return;const[i,j]=e.b;pr.x=e.c.x-7;pr.z=e.c.z+bD(j)/2-3;
    pr.pad=new THREE.Mesh(new THREE.CylinderGeometry(2.6,2.6,.2,24),new THREE.MeshBasicMaterial({color:0xffe14d,transparent:true,opacity:.55}));pr.pad.position.set(pr.x,.15,pr.z);scene.add(pr.pad);
-   const pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,6,8),M(0x3a3448));pole.position.set(pr.x-3.4,3,pr.z);scene.add(pole);
    pr.sg=new THREE.Mesh(new THREE.PlaneGeometry(6,2.25),signMat('SALE',0xffe14d));pr.sg.position.set(pr.x-3.4,6.6,pr.z);scene.add(pr.sg);pr.sg2=pr.sg.clone();pr.sg2.rotation.y=Math.PI;scene.add(pr.sg2)})}
 function propRefresh(pr){if(!pr.pad)return;const own=OWNP[pr.id],m=own?signMat(pr.word,pr.col):signMat('SALE',0xffe14d);pr.sg.material=pr.sg2.material=m;pr.pad.material.color.set(own?pr.col:0xffe14d)}
 const dayIncome=()=>PROPS.reduce((a,p)=>a+(OWNP[p.id]?p.inc:0),0)+(OWNP.villa?500:0);
@@ -2811,9 +2811,9 @@ function callCar(k){const g=GARAGE[k];if(!g||player.money<200||player.car)return
   player.money-=200;GARAGE.splice(k,1);spawnOwned(g,p.x,p.z,p.h);openPhone(false);toast('车送到了，就在附近。用完记得开回车库')}
 function updProps(dt){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;let near=null;
   for(const pr of PROPS){if(!pr.pad)continue;pr.pad.material.opacity=.35+.25*Math.sin(performance.now()/300);
-    if(Math.hypot(pr.x-px,pr.z-pz)<(pr.garage&&player.car?6:2.8)&&(!player.car||Math.abs(player.car.speed)<4))near=pr}
+    if(player.car?pr.garage&&inBay(pr.bay,px,pz)&&Math.abs(player.car.speed)<4:Math.hypot((pr.wx??pr.x)-px,(pr.wz??pr.z)-pz)<2.8)near=pr}
   if(near&&player.car&&near.garage&&!near.entered&&!boarding){near.entered=true;openProp(near)}
-  if(near&&!player.car&&!boarding)setPrompt('进入 '+near.name+(near.id==='club'&&!OWNP.club?'（门票 $50）':''),()=>enterRoom(near.id,near.x,near.z+3.2,0,near),Math.hypot(near.x-player.x,near.z-player.z));for(const pr of PROPS)if(pr!==near)pr.entered=false;
+  if(near&&!player.car&&!boarding)setPrompt('进入 '+near.name+(near.id==='club'&&!OWNP.club?'（门票 $50）':''),()=>enterRoom(near.id,near.wx??near.x,(near.wz??near.z)+.6,0,near),Math.hypot((near.wx??near.x)-player.x,(near.wz??near.z)-player.z));for(const pr of PROPS)if(pr!==near)pr.entered=false;
   if(PROP_H!==null&&PROP_H<8&&gameHour>=8){DAYN++;const inc=dayIncome();if(inc){player.money+=inc;toast('💰 物业收入 +$'+inc.toLocaleString());beep(1200,.08,'sine',.08)}}
   PROP_H=gameHour}
 
@@ -3131,7 +3131,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.24.0';
+const VERSION='v0.24.1';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3297,7 +3297,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.24','帮派',[['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
+ ['v0.24','帮派',[['0.24.1','所有能进的地方都有了自己的楼：枪店、喷漆店、便利店、阿杰车库、酒吧、夜店、服装店、理发店、银行，门口有发光脚垫，走到门口按 E 进去；枪店现在是能走进去的店，在柜台买东西；喷漆店和阿杰车库是车间，开着车从卷帘门开进去才弹出菜单，关掉菜单车就自己开出门外；原来门口的立杆招牌改成挂在门头上'],['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
  ['v0.23','城市生活',[['0.23.0','新增服装店（换上衣、裤子、帽子、鞋）、理发店（换发型、染发、胡子）、海湾银行（撬金库，出门 4 星通缉，每天一次）；手机新增“出行”（打车直达，按距离收费）和“每日挑战”（每天 3 个，各 $800）；家可以装修（大屏电视、真皮沙发、成就奖杯墙）和扩建车库（停 3 辆）；可以找小贩买热狗、给街头艺人打赏；E 键提示按距离优先最近的；城市生成更平滑并按车速预加载；没被警察看到时开枪加星更少、更容易甩掉；零活奖励 ×1.6、主线奖励 ×1.5；竞速时间按实际距离计算；主线第一章阿杰会给一辆旧车；手机关闭多重采样省性能']]],
  ['v0.22','生活',[['0.22.4','内存优化：城市几何体上传到显卡后释放内存里的副本，内存占用减半（约 430MB → 210MB），手机上更不容易闪退重载'],['0.22.3','修复从车库开出的车（特别是皮卡）卡住不能动；室内用单独的调色，开泛光也不会太亮；房间和家具按人物比例放大；晚上更亮一些'],['0.22.2','肩膀边角加圆弧；卡通画风也换成新的连续身体（带描边）、C 形手和方块鞋'],['0.22.1','肩线拉平：上身顶部做成平的，肩膀和身体齐平，不再从肩膀斜着往脖子收'],['0.22.0','左右手掌方向修正（掌心朝身体）；每个人身高、胖瘦不同，女性胸部更明显；路人有不同性格（友善、暴躁、胆小、强硬：说话和被打后的反应不同）；新增职业路人：小贩（推车叫卖）、清洁工（扫地）、施工工人（打钻、摆路锥）、街头艺人（弹吉他、有琴盒）；可以进入建筑：主角的家（睡觉存档、吃东西、看电视、换主角，带一个能保存的车库）、海边别墅（购买后可进入）、便利店、酒吧、夜店、车库（不用买也能进去，花钱买东西；买下后免费）']]],
  ['v0.21','人物重建',[['0.21.1','手臂调整：更粗、加圆形肩头和三角肌、肘部不再过细、前臂上粗下细；上身肩部加宽，手臂从肩角长出来'],['0.21.0','写实人物身体重做：不再用胶囊、球体拼接，改为按真人比例放样的连续低多边形网格（骨盆、上身、脖子、上臂、前臂、大腿、小腿），节与节在关节处共用一圈顶点，蒙皮权重在关节处各占一半，弯曲时自然衔接；保留原创的服装配色和图案']]],
@@ -3451,7 +3451,7 @@ function updRoom(dt,ax,ay){roomGrade();updHeist(dt);const r=INSIDE.r,mag=Math.mi
 function villaDoor(){const HD=bD(VB[1])/2-3;return{x:villa.x+4,z:villa.z-HD+15+9.6}}
 function updInteract(){if(cut||boarding)return;const pc=player.car;
   {const dh=HOME.door?Math.hypot(HOME.door.x-player.x,HOME.door.z-player.z):99;if(HOME.door&&!pc&&dh<3.2)setPrompt('回家',()=>enterRoom('home',HOME.door.x,HOME.door.z+HOME.face*.8,HOME.face>0?0:Math.PI),dh)}
-  if(!pc)for(const pl of PLACES)if(pl.pad){const d2=Math.hypot(pl.x-player.x,pl.z-player.z);pl.pad.material.opacity=.3+.2*Math.sin(performance.now()/300);if(d2<2.8)setPrompt('进入 '+pl.name,()=>enterRoom(pl.id,pl.x,pl.z+3.2,0),d2)}
+  if(!pc)for(const pl of PLACES)if(pl.pad){const d2=Math.hypot(pl.x-player.x,pl.z-player.z);if(d2<2.8)setPrompt('进入 '+pl.name,()=>enterRoom(pl.id,pl.x,pl.z+.6,0),d2)}
   if(HOME.pad){const d=Math.hypot(HOME.pad.x-(pc?pc.x:player.x),HOME.pad.z-(pc?pc.z:player.z));
     if(pc&&d<5&&Math.abs(pc.speed)<3)setPrompt(HOME.cars.length>=garageCap()?'车库满了（'+HOME.cars.length+'/'+garageCap()+'）':'把车停进车库（'+HOME.cars.length+'/'+garageCap()+'，会保存）',()=>{if(HOME.cars.length>=garageCap())return;HOME.cars.push({kind:pc.kind,col:pc.col});exitCar(true);removeCar(pc);saveGame();toast('车已停进车库')},d);
     else if(!pc&&d<4.5&&HOME.cars.length){const g=HOME.cars[HOME.cars.length-1];setPrompt('从车库开出 '+(CAR_NAME[g.kind]||'车')+(HOME.cars.length>1?'（还有 '+(HOME.cars.length-1)+' 辆）':''),()=>{spawnOwned(HOME.cars.pop(),HOME.pad.ox,HOME.pad.oz,HOME.pad.h);saveGame();toast('车开出来了')},d)}}
@@ -3480,13 +3480,78 @@ function buyLook(kind,list,price,apply){payOr(price,false,()=>{OUT_IDX[kind]=(OU
 
 // —— 新的可进入地点：服装店、理发店、银行（不能买，只能进去消费 / 抢）
 const PLACES=[{id:'clothes',name:'服装店',word:'SHOP',col:0xff7ac8},{id:'barber',name:'理发店',word:'HAIR',col:0x7ae0ff},{id:'bank',name:'海湾银行',word:'BANK',col:0xffd24a}];
-{const bl=VALID.filter(([i,j])=>BTYPE[i+','+j]==='bld').map(b=>({b,c:bcen(...b)})).filter(o=>!SHOPS.some(sh=>Math.hypot(sh.x-o.c.x,sh.z-o.c.z)<40)&&!PROPS.some(q=>q.pad&&Math.hypot(q.x-o.c.x,q.z-o.c.z)<40))
+{const bl=VALID.filter(([i,j])=>BTYPE[i+','+j]==='bld').map(b=>({b,c:bcen(...b)})).filter(o=>!SHOPS.some(sh=>Math.hypot(sh.x-o.c.x,sh.z-o.c.z)<40||cellOf(sh.x,sh.z)+''===o.b+'')&&!PROPS.some(q=>q.pad&&(Math.hypot(q.x-o.c.x,q.z-o.c.z)<40||cellOf(q.x,q.z)+''===o.b+'')))
    .sort((a,b)=>Math.hypot(a.c.x-SPN.x,a.c.z-SPN.z)-Math.hypot(b.c.x-SPN.x,b.c.z-SPN.z));
  [2,6,11].forEach((ix,k)=>{const pl=PLACES[k],e=bl[Math.min(ix,bl.length-1)];if(!e)return;const[i,j]=e.b;pl.x=e.c.x+6;pl.z=e.c.z+bD(j)/2-3;
    pl.pad=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.2,.2,24),new THREE.MeshBasicMaterial({color:pl.col,transparent:true,opacity:.5}));pl.pad.position.set(pl.x,.15,pl.z);scene.add(pl.pad);
-   const pole=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,6,8),M(0x3a3448));pole.position.set(pl.x+3.2,3,pl.z);scene.add(pole);
-   const sg=new THREE.Mesh(new THREE.PlaneGeometry(6,2.25),signMat(pl.word,pl.col));sg.position.set(pl.x+3.2,6.6,pl.z);scene.add(sg);const sg2=sg.clone();sg2.rotation.y=Math.PI;scene.add(sg2)})}
+   })}
 let HEIST=null,HEIST_DAY=-1,PENDING_HEAT=0,DAYN=0;
+// =====================================================================
+// 能进的地方都有自己的楼：门在哪，入口就在哪。喷漆店、阿杰车库是车间，车直接开进去
+// =====================================================================
+const inBay=(b,x,z)=>!!b&&Math.abs(x-b.x)<b.ow/2-.4&&z<b.zf-1.2&&z>b.zf-b.d+1.2;
+const doorGlow=new THREE.MeshBasicMaterial({color:0xffdc9a}),bayLight=new THREE.MeshBasicMaterial({color:0xfff6dc});
+function venueBuild(v){const zf=v.z-1.6,W=v.w,D=v.d,H=v.h,bx=v.x+(v.ox||0),bz=zf-D/2,objs=[];v.zf=zf;CAP=objs;
+  const at=(m,x,y,z)=>{m.position.set(x,y,z);scene.add(m);return m};
+  const door=(x)=>{at(box(2.7,3.5,.34,0x2a262c),x,1.75,zf+.08);at(box(1.9,2.9,.12,doorGlow),x,1.5,zf+.2);at(box(.08,1.2,.1,0xd8d8dc),x+.55,1.5,zf+.3);
+    at(box(3.2,.18,1.3,0x9a968e),x,.09,zf+.65);at(box(.5,.25,.3,bayLight),x,3.75,zf+.25);
+    const mat=new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.3),new THREE.MeshBasicMaterial({color:v.col,transparent:true,opacity:.5,depthWrite:false}));mat.rotation.x=-Math.PI/2;at(mat,x,.2,zf+1.55);v.mats=(v.mats||[]).concat(mat)};
+  try{
+    if(!v.bay){ // —— 临街店面：一楼大玻璃 + 正门，楼上是公寓立面
+      at(surfBox(W,5,D,'stucco',v.wall),bx,2.5,bz);
+      if(H>5.5)at(facadeBox(W,H-5,D,v.style,v.fcol),bx,5+(H-5)/2,bz);
+      at(box(W+.5,.4,D+.5,v.trim),bx,5.1,bz);at(box(W+1,.7,D+1,v.trim),bx,H+.35,bz);
+      for(const s of[-1,1]){const ww=(W/2-2.1)-1.2;if(ww<1.4)continue;const wx=v.x+s*(2.1+ww/2+.5);
+        at(box(ww,2.9,.14,glassMat),wx,2.35,zf+.07);at(box(ww+.3,.26,.34,v.trim),wx,.78,zf+.14);at(box(ww+.3,.26,.34,v.trim),wx,3.92,zf+.14);
+        at(box(ww*.8,.9,.1,doorGlow),wx,1.6,zf-.25)}
+      door(v.x);
+      const aw=box(Math.min(W-1,6),.22,1.9,v.col);aw.rotation.x=.26;at(aw,v.x,4.45,zf+.95);
+      if(v.columns)for(const s of[-1,1])for(const k of[0,1])at(new THREE.Mesh(cylG(.42,.5,5,12),M(0xe8e2d4)),v.x+s*(2.6+k*2.6),2.5,zf+.7)}
+    else{ // —— 车间：卷帘门敞开，里面有灯、地面和工具
+      const ow=v.ow||7.6,oh=5.4,ox0=v.x,wall=v.wall;v.bay={x:ox0,zf,d:D,ow};
+      at(surfBox(.6,H,D,'stucco',wall),bx-W/2+.3,H/2,bz);at(surfBox(.6,H,D,'stucco',wall),bx+W/2-.3,H/2,bz);at(surfBox(W,H,.6,'stucco',wall),bx,H/2,zf-D+.3);
+      at(surfBox(W,H-oh,.6,'stucco',wall),bx,oh+(H-oh)/2,zf-.3);
+      const segL=(ox0-ow/2)-(bx-W/2),segR=(bx+W/2)-(ox0+ow/2);
+      if(segL>.2)at(surfBox(segL,oh,.6,'stucco',wall),bx-W/2+segL/2,oh/2,zf-.3);if(segR>.2)at(surfBox(segR,oh,.6,'stucco',wall),bx+W/2-segR/2,oh/2,zf-.3);
+      at(box(W+.6,.5,D+.6,v.trim),bx,H+.25,bz);at(box(W-1.2,.06,D-1.2,0x46464c),bx,.05,bz);at(box(W-1.3,H-.7,.08,0x34343c),bx,(H-.7)/2,zf-D+.66);for(const s of[-1,1])at(box(.08,H-.7,D-1.4,0x3c3c44),bx+s*(W/2-.66),(H-.7)/2,bz);at(box(W-1.3,.08,D-1.3,0x2a2a30),bx,H-.62,bz);
+      at(box(ow+.4,.7,.7,0xa8acb4),ox0,oh-.2,zf-.75);for(const s of[-1,1])at(box(.25,oh,.4,0x3a3a40),ox0+s*(ow/2+.1),oh/2,zf+.05);
+      for(let k=0;k<3;k++)at(box(3.2,.12,.5,bayLight),ox0,H-.4,zf-2.5-k*(D-4)/3);
+      for(let k=0;k<5;k++)at(box(ow/5-.1,.12,.9,k%2?0x1a1a1a:0xffc21a),ox0-ow/2+ow/10+k*ow/5,.08,zf+.6);
+      if(v.kind==='paint'){for(let k=0;k<5;k++)at(box(1.2,2.6,.1,[0xff3d8b,0x22d3ee,0xffd166,0x8a5cff,0x5cff7a][k]),bx-W/2+2+k*((W-4)/4),2.4,zf-D+.68);
+        at(box(1.6,1.2,.8,0x8a8a92),bx+W/2-1.6,.6,zf-D+2);for(let k=0;k<6;k++)at(new THREE.Mesh(cylG(.12,.12,.4,8),M([0xff3d8b,0x22d3ee,0xffd166][k%3])),bx+W/2-2.2+k*.25,1.4,zf-D+2)}
+      else{at(box(2.4,2,.7,0xb03a3a),bx-W/2+1.8,1,zf-D+1);for(let k=0;k<3;k++)at(new THREE.Mesh(cylG(.6,.6,.35,14),M(0x1a1a1a)),bx+W/2-1.4,.2+k*.36,zf-D+1.6);
+        at(box(.5,.5,.5,0xffc21a),bx-W/2+1.2,2.3,zf-D+1)}
+      solids.push({x0:bx-W/2,x1:bx-W/2+.6,z0:zf-D,z1:zf},{x0:bx+W/2-.6,x1:bx+W/2,z0:zf-D,z1:zf},{x0:bx-W/2,x1:bx+W/2,z0:zf-D,z1:zf-D+.6});
+      if(segL>.2)solids.push({x0:bx-W/2,x1:ox0-ow/2,z0:zf-.6,z1:zf});if(segR>.2)solids.push({x0:ox0+ow/2,x1:bx+W/2,z0:zf-.6,z1:zf});
+      if(v.walk)door(v.walk)}
+    if(!v.bay)solids.push({x0:bx-W/2,x1:bx+W/2,z0:zf-D,z1:zf});
+  }finally{CAP=null}
+  const g=mergeInto(objs,new THREE.Group());_sceneAdd(g);v.group=g;
+  // 招牌：贴在门头上（物业用自己会变的招牌）
+  const sy=v.bay?6.3:5.95;if(v.sign){v.sign.position.set(v.bay?v.x:v.x,sy+.3,zf+.12);v.sign.rotation.set(0,0,0);v.sign.scale.set(1,1,1)}
+  else{const sg=new THREE.Mesh(new THREE.PlaneGeometry(6,2.25),signMat(v.word,v.col));sg.position.set(v.x,sy+.3,zf+.12);scene.add(sg)}
+  VENUE_R.push({x0:bx-W/2-1,x1:bx+W/2+1,z0:zf-D-1,z1:zf+1,v})}
+{const C=x=>x;
+ for(const sh of SHOPS){sh.pad.visible=false;const gun=sh.kind==='gun';
+   const v=gun?{kind:'gun',x:sh.x,z:sh.z,word:'GUNS',col:0xff3d3d,w:14,d:11,h:8.5,style:'brick',fcol:0x9a4a36,wall:0x4a4448,trim:0x2a2a30}
+             :{kind:'paint',x:sh.x,z:sh.z,word:'PAINT',col:0x22d3ee,w:14,d:15,h:7.2,bay:1,wall:0xe8eef2,trim:0x3a4a5a};
+   venueBuild(v);sh.v=v;if(!gun){sh.bay=v.bay}}
+ const PSTY={store:['apart',0xf4ead8,0xeef4ea,0x3a8a5a,16,12,7.2],bar:['brickTan',0xc9a878,0xf2e4d0,0x6a3a2a,16,12,9.5],club:['hotel',0xd8c8ff,0x2a2236,0x1a1426,18,14,10.5]};
+ for(const pr of PROPS){if(!pr.pad)continue;pr.pad.visible=false;pr.sg2.visible=false;
+   let v;if(pr.garage){v={kind:'garage',x:pr.x,z:pr.z,word:pr.word,col:pr.col,w:20,d:15,h:7.2,bay:1,ox:3,walk:pr.x+8.3,wall:0xd8dce0,trim:0x3a3a40,sign:pr.sg};pr.wx=v.walk;pr.wz=pr.z}
+   else{const s=PSTY[pr.id];v={kind:pr.id,x:pr.x,z:pr.z,word:pr.word,col:pr.col,style:s[0],fcol:s[1],wall:s[2],trim:s[3],w:s[4],d:s[5],h:s[6],sign:pr.sg}}
+   venueBuild(v);pr.v=v;if(v.bay)pr.bay=v.bay}
+ const LSTY={clothes:['hotel',0xffc8d6,0xfff0f4,0x8a4a6a,16,12,8.5],barber:['apart',0xc8e8f8,0xf4f8fa,0x2a5a7a,12,11,7.2],bank:['clinic',0xe8e2d4,0xf0ece4,0x8a8274,20,14,12]};
+ for(const pl of PLACES){if(!pl.pad)continue;pl.pad.visible=false;const s=LSTY[pl.id];
+   const v={kind:pl.id,x:pl.x,z:pl.z,word:pl.word,col:pl.col,style:s[0],fcol:s[1],wall:s[2],trim:s[3],w:s[4],d:s[5],h:s[6],columns:pl.id==='bank'};venueBuild(v);pl.v=v}
+ // 已经生成过的街区、街边：重新生成一次，让出楼的位置（原来的楼、路边停车格、消防栓不会挡在门口）
+ for(const j of JOBS)if(j.built&&VENUE_R.some(q=>j.x+j.r>q.x0-30&&j.x-j.r<q.x1+30&&j.z+j.r>q.z0-30&&j.z-j.r<q.z1+30)){unloadJob(j);buildJob(j)}}
+// 门口发光的脚垫轻轻闪；枪店走到门口按 E 进去
+function updVenues(){const t=.38+.18*Math.sin(performance.now()/300);for(const q of VENUE_R)if(q.v.mats)for(const m of q.v.mats)m.material.opacity=t;
+  if(player.car||cut||boarding)return;for(const sh of SHOPS)if(sh.kind==='gun'){const d=Math.hypot(sh.x-player.x,sh.z-player.z);if(d<2.8)setPrompt('进入 枪店',()=>enterRoom('gun',sh.x,sh.z+.6,0),d)}}
+// 车间菜单关掉 = 把车开出门外
+function bayExit(){const c=player.car;if(!c)return;for(const b of[...SHOPS.map(s=>s.bay),...PROPS.map(p=>p.bay)])if(b&&inBay(b,c.x,c.z)){c.x=b.x;c.z=b.zf+5.5;c.h=0;c.speed=0;c.mesh.position.set(c.x,c.mesh.position.y,c.z);c.mesh.rotation.y=0;camYaw=0;return}}
+
 function makeRoom2(kind){let r;
   if(kind==='clothes'){r=roomBase('服装店',14,10,3.6,0xf4eef2,'stone',0xe8e0e8,0xfff4f8);
     for(const x of[-4.5,-1.5,1.5]){r.add(box(2.2,.08,.08,0x8a8a92),x,1.9,-3.6);for(let k=0;k<5;k++)r.add(box(.06,.9,.5,[0xd84a3a,0x2a6fd0,0xf4f4f4,0x1a1a1e,0x3aa85a][k]),x-.8+k*.4,1.4,-3.6);r.solid(x,-3.6,2.4,.8)}
@@ -3504,6 +3569,13 @@ function makeRoom2(kind){let r;
     r.add(box(3,3.4,.3,0x6a6a70),0,1.7,-5.95);
     r.spot(0,-4.6,1.3,()=>HEIST_DAY===DAYN?'金库今天已经被搬空了':HEIST?'正在撬金库… 站在这里别动':'撬开金库（需要待满 6 秒，出门后 4 星通缉）',()=>{if(HEIST_DAY===DAYN||HEIST)return;HEIST={t:0};toast('开始撬金库！');SFX.punch()});
     r.spot(-5,-1,1.2,'柜台：查看余额',()=>toast('💵 现金 $'+player.money.toLocaleString()))}
+  else if(kind==='gun'){r=roomBase('枪店',12,9,3.4,0x5a5560,'stone',0xb8b4bc,0xfff0d8);
+    r.add(box(7,1.1,1,0x2a2a30),0,.55,-1.6);r.add(box(7,.06,1,0xc8e0f0),0,1.13,-1.6);r.solid(0,-1.6,7.2,1.2);
+    for(let k=0;k<4;k++)r.add(box(1.2,.16,.4,0x1a1a1a),-2.4+k*1.6,.8,-1.6);
+    r.add(box(9,2.2,.12,0x6a4a3a),0,2.1,-4.38);for(let y=0;y<3;y++)for(let k=0;k<5;k++){r.add(box(1.4,.16,.1,0x141416),-3.4+k*1.7,1.5+y*.6,-4.28);r.add(box(.35,.3,.1,0x3a2a1a),-3.9+k*1.7,1.42+y*.6,-4.28)}
+    r.add(box(.06,1.2,.9,0xf4f0e6),5.95,1.7,1);r.add(new THREE.Mesh(cylG(.3,.3,.04,16),M(0xd83a3a)),5.9,1.8,1).rotation.z=Math.PI/2;
+    r.npc('biker',0,-2.7,0,'idle');
+    r.spot(0,-.3,1.4,'柜台：买枪、急救包',()=>openShop(SHOPS.find(s=>s.kind==='gun')))}
   return r}
 function updHeist(dt){if(!HEIST||!INSIDE||INSIDE.r.name!=='海湾银行')return;const s0=INSIDE.r.spots.find(q=>typeof q.label==='function'&&q.x===0);
   if(Math.hypot(s0.x-player.ix,s0.z-player.iz)>s0.r){HEIST=null;toast('离开了金库，撬锁中断');return}
@@ -3642,7 +3714,7 @@ function updGang(dt){if(INSIDE)return;
 function drawGangZones(g2){for(const g of GANGS){if(!g.set)continue;const c=g.own?'rgba(255,200,61,.45)':'rgba('+[(g.col>>16)&255,(g.col>>8)&255,g.col&255].join(',')+',.38)';g2.fillStyle=c;
   for(const[i,j]of g.blocks)g2.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}}
 function updExtra(dt){const e=Math.sin((gameHour-6)/24*Math.PI*2);NIGHT=clamp((-e+.12)/.3,0,1);
-  updStory(dt);updProps(dt);updInteract();updNpcTalk();updChallenges(dt);updGang(dt);updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updGfx(dt);updPerf();
+  updStory(dt);updProps(dt);updInteract();updNpcTalk();updChallenges(dt);updGang(dt);updVenues();updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updGfx(dt);updPerf();
   if(PROMPT&&(PROMPT.t!==last||cut||boarding)){PROMPT=null;$('prompt').hidden=true}
   if((umbT-=dt)<=0){umbT=1;updUmbrellas()}}
 
