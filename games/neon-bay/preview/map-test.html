@@ -182,13 +182,50 @@ const REAL=(()=>{try{return localStorage.getItem('nby-style')!=='toon'}catch(e){
 // 写实：建筑配色降低饱和度、略压暗（霓虹招牌不变）
 const _dc=new THREE.Color();const dsat=c=>{if(!REAL||typeof c!=='number')return c;_dc.setHex(c);const l=_dc.r*.3+_dc.g*.55+_dc.b*.15;_dc.setRGB((_dc.r*.3+l*.7)*.88,(_dc.g*.3+l*.7)*.87,(_dc.b*.3+l*.7)*.84);return _dc.getHex()};
 if(REAL){const P=THREE.MeshPhongMaterial;THREE.MeshToonMaterial=class extends P{constructor(p={}){const q=Object.assign({},p);delete q.gradientMap;super(q);this.userData.toonish=1;this.shininess=14;this.specular.setHex(0x1a1a1a)}}}
+// =====================================================================
+// 画面弯曲：游戏逻辑还在整齐的网格上算，画的时候把整个城市平滑地“扭”一下 —— 街道变成弧线、街区不规则
+// 同时在显卡里按地面高度把所有东西抬起来（台地、坡道、桥）
+// =====================================================================
+const WARP={on:1,cx:0,cz:0,dcx:0,dcz:0,c:1,s:0,gh:null};
+const WARP_K=[[22,1/150,.7],[9,1/90,2.1],[3.5,1/55,4.4],[20,1/160,1.9],[9,1/85,.3],[3.5,1/52,5.2]];
+function wD(x,z){const K=WARP_K;return[K[0][0]*Math.sin(z*K[0][1]+K[0][2])+K[1][0]*Math.sin((x*.6+z)*K[1][1]+K[1][2])+K[2][0]*Math.sin((z-x*.4)*K[2][1]+K[2][2]),
+  K[3][0]*Math.sin(x*K[3][1]+K[3][2])+K[4][0]*Math.sin((z*.5+x)*K[4][1]+K[4][2])+K[5][0]*Math.sin((x+z*.3)*K[5][1]+K[5][2])]}
+// 地图上用的“绝对”弯曲位置；游戏画面里再以玩家为中心做一次刚体变换（玩家附近看起来不变形，镜头不用动）
+const wAbs=(x,z)=>{const d=wD(x,z);return[x+d[0],z+d[1]]};
+function warpXZ(x,z){if(!WARP.on)return[x,z];const d=wD(x,z),ex=x+d[0]-WARP.cx-WARP.dcx,ez=z+d[1]-WARP.cz-WARP.dcz;return[WARP.cx+ex*WARP.c-ez*WARP.s,WARP.cz+ex*WARP.s+ez*WARP.c]}
+function wInv(x,z){let px=x,pz=z;for(let k=0;k<6;k++){const d=wD(px,pz);px=x-d[0];pz=z-d[1]}return[px,pz]}
+function warpTheta(x,z){const e=1,a=wD(x+e,z),b=wD(x-e,z),c=wD(x,z+e),d=wD(x,z-e);return Math.atan2((a[1]-b[1])/2-(c[0]-d[0])/2,2+(a[0]-b[0])/2+(c[1]-d[1])/2)}
+function warpCenter(x,z){const e=1,a=wD(x+e,z),b=wD(x-e,z),c=wD(x,z+e),d=wD(x,z-e),J00=1+(a[0]-b[0])/2,J01=(c[0]-d[0])/2,J10=(a[1]-b[1])/2,J11=1+(c[1]-d[1])/2,th=Math.atan2(J10-J01,J00+J11),D=wD(x,z);
+  WARP.cx=x;WARP.cz=z;WARP.dcx=D[0];WARP.dcz=D[1];WARP.c=Math.cos(-th);WARP.s=Math.sin(-th);WARPU.uWc.value.set(x,z);WARPU.uWDc.value.set(D[0],D[1]);WARPU.uWr.value.set(WARP.c,WARP.s)}
+const WARPU={uWc:{value:new THREE.Vector2()},uWDc:{value:new THREE.Vector2()},uWr:{value:new THREE.Vector2(1,0)},uWon:{value:1},uHG:{value:null},uHGp:{value:new THREE.Vector4(0,0,2,0)},uHGs:{value:new THREE.Vector2(2,2)}};
+{const K=WARP_K,f=v=>v.toFixed(6);
+ THREE.ShaderChunk.common+=`
+uniform vec2 uWc,uWDc,uWr;uniform float uWon;uniform sampler2D uHG;uniform vec4 uHGp;uniform vec2 uHGs;
+float hgT(vec2 ij){vec4 t=texture2D(uHG,(ij+.5)/uHGs);return (t.r*65280.+t.g*255.)/65535.*64.-8.;}
+float hgS(vec2 p){vec2 q=(p-uHGp.xy)/uHGp.z;if(q.x<0.||q.y<0.||q.x>=uHGs.x-1.||q.y>=uHGs.y-1.)return 0.;vec2 i=floor(q),u=q-i;return mix(mix(hgT(i),hgT(i+vec2(1.,0.)),u.x),mix(hgT(i+vec2(0.,1.)),hgT(i+vec2(1.,1.)),u.x),u.y);}
+vec2 wDf(vec2 p){return vec2(${f(K[0][0])}*sin(p.y*${f(K[0][1])}+${f(K[0][2])})+${f(K[1][0])}*sin((p.x*.6+p.y)*${f(K[1][1])}+${f(K[1][2])})+${f(K[2][0])}*sin((p.y-p.x*.4)*${f(K[2][1])}+${f(K[2][2])}),
+  ${f(K[3][0])}*sin(p.x*${f(K[3][1])}+${f(K[3][2])})+${f(K[4][0])}*sin((p.y*.5+p.x)*${f(K[4][1])}+${f(K[4][2])})+${f(K[5][0])}*sin((p.x+p.y*.3)*${f(K[5][1])}+${f(K[5][2])}));}
+vec3 cwarp(vec3 p){if(uWon<.5)return p;vec2 q=p.xz;
+#ifndef NOWARPH
+p.y+=hgS(q);
+#endif
+vec2 d=q+wDf(q)-uWc-uWDc;q=uWc+vec2(d.x*uWr.x-d.y*uWr.y,d.x*uWr.y+d.y*uWr.x);return vec3(q.x,p.y,q.y);}
+`;
+ THREE.ShaderChunk.project_vertex=THREE.ShaderChunk.project_vertex.replace('mvPosition = modelViewMatrix * mvPosition;','mvPosition = modelMatrix * mvPosition;mvPosition.xyz=cwarp(mvPosition.xyz);mvPosition = viewMatrix * mvPosition;');
+ THREE.ShaderChunk.worldpos_vertex=THREE.ShaderChunk.worldpos_vertex.replace('worldPosition = modelMatrix * worldPosition;','worldPosition = modelMatrix * worldPosition;worldPosition.xyz=cwarp(worldPosition.xyz);');
+ THREE.Material.prototype.onBeforeCompile=function(sh){Object.assign(sh.uniforms,WARPU)};
+ // 视锥剔除也按弯曲后的位置算
+ const _fs=new THREE.Sphere(),oS=THREE.Frustum.prototype.intersectsSprite;
+ THREE.Frustum.prototype.intersectsObject=function(o){const g=o.geometry;if(g.boundingSphere===null)g.computeBoundingSphere();_fs.copy(g.boundingSphere).applyMatrix4(o.matrixWorld);
+   if(WARPU.uWon.value>.5){const q=warpXZ(_fs.center.x,_fs.center.z);_fs.center.y+=WARP.gh?WARP.gh(_fs.center.x,_fs.center.z):0;_fs.center.x=q[0];_fs.center.z=q[1];_fs.radius=_fs.radius*1.12+2}return this.intersectsSphere(_fs)}}
+
 // ===== 基础 =====
 let R=Math.random;const rr=(a,b)=>a+R()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 // 固定随机种子：地图布局、楼房每次打开都一样（城市生成完后换回普通随机）
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 R=mulberry(20261122);
 // 道路：东西 NX 段、南北 NZ 段，每段间距随机 → 街区大小不一
-const RD=26,NX=18,NZ=12,BLK=70;
+const RD=26,NX=20,NZ=16,BLK=70;
 const LANE=4.4,PARK_O=9.4; // 行车道中心、停车带中心离道路中线的距离（右侧通行）
 const RX=[0],RZ=[0];for(let i=0;i<NX;i++)RX.push(RX[i]+(R()<.3?rr(140,185):rr(76,128)));for(let j=0;j<NZ;j++)RZ.push(RZ[j]+(R()<.3?rr(135,170):rr(76,122)));
 const HALFX=RX[NX]/2,HALFZ=RZ[NZ]/2,HALF=Math.max(HALFX,HALFZ);for(let i=0;i<=NX;i++)RX[i]-=HALFX;for(let j=0;j<=NZ;j++)RZ[j]-=HALFZ;
@@ -203,25 +240,28 @@ function polyIn(x,z,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){co
 function mkPoly(uv,n=3,rough=7){let p=chaikinP(uv.map(([u,v])=>[WU(u),WV(v)]),n);const cx=p.reduce((s,q)=>s+q[0],0)/p.length,cz=p.reduce((s,q)=>s+q[1],0)/p.length;
   return p.map(([x,z],k)=>{const a=Math.atan2(z-cz,x-cx),d=rough*(Math.sin(k*.9)+.6*Math.sin(k*2.3+1)+.4*Math.sin(k*5.1));return[x+Math.cos(a)*d,z+Math.sin(a)*d]})}
 // 岛屿（u 从西到东，v 从北到南）；西岛是南北拉长的椭圆，其余的岛压在中间一段高度里
-const MV=a=>a.map(([u,v])=>[u,.16+v*.68]);
+const MV=a=>a.map(([u,v])=>[u,.28+v*.44]);
+function ELL(u,v,ru,rv,sd){const cx=WU(u),cz=WV(v),ax=WU(u+ru)-cx,az=WV(v+rv)-cz,p=[];for(let k=0;k<160;k++){const t=k/160*Math.PI*2,r=1+.016*Math.sin(5*t+sd)+.011*Math.sin(11*t+sd*2)+.008*Math.sin(17*t);p.push([cx+Math.cos(t)*ax*r,cz+Math.sin(t)*az*r])}return p}
 const ISLANDS=[
- {name:'西岛',poly:(()=>{const cx=WU(.205),cz=WV(.5),ax=WU(.405)-cx,az=WV(1.025)-cz,p=[];for(let k=0;k<140;k++){const t=k/140*Math.PI*2,r=1+.018*Math.sin(5*t+1)+.012*Math.sin(11*t);p.push([cx+Math.cos(t)*ax*r,cz+Math.sin(t)*az*r])}return p})()},
+ {name:'西岛',poly:ELL(.2,.5,.198,.535,1)},
  {name:'崖岛',poly:mkPoly(MV([[.465,.06],[.535,.04],[.565,.18],[.545,.34],[.48,.37],[.445,.22]]),3,4)},
  {name:'公园岛',poly:mkPoly(MV([[.455,.56],[.53,.53],[.565,.66],[.55,.83],[.475,.86],[.445,.72]]),3,4)},
- {name:'东岛',poly:mkPoly(MV([[.585,-.01],[.75,-.04],[.93,-.01],[1.03,.1],[1.06,.35],[1.05,.6],[1.06,.85],[.97,1.03],[.78,1.05],[.62,1.0],[.585,.85],[.605,.7],[.58,.5],[.6,.3],[.575,.14]]))}];
+ {name:'东岛',poly:ELL(.8,.5,.198,.535,7)}];
 // 台地：比周围高出一截，边缘是悬崖（只有几条坡道能上去）
 const PLATEAUS=[
- {name:'北岭',lv:16,poly:mkPoly([[-.2,-.2],[.34,-.2],[.34,.2],[.2,.25],[-.2,.25]],2,5)},
+ {name:'北岭',lv:16,poly:mkPoly([[-.2,-.2],[.42,-.2],[.42,.16],[.25,.2],[-.2,.2]],2,5)},
  {name:'崖岛',lv:12,poly:null},
- {name:'南山',lv:9,poly:mkPoly(MV([[.56,.63],[.75,.6],[.79,.8],[.74,1.2],[.5,1.2]]),2,5)}];
+ {name:'南山',lv:9,poly:mkPoly([[.58,.83],[1.2,.8],[1.2,1.2],[.58,1.2]],2,5)}];
 PLATEAUS[1].poly=ISLANDS[1].poly;
 function LP(x,z){let h=0;for(const p of PLATEAUS)if(p.lv>h&&polyIn(x,z,p.poly))h=p.lv;return h}
 // 到海岸的有向距离（陆地为正，海里为负），5 米一格预先算好
-const SDF=(()=>{const st=5,x0=WU(-.18),z0=WV(-.18),nx=Math.ceil((WU(1.18)-x0)/st)+1,nz=Math.ceil((WV(1.18)-z0)/st)+1,a=new Float32Array(nx*nz);
-  const segs=[];ISLANDS.forEach((I,k)=>{const P=I.poly;let bx0=1e9,bx1=-1e9,bz0=1e9,bz1=-1e9;for(const[x,z]of P){bx0=Math.min(bx0,x);bx1=Math.max(bx1,x);bz0=Math.min(bz0,z);bz1=Math.max(bz1,z)}I.bb=[bx0,bx1,bz0,bz1];
-    for(let i=0;i<P.length;i++){const p=P[i],q=P[(i+1)%P.length];segs.push([p[0],p[1],q[0],q[1],k])}});
+const SDF=(()=>{const st=6,x0=WU(-.18),z0=WV(-.18),nx=Math.ceil((WU(1.18)-x0)/st)+1,nz=Math.ceil((WV(1.18)-z0)/st)+1,a=new Float32Array(nx*nz);
+  // 海岸线分成小段，每段带包围盒；算距离时先用包围盒排除远的段（快很多）
+  const chunks=[];ISLANDS.forEach((I,k)=>{const P=I.poly;let bx0=1e9,bx1=-1e9,bz0=1e9,bz1=-1e9;for(const[x,z]of P){bx0=Math.min(bx0,x);bx1=Math.max(bx1,x);bz0=Math.min(bz0,z);bz1=Math.max(bz1,z)}I.bb=[bx0,bx1,bz0,bz1];
+    for(let i=0;i<P.length;i+=12){const segs=[];let c0=1e9,c1=-1e9,d0=1e9,d1=-1e9;for(let q=i;q<Math.min(P.length,i+12);q++){const p=P[q],r=P[(q+1)%P.length];segs.push([p[0],p[1],r[0],r[1]]);c0=Math.min(c0,p[0],r[0]);c1=Math.max(c1,p[0],r[0]);d0=Math.min(d0,p[1],r[1]);d1=Math.max(d1,p[1],r[1])}chunks.push({k,segs,bb:[c0,c1,d0,d1]})}});
   for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const x=x0+i*st,z=z0+j*st;let inside=-1;ISLANDS.forEach((I,k)=>{const b=I.bb;if(x>b[0]&&x<b[1]&&z>b[2]&&z<b[3]&&polyIn(x,z,I.poly))inside=k});
-    let d=1e9;for(const s of segs){if(inside>=0&&s[4]!==inside)continue;const dx=s[2]-s[0],dz=s[3]-s[1],t=clamp(((x-s[0])*dx+(z-s[1])*dz)/(dx*dx+dz*dz||1),0,1),e=Math.hypot(x-s[0]-dx*t,z-s[1]-dz*t);if(e<d)d=e}
+    let d=1e9;for(const C of chunks){if(inside>=0&&C.k!==inside)continue;const b=C.bb,bd=Math.max(b[0]-x,0,x-b[1])**2+Math.max(b[2]-z,0,z-b[3])**2;if(bd>=d*d)continue;
+      for(const s of C.segs){const dx=s[2]-s[0],dz=s[3]-s[1],t=clamp(((x-s[0])*dx+(z-s[1])*dz)/(dx*dx+dz*dz||1),0,1),e=Math.hypot(x-s[0]-dx*t,z-s[1]-dz*t);if(e<d)d=e}}
     a[j*nx+i]=inside>=0?d:-d}
   return{st,x0,z0,nx,nz,a}})();
 function sdfAt(x,z){const S=SDF,fx=(x-S.x0)/S.st,fz=(z-S.z0)/S.st;if(fx<0||fz<0||fx>=S.nx-1||fz>=S.nz-1)return-200;const i=fx|0,j=fz|0,u=fx-i,v=fz-j,A=S.a,n=S.nx;
@@ -260,7 +300,7 @@ const VALID=[];for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++)if(blockOK(i,j))VALID.p
 function carveDiag(i,j,di,dj,n){for(let k=0;k<n;k++){if(!blockOK(i,j)||DIAG.has(i+','+j))break;DIAG.set(i+','+j,di===dj?'a':'b');i+=di;j+=dj}}
 // 自动找岛上最长的一串斜向相连街区来铺斜路（两个方向各一条）
 function bestDiag(di,dj,avoid){let best=null;for(const[i,j]of VALID){let n=0,a=i,b=j;while(blockOK(a,b)&&!avoid.has(a+','+b)){n++;a+=di;b+=dj}if(!best||n>best[2])best=[i,j,n]}return best}
-{const b1=bestDiag(1,-1,DIAG);carveDiag(b1[0],b1[1],1,-1,Math.min(8,b1[2]));const b2=bestDiag(1,1,DIAG);carveDiag(b2[0],b2[1],1,1,Math.min(8,b2[2]))}
+{for(let q=0;q<4;q++){const di=q%2?1:1,dj=q%2?1:-1,bb=bestDiag(di,dj,DIAG);if(bb&&bb[2]>=3)carveDiag(bb[0],bb[1],di,dj,Math.min(7,bb[2]))}}
 // —— 高度：路口高度、街区高度；台地边上的路只留两条坡道，其余断开 → 形成悬崖
 const _hn=new Map(),_hb=new Map();
 const hN=(i,j)=>{const k=i*100+j;let v=_hn.get(k);if(v===undefined){v=BRW(i,j)?(BRHN.get(i+','+j)??BRH):LP(rx(i),rz(j));_hn.set(k,v)}return v};
@@ -283,7 +323,7 @@ const _ri=x=>{let lo=0,hi=NX;while(lo<hi){const m=(lo+hi+1)>>1;if(RX[m]<=x)lo=m;
 // —— 弯道：两边都没有楼的路（海边、岛边、大桥）不再笔直，按平滑的弧线弯过去；两头接路口的地方保持直的
 const CURVE=new Map(),CURVE_CELL=new Map(),RING=[];
 // —— 西岛环岛路：沿着西岛最外一圈路口（8 方向相邻）连成一圈，用平滑曲线穿过这些路口，像椭圆海岸一样弯
-{const isW=(i,j)=>nodeLand(i,j)&&rx(i)<WU(.45);let s=null;for(let j=0;j<=NZ&&!s;j++)for(let i=0;i<=NX&&!s;i++)if(isW(i,j))s=[i,j];
+for(const isW of[(i,j)=>nodeLand(i,j)&&rx(i)<WU(.43),(i,j)=>nodeLand(i,j)&&rx(i)>WU(.57)]){const RING=[];let s=null;for(let j=0;j<=NZ&&!s;j++)for(let i=0;i<=NX&&!s;i++)if(isW(i,j))s=[i,j];
  if(s){const D=[[-1,0],[-1,-1],[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1]];let c=s,bd=0;const seq=[s];
    for(let step=0;step<400;step++){let found=null;for(let k=0;k<8;k++){const d=(bd+k)%8,n=[c[0]+D[d][0],c[1]+D[d][1]];if(isW(...n)){found=[n,d];break}}if(!found)break;
      const[n,d]=found;bd=(d+6)%8;c=n;if(c[0]===s[0]&&c[1]===s[1])break;seq.push(c)}
@@ -311,17 +351,22 @@ function lanePt(i0,j0,i1,j1,d){const dg=i0!==i1&&j0!==j1,fw=dg?i1>i0:(i1>i0||j1>
 CURVE_READY=true;
 
 const _bok=new Map(),_eok=new Map(),_dg=new Map();const bOKc=(i,j)=>{const k=i*100+j;let v=_bok.get(k);if(v===undefined){v=blockOK(i,j);_bok.set(k,v)}return v},eOKc=(i,j,h)=>{const k=(i*100+j)*2+h;let v=_eok.get(k);if(v===undefined){v=edgeOK(i,j,h);_eok.set(k,v)}return v},dgc=(i,j)=>{const k=i*100+j;let v=_dg.get(k);if(v===undefined){v=nodeOK(i,j)&&degAll(i,j)>0;_dg.set(k,v)}return v};
+let _gRoad=0;
 function Gexact(x,z){const i=_ri(x),j=_rj(z);
   const ni=(i<NX&&x-RX[i]>RX[i+1]-x)?i+1:i,nj=(j<NZ&&z-RZ[j]>RZ[j+1]-z)?j+1:j;
   const nearX=Math.abs(x-rx(ni))<=BAND,nearZ=Math.abs(z-rz(nj))<=BAND;
-  if(nearX&&nearZ&&dgc(ni,nj))return hN(ni,nj);
-  {const cs=CURVE_CELL.get(i*100+j);if(cs)for(const e of cs){if(x<e.bb[0]||x>e.bb[1]||z<e.bb[2]||z>e.bb[3])continue;const q=curveNear(e,x,z);if(q.d<=BAND){const d=q.t*e.L,tt=clamp((d-BAND)/(e.L-2*BAND||1),0,1);return hN(e.i,e.j)+(hN(e.i2,e.j2)-hN(e.i,e.j))*tt}}}
-  if(nearZ&&i<NX&&eOKc(i,nj,1)&&!CURVE.has(ek(i,nj,1))){const a=rx(i)+BAND,b=rx(i+1)-BAND,t=clamp((x-a)/(b-a||1),0,1);return hN(i,nj)+(hN(i+1,nj)-hN(i,nj))*t}
-  if(nearX&&j<NZ&&eOKc(ni,j,0)&&!CURVE.has(ek(ni,j,0))){const a=rz(j)+BAND,b=rz(j+1)-BAND,t=clamp((z-a)/(b-a||1),0,1);return hN(ni,j)+(hN(ni,j+1)-hN(ni,j))*t}
+  if(nearX&&nearZ&&dgc(ni,nj)){_gRoad=1;return hN(ni,nj)}
+  {const cs=CURVE_CELL.get(i*100+j);if(cs)for(const e of cs){if(x<e.bb[0]||x>e.bb[1]||z<e.bb[2]||z>e.bb[3])continue;const q=curveNear(e,x,z);if(q.d<=BAND){_gRoad=1;const d=q.t*e.L,tt=clamp((d-BAND)/(e.L-2*BAND||1),0,1);return hN(e.i,e.j)+(hN(e.i2,e.j2)-hN(e.i,e.j))*tt}}}
+  if(nearZ&&i<NX&&eOKc(i,nj,1)&&!CURVE.has(ek(i,nj,1))){_gRoad=1;const a=rx(i)+BAND,b=rx(i+1)-BAND,t=clamp((x-a)/(b-a||1),0,1);return hN(i,nj)+(hN(i+1,nj)-hN(i,nj))*t}
+  if(nearX&&j<NZ&&eOKc(ni,j,0)&&!CURVE.has(ek(ni,j,0))){_gRoad=1;const a=rz(j)+BAND,b=rz(j+1)-BAND,t=clamp((z-a)/(b-a||1),0,1);return hN(ni,j)+(hN(ni,j+1)-hN(ni,j))*t}
   if(i<NX&&j<NZ&&bOKc(i,j)&&x>rx(i)&&z>rz(j))return hB(i,j);
   return sdfAt(x,z)>0?LP(x,z):0}
 const HG=(()=>{const st=2,x0=WU(-.16),z0=WV(-.16),nx=Math.ceil((WU(1.16)-x0)/st)+1,nz=Math.ceil((WV(1.16)-z0)/st)+1,a=new Float32Array(nx*nz);
-  for(let j=0;j<nz;j++)for(let i=0;i<nx;i++)a[j*nx+i]=Gexact(x0+i*st,z0+j*st);return{st,x0,z0,nx,nz,a}})();
+  const rm=new Uint8Array(nx*nz);for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){_gRoad=0;a[j*nx+i]=Gexact(x0+i*st,z0+j*st);rm[j*nx+i]=_gRoad}return{st,x0,z0,nx,nz,a,rm}})();
+function roadMask(x,z){const S=HG,i=Math.round((x-S.x0)/S.st),j=Math.round((z-S.z0)/S.st);return i>=0&&j>=0&&i<S.nx&&j<S.nz&&S.rm[j*S.nx+i]===1}
+{const S=HG,d=new Uint8Array(S.nx*S.nz*4);for(let k=0;k<S.nx*S.nz;k++){const v=Math.round(clamp((S.a[k]+8)/64,0,1)*65535);d[k*4]=v>>8;d[k*4+1]=v&255;d[k*4+3]=255}
+ const t=new THREE.DataTexture(d,S.nx,S.nz,THREE.RGBAFormat);t.minFilter=t.magFilter=THREE.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;
+ WARPU.uHG.value=t;WARPU.uHGp.value.set(S.x0,S.z0,S.st,0);WARPU.uHGs.value.set(S.nx,S.nz);WARP.gh=(x,z)=>GH(x,z)}
 function GH(x,z){const S=HG,fx=(x-S.x0)/S.st,fz=(z-S.z0)/S.st;if(fx<0||fz<0||fx>=S.nx-1||fz>=S.nz-1)return 0;const i=fx|0,j=fz|0,u=fx-i,v=fz-j,A=S.a,n=S.nx;
   return(A[j*n+i]*(1-u)+A[j*n+i+1]*u)*(1-v)+(A[(j+1)*n+i]*(1-u)+A[(j+1)*n+i+1]*u)*v}
 
@@ -455,7 +500,7 @@ sea.rotation.x=-Math.PI/2;sea.position.y=-.6;scene.add(sea);
  const P=g.attributes.position,col=new Float32Array(P.count*3),c=new THREE.Color(),Y=new Float32Array(P.count);
  const SAND=new THREE.Color(0xe8cf98),GRASS=new THREE.Color(REAL?0x6a9a58:0x6fc070),HIGH=new THREE.Color(REAL?0x5a8a4c:0x58a860),ROCK=new THREE.Color(0x8a7f78),SHAL=new THREE.Color(0x7fd6d0),DEEP=new THREE.Color(0x3aa8b8);
  for(let k=0;k<P.count;k++){const x=P.getX(k),z=P.getZ(k),sd=sdfAt(x,z);let y;
-   if(sd>0)y=GH(x,z)-(onRoad(x,z,6)?.75:.18);else y=sd>-14?-.95:-.95-Math.min(8,(-sd-14)*.25);
+   if(sd>0)y=-(roadMask(x,z)?.75:.18);else y=sd>-14?-.95:-.95-Math.min(8,(-sd-14)*.25);
    if(sd>0&&sd<3&&LP(x,z)===0)y=Math.min(y,-.1+sd*.03);Y[k]=y;P.setY(k,y)}
  for(let k=0;k<P.count;k++){const x=P.getX(k),z=P.getZ(k),sd=sdfAt(x,z),i=k%nx,j=(k/nx)|0;
    const n=(a,b)=>Y[Math.min(nz-1,Math.max(0,j+b))*nx+Math.min(nx-1,Math.max(0,i+a))];const slope=Math.max(Math.abs(n(1,0)-n(-1,0)),Math.abs(n(0,1)-n(0,-1)))/(2*st);
@@ -465,7 +510,7 @@ sea.rotation.x=-Math.PI/2;sea.position.y=-.6;scene.add(sea);
  g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();
  const TER=new THREE.Mesh(g,new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad}));TER.receiveShadow=true;TER.userData.noLift=1;scene.add(TER)}
 // —— 挡土墙：街区和旁边路面不一样高的地方，砌一道石墙（悬崖、台地边）
-const wallMat=new THREE.MeshToonMaterial({color:0x9a9086,gradientMap:toonGrad,side:THREE.DoubleSide});
+const wallMat=new THREE.MeshToonMaterial({color:0x9a9086,gradientMap:toonGrad,side:THREE.DoubleSide});wallMat.defines={NOWARPH:''};
 for(const[i,j]of VALID){const h=hB(i,j),x0=rx(i)+BAND,x1=rx(i+1)-BAND,z0=rz(j)+BAND,z1=rz(j+1)-BAND;
   const sides=[[x0,z0,x1,z0],[x1,z0,x1,z1],[x1,z1,x0,z1],[x0,z1,x0,z0]];const pos=[];
   for(const[ax,az,bx,bz]of sides){const L=Math.hypot(bx-ax,bz-az),n=Math.max(1,Math.ceil(L/4));
@@ -479,15 +524,15 @@ const COASTP=(()=>{const out=[];for(const I of ISLANDS){const P=I.poly;for(let i
    for(let k=0;k<n;k++){const t=k/n,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;const tx=(b[0]-a[0])/L,tz=(b[1]-a[1])/L;let nx2=-tz,nz2=tx;if(sdfAt(x+nx2*6,z+nz2*6)<sdfAt(x-nx2*6,z-nz2*6)){nx2=-nx2;nz2=-nz2}out.push({x,z,nx:nx2,nz:nz2,tx,tz})}}}return out})();
 const coastSample=n=>{const out=[];for(let k=0;k<n;k++)out.push(COASTP[Math.floor((k+.37)/n*COASTP.length)%COASTP.length]);return out};
 // —— 小地图 / 大地图用的地形图（一像素 5 米）
-const LANDCV=(()=>{const st=5,x0=WU(-.16),z0=WV(-.16),w=Math.ceil((WU(1.16)-x0)/st),h=Math.ceil((WV(1.16)-z0)/st),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),im=g.createImageData(w,h);
-  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const x=x0+i*st,z=z0+j*st,sd=sdfAt(x,z),lv=LP(x,z);let r,gg,b;
+const LANDCV=(()=>{const st=5,x0=WU(-.16)-60,z0=WV(-.16)-60,w=Math.ceil((WU(1.16)+60-x0)/st),h=Math.ceil((WV(1.16)+60-z0)/st),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d'),im=g.createImageData(w,h);
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const L0=wInv(x0+i*st,z0+j*st),x=L0[0],z=L0[1],sd=sdfAt(x,z),lv=LP(x,z);let r,gg,b;
     if(sd<-8){r=31;gg=181;b=201}else if(sd<=0){r=127;gg=214;b=208}else if(sd<(x>WU(.94)?48:14)&&lv===0){r=242;gg=213;b=155}else if(lv>0){const k=lv/16;r=96-20*k;gg=170-30*k;b=96-20*k}else{r=121;gg=194;b=124}
     if(sd>0&&lv>0&&(Math.abs(GH(x+st,z)-GH(x,z))>4||Math.abs(GH(x,z+st)-GH(x,z))>4||sd<st))r=gg=b=70;
     const o=(j*w+i)*4;im.data[o]=r;im.data[o+1]=gg;im.data[o+2]=b;im.data[o+3]=255}
   g.putImageData(im,0,0);c.X0=x0;c.Z0=z0;c.W=w*st;c.H=h*st;return c})();
 // —— 把一组网格贴到地面上：合并过的几何体逐顶点抬高，其余按位置整体抬高
 function drapeGeo(G){const P=G.attributes.position;if(!P||!P.array)return;for(let k=0;k<P.count;k++)P.setY(k,P.getY(k)+GH(P.getX(k),P.getZ(k)));P.needsUpdate=true;G.computeBoundingSphere();G.computeBoundingBox()}
-function drapeGroup(g){for(const o of g.children){if(o.geometry&&o.geometry.userData.merged)drapeGeo(o.geometry);else o.position.y+=GH(o.position.x,o.position.z)}g.userData.lifted=1}
+function drapeGroup(g){g.userData.lifted=1}
 
 // —— 跨海大桥：桥面、护栏、路灯、桥墩
 const isBridgeE=(i,j)=>BRW(i,j)||BRW(i+1,j)||[.2,.4,.6,.8].some(t=>sdfAt(rx(i)+(rx(i+1)-rx(i))*t,rz(j))<4);
@@ -642,7 +687,7 @@ function atlasAdd(cv,em){let k=ATL.n++;if(k>=ATL.cols*ATL.rows){console.warn('at
   ATL.tex.needsUpdate=true;ATL.etex.needsUpdate=true;return{atlas:1,rect:[(x+pad)/W,1-(y+ATL.ch-pad)/H,(ATL.cw-2*pad)/W,(ATL.ch-2*pad)/H]}}
 // 共用材质：UV 仍按米平铺，着色器里用 fract 把它折回贴图集里对应的那一格（用原始 UV 的导数选 mip，避免接缝）
 const ATLAS_MAT=new THREE.MeshToonMaterial({map:ATL.tex,emissiveMap:ATL.etex,emissive:0xffffff,emissiveIntensity:.15,gradientMap:toonGrad});
-ATLAS_MAT.onBeforeCompile=sh=>{
+ATLAS_MAT.onBeforeCompile=sh=>{Object.assign(sh.uniforms,WARPU);
   sh.vertexShader=sh.vertexShader.replace('#include <uv_pars_vertex>','#include <uv_pars_vertex>\nattribute vec4 tileR;varying vec4 vTile;varying vec2 vRep;').replace('#include <uv_vertex>','#include <uv_vertex>\nvTile=tileR;vRep=uv;');
   sh.fragmentShader=sh.fragmentShader.replace('#include <uv_pars_fragment>','#include <uv_pars_fragment>\nvarying vec4 vTile;varying vec2 vRep;\nvec4 atl(sampler2D t){vec2 a=vTile.xy+fract(vRep)*vTile.zw;\n#if __VERSION__>=300\nreturn textureGrad(t,a,dFdx(vRep)*vTile.zw,dFdy(vRep)*vTile.zw);\n#else\nreturn texture2D(t,a);\n#endif\n}')
     .replace('#include <map_fragment>','vec4 texelColor=atl(map);texelColor=mapTexelToLinear(texelColor);diffuseColor*=texelColor;')
@@ -828,12 +873,12 @@ const seedR=(...k)=>{let h=2166136261;for(const v of k){h=Math.imul(h^((v*265443
 for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){
   if(!blockOK(i,j))continue;
   const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j);
-  const side=tPlane(W+4,D+4,groundMat('sidewalk',0xf0d8e4),Math.ceil((W+4)/2.5),Math.ceil((D+4)/2.5));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);
+  const side=tPlane(W+4,D+4,groundMat('sidewalk',0xf0d8e4),Math.ceil((W+4)/4),Math.ceil((D+4)/4));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);
   if(i===VB[0]&&j===VB[1]){villa={x:cx,z:cz};continue}
   if(i===SB[0]&&j===SB[1]){station={x:cx,z:cz,w:W,d:D};continue}
   if(i===HB[0]&&j===HB[1]){hospital={x:cx,z:cz,w:W,d:D};continue}
   if(i===LB[0]&&j===LB[1])continue;
-  let t;if(DIAG.has(i+','+j))t='diag';else if(SHOPST.has(i+','+j))t='bld';else{const r=seedR(1,i,j),bdist=Math.hypot(cx/HALFX,cz/HALFZ),r0=r();t=r0<.2?'park':r0<.3&&W>40&&D>40?'lot':(bdist>.42&&r()<.6)?'houses':'bld'}
+  let t;if(DIAG.has(i+','+j))t='diag';else if(SHOPST.has(i+','+j))t='bld';else{const r=seedR(1,i,j),bdist=Math.hypot(cx/HALFX,cz/HALFZ),r0=r();t=r0<.08?'park':r0<.12&&W>40&&D>40?'lot':(bdist>.72&&r()<.35)?'houses':'bld'}
   BTYPE[i+','+j]=t;if(t==='park'||t==='diag')parkSpots.push([cx,cz]);
   JOBS.push({kind:'block',i,j,x:cx,z:cz,r:Math.hypot(W,D)/2});
 }
@@ -876,7 +921,7 @@ function buildBlock(i,j){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),t=BTYPE[i+',
   for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){
     const ox=cx-W/2+lw*(a+.5),oz=cz-D/2+ld*(b+.5);
     if(SS&&(SS==='W'?ox-lw/2<cx-W/2+20:ox+lw/2>cx+W/2-20)){continue}
-    if(nx*nz>1&&R()<.2){if(!nearVenue(ox,oz,3))palm(ox,oz);continue}
+    if(nx*nz>1&&R()<.06){if(!nearVenue(ox,oz,3))palm(ox,oz);continue}
     const w=nx*nz===1?Math.min(W,D)*rr(.48,.62):Math.max(18,Math.min(lw,ld)-rr(10,16));
     const dist=Math.hypot(ox/HALFX,oz/HALFZ),h=dist<.28?Math.round(rr(28,64)/4)*4:dist<.5&&R()<.35?Math.round(rr(16,28)/4)*4:Math.round(rr(8,16)/4)*4;
     if(nearVenue(ox,oz,w/2+2))continue;
@@ -1281,7 +1326,7 @@ function detailTex(kind){const S=256,c=document.createElement('canvas');c.width=
 const vcCarMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad,map:detailTex('car')}),vcPersonMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad,map:detailTex('cloth')});
 const lightVC=new THREE.MeshBasicMaterial({vertexColors:true});
 function outlineMat(t){const m=new THREE.MeshBasicMaterial({color:0x1a0f2a,side:THREE.BackSide});
-  m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <begin_vertex>','vec3 transformed=position+normal*'+t.toFixed(3)+';')};m.customProgramCacheKey=()=>'ol'+t;return m}
+  m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,WARPU);sh.vertexShader=sh.vertexShader.replace('#include <begin_vertex>','vec3 transformed=position+normal*'+t.toFixed(3)+';')};m.customProgramCacheKey=()=>'ol'+t;return m}
 const OL_P=outlineMat(.018),OL_C=outlineMat(.035);if(REAL)OL_P.visible=OL_C.visible=false;
 const _c=new THREE.Color();
 class Bld{constructor(){this.parts=[];this.extra=[]}
@@ -2601,20 +2646,26 @@ addEventListener('keydown',e=>{if(e.code==='Tab'&&running){e.preventDefault();op
 // 地图视角：zoom=1 时整座岛刚好放进画布；cx/cz 是画布中心对应的世界坐标
 const mapView={zoom:1,cx:0,cz:0};
 function mapBase(Wc,Hc){return Math.min(Wc/(HALFX*2.3),Hc/(HALFZ*2.5))}
+
+// —— 地图绘制工具：把世界里的线、面按弯曲后的位置画出来
+function wPoly(ctx,F,sc,P,sub=6){ctx.beginPath();for(let k=0;k<P.length;k++){const a=P[k],b=P[(k+1)%P.length];for(let q=0;q<sub;q++){const t=q/sub,p=F(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t);(k||q)?ctx.lineTo(p[0]*sc,p[1]*sc):ctx.moveTo(p[0]*sc,p[1]*sc)}}ctx.closePath();ctx.fill()}
+function wLine(ctx,F,sc,P,sub=8){ctx.beginPath();for(let k=0;k<P.length;k++){if(k===0){const p=F(P[0][0],P[0][1]);ctx.moveTo(p[0]*sc,p[1]*sc);continue}const a=P[k-1],b=P[k];for(let q=1;q<=sub;q++){const t=q/sub,p=F(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t);ctx.lineTo(p[0]*sc,p[1]*sc)}}ctx.stroke()}
+function drawWorldW(ctx,F,sc){
+  for(const[i,j]of VALID){const c=bcen(i,j);ctx.fillStyle=DIAG.has(i+','+j)||parkSpots.some(q=>Math.abs(q[0]-c.x)<1&&Math.abs(q[1]-c.z)<1)?'#5fb565':'#c9c0d0';const x0=rx(i)+RD/2,z0=rz(j)+RD/2,x1=x0+bW(i),z1=z0+bD(j);wPoly(ctx,F,sc,[[x0,z0],[x1,z0],[x1,z1],[x0,z1]])}
+  ctx.fillStyle='#c9c0d0';for(const[x,z,w,d]of brokenStrips)wPoly(ctx,F,sc,[[x-w/2-1,z-d/2-1],[x+w/2+1,z-d/2-1],[x+w/2+1,z+d/2+1],[x-w/2-1,z+d/2+1]],3);
+  ctx.strokeStyle='#55505f';ctx.lineWidth=RD*sc;ctx.lineCap='round';ctx.lineJoin='round';
+  for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(edgeOK(i,j,1)&&!CURVE.has(ek(i,j,1)))wLine(ctx,F,sc,[[rx(i),rz(j)],[rx(i+1),rz(j)]]);if(edgeOK(i,j,0)&&!CURVE.has(ek(i,j,0)))wLine(ctx,F,sc,[[rx(i),rz(j)],[rx(i),rz(j+1)]])}
+  for(const[k,t]of DIAG){if(CURVE.has('D'+k))continue;const[x0,z0,x1,z1]=diagSeg(k,t);wLine(ctx,F,sc,[[x0,z0],[x1,z1]])}
+  for(const e of CURVE.values())wLine(ctx,F,sc,e.pts,1);ctx.lineCap='butt'}
 function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),Wc=cv.clientWidth*dpr,Hc=cv.clientHeight*dpr;if(cv.width!==Wc||cv.height!==Hc){cv.width=Wc;cv.height=Hc}
-  const g=cv.getContext('2d'),s=mapBase(Wc,Hc)*mapView.zoom,ox=Wc/2-mapView.cx*s,oz=Hc/2-mapView.cz*s,S=(x,z)=>[ox+x*s,oz+z*s];
+  const g=cv.getContext('2d'),s=mapBase(Wc,Hc)*mapView.zoom,ox=Wc/2-mapView.cx*s,oz=Hc/2-mapView.cz*s,S=(x,z)=>{const q=wAbs(x,z);return[ox+q[0]*s,oz+q[1]*s]};
   g.setTransform(1,0,0,1,0,0);g.fillStyle='#1fb5c9';g.fillRect(0,0,Wc,Hc);g.setTransform(s,0,0,s,ox,oz);
   const isl=(m,c)=>{g.fillStyle=c;g.beginPath();for(let k=0;k<=200;k++){const a=k/200*Math.PI*2,r=ISL(a)-m;g.lineTo(Math.cos(a)*r,Math.sin(a)*r)}g.fill()};
   g.imageSmoothingEnabled=true;g.drawImage(LANDCV,LANDCV.X0,LANDCV.Z0,LANDCV.W,LANDCV.H);
-  g.fillStyle='#55505f';for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
-    if(edgeOK(i,j,1)&&!CURVE.has(ek(i,j,1)))g.fillRect(rx(i)-RD/2,rz(j)-RD/2,rx(i+1)-rx(i)+RD,RD);if(edgeOK(i,j,0)&&!CURVE.has(ek(i,j,0)))g.fillRect(rx(i)-RD/2,rz(j)-RD/2,RD,rz(j+1)-rz(j)+RD)}
-  for(const[i,j]of VALID){const c=bcen(i,j);g.fillStyle=parkSpots.some(q=>Math.abs(q[0]-c.x)<1&&Math.abs(q[1]-c.z)<1)?'#5fb565':'#c9c0d0';g.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}
-  g.fillStyle='#c9c0d0';for(const[x,z,w,d]of brokenStrips)g.fillRect(x-w/2-1,z-d/2-1,w+2,d+2);
-  for(const[i,j]of VALID)if(DIAG.has(i+','+j)){g.fillStyle='#5fb565';g.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}
-  g.strokeStyle='#55505f';g.lineWidth=RD;g.lineCap='round';for(const[k,t]of DIAG){if(CURVE.has('D'+k))continue;const[x0,z0,x1,z1]=diagSeg(k,t);g.beginPath();g.moveTo(x0,z0);g.lineTo(x1,z1);g.stroke()}g.lineCap='round';for(const e of CURVE.values()){g.beginPath();e.pts.forEach((p,k)=>k?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke()}
-  drawGangZones(g);
+  drawWorldW(g,wAbs,1);
+  drawGangZones(g,wAbs);
   // 放大后画出楼房轮廓
-  if(mapView.zoom>=2.2){g.fillStyle='rgba(120,100,140,.55)';for(const o of solids)if(o.x1-o.x0<80)g.fillRect(o.x0,o.z0,o.x1-o.x0,o.z1-o.z0)}
+  if(mapView.zoom>=2.2){g.fillStyle='rgba(120,100,140,.55)';for(const o of solids)if(o.x1-o.x0<80)wPoly(g,wAbs,1,[[o.x0,o.z0],[o.x1,o.z0],[o.x1,o.z1],[o.x0,o.z1]],1)}
   g.setTransform(1,0,0,1,0,0);
   const fs=Math.round(13*dpr),label=(x,z,txt,col)=>{const[X,Y]=S(x,z);g.fillStyle=col;g.strokeStyle='#000';g.lineWidth=2*dpr;g.beginPath();g.arc(X,Y,6*dpr,0,7);g.fill();g.stroke();
     g.font=`700 ${fs}px Rubik,system-ui,sans-serif`;g.textAlign='center';g.lineWidth=3.5*dpr;g.strokeText(txt,X,Y-10*dpr);g.fillStyle='#fff';g.fillText(txt,X,Y-10*dpr)};
@@ -2626,13 +2677,13 @@ function drawBigMap(){const cv=$('bmc'),dpr=Math.min(devicePixelRatio,2),Wc=cv.c
   drawRoute(g,S,5*dpr);if(NAV.on){const[X,Y]=S(NAV.x,NAV.z);g.fillStyle='#c77dff';g.strokeStyle='#1a0f2a';g.lineWidth=2*dpr;g.beginPath();g.moveTo(X,Y);g.arc(X,Y-14*dpr,8*dpr,Math.PI*.8,Math.PI*2.2);g.closePath();g.fill();g.stroke()}
   if(beamMat.visible)label(mission.x,mission.z,'任务','#'+beamMat.color.getHexString());
   const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z,h=player.car?player.car.h:player.rot,[PX,PY]=S(px,pz);
-  g.save();g.translate(PX,PY);g.rotate(-h+Math.PI);g.scale(dpr,dpr);g.fillStyle='#ff3d8b';g.strokeStyle='#000';g.lineWidth=2;g.beginPath();g.moveTo(0,-11);g.lineTo(8,9);g.lineTo(-8,9);g.closePath();g.fill();g.stroke();g.restore()}
+  g.save();g.translate(PX,PY);g.rotate(-h+warpTheta(px,pz)+Math.PI);g.scale(dpr,dpr);g.fillStyle='#ff3d8b';g.strokeStyle='#000';g.lineWidth=2;g.beginPath();g.moveTo(0,-11);g.lineTo(8,9);g.lineTo(-8,9);g.closePath();g.fill();g.stroke();g.restore()}
 // 缩放：以某个屏幕点为中心缩放（滚轮、双指、按钮）
 function mapZoomAt(f,sx,sy){const cv=$('bmc'),r=cv.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,2),Wc=cv.width,Hc=cv.height;
   const s0=mapBase(Wc,Hc)*mapView.zoom,wx=mapView.cx+((sx-r.left)*dpr-Wc/2)/s0,wz=mapView.cz+((sy-r.top)*dpr-Hc/2)/s0;
   mapView.zoom=clamp(mapView.zoom*f,1,10);const s1=mapBase(Wc,Hc)*mapView.zoom;mapView.cx=wx-((sx-r.left)*dpr-Wc/2)/s1;mapView.cz=wz-((sy-r.top)*dpr-Hc/2)/s1;mapClamp();drawBigMap()}
 function mapClamp(){const k=1-1/mapView.zoom;mapView.cx=clamp(mapView.cx,-HALFX*1.15*k,HALFX*1.15*k);mapView.cz=clamp(mapView.cz,-HALFZ*1.25*k,HALFZ*1.25*k)}
-function mapCenterMe(z){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;if(z)mapView.zoom=Math.max(mapView.zoom,z);mapView.cx=px;mapView.cz=pz;mapClamp();drawBigMap()}
+function mapCenterMe(z){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;if(z)mapView.zoom=Math.max(mapView.zoom,z);{const q=wAbs(px,pz);mapView.cx=q[0];mapView.cz=q[1]}mapClamp();drawBigMap()}
 (function(){const cv=$('bmc'),pts=new Map();let pinch0=0,zoom0=1,tap=null;
   cv.addEventListener('wheel',e=>{e.preventDefault();mapZoomAt(Math.exp(-e.deltaY*.0015),e.clientX,e.clientY)},{passive:false});
   cv.addEventListener('pointerdown',e=>{tap=pts.size?null:{x:e.clientX,y:e.clientY,t:performance.now()};cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});cv.style.cursor='grabbing';
@@ -2642,28 +2693,25 @@ function mapCenterMe(z){const px=player.car?player.car.x:player.x,pz=player.car?
     else if(pts.size===2){pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const[a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0>0)mapZoomAt(zoom0*d/pinch0/mapView.zoom,(a.x+b.x)/2,(a.y+b.y)/2)}});
   const up=e=>{if(e.type==='pointerup'&&tap&&pts.size===1&&performance.now()-tap.t<500){const r=cv.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,2),s0=mapBase(cv.width,cv.height)*mapView.zoom;
       const wx=mapView.cx+((e.clientX-r.left)*dpr-cv.width/2)/s0,wz=mapView.cz+((e.clientY-r.top)*dpr-cv.height/2)/s0;
-      if(NAV.on&&Math.hypot(wx-NAV.x,wz-NAV.z)*s0/dpr<18)clearNav('已取消导航');else setNav(wx,wz);drawBigMap()}tap=null;pts.delete(e.pointerId);if(pts.size<2)pinch0=0;if(!pts.size)cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+      {const na=wAbs(NAV.x,NAV.z),lp=wInv(wx,wz);if(NAV.on&&Math.hypot(wx-na[0],wz-na[1])*s0/dpr<18)clearNav('已取消导航');else setNav(lp[0],lp[1])}drawBigMap()}tap=null;pts.delete(e.pointerId);if(pts.size<2)pinch0=0;if(!pts.size)cv.style.cursor='grab'};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
   const mid=()=>{const r=cv.getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]};
   $('bmIn').addEventListener('click',()=>mapZoomAt(1.6,...mid()));$('bmOut').addEventListener('click',()=>mapZoomAt(1/1.6,...mid()));$('bmMe').addEventListener('click',()=>mapCenterMe(3));$('bmNavX').addEventListener('click',()=>{clearNav('已取消导航');drawBigMap()});
 })();
-function drawMini(){const s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
+function drawMini(){const P=(x,z)=>{const q=warpXZ(x,z);return[q[0]*s,q[1]*s]},s=300/(HALF*1.2+120),cx=150,cy=150,px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
   mini.fillStyle='#1fa3c4';mini.fillRect(0,0,300,300);
   // 随镜头转动：镜头朝向永远在地图上方
   const th=-Math.PI/2-Math.atan2(Math.cos(camYaw),Math.sin(camYaw)),cT=Math.cos(th),sT=Math.sin(th);
   mini.save();const z=2.4;mini.translate(cx,cy);mini.rotate(th);mini.scale(z,z);mini.translate(-px*s,-pz*s);
   const isl=(m,c)=>{mini.fillStyle=c;mini.beginPath();for(let k=0;k<=96;k++){const a=k/96*Math.PI*2,r=(ISL(a)-m)*s;mini.lineTo(Math.cos(a)*r,Math.sin(a)*r)}mini.fill()};
-  mini.drawImage(LANDCV,LANDCV.X0*s,LANDCV.Z0*s,LANDCV.W*s,LANDCV.H*s);
-  mini.fillStyle='#55505f';for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){
-    if(edgeOK(i,j,1)&&!CURVE.has(ek(i,j,1)))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,(rx(i+1)-rx(i)+RD)*s,RD*s);if(edgeOK(i,j,0)&&!CURVE.has(ek(i,j,0)))mini.fillRect((rx(i)-RD/2)*s,(rz(j)-RD/2)*s,RD*s,(rz(j+1)-rz(j)+RD)*s)}
-  mini.fillStyle='#c9c0d0';for(const[i,j]of VALID)mini.fillRect((rx(i)+RD/2)*s,(rz(j)+RD/2)*s,bW(i)*s,bD(j)*s);for(const[x,z,w,d]of brokenStrips)mini.fillRect((x-w/2-1)*s,(z-d/2-1)*s,(w+2)*s,(d+2)*s);
-  mini.strokeStyle='#55505f';mini.lineWidth=RD*s;for(const[k,t]of DIAG){if(CURVE.has('D'+k))continue;const[x0,z0,x1,z1]=diagSeg(k,t);mini.beginPath();mini.moveTo(x0*s,z0*s);mini.lineTo(x1*s,z1*s);mini.stroke()}mini.lineCap='round';for(const e of CURVE.values()){mini.beginPath();e.pts.forEach((p,k)=>k?mini.lineTo(p[0]*s,p[1]*s):mini.moveTo(p[0]*s,p[1]*s));mini.stroke()}mini.lineCap='butt';
-  mini.fillStyle='#fff';mini.fillRect((villa.x-15)*s,(villa.z-11)*s,30*s,22*s);mini.fillStyle='#ff2a3a';mini.fillRect((hospital.x-8)*s,(hospital.z-2.5)*s,16*s,5*s);mini.fillRect((hospital.x-2.5)*s,(hospital.z-8)*s,5*s,16*s);mini.fillStyle='#4a7ab0';mini.beginPath();mini.arc(station.x*s,station.z*s,7*s,0,7);mini.fill();
-  for(const c of cars)if(c.police&&!c.dead){mini.fillStyle=((performance.now()/200)|0)%2?'#f00':'#04f';mini.fillRect(c.x*s-3,c.z*s-3,6,6)}
-  drawRoute(mini,(x,z)=>[x*s,z*s],3.2);if(NAV.on){mini.fillStyle='#c77dff';mini.beginPath();mini.arc(NAV.x*s,NAV.z*s,5,0,7);mini.fill()}
-  if(beamMat.visible){mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(mission.x*s,mission.z*s,6,0,7);mini.fill()}
-  if(EVT&&eBeam.visible){mini.fillStyle='#ff9a3d';mini.beginPath();mini.arc(EVT.x*s,EVT.z*s,5,0,7);mini.fill()}
-  if(HOME.door){mini.fillStyle='#2a6fd0';mini.strokeStyle='#fff';mini.lineWidth=1.5;mini.beginPath();mini.moveTo(HOME.door.x*s,HOME.door.z*s-7);mini.lineTo(HOME.door.x*s+6,HOME.door.z*s);mini.lineTo(HOME.door.x*s-6,HOME.door.z*s);mini.closePath();mini.fill();mini.stroke();mini.fillRect(HOME.door.x*s-4,HOME.door.z*s,8,5)}
-  if(sBeam.visible){mini.fillStyle='#ffc83d';mini.strokeStyle='#000';mini.lineWidth=1.5;mini.beginPath();mini.arc(STORY.x*s,STORY.z*s,7,0,7);mini.fill();mini.stroke()}
+  mini.save();mini.translate(WARP.cx*s,WARP.cz*s);mini.rotate(Math.atan2(WARP.s,WARP.c));mini.translate(-(WARP.cx+WARP.dcx)*s,-(WARP.cz+WARP.dcz)*s);mini.drawImage(LANDCV,LANDCV.X0*s,LANDCV.Z0*s,LANDCV.W*s,LANDCV.H*s);mini.restore();
+  drawWorldW(mini,warpXZ,s);
+  {const v=P(villa.x,villa.z),h2=P(hospital.x,hospital.z),st2=P(station.x,station.z);mini.fillStyle='#fff';mini.fillRect(v[0]-15*s,v[1]-11*s,30*s,22*s);mini.fillStyle='#ff2a3a';mini.fillRect(h2[0]-8*s,h2[1]-2.5*s,16*s,5*s);mini.fillRect(h2[0]-2.5*s,h2[1]-8*s,5*s,16*s);mini.fillStyle='#4a7ab0';mini.beginPath();mini.arc(st2[0],st2[1],7*s,0,7);mini.fill()}
+  for(const c of cars)if(c.police&&!c.dead){mini.fillStyle=((performance.now()/200)|0)%2?'#f00':'#04f';{const q=P(c.x,c.z);mini.fillRect(q[0]-3,q[1]-3,6,6)}}
+  drawRoute(mini,P,3.2);if(NAV.on){mini.fillStyle='#c77dff';mini.beginPath();mini.arc(...P(NAV.x,NAV.z),5,0,7);mini.fill()}
+  if(beamMat.visible){mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(...P(mission.x,mission.z),6,0,7);mini.fill()}
+  if(EVT&&eBeam.visible){mini.fillStyle='#ff9a3d';mini.beginPath();mini.arc(...P(EVT.x,EVT.z),5,0,7);mini.fill()}
+  if(HOME.door){const[HX,HZ]=P(HOME.door.x,HOME.door.z);mini.fillStyle='#2a6fd0';mini.strokeStyle='#fff';mini.lineWidth=1.5;mini.beginPath();mini.moveTo(HX,HZ-7);mini.lineTo(HX+6,HZ);mini.lineTo(HX-6,HZ);mini.closePath();mini.fill();mini.stroke();mini.fillRect(HX-4,HZ,8,5)}
+  if(sBeam.visible){mini.fillStyle='#ffc83d';mini.strokeStyle='#000';mini.lineWidth=1.5;mini.beginPath();mini.arc(...P(STORY.x,STORY.z),7,0,7);mini.fill();mini.stroke()}
   mini.restore();
   // 屏外目标箭头
   if(beamMat.visible){const wx=(mission.x-px)*s*z,wz=(mission.z-pz)*s*z,dx=wx*cT-wz*sT,dz=wx*sT+wz*cT;if(Math.hypot(dx,dz)>140){const a=Math.atan2(dz,dx);mini.fillStyle='#'+beamMat.color.getHexString();mini.beginPath();mini.arc(cx+Math.cos(a)*128,cy+Math.sin(a)*128,14,0,7);mini.fill()}}
@@ -2830,7 +2878,7 @@ let CAP=null;const _sceneAdd=scene.add.bind(scene);scene.add=function(...o){if(C
 let LOAD_R=Q.load;const UNLOAD_R=640;
 function buildJob(job){if(job.built)return;const s0=solids.length,b0=benches.length,p0=PARK.length,oldR=R;CAP=[];
   try{buildJobContent(job)}finally{R=oldR}const objs=CAP;CAP=null;
-  job.solids=solids.slice(s0);job.benches=benches.slice(b0);job.park=PARK.slice(p0);job.group=mergeInto(objs,new THREE.Group());if(job.kind==='block')job.group.position.y=hB(job.i,job.j);else if(job.kind==='node')job.group.position.y=hN(job.i,job.j);else drapeGroup(job.group);job.group.userData.lifted=1;_sceneAdd(job.group);job.built=true}
+  job.solids=solids.slice(s0);job.benches=benches.slice(b0);job.park=PARK.slice(p0);job.group=mergeInto(objs,new THREE.Group());job.group.userData.lifted=1;_sceneAdd(job.group);job.built=true}
 function unloadJob(job){if(!job.built)return;scene.remove(job.group);job.group.traverse(o=>{if(o.geometry&&o.geometry.userData.merged)o.geometry.dispose()});job.group=null;
   const drop=(arr,items)=>{for(const it of items){const k=arr.indexOf(it);if(k>=0)arr.splice(k,1)}};drop(solids,job.solids);drop(benches,job.benches);drop(PARK,job.park.filter(sp=>!sp.used));job.built=false}
 // 立刻生成某点周围的所有任务（开局、读档、重生传送时用）
@@ -2849,7 +2897,7 @@ function updStream(){const pc=player.car,la=pc?clamp(pc.speed,-10,45)*1.6:0,px=(
   for(const[key,list]of groups){if(list.length<2)continue;const mat=list[0].material;const pos=[],nor=[],uv=[],tl=[];let cast=false;
     for(const o of list){o.updateMatrix();const g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();g.applyMatrix4(o.matrix);
       const P=g.attributes.position,Nn=g.attributes.normal,U=g.attributes.uv,T=g.attributes.tileR;
-      for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i)+GH(P.getX(i),P.getZ(i)),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0);if(T)tl.push(T.getX(i),T.getY(i),T.getZ(i),T.getW(i))}
+      for(let i=0;i<P.count;i++){pos.push(P.getX(i),P.getY(i),P.getZ(i));nor.push(Nn.getX(i),Nn.getY(i),Nn.getZ(i));uv.push(U?U.getX(i):0,U?U.getY(i):0);if(T)tl.push(T.getX(i),T.getY(i),T.getZ(i),T.getW(i))}
       g.dispose();cast=cast||o.castShadow;scene.remove(o)}
     const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));G.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));if(tl.length)G.setAttribute('tileR',new THREE.Float32BufferAttribute(tl,4));
     releaseAfterUpload(G);const m=new THREE.Mesh(G,mat);m.castShadow=cast;m.receiveShadow=true;m.userData.noLift=1;scene.add(m)}})();
@@ -2858,7 +2906,7 @@ let STEER='btn';try{STEER=localStorage.getItem('nby-steer')||'btn'}catch(e){}
 function setSteer(v){STEER=v;try{localStorage.setItem('nby-steer',v)}catch(e){}$('touch').dataset.steer=v;for(const b of document.querySelectorAll('#steerRow button')){b.classList.toggle('on',b.dataset.s===v);b.setAttribute('aria-checked',b.dataset.s===v)}}
 let cityReady=false;updDayNight(0);
 (function bootCity(){const st=$('start'),label=st.textContent;st.disabled=true;
-  const todo=JOBS.filter(j=>Math.hypot(j.x-SPN.x,j.z-SPN.z)-j.r<Math.min(LOAD_R,300)).sort((a,b)=>Math.hypot(a.x-SPN.x,a.z-SPN.z)-Math.hypot(b.x-SPN.x,b.z-SPN.z));let k=0;
+  const todo=JOBS.filter(j=>Math.hypot(j.x-SPN.x,j.z-SPN.z)-j.r<Math.min(LOAD_R,170)).sort((a,b)=>Math.hypot(a.x-SPN.x,a.z-SPN.z)-Math.hypot(b.x-SPN.x,b.z-SPN.z));let k=0;
   (function step(){const t0=performance.now();while(k<todo.length&&performance.now()-t0<40)buildJob(todo[k++]);
     st.textContent=`正在生成城市 ${Math.round(k/Math.max(1,todo.length)*100)}%`;
     if(k<todo.length)requestAnimationFrame(step);else{st.textContent=st.dataset.label||label;st.disabled=false;cityReady=true}})()})();
@@ -3343,7 +3391,7 @@ const compM=pmat({tS:{value:null},tB1:{value:null},tB2:{value:null},tR:{value:nu
    c=c*uMul+uAdd;float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);c=(c-.5)*uCon+.5;vec2 q=vUv-.5;c*=1.-uVig*dot(q,q)*1.7;gl_FragColor=vec4(clamp(c,0.,1.),1.);}`);
 function pass(m,target){fsQuad.material=m;ren.setRenderTarget(target);ren.render(fsScene,fsCam)}
 const _sunV=new THREE.Vector3();
-function renderMain(){const L=!(INSIDE&&!INSIDE.sw);if(L)liftDyn(1);try{renderMain0()}finally{if(L)liftDyn(0)}}
+function renderMain(){const L=!(INSIDE&&!INSIDE.sw);WARPU.uWon.value=L?1:0;if(L){warpCenter(player.car?player.car.x:player.x,player.car?player.car.z:player.z);liftDyn(1)}try{renderMain0()}finally{if(L)liftDyn(0)}}
 function renderMain0(){const SC=INSIDE&&!INSIDE.sw?INSIDE.r.scene:scene;if(!POST.on){ren.setRenderTarget(null);ren.render(SC,cam);return}postSize();
   ren.setRenderTarget(rtMain);ren.render(SC,cam);
   brightM.uniforms.tD.value=rtMain.texture;pass(brightM,rtA);
@@ -3387,7 +3435,7 @@ function updSea(dt){seaU.uT.value+=dt;const day=clamp((SUN_DIR.y+.05)/.3,0,1);se
 const blobTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(0,0,0,.55)');gr.addColorStop(.55,'rgba(0,0,0,.3)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
 const BLOB_N=170,blobs=new THREE.InstancedMesh(headGeo,new THREE.MeshBasicMaterial({map:blobTex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4}),BLOB_N);blobs.frustumCulled=false;blobs.renderOrder=1;blobs.count=0;scene.add(blobs);
 function updBlobs(){let n=0;const cx=cam.position.x,cz=cam.position.z;
-  const add=(x,z,sx,sz,h)=>{if(n>=BLOB_N)return;_pp.set(x,.12+GH(x,z),z);_pq.setFromAxisAngle(UP,h);_ps.set(sx,1,sz);_pm.compose(_pp,_pq,_ps);blobs.setMatrixAt(n++,_pm)};
+  const add=(x,z,sx,sz,h)=>{if(n>=BLOB_N)return;_pp.set(x,.12,z);_pq.setFromAxisAngle(UP,h);_ps.set(sx,1,sz);_pm.compose(_pp,_pq,_ps);blobs.setMatrixAt(n++,_pm)};
   if(!player.car&&!player.swim){const k=1/(1+player.y*.6);add(player.x,player.z,1.5*k,1.5*k,0)}
   for(const c of cars){if(c.dead||Math.abs(c.x-cx)>90||Math.abs(c.z-cz)>90||(c.y||0)>3)continue;if(c.hw===undefined)carDim(c);const k=1/(1+(c.y||0)*.4);add(c.x+Math.sin(c.h)*c.cz,c.z+Math.cos(c.h)*c.cz,c.hw*2.6*k,c.hl*2.35*k,c.h)}
   for(const p of peds)if(!p.dead&&p.mesh.visible&&!(p.knock>0)&&Math.abs(p.x-cx)<70&&Math.abs(p.z-cz)<70)add(p.x,p.z,1.35,1.35,0);
@@ -3397,7 +3445,7 @@ function updBlobs(){let n=0;const cx=cam.position.x,cz=cam.position.z;
 const LGT_N=260,lgt=new THREE.InstancedMesh(new THREE.SphereGeometry(.2,10,8),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}),LGT_N);lgt.frustumCulled=false;lgt.renderOrder=3;lgt.count=0;scene.add(lgt);
 const _lc=new THREE.Color();lgt.setColorAt(0,_lc.set(0));
 function updCarLights(){let n=0;const cx=cam.position.x,cz=cam.position.z,L=Math.max(NIGHT,WX.rain*.5,WX.fog*.6);
-  const add=(x,y,z,s,col)=>{if(n>=LGT_N)return;_pp.set(x,y+GH(x,z),z);_pq.identity();_ps.set(s,s,s);_pm.compose(_pp,_pq,_ps);lgt.setMatrixAt(n,_pm);lgt.setColorAt(n,col);n++};
+  const add=(x,y,z,s,col)=>{if(n>=LGT_N)return;_pp.set(x,y,z);_pq.identity();_ps.set(s,s,s);_pm.compose(_pp,_pq,_ps);lgt.setMatrixAt(n,_pm);lgt.setColorAt(n,col);n++};
   for(const c of cars){if(c.dead||Math.abs(c.x-cx)>130||Math.abs(c.z-cz)>130)continue;if(!c.driver&&c!==player.car)continue;if(c.hw===undefined)carDim(c);
     const brk=c.brk&&Math.abs(c.speed)>.5||c.brkT>0;c.brkT=brk?.25:(c.brkT||0)-.016;if(!brk&&L<.05)continue;
     const fx=Math.sin(c.h),fz=Math.cos(c.h),rx=Math.cos(c.h),rz=-Math.sin(c.h),bike=!!c.mesh.userData.bike,big=c.kind==='bus'||c.kind==='van';
@@ -3409,7 +3457,7 @@ function updCarLights(){let n=0;const cx=cam.position.x,cz=cam.position.z,L=Math
 // ---------- 刹车痕 + 轮胎烟 ----------
 const SKID_N=600,skid=new THREE.InstancedMesh(headGeo,new THREE.MeshBasicMaterial({color:0x0c0c0e,transparent:true,opacity:.5,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3}),SKID_N);skid.frustumCulled=false;skid.count=0;skid.renderOrder=1;scene.add(skid);
 let skidI=0,skidLast=null;
-function addSkid(x,z,h,w){_pp.set(x,.07+GH(x,z),z);_pq.setFromAxisAngle(UP,h);_ps.set(w,1,.75);_pm.compose(_pp,_pq,_ps);skid.setMatrixAt(skidI,_pm);skidI=(skidI+1)%SKID_N;skid.count=Math.min(SKID_N,skid.count+1);skid.instanceMatrix.needsUpdate=true}
+function addSkid(x,z,h,w){_pp.set(x,.07,z);_pq.setFromAxisAngle(UP,h);_ps.set(w,1,.75);_pm.compose(_pp,_pq,_ps);skid.setMatrixAt(skidI,_pm);skidI=(skidI+1)%SKID_N;skid.count=Math.min(SKID_N,skid.count+1);skid.instanceMatrix.needsUpdate=true}
 function updSkid(){const c=player.car;if(!c||c.air||(c.y||0)>.2){skidLast=null;return}const sp=Math.abs(c.speed);
   const sk=sp>10&&(brakeHeld()||(c.brk&&sp>16)||(Math.abs(c.steerS||0)>.65&&sp>24));if(!sk){skidLast=null;return}
   if(c.hw===undefined)carDim(c);const fx=Math.sin(c.h),fz=Math.cos(c.h),rx=Math.cos(c.h),rz=-Math.sin(c.h),bike=!!c.mesh.userData.bike,back=c.cz-c.hl*.7;
@@ -3419,7 +3467,7 @@ function updSkid(){const c=player.car;if(!c||c.air||(c.y||0)>.2){skidLast=null;r
 
 // ---------- 车漆反光（边缘高光，颜色跟着天空）----------
 const RIMU={uRim:{value:new THREE.Color(.6,.6,.7)}};
-vcCarMat.onBeforeCompile=sh=>{sh.uniforms.uRim=RIMU.uRim;sh.fragmentShader='uniform vec3 uRim;\n'+sh.fragmentShader.replace('#include <dithering_fragment>','#include <dithering_fragment>\n{vec3 vv=normalize(vViewPosition);float rim=pow(1.-abs(dot(normalize(vNormal),vv)),2.6);gl_FragColor.rgb+=uRim*rim*.5;}')};
+vcCarMat.onBeforeCompile=sh=>{Object.assign(sh.uniforms,WARPU);sh.uniforms.uRim=RIMU.uRim;sh.fragmentShader='uniform vec3 uRim;\n'+sh.fragmentShader.replace('#include <dithering_fragment>','#include <dithering_fragment>\n{vec3 vv=normalize(vViewPosition);float rim=pow(1.-abs(dot(normalize(vNormal),vv)),2.6);gl_FragColor.rgb+=uRim*rim*.5;}')};
 vcCarMat.customProgramCacheKey=()=>'carRim';if(REAL){vcCarMat.shininess=70;vcCarMat.specular.setHex(0x555555)}vcCarMat.needsUpdate=true;
 
 // ---------- 爆炸：火球 + 烟柱 ----------
@@ -3472,7 +3520,7 @@ const cloudTex=(()=>{const S=128,c=document.createElement('canvas');c.width=c.he
   g.putImageData(img,0,0);const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t})();
 const CLOUDU={tCloud:{value:cloudTex},uCT:{value:new THREE.Vector2()},uCC:{value:0}};
 function cloudify(m){if(m.userData.cloudy)return;m.userData.cloudy=1;
-  m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,CLOUDU);sh.vertexShader='varying vec2 vCW;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvCW=(modelMatrix*vec4(transformed,1.)).xz;');
+  m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,WARPU);Object.assign(sh.uniforms,CLOUDU);sh.vertexShader='varying vec2 vCW;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\nvCW=(modelMatrix*vec4(transformed,1.)).xz;');
     sh.fragmentShader='uniform sampler2D tCloud;uniform vec2 uCT;uniform float uCC;varying vec2 vCW;\n'+sh.fragmentShader.replace('#include <dithering_fragment>','#include <dithering_fragment>\n{float cl=texture2D(tCloud,vCW/460.+uCT).r;gl_FragColor.rgb*=1.-uCC*smoothstep(.5,.68,cl);}')};
   m.customProgramCacheKey=()=>'cloudy';m.needsUpdate=true}
 function updClouds(dt){for(const m of Object.values(GM))cloudify(m);CLOUDU.uCT.value.x+=dt*.0035;CLOUDU.uCT.value.y+=dt*.0012;const day=clamp((SUN_DIR.y-.02)/.25,0,1);CLOUDU.uCC.value=(.16+.3*WX.cover)*day*(1-WX.rain*.6)}
@@ -3799,7 +3847,7 @@ function updVenues(dt=1/60){updDoors(dt);updSW(dt);const t=.38+.18*Math.sin(perf
 // 无缝室内：店里面就建在楼里，推开门就能看到里面，走进去不切场景
 // =====================================================================
 function swRoom(v){if(v.room)return v.room;const q=RDIM[v.kind];const r=ROOMS[v.kind]||(ROOMS[v.kind]=makeRoom(v.kind,v.pr));
-  const ax=v.x,az=v.zf-(q[1]/2+.3)*RS,anchor=new THREE.Group();anchor.position.set(ax,SW_Y+GH(ax,az),az);
+  const ax=v.x,az=v.zf-(q[1]/2+.3)*RS,anchor=new THREE.Group();anchor.position.set(ax,SW_Y,az);
   for(const o of[...r.scene.children]){if(o.isLight||o===player.mesh)continue;anchor.add(o)}
   anchor.traverse(o=>{if(o.isMesh){o.receiveShadow=false;o.castShadow=false;if(!o.isSkinnedMesh)o.material=litMat(o.material);if(o.material&&o.material.isMeshBasicMaterial&&o.material.color&&o.material.color.getHex()===0xe6eef4)o.visible=false}});
   {const G0=anchor.children.find(o=>o.isGroup&&Math.abs(o.scale.x-RS)<1e-6);if(G0)for(const o of[...G0.children])if(o.userData.front)G0.remove(o);
@@ -3810,7 +3858,7 @@ let _hemiSave=null;const SW_Y=.13; // 店内地板略高于街面，避免和楼
 // 室内“开着灯”：材质自带一点自发光，从街上看进去是亮的，晚上更明显
 const LIT_GLOW=.3,_litCache=new Map(),_litList=[],LITU={value:.3},LITW={value:new THREE.Color(1,1,1)};
 const ATLAS_IN=(()=>{const m=new THREE.MeshToonMaterial({map:ATL.tex,emissiveMap:ATL.etex,emissive:0xffffff,gradientMap:toonGrad});
-  m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <uv_pars_vertex>','#include <uv_pars_vertex>\nattribute vec4 tileR;varying vec4 vTile;varying vec2 vRep;').replace('#include <uv_vertex>','#include <uv_vertex>\nvTile=tileR;vRep=uv;');
+  m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,WARPU);sh.vertexShader=sh.vertexShader.replace('#include <uv_pars_vertex>','#include <uv_pars_vertex>\nattribute vec4 tileR;varying vec4 vTile;varying vec2 vRep;').replace('#include <uv_vertex>','#include <uv_vertex>\nvTile=tileR;vRep=uv;');
     sh.uniforms.uGlow=LITU;sh.uniforms.uWarm=LITW;sh.fragmentShader=sh.fragmentShader.replace('#include <uv_pars_fragment>','#include <uv_pars_fragment>\nuniform float uGlow;uniform vec3 uWarm;varying vec4 vTile;varying vec2 vRep;\nvec4 atl(sampler2D t){vec2 a=vTile.xy+fract(vRep)*vTile.zw;\n#if __VERSION__>=300\nreturn textureGrad(t,a,dFdx(vRep)*vTile.zw,dFdy(vRep)*vTile.zw);\n#else\nreturn texture2D(t,a);\n#endif\n}')
       .replace('#include <map_fragment>','vec4 texelColor=atl(map);texelColor=mapTexelToLinear(texelColor);diffuseColor*=texelColor;')
       .replace('#include <emissivemap_fragment>','totalEmissiveRadiance=diffuseColor.rgb*uGlow*uWarm;')};
@@ -4012,22 +4060,16 @@ function updGang(dt){if(INSIDE)return;
     const n=2+((R()*2)|0),grp=[];for(let k=0;k<n;k++){const a=k/n*6.28,q=spawnGangPed(g,pt.x+Math.cos(a)*1.3,pt.z+Math.sin(a)*1.3,g.hot>0);if(q)grp.push(q)}
     for(const q of grp)q.rot=Math.atan2(pt.x-q.x,pt.z-q.z)}}
 // 地图上画地盘
-function drawGangZones(g2){for(const g of GANGS){if(!g.set)continue;const c=g.own?'rgba(255,200,61,.45)':'rgba('+[(g.col>>16)&255,(g.col>>8)&255,g.col&255].join(',')+',.38)';g2.fillStyle=c;
-  for(const[i,j]of g.blocks)g2.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}}
-// —— 开局：场景里的静态物件按所在位置的地面高度抬起来（合并过的几何体、地形、挡土墙、车和人除外）
-{const dyn=new Set([...cars.map(c=>c.mesh),...peds.map(p=>p.mesh),player.mesh,...cash.map(k=>k.m)]);
- for(const o of scene.children){if(o.userData.noLift||o.userData.lifted||dyn.has(o)||o.isLight||o.isInstancedMesh||o===sky||o===sea||o===sun.target)continue;
-   o.position.y+=GH(o.position.x,o.position.z);o.userData.lifted=1}}
+function drawGangZones(g2,F=(x,z)=>[x,z]){for(const g of GANGS){if(!g.set)continue;const c=g.own?'rgba(255,200,61,.45)':'rgba('+[(g.col>>16)&255,(g.col>>8)&255,g.col&255].join(',')+',.38)';g2.fillStyle=c;
+  for(const[i,j]of g.blocks){const x0=rx(i)+RD/2,z0=rz(j)+RD/2;wPoly(g2,F,1,[[x0,z0],[x0+bW(i),z0],[x0+bW(i),z0+bD(j)],[x0,z0+bD(j)]])}}}
 // —— 每次画画面前：车、人、钱、标记、镜头按地面高度抬起（画完再放回去，游戏逻辑仍然在平面上算）
 const _lift=[];let _camLift=0;
-function liftDyn(on){if(on){_lift.length=0;const add=o=>{if(!o||o.parent!==scene)return;const d=GH(o.position.x,o.position.z);if(!d)return;o.position.y+=d;_lift.push([o,d,0])};
-    for(const c of cars){const m=c.mesh;if(!m||m.parent!==scene)continue;const d=GH(c.x,c.z),fx=Math.sin(c.h)*2.2,fz=Math.cos(c.h)*2.2,p=c.air||c.dead?0:-Math.atan2(GH(c.x+fx,c.z+fz)-GH(c.x-fx,c.z-fz),4.4);
-      if(!d&&!p)continue;m.position.y+=d;m.rotation.x+=p;_lift.push([m,d,p])}
-    for(const p of peds)add(p.mesh);add(player.mesh);for(const k of cash)add(k.m);for(const k in MK){add(MK[k].sp);add(MK[k].ring)}
-    if(typeof GANGS!=='undefined')for(const gg of GANGS)if(gg.mk){add(gg.mk.sp);add(gg.mk.ring)}
-    if(heli){add(heli.g);add(heli.cone);add(heli.spot)}add(beam);add(sBeam);add(eBeam);
+function liftDyn(on){if(on){_lift.length=0;
+    for(const c of cars){const m=c.mesh;if(!m||m.parent!==scene||c.air||c.dead)continue;const fx=Math.sin(c.h)*2.2,fz=Math.cos(c.h)*2.2,p=-Math.atan2(GH(c.x+fx,c.z+fz)-GH(c.x-fx,c.z-fz),4.4);if(!p)continue;m.rotation.x+=p;_lift.push([m,0,p,0,0])}
+    const spr=o=>{if(!o||o.parent!==scene||!o.visible)return;const x=o.position.x,z=o.position.z,q=warpXZ(x,z),dy=GH(x,z);o.position.set(q[0],o.position.y+dy,q[1]);_lift.push([o,dy,0,q[0]-x,q[1]-z])};
+    for(const k in MK)spr(MK[k].sp);if(typeof GANGS!=='undefined')for(const gg of GANGS)if(gg.mk)spr(gg.mk.sp);
     _camLift=GH(player.x,player.z);cam.position.y+=_camLift}
-  else{for(const[o,d,p]of _lift){o.position.y-=d;o.rotation.x-=p}_lift.length=0;cam.position.y-=_camLift;_camLift=0}}
+  else{for(const[o,d,p,dx,dz]of _lift){o.position.y-=d;o.position.x-=dx;o.position.z-=dz;o.rotation.x-=p}_lift.length=0;cam.position.y-=_camLift;_camLift=0}}
 
 function updExtra(dt){const e=Math.sin((gameHour-6)/24*Math.PI*2);NIGHT=clamp((-e+.12)/.3,0,1);
   updStory(dt);updProps(dt);updInteract();updNpcTalk();updChallenges(dt);updGang(dt);updVenues(dt);updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updGfx(dt);updPerf();
