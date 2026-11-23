@@ -143,7 +143,7 @@ body.touch #prompt b{display:none}@keyframes pIn{from{opacity:0;transform:transl
 #cutTxt{position:absolute;left:0;right:0;top:38%;text-align:center;font-family:var(--disp);font-size:clamp(40px,10vw,90px);color:#fff;opacity:0;transform:scale(1.4);transition:opacity .35s,transform .5s;letter-spacing:.06em}
 #cut.on #cutTxt{opacity:1;transform:scale(1)}#cut.dead #cutTxt{color:#ff3d5a;text-shadow:0 4px 0 #000,0 0 30px #ff0040}#cut.arrest #cutTxt{color:#7fd8ff;text-shadow:0 4px 0 #000,0 0 30px #2a6fff}
 #cutSub{position:absolute;left:0;right:0;top:calc(38% + clamp(56px,13vw,120px));text-align:center;font-size:16px;color:#fff;opacity:0;transition:opacity .4s .3s}#cut.on #cutSub{opacity:.9}
-#fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:4}
+#fade{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:4;transition:opacity .2s}
 @media (prefers-reduced-motion:reduce){#topmsg::before{animation:none}}
 @media (prefers-reduced-motion:reduce){#toast,#hint{transition:none}}
 </style>
@@ -660,7 +660,7 @@ for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){
 const HOME={blk:null,x:0,z:0,face:1,cars:[],door:null,pad:null};
 {let best=null,bd=1e9;for(const[i,j]of VALID){if(BTYPE[i+','+j]!=='houses')continue;const c=bcen(i,j),d=Math.hypot(c.x-SPN.x,c.z-SPN.z);if(d<bd){bd=d;best=[i,j]}}
  if(best){const[i,j]=best,c=bcen(i,j),W=bW(i),D=bD(j),nx=Math.max(1,Math.round(W/38)),nz=Math.max(1,Math.round(D/36));HOME.blk=i+','+j;HOME.lw=W/nx;HOME.ld=D/nz;HOME.x=c.x-W/2+HOME.lw*.5;HOME.z=c.z-D/2+HOME.ld*.5;HOME.face=nz===1?1:-1}}
-function addHome(x,z,face,lw,ld){addHouse(x,z,face,lw,ld);const gx=x+lw/2-6.2,gz=z-face*1.5;
+let HOME_BUILD=false,LAST_FZ=0;function addHome(x,z,face,lw,ld){HOME_BUILD=true;try{addHouse(x,z,face,lw,ld)}finally{HOME_BUILD=false}HOME.doorFz=LAST_FZ;const gx=x+lw/2-6.2,gz=z-face*1.5;
   const gb=box(7,4.2,8,0xd8d0c4);gb.position.set(gx,2.1,gz);scene.add(gb);const rf=box(7.6,.35,8.6,0x5a5a60);rf.position.set(gx,4.35,gz);scene.add(rf);
   const gd=box(5.6,3.4,.12,0xb8bcc4);gd.position.set(gx,1.75,gz+face*4.03);scene.add(gd);for(let k=0;k<6;k++){const ln=box(5.6,.05,.14,0x8a8e96);ln.position.set(gx,.4+k*.55,gz+face*4.06);scene.add(ln)}
   const pad=tPlane(5.6,7,groundMat('stone',0x9a9690));pad.rotation.x=-Math.PI/2;pad.position.set(gx,.11,gz+face*7.6);scene.add(pad);
@@ -718,7 +718,7 @@ function addHouse(x,z,face,lw=BLK/2,ld=BLK/2){const w=Math.min(rr(17,22),lw-8),d
    {const uv=tg.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*.25,uv.getY(i)*.25)}const gab=atlasMesh(tg,surfMat(wk,wall));gab.position.set(x,hh,hz);gab.castShadow=true;scene.add(gab)}
   const ch=box(1.4,3.4,1.4,0x9a6a5a);ch.position.set(x+w*.28,hh+rise-.2,hz-d*.15);scene.add(ch);
   const fz=hz+face*(d/2+.05);
-  const door=box(1.9,3.6,.15,houseDoorMat);door.position.set(x,1.8,fz);scene.add(door);
+  if(HOME_BUILD){LAST_FZ=fz;const dg=box(1.9,3.6,.06,new THREE.MeshBasicMaterial({color:0xffdc9a}));dg.position.set(x,1.8,fz);scene.add(dg)}else{const door=box(1.9,3.6,.15,houseDoorMat);door.position.set(x,1.8,fz);scene.add(door)}
   const knob=box(.16,.16,.25,0xd9a93a);knob.position.set(x+.6,1.7,fz+face*.1);scene.add(knob);
   const por=box(6,.3,3.4,roof);por.position.set(x,4.4,fz+face*1.6);scene.add(por);
   for(const sd of[-1,1]){const col=box(.35,4.3,.35,0xffffff);col.position.set(x+sd*2.7,2.15,fz+face*3.1);scene.add(col)}
@@ -2528,7 +2528,7 @@ function step(){requestAnimationFrame(step);try{frame()}catch(e){console.error(e
 function frame(){const te=document.getElementById('touch'),tm=layoutOn?te.dataset.mode:player.car?'drive':'foot';if(te.dataset.mode!==tm){te.dataset.mode=tm;for(const k in tb_)tb_[k]=false;te.querySelectorAll('.tb.on').forEach(e=>e.classList.remove('on'));if(STEER!=='stick'){stick.x=stick.y=0;document.getElementById('knob').style.transform=''}}
 const now=performance.now(),dt=Math.min((now-last)/1000,.05);last=now;if(!running||mapOpen||shopOpen||phoneOpen||dlg||layoutOn){renderMain();return}
   const{ x:ax,y:ay}=axis();
-  if(INSIDE){updRoom(dt,ax,ay);hud(dt);renderMain();return}
+  if(INSIDE){updRoom(dt,ax,ay);if(INSIDE&&INSIDE.sw)swWorld(dt);hud(dt);renderMain();return}
   if(act.enter){act.enter=0;if(PROMPT&&!boarding&&!cut)usePrompt();else if(!boarding)player.car?exitCar(false):enterCar()}
   player.cool=(player.cool||0)-dt;{const w=WEAPONS[wIdx],held=keys.KeyF||tb_.Fire;
     if(!player.car&&!boarding&&!player.swim&&player.cool<=0&&(act.fire||(w.auto&&held))){attack();player.cool=w.cool}act.fire=0}
@@ -2814,7 +2814,7 @@ function updProps(dt){const px=player.car?player.car.x:player.x,pz=player.car?pl
   for(const pr of PROPS){if(!pr.pad)continue;pr.pad.material.opacity=.35+.25*Math.sin(performance.now()/300);
     if(player.car?pr.garage&&inBay(pr.bay,px,pz)&&Math.abs(player.car.speed)<4:Math.hypot((pr.wx??pr.x)-px,(pr.wz??pr.z)-pz)<2.8)near=pr}
   if(near&&player.car&&near.garage&&!near.entered&&!boarding){near.entered=true;openProp(near)}
-  if(near&&!player.car&&!boarding)setPrompt('进入 '+near.name+(near.id==='club'&&!OWNP.club?'（门票 $50）':''),()=>enterRoom(near.id,near.wx??near.x,(near.wz??near.z)+.6,0,near),Math.hypot((near.wx??near.x)-player.x,(near.wz??near.z)-player.z));for(const pr of PROPS)if(pr!==near)pr.entered=false;
+  for(const pr of PROPS)if(pr!==near)pr.entered=false;
   if(PROP_H!==null&&PROP_H<8&&gameHour>=8){DAYN++;const inc=dayIncome();if(inc){player.money+=inc;toast('💰 物业收入 +$'+inc.toLocaleString());beep(1200,.08,'sine',.08)}}
   PROP_H=gameHour}
 
@@ -3132,7 +3132,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.24.2';
+const VERSION='v0.25.0';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3157,7 +3157,7 @@ const compM=pmat({tS:{value:null},tB1:{value:null},tB2:{value:null},tR:{value:nu
    c=c*uMul+uAdd;float l=dot(c,vec3(.299,.587,.114));c=mix(vec3(l),c,uSat);c=(c-.5)*uCon+.5;vec2 q=vUv-.5;c*=1.-uVig*dot(q,q)*1.7;gl_FragColor=vec4(clamp(c,0.,1.),1.);}`);
 function pass(m,target){fsQuad.material=m;ren.setRenderTarget(target);ren.render(fsScene,fsCam)}
 const _sunV=new THREE.Vector3();
-function renderMain(){const SC=INSIDE?INSIDE.r.scene:scene;if(!POST.on){ren.setRenderTarget(null);ren.render(SC,cam);return}postSize();
+function renderMain(){const SC=INSIDE&&!INSIDE.sw?INSIDE.r.scene:scene;if(!POST.on){ren.setRenderTarget(null);ren.render(SC,cam);return}postSize();
   ren.setRenderTarget(rtMain);ren.render(SC,cam);
   brightM.uniforms.tD.value=rtMain.texture;pass(brightM,rtA);
   // 体积光
@@ -3298,6 +3298,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
+ ['v0.25','推门进店',[['0.25.0','不用再按 E 进门：走到门前门会被推开，走进门洞就进去，出门也是走过去推门；枪店、便利店、酒吧、夜店、服装店、理发店、银行的店里面直接建在楼里，推开门就能看到店内，走进去不切画面，在店里外面的车和行人照常动；店门两边有小窗，里外都能看见，从街上看店里像开着灯，晚上尤其明显；进出门时色调随走进的深度平滑过渡；室内墙面和天花板换成写实贴图；家、别墅、阿杰车库小门也改成推门进入（推开后淡入切到室内）；卷帘门车或人靠近会自动升起；别墅没买时、被通缉时门是锁着的']]],
  ['v0.24','帮派',[['0.24.2','写实画风的人物也用卡通画风的脸：圆一点的头型、大眼睛，去掉了单独凸出来的鼻子和下巴；身体、衣服和光影不变'],['0.24.1','所有能进的地方都有了自己的楼：枪店、喷漆店、便利店、阿杰车库、酒吧、夜店、服装店、理发店、银行，门口有发光脚垫，走到门口按 E 进去；枪店现在是能走进去的店，在柜台买东西；喷漆店和阿杰车库是车间，开着车从卷帘门开进去才弹出菜单，关掉菜单车就自己开出门外；原来门口的立杆招牌改成挂在门头上'],['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
  ['v0.23','城市生活',[['0.23.0','新增服装店（换上衣、裤子、帽子、鞋）、理发店（换发型、染发、胡子）、海湾银行（撬金库，出门 4 星通缉，每天一次）；手机新增“出行”（打车直达，按距离收费）和“每日挑战”（每天 3 个，各 $800）；家可以装修（大屏电视、真皮沙发、成就奖杯墙）和扩建车库（停 3 辆）；可以找小贩买热狗、给街头艺人打赏；E 键提示按距离优先最近的；城市生成更平滑并按车速预加载；没被警察看到时开枪加星更少、更容易甩掉；零活奖励 ×1.6、主线奖励 ×1.5；竞速时间按实际距离计算；主线第一章阿杰会给一辆旧车；手机关闭多重采样省性能']]],
  ['v0.22','生活',[['0.22.4','内存优化：城市几何体上传到显卡后释放内存里的副本，内存占用减半（约 430MB → 210MB），手机上更不容易闪退重载'],['0.22.3','修复从车库开出的车（特别是皮卡）卡住不能动；室内用单独的调色，开泛光也不会太亮；房间和家具按人物比例放大；晚上更亮一些'],['0.22.2','肩膀边角加圆弧；卡通画风也换成新的连续身体（带描边）、C 形手和方块鞋'],['0.22.1','肩线拉平：上身顶部做成平的，肩膀和身体齐平，不再从肩膀斜着往脖子收'],['0.22.0','左右手掌方向修正（掌心朝身体）；每个人身高、胖瘦不同，女性胸部更明显；路人有不同性格（友善、暴躁、胆小、强硬：说话和被打后的反应不同）；新增职业路人：小贩（推车叫卖）、清洁工（扫地）、施工工人（打钻、摆路锥）、街头艺人（弹吉他、有琴盒）；可以进入建筑：主角的家（睡觉存档、吃东西、看电视、换主角，带一个能保存的车库）、海边别墅（购买后可进入）、便利店、酒吧、夜店、车库（不用买也能进去，花钱买东西；买下后免费）']]],
@@ -3360,16 +3361,19 @@ function jobPose(p,pd,dt){const r=p.mesh.userData.rig;if(!r)return;const t=p.t,{
 let INSIDE=null;const ROOMS={};
 function floorMat(kind,tint){const m=new THREE.MeshToonMaterial({map:groundTex(kind),color:tint||0xffffff,gradientMap:toonGrad});m.userData.unit=GUNIT[kind];return m}
 const RS=1.6; // 房间缩放：家具和房间按人物身高放大
+const ROOM_WALLK={'海风酒吧':'brick','阿杰车库':'brick'};for(const c of[0xe8dcc8,0xf2ede4,0xf4f4f0,0x14101c,0xf4eef2,0xe8f0f4,0xe8e2d4,0x5a5560,0xf4f0e8])surfMat('stucco',c);surfMat('brick',0x4a3428);surfMat('brick',0x8a8a86);
 function roomBase(name,w,d,h,wallCol,fk,ft,lightCol=0xfff0d8){const sc=new THREE.Scene();sc.background=new THREE.Color(0x0a0a10);const G=new THREE.Group();G.scale.setScalar(RS);sc.add(G);
   sc.add(new THREE.HemisphereLight(0xfff4e8,0x40382f,.62));for(const x of[-w/4,w/4]){const pl=new THREE.PointLight(lightCol,.7,w*RS*1.6,1.5);pl.position.set(x*RS,(h-.5)*RS,0);sc.add(pl)}
   const R0={name,scene:sc,b:{x0:-w/2,x1:w/2,z0:-d/2,z1:d/2},solids:[],spots:[],npcs:[],anim:[],h};
   const add=(m,x,y,z,ry=0)=>{m.position.set(x,y,z);m.rotation.y=ry;G.add(m);return m};R0.add=add;
   const fl=tPlane(w,d,floorMat(fk,ft));fl.rotation.x=-Math.PI/2;G.add(fl);
-  const wm=M(wallCol);for(const[ww,dd,x,z]of[[w,.3,0,-d/2-.15],[w,.3,0,d/2+.15],[.3,d,-w/2-.15,0],[.3,d,w/2+.15,0]]){const m=new THREE.Mesh(new THREE.BoxGeometry(ww,h,dd),wm);m.position.set(x,h/2,z);G.add(m)}
-  add(box(w,.3,d,0xe8e4dc),0,h+.15,0);for(const x of[-w/4,w/4])add(new THREE.Mesh(new THREE.BoxGeometry(1.6,.06,.6),new THREE.MeshBasicMaterial({color:0xfff4d8})),x,h-.05,0);
+  const wm=surfMat(ROOM_WALLK[name]||'stucco',wallCol),WB=(a,b2,c)=>tiledBox(a,b2,c,wm,2.4,2.4);R0.wm=wm;R0.wh=h;{const sw=w/2-.8;for(const s2 of[-1,1]){const m=WB(sw,h,.3);m.userData.front=1;m.position.set(s2*(.8+sw/2),h/2,d/2+.15);G.add(m)}const hd=WB(1.6,h-2.6,.3);hd.userData.front=1;hd.position.set(0,2.6+(h-2.6)/2,d/2+.15);G.add(hd)}
+  for(const[ww,dd,x,z]of[[w,.3,0,-d/2-.15],[.3,d,-w/2-.15,0],[.3,d,w/2+.15,0]]){const m=WB(ww,h,dd);m.position.set(x,h/2,z);G.add(m)}
+  add(tiledBox(w,.3,d,surfMat('stucco',0xf4f0e8),2.4,2.4),0,h+.15,0);for(const x of[-w/4,w/4])add(new THREE.Mesh(new THREE.BoxGeometry(1.6,.06,.6),new THREE.MeshBasicMaterial({color:0xfff4d8})),x,h-.05,0);
   add(box(w,.2,.12,0x3a3430),0,.1,-d/2+.06); // 踢脚线
   // 门：在 +z 那面墙中间
-  add(box(1.6,2.6,.1,0x5a3a2a),0,1.3,d/2+.02);add(box(.1,.1,.1,0xd9a93a),.55,1.3,d/2-.05);
+  {const pv=new THREE.Group();pv.position.set(-.8,0,d/2+.02);const lf=box(1.6,2.6,.1,0x5a3a2a);lf.position.set(.8,1.3,0);pv.add(lf);const kn=box(.1,.1,.14,0xd9a93a);kn.position.set(1.35,1.3,-.07);pv.add(kn);G.add(pv);
+   add(new THREE.Mesh(new THREE.BoxGeometry(2,3,.05),new THREE.MeshBasicMaterial({color:0xe6eef4})),0,1.4,d/2+.4);R0.door={pv,open:0}}
   R0.solid=(x,z,w2,d2)=>R0.solids.push({x0:x-w2/2,x1:x+w2/2,z0:z-d2/2,z1:z+d2/2});
   R0.spawn={x:0,z:d/2-1.4,rot:Math.PI};R0.spot=(x,z,r,label,fn)=>R0.spots.push({x,z,r,label,fn});
   R0.spot(0,d/2-.6,1.1,'离开',exitRoom);
@@ -3430,34 +3434,38 @@ function makeRoom(kind,pr){let r;
   fin();return r}
 function enterRoom(kind,ex,ez,erot,pr){if(player.car||cut)return;if(player.wanted>0){toast('被通缉时进不去');return}
   if(kind==='club'&&!OWNP.club){if(player.money<50){toast('门票 $50，钱不够');return}player.money-=50;STATS.spent+=50;toast('门票 -$50')}
-  const r=ROOMS[kind]||(ROOMS[kind]=makeRoom(kind,pr));INSIDE={r,ex,ez,erot};r.scene.add(player.mesh);toggleAim(false);
+  const r=ROOMS[kind]||(ROOMS[kind]=makeRoom(kind,pr));INSIDE={r,ex,ez,erot,armed:0};if(r.door)r.door.open=1;r.scene.add(player.mesh);toggleAim(false);
   player.ix=r.spawn.x;player.iz=r.spawn.z;player.rot=r.spawn.rot;camYaw=player.rot;player.danceT=0;$('fade').style.opacity=1;setTimeout(()=>$('fade').style.opacity=0,250);beep(520,.06,'triangle',.05);setTimeout(()=>toast(r.name),300)}
-function exitRoom(){const I=INSIDE;if(!I)return;if(HEIST)HEIST=null;const _ph=PENDING_HEAT;PENDING_HEAT=0;scene.add(player.mesh);player.x=I.ex;player.z=I.ez;player.rot=I.erot;camYaw=player.rot;player.mesh.position.set(player.x,0,player.z);INSIDE=null;PROMPT=null;$('prompt').hidden=true;if(_ph){player.heat=Math.max(player.heat,_ph);toast('银行警报响了！4 星通缉')}
-  $('fade').style.opacity=1;setTimeout(()=>$('fade').style.opacity=0,250);last=performance.now()}
-function roomHit(r,x,z){if(x<r.b.x0+.45||x>r.b.x1-.45||z<r.b.z0+.45||z>r.b.z1-.45)return true;for(const s0 of r.solids)if(x>s0.x0-.35&&x<s0.x1+.35&&z>s0.z0-.35&&z<s0.z1+.35)return true;return false}
+function exitRoom(){const I=INSIDE;if(!I)return;if(HEIST)HEIST=null;const _ph=PENDING_HEAT;PENDING_HEAT=0;scene.add(player.mesh);player.x=I.ex;player.z=I.ez;player.rot=I.erot;camYaw=player.rot;player.mesh.position.set(player.x,0,player.z);INSIDE=null;PROMPT=null;$('prompt').hidden=true;{let bd=null,bv=5;for(const d of DOORS){const v2=Math.hypot(d.x-I.ex,d.z-I.ez);if(v2<bv){bv=v2;bd=d}}if(bd){bd.open=1;bd.hold=.5}}if(_ph){player.heat=Math.max(player.heat,_ph);toast('银行警报响了！4 星通缉')}
+  if(!I.sw){$('fade').style.opacity=1;setTimeout(()=>$('fade').style.opacity=0,250)}last=performance.now()}
+function roomHit(r,x,z){if(r.sw&&r.door&&r.door.open>.45&&Math.abs(x)<.8*RS-.65&&z>r.b.z1-1.2&&z<r.b.z1+.3*RS+1.5)return false;if(x<r.b.x0+.45||x>r.b.x1-.45||z<r.b.z0+.45||z>r.b.z1-.45)return true;for(const s0 of r.solids)if(x>s0.x0-.35&&x<s0.x1+.35&&z>s0.z0-.35&&z<s0.z1+.35)return true;return false}
 function roomGrade(){const u=compM.uniforms;u.uB.value=.1;u.uRay.value=0;u.uMul.value.set(1,1,1);u.uAdd.value.set(0,0,0);u.uSat.value=1.04;u.uCon.value=1.03;u.uVig.value=.28;brightM.uniforms.uThr.value=.97}
-function updRoom(dt,ax,ay){roomGrade();updHeist(dt);const r=INSIDE.r,mag=Math.min(1,Math.hypot(ax,ay)),moving=mag>.15&&!(player.danceT>0);player.t+=dt;
+function updRoom(dt,ax,ay){if(INSIDE.sw&&player.iz>INSIDE.r.b.z1+.3*RS+.3){swExit();return}roomGrade();updHeist(dt);const r=INSIDE.r,mag=Math.min(1,Math.hypot(ax,ay)),moving=mag>.15&&!(player.danceT>0);player.t+=dt;
   if(moving){const want=camYaw-Math.atan2(ax,ay);player.rot+=angDiff(want,player.rot)*Math.min(1,dt*12);const sp=(keys.ShiftLeft||tb_.Run?6:3.6)*(touchMode?Math.max(.4,mag):1),nx=player.ix+Math.sin(want)*sp*dt,nz=player.iz+Math.cos(want)*sp*dt;
     if(!roomHit(r,nx,player.iz))player.ix=nx;if(!roomHit(r,player.ix,nz))player.iz=nz}
-  player.danceT=(player.danceT||0)-dt;const m=player.mesh;m.position.set(player.ix,0,player.iz);m.rotation.set(0,player.rot,0);pose(m,player.danceT>0?'dance':moving?'walk':'idle',player.t,moving?1:0);holdPose(moving?'walk':'idle');
+  player.danceT=(player.danceT||0)-dt;const m=player.mesh,OX=INSIDE.sw?r.sw.ax:0,OZ=INSIDE.sw?r.sw.az:0;m.position.set(player.ix+OX,INSIDE.sw?SW_Y:0,player.iz+OZ);if(INSIDE.sw){player.x=player.ix+OX;player.z=player.iz+OZ}m.rotation.set(0,player.rot,0);pose(m,player.danceT>0?'dance':moving?'walk':'idle',player.t,moving?1:0);holdPose(moving?'walk':'idle');
   for(const n of r.npcs)pose(n.m,n.st,player.t+n.off,0);for(const f of r.anim)f(player.t);
   if(moving&&camHold<=0)camYaw+=angDiff(player.rot,camYaw)*Math.min(1,dt*2.2);camHold-=dt;
-  const cd=4.6;let cx=player.ix-Math.sin(camYaw)*cd,cz=player.iz-Math.cos(camYaw)*cd;cx=clamp(cx,r.b.x0+.3,r.b.x1-.3);cz=clamp(cz,r.b.z0+.3,r.b.z1-.3);
-  cam.position.set(cx,Math.min(r.h-.4,3.2+camPitch*1.5),cz);if(Math.abs(cam.fov-65)>.1){cam.fov=65;cam.updateProjectionMatrix()}cam.lookAt(player.ix,2,player.iz);
-  let best=null;for(const s0 of r.spots)if(Math.hypot(s0.x-player.ix,s0.z-player.iz)<s0.r){best=s0;break}
+  const cd=4.6;let cx=player.ix-Math.sin(camYaw)*cd,cz=player.iz-Math.cos(camYaw)*cd;cx=clamp(cx,r.b.x0+.3,r.b.x1-.3);cz=clamp(cz,r.b.z0+.3,INSIDE.sw&&player.iz>r.b.z1-3.2&&r.door&&r.door.open>.3?r.b.z1+7:r.b.z1-.3);
+  if(INSIDE.sw){if(INSIDE.cz==null){INSIDE.cx=cam.position.x-OX;INSIDE.cz=cam.position.z-OZ}const k2=Math.min(1,dt*7);INSIDE.cx+=(cx-INSIDE.cx)*k2;INSIDE.cz+=(cz-INSIDE.cz)*k2;cx=INSIDE.cx;cz=INSIDE.cz}
+  cam.position.set(cx+OX,Math.min(r.h-.4,3.2+camPitch*1.5),cz+OZ);if(Math.abs(cam.fov-65)>.1){cam.fov=65;cam.updateProjectionMatrix()}cam.lookAt(player.ix+OX,2,player.iz+OZ);
+  {const ex=r.spots[0],dd=Math.hypot(ex.x-player.ix,ex.z-player.iz),fac=Math.cos(player.rot);if(dd>ex.r)INSIDE.armed=1;const D0=r.door;
+   if(D0){const want=(INSIDE.armed&&dd<ex.r*1.4&&fac>.35)||(INSIDE.sw&&player.iz>r.b.z1-1.5)?1:0;D0.open+=clamp(want-D0.open,-dt*2.6,dt*4.5);D0.pv.rotation.y=(D0.base||0)+D0.open*1.45;
+     if(!INSIDE.sw&&INSIDE.armed&&D0.open>.7&&dd<ex.r*.9&&fac>.5&&moving&&!INSIDE.leaving){INSIDE.leaving=1;beep(300,.05,'triangle',.04);$('fade').style.opacity=1;setTimeout(()=>{if(INSIDE)exitRoom()},230)}}}
+  let best=null;for(const s0 of r.spots){if(s0.fn===exitRoom&&r.door)continue;if(Math.hypot(s0.x-player.ix,s0.z-player.iz)<s0.r){best=s0;break}}
   if(best)setPrompt(typeof best.label==='function'?best.label():best.label,best.fn);else{PROMPT=null;$('prompt').hidden=true}
   if(act.enter){act.enter=0;if(PROMPT)usePrompt()}act.jump=act.fire=0}
 
 // —— 室外：家门口 / 车库 / 海边别墅门口的提示
 function villaDoor(){const HD=bD(VB[1])/2-3;return{x:villa.x+4,z:villa.z-HD+15+9.6}}
 function updInteract(){if(cut||boarding)return;const pc=player.car;
-  {const dh=HOME.door?Math.hypot(HOME.door.x-player.x,HOME.door.z-player.z):99;if(HOME.door&&!pc&&dh<3.2)setPrompt('回家',()=>enterRoom('home',HOME.door.x,HOME.door.z+HOME.face*.8,HOME.face>0?0:Math.PI),dh)}
-  if(!pc)for(const pl of PLACES)if(pl.pad){const d2=Math.hypot(pl.x-player.x,pl.z-player.z);if(d2<2.8)setPrompt('进入 '+pl.name,()=>enterRoom(pl.id,pl.x,pl.z+.6,0),d2)}
+  {const dh=HOME.door?Math.hypot(HOME.door.x-player.x,HOME.door.z-player.z):99;}
+  
   if(HOME.pad){const d=Math.hypot(HOME.pad.x-(pc?pc.x:player.x),HOME.pad.z-(pc?pc.z:player.z));
     if(pc&&d<5&&Math.abs(pc.speed)<3)setPrompt(HOME.cars.length>=garageCap()?'车库满了（'+HOME.cars.length+'/'+garageCap()+'）':'把车停进车库（'+HOME.cars.length+'/'+garageCap()+'，会保存）',()=>{if(HOME.cars.length>=garageCap())return;HOME.cars.push({kind:pc.kind,col:pc.col});exitCar(true);removeCar(pc);saveGame();toast('车已停进车库')},d);
     else if(!pc&&d<4.5&&HOME.cars.length){const g=HOME.cars[HOME.cars.length-1];setPrompt('从车库开出 '+(CAR_NAME[g.kind]||'车')+(HOME.cars.length>1?'（还有 '+(HOME.cars.length-1)+' 辆）':''),()=>{spawnOwned(HOME.cars.pop(),HOME.pad.ox,HOME.pad.oz,HOME.pad.h);saveGame();toast('车开出来了')},d)}}
   if(villa&&!pc){const vd=villaDoor();if(Math.hypot(vd.x-player.x,vd.z-player.z)<3.5){
-    if(OWNP.villa||finished)setPrompt('进入海边别墅',()=>enterRoom('villa',vd.x,vd.z+1,0),2);
+    if(OWNP.villa||finished){}
     else setPrompt('买下海边别墅 $30,000',()=>{if(player.money<30000){toast('还差 $'+(30000-player.money).toLocaleString());return}player.money-=30000;STATS.spent+=30000;OWNP.villa=1;if(!won){won=true}toast('🏝 海边别墅是你的了！');saveGame()})}}}
 
 // =====================================================================
@@ -3473,7 +3481,7 @@ const HATS=[['不戴帽子',{hat:null}],['棒球帽',{hat:'capBack',hatCol:0xd84
 const SHOES=[['白球鞋',{shoes:0xf4f4f4,boots:0}],['黑球鞋',{shoes:0x1a1a1a,boots:0}],['棕色靴子',{shoes:0x6a4a2a,boots:1}],['红球鞋',{shoes:0xd84a3a,boots:0}]];
 const HAIRS=[['短发','short'],['背头','slick'],['寸头','buzz'],['长发','long'],['马尾','pony'],['丸子头','bun'],['卷发','curly']],HAIRC=[['黑色',0x1a1a1a],['棕色',0x4a2e1a],['金色',0xc8a060],['酒红',0x8a2a2a],['银白',0xe0e0e0]];
 function heroLookObj(k){return Object.assign({},LOOKS[k],OUTFITS[k]||{})}
-function rebuildHero(){const inRoom=INSIDE?INSIDE.r.scene:null,old=player.mesh;const p=old.position.clone(),r=old.rotation.clone();(old.parent||scene).remove(old);
+function rebuildHero(){const inRoom=INSIDE&&!INSIDE.sw?INSIDE.r.scene:null,old=player.mesh;const p=old.position.clone(),r=old.rotation.clone();(old.parent||scene).remove(old);
   player.mesh=buildPerson(heroLookObj(heroLook));const h=heroLook==='heroM'?1.04:.97;player.mesh.scale.set(1,h,1);player.mesh.userData.bs=player.mesh.scale.clone();player.mesh.userData.look=heroLook;
   player.mesh.position.copy(p);player.mesh.rotation.copy(r);if(inRoom)inRoom.add(player.mesh);attachWeapon()}
 const OUT_IDX={top:0,bottom:0,hat:0,shoe:0,hair:0,hairc:0};
@@ -3492,13 +3500,30 @@ let HEIST=null,HEIST_DAY=-1,PENDING_HEAT=0,DAYN=0;
 // =====================================================================
 const inBay=(b,x,z)=>!!b&&Math.abs(x-b.x)<b.ow/2-.4&&z<b.zf-1.2&&z>b.zf-b.d+1.2;
 const doorGlow=new THREE.MeshBasicMaterial({color:0xffdc9a}),bayLight=new THREE.MeshBasicMaterial({color:0xfff6dc});
-function venueBuild(v){const zf=v.z-1.6,W=v.w,D=v.d,H=v.h,bx=v.x+(v.ox||0),bz=zf-D/2,objs=[];v.zf=zf;CAP=objs;
+const winGlass=new THREE.MeshLambertMaterial({color:0xb8d4e0,transparent:true,opacity:.16,depthWrite:false});
+const SW_ON=true,RDIM={gun:[12,9,3.4],store:[14,10,3.4],bar:[14,10,3.4],club:[18,14,4.6],clothes:[14,10,3.6],barber:[12,9,3.4],bank:[16,12,4.2]};
+function venueBuild(v){if(SW_ON&&RDIM[v.kind]&&!v.bay){const q=RDIM[v.kind];v.sw=1;v.w=(q[0]+.6)*RS+.8;v.d=(q[1]+.6)*RS+.6;v.gh=(q[2]+.3)*RS+.15;v.h=Math.max(v.h,v.gh+3.6)}const zf=v.z-1.6,W=v.w,D=v.d,H=v.h,bx=v.x+(v.ox||0),bz=zf-D/2,objs=[];v.zf=zf;CAP=objs;
   const at=(m,x,y,z)=>{m.position.set(x,y,z);scene.add(m);return m};
-  const door=(x)=>{at(box(2.7,3.5,.34,0x2a262c),x,1.75,zf+.08);at(box(1.9,2.9,.12,doorGlow),x,1.5,zf+.2);at(box(.08,1.2,.1,0xd8d8dc),x+.55,1.5,zf+.3);
+  const door=(x)=>{for(const s2 of[-1,1])at(box(.4,3.5,.34,0x2a262c),x+s2*1.15,1.75,zf+.08);at(box(2.7,.6,.34,0x2a262c),x,3.2,zf+.08);at(box(1.9,2.9,.04,doorGlow),x,1.45,zf+.03);
     at(box(3.2,.18,1.3,0x9a968e),x,.09,zf+.65);at(box(.5,.25,.3,bayLight),x,3.75,zf+.25);
     const mat=new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.3),new THREE.MeshBasicMaterial({color:v.col,transparent:true,opacity:.5,depthWrite:false}));mat.rotation.x=-Math.PI/2;at(mat,x,.2,zf+1.55);v.mats=(v.mats||[]).concat(mat)};
   try{
-    if(!v.bay){ // —— 临街店面：一楼大玻璃 + 正门，楼上是公寓立面
+    if(v.sw){const gh=v.gh,dg=1.6*RS,dh=2.6*RS,sw2=(W-dg)/2;
+      at(surfBox(.4,gh,D,'stucco',v.wall),bx-W/2+.2,gh/2,bz);at(surfBox(.4,gh,D,'stucco',v.wall),bx+W/2-.2,gh/2,bz);at(surfBox(W,gh,.4,'stucco',v.wall),bx,gh/2,zf-D+.2);
+      v.wins=[];for(const s2 of[-1,1]){const xa=s2<0?bx-W/2:v.x+dg/2,xb=s2<0?v.x-dg/2:bx+W/2,ww=Math.min(sw2-2.4,2.6);let win=null;
+        if(ww>1.2){const wx=(xa+xb)/2,y0=1.35,y1=3.45,ym=(y0+y1)/2;win={wl:wx-ww/2,wr:wx+ww/2,y0,y1};v.wins.push(win);
+          at(box(ww,y1-y0,.05,winGlass),wx,ym,zf+.02);at(box(ww+.3,.22,.34,v.trim),wx,y0-.11,zf+.36);at(box(ww+.3,.22,.34,v.trim),wx,y1+.11,zf+.36);for(const s3 of[-1,1])at(box(.14,y1-y0,.3,v.trim),wx+s3*(ww/2+.07),ym,zf+.33)}
+        holeWall(xa,xb,zf+.15,.3,gh,win,(w2,h2,d2)=>surfBox(w2,h2,d2,'stucco',v.wall),at)}
+      at(surfBox(dg,gh-dh,.3,'stucco',v.wall),v.x,dh+(gh-dh)/2,zf+.15);
+      for(const s2 of[-1,1])at(box(.35,dh+.2,.42,0x2a262c),v.x+s2*(dg/2+.12),(dh+.2)/2,zf+.2);at(box(dg+.6,.35,.42,0x2a262c),v.x,dh+.12,zf+.2);
+      at(box(dg+1,.18,1.4,0x9a968e),v.x,.09,zf+.95);
+      at(facadeBox(W,H-gh,D,v.style,v.fcol),bx,gh+(H-gh)/2,bz);at(box(W+.5,.4,D+.5,v.trim),bx,gh+.1,bz);at(box(W+1,.7,D+1,v.trim),bx,H+.35,bz);
+      const aw=box(Math.min(W-1,dg+3),.22,1.9,v.col);aw.rotation.x=.26;at(aw,v.x,dh+.75,zf+1.2);
+      if(v.columns)for(const s2 of[-1,1])for(const k of[0,1])at(new THREE.Mesh(cylG(.42,.5,gh,12),M(0xe8e2d4)),v.x+s2*(dg/2+1.4+k*3),gh/2,zf+.9);
+      const mat=new THREE.Mesh(new THREE.PlaneGeometry(dg,1.3),new THREE.MeshBasicMaterial({color:v.col,transparent:true,opacity:.5,depthWrite:false}));mat.rotation.x=-Math.PI/2;at(mat,v.x,.2,zf+1.4);v.mats=[mat];
+      solids.push({x0:bx-W/2,x1:bx-W/2+.4,z0:zf-D,z1:zf},{x0:bx+W/2-.4,x1:bx+W/2,z0:zf-D,z1:zf},{x0:bx-W/2,x1:bx+W/2,z0:zf-D,z1:zf-D+.4},{x0:bx-W/2,x1:v.x-dg/2,z0:zf,z1:zf+.3},{x0:v.x+dg/2,x1:bx+W/2,z0:zf,z1:zf+.3});
+      const blk={x0:v.x-dg/2,x1:v.x+dg/2,z0:zf-.2,z1:zf+.3};solids.push(blk);v.blk=blk}
+    else if(!v.bay){ // —— 临街店面：一楼大玻璃 + 正门，楼上是公寓立面
       at(surfBox(W,5,D,'stucco',v.wall),bx,2.5,bz);
       if(H>5.5)at(facadeBox(W,H-5,D,v.style,v.fcol),bx,5+(H-5)/2,bz);
       at(box(W+.5,.4,D+.5,v.trim),bx,5.1,bz);at(box(W+1,.7,D+1,v.trim),bx,H+.35,bz);
@@ -3525,12 +3550,12 @@ function venueBuild(v){const zf=v.z-1.6,W=v.w,D=v.d,H=v.h,bx=v.x+(v.ox||0),bz=zf
       solids.push({x0:bx-W/2,x1:bx-W/2+.6,z0:zf-D,z1:zf},{x0:bx+W/2-.6,x1:bx+W/2,z0:zf-D,z1:zf},{x0:bx-W/2,x1:bx+W/2,z0:zf-D,z1:zf-D+.6});
       if(segL>.2)solids.push({x0:bx-W/2,x1:ox0-ow/2,z0:zf-.6,z1:zf});if(segR>.2)solids.push({x0:ox0+ow/2,x1:bx+W/2,z0:zf-.6,z1:zf});
       if(v.walk)door(v.walk)}
-    if(!v.bay)solids.push({x0:bx-W/2,x1:bx+W/2,z0:zf-D,z1:zf});
+    if(!v.bay&&!v.sw)solids.push({x0:bx-W/2,x1:bx+W/2,z0:zf-D,z1:zf});
   }finally{CAP=null}
   const g=mergeInto(objs,new THREE.Group());_sceneAdd(g);v.group=g;
   // 招牌：贴在门头上（物业用自己会变的招牌）
-  const sy=v.bay?6.3:5.95;if(v.sign){v.sign.position.set(v.bay?v.x:v.x,sy+.3,zf+.12);v.sign.rotation.set(0,0,0);v.sign.scale.set(1,1,1)}
-  else{const sg=new THREE.Mesh(new THREE.PlaneGeometry(6,2.25),signMat(v.word,v.col));sg.position.set(v.x,sy+.3,zf+.12);scene.add(sg)}
+  const sy=v.bay?6.3:5.95;if(v.sign){v.sign.position.set(v.x,v.sw?v.gh-.2:sy+.3,zf+(v.sw?.45:.12));v.sign.rotation.set(0,0,0);v.sign.scale.set(1,1,1)}
+  else{const sg=new THREE.Mesh(new THREE.PlaneGeometry(6,2.25),signMat(v.word,v.col));sg.position.set(v.x,v.sw?v.gh-.2:sy+.3,zf+(v.sw?.45:.12));scene.add(sg)}
   VENUE_R.push({x0:bx-W/2-1,x1:bx+W/2+1,z0:zf-D-1,z1:zf+1,v})}
 {const C=x=>x;
  for(const sh of SHOPS){sh.pad.visible=false;const gun=sh.kind==='gun';
@@ -3548,8 +3573,96 @@ function venueBuild(v){const zf=v.z-1.6,W=v.w,D=v.d,H=v.h,bx=v.x+(v.ox||0),bz=zf
  // 已经生成过的街区、街边：重新生成一次，让出楼的位置（原来的楼、路边停车格、消防栓不会挡在门口）
  for(const j of JOBS)if(j.built&&VENUE_R.some(q=>j.x+j.r>q.x0-30&&j.x-j.r<q.x1+30&&j.z+j.r>q.z0-30&&j.z-j.r<q.z1+30)){unloadJob(j);buildJob(j)}}
 // 门口发光的脚垫轻轻闪；枪店走到门口按 E 进去
-function updVenues(){const t=.38+.18*Math.sin(performance.now()/300);for(const q of VENUE_R)if(q.v.mats)for(const m of q.v.mats)m.material.opacity=t;
-  if(player.car||cut||boarding)return;for(const sh of SHOPS)if(sh.kind==='gun'){const d=Math.hypot(sh.x-player.x,sh.z-player.z);if(d<2.8)setPrompt('进入 枪店',()=>enterRoom('gun',sh.x,sh.z+.6,0),d)}}
+// =====================================================================
+// 推门进入：走到门前门会被推开，走进门洞就进去（不用按键）；卷帘门车开近自动升起
+// =====================================================================
+const DOORS=[];let HOME_DOOR_ADDED=false;let _plx=0,_plz=0,_doorToast=0;
+// 门扇：铰链在门的左边（从外面看），向里推开
+function makeLeaf(x,z,face,w=1.9,h=2.9,col=0x2a2a2e,glass=true){const pv=new THREE.Group(),base=face>0?0:Math.PI;pv.position.set(x-face*w/2,0,z);pv.rotation.y=base;
+  const fr=box(w,h,.09,col);fr.position.set(w/2,h/2,0);pv.add(fr);
+  if(glass){const gl=box(w*.66,h*.62,.11,doorGlow);gl.position.set(w/2,h*.56,0);pv.add(gl)}
+  const hd=box(.09,.7,.16,0xd8d8dc);hd.position.set(w-.28,h*.45,0);pv.add(hd);_sceneAdd(pv);return{pv,base}}
+function addDoor(x,z,face,trig,o={}){const L=makeLeaf(x,z,face,o.w,o.h,o.col,o.glass!==false);const d={...L,x,z,face,open:0,hold:0,trig,cond:o.cond,name:o.name||''};DOORS.push(d);return d}
+function pushEnter(d){if(d.busy)return;d.busy=1;d.hold=.9;beep(300,.05,'triangle',.04);const f=$('fade');f.style.opacity=1;setTimeout(()=>{d.busy=0;if(!player.car&&!INSIDE)d.trig();if(!INSIDE)f.style.opacity=0},230)}
+function updDoors(dt){addHomeDoor();const mdx=player.x-_plx,mdz=player.z-_plz,mv=Math.hypot(mdx,mdz)/Math.max(dt,1e-3);_plx=player.x;_plz=player.z;
+  for(const d of DOORS){if(INSIDE&&INSIDE.r.door===d)continue;const tx=d.x,tz=d.z+d.face*.9,dist=Math.hypot(player.x-tx,player.z-tz),facing=-Math.cos(player.rot)*d.face;let want=0;
+    if(d.hold>0){d.hold-=dt;want=1}
+    if(!player.car&&!INSIDE&&!cut&&!boarding&&dist<3&&facing>.35&&(!d.cond||d.cond())){
+      if(player.wanted>0){if(dist<1.8&&performance.now()-_doorToast>2500){_doorToast=performance.now();toast('被通缉时门是锁着的')}}
+      else{if(dist<2.6)want=1;if(d.trig&&d.open>.7&&dist<1.7&&facing>.5&&mv>.4)pushEnter(d)}}
+    if(want||d.open>0){d.open+=clamp(want-d.open,-dt*2.6,dt*4.5);d.pv.rotation.y=d.base+d.open*1.45}}
+  // 卷帘门：车或人靠近就升起
+  for(const b of[...SHOPS.map(s=>s.bay),...PROPS.map(p=>p.bay)]){if(!b||!b.roll)continue;const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;
+    const near=Math.abs(px-b.x)<b.ow/2+6&&pz>b.zf-b.d&&pz<b.zf+16;b.up=(b.up||0)+clamp((near?1:0)-(b.up||0),-dt*.9,dt*1.6);
+    const s=1-b.up*.9;b.roll.scale.y=s;b.roll.position.y=b.oh-b.oh*s/2}}
+// 室外的门：枪店、店铺、物业、服装店/理发店/银行、家、别墅
+function vDoor(v,x,trig,name){if(v.sw){const d=addDoor(v.x,v.zf+.15,1,null,{w:1.6*RS,h:2.6*RS,name,cond:v.kind==='club'?()=>OWNP.club||player.money>=50:undefined});d.blk=v.blk;d.bx0=v.blk.x0;d.bx1=v.blk.x1;d.w=1.6*RS;v.wdoor=d;return d}return addDoor(x,v.zf+.24,1,trig,{name})}
+{for(const sh of SHOPS)if(sh.kind==='gun')vDoor(sh.v,sh.x,()=>enterRoom('gun',sh.x,sh.z+.6,0),'枪店');
+ for(const pr of PROPS)if(pr.v){const dx=pr.wx??pr.x;pr.v.pr=pr;vDoor(pr.v,dx,()=>enterRoom(pr.id,dx,(pr.wz??pr.z)+.6,0,pr),pr.name)}
+ for(const pl of PLACES)if(pl.v)vDoor(pl.v,pl.x,()=>enterRoom(pl.id,pl.x,pl.z+.6,0),pl.name);
+function addHomeDoor(){if(HOME_DOOR_ADDED||!HOME.door||HOME.doorFz===undefined)return;HOME_DOOR_ADDED=true;addDoor(HOME.door.x,HOME.doorFz+HOME.face*.12,HOME.face,()=>enterRoom('home',HOME.door.x,HOME.door.z+HOME.face*.8,HOME.face>0?0:Math.PI),{w:1.9,h:3.6,col:0x6a3a2a,glass:false,name:'家'})}addHomeDoor();
+ if(villa){const vd=villaDoor();addDoor(vd.x,vd.z-1.45,1,()=>enterRoom('villa',vd.x,vd.z+1,0),{w:2.2,h:3.4,col:0xd8d8dc,cond:()=>OWNP.villa||finished,name:'别墅'})}
+ // 卷帘门
+ for(const b of[...SHOPS.map(s=>s.bay),...PROPS.map(p=>p.bay)]){if(!b)continue;b.oh=5.4;const m=box(b.ow,b.oh,.16,0xb8bcc4);m.position.set(b.x,b.oh/2,b.zf-.45);_sceneAdd(m);b.roll=m;
+   for(let k=1;k<9;k++){const ln=box(b.ow,.05,.04,0x8a8e96);ln.position.set(0,-b.oh/2+k*b.oh/9,.1);m.add(ln)}}}
+
+function updVenues(dt=1/60){updDoors(dt);updSW(dt);const t=.38+.18*Math.sin(performance.now()/300);for(const q of VENUE_R)if(q.v.mats)for(const m of q.v.mats)m.material.opacity=t;
+  if(player.car||cut||boarding)return;}
+// =====================================================================
+// 无缝室内：店里面就建在楼里，推开门就能看到里面，走进去不切场景
+// =====================================================================
+function swRoom(v){if(v.room)return v.room;const q=RDIM[v.kind];const r=ROOMS[v.kind]||(ROOMS[v.kind]=makeRoom(v.kind,v.pr));
+  const ax=v.x,az=v.zf-(q[1]/2+.3)*RS,anchor=new THREE.Group();anchor.position.set(ax,SW_Y,az);
+  for(const o of[...r.scene.children]){if(o.isLight||o===player.mesh)continue;anchor.add(o)}
+  anchor.traverse(o=>{if(o.isMesh){o.receiveShadow=false;o.castShadow=false;if(!o.isSkinnedMesh)o.material=litMat(o.material);if(o.material&&o.material.isMeshBasicMaterial&&o.material.color&&o.material.color.getHex()===0xe6eef4)o.visible=false}});
+  {const G0=anchor.children.find(o=>o.isGroup&&Math.abs(o.scale.x-RS)<1e-6);if(G0)for(const o of[...G0.children])if(o.userData.front)G0.remove(o);
+   const zc=v.zf-.3*RS/2,th=.3*RS-.02,hh=r.wh*RS,xa=ax-(q[0]/2+.3)*RS,xb=ax+(q[0]/2+.3)*RS,dg=1.6*RS,dh=2.6*RS,mk=(a,b,c)=>tiledBox(a,b,c,r.wm,2.4*RS,2.4*RS),put=(m,x,y,z)=>{m.position.set(x-ax,y-SW_Y,z-az);anchor.add(m)};
+   holeWall(xa,ax-dg/2,zc,th,hh,(v.wins||[]).find(w=>w.wr<=ax),mk,put);holeWall(ax+dg/2,xb,zc,th,hh,(v.wins||[]).find(w=>w.wl>=ax),mk,put);put(mk(dg,hh-dh,th),ax,dh+(hh-dh)/2,zc)}
+  if(r.door&&r.door.pv)r.door.pv.visible=false;r.door=v.wdoor;r.sw={ax,az,anchor,v};scene.add(anchor);v.room=r;return r}
+let _hemiSave=null;const SW_Y=.13; // 店内地板略高于街面，避免和楼下的人行道地面重叠闪烁
+// 室内“开着灯”：材质自带一点自发光，从街上看进去是亮的，晚上更明显
+const LIT_GLOW=.3,_litCache=new Map(),_litList=[],LITU={value:.3},LITW={value:new THREE.Color(1,1,1)};
+const ATLAS_IN=(()=>{const m=new THREE.MeshToonMaterial({map:ATL.tex,emissiveMap:ATL.etex,emissive:0xffffff,gradientMap:toonGrad});
+  m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <uv_pars_vertex>','#include <uv_pars_vertex>\nattribute vec4 tileR;varying vec4 vTile;varying vec2 vRep;').replace('#include <uv_vertex>','#include <uv_vertex>\nvTile=tileR;vRep=uv;');
+    sh.uniforms.uGlow=LITU;sh.uniforms.uWarm=LITW;sh.fragmentShader=sh.fragmentShader.replace('#include <uv_pars_fragment>','#include <uv_pars_fragment>\nuniform float uGlow;uniform vec3 uWarm;varying vec4 vTile;varying vec2 vRep;\nvec4 atl(sampler2D t){vec2 a=vTile.xy+fract(vRep)*vTile.zw;\n#if __VERSION__>=300\nreturn textureGrad(t,a,dFdx(vRep)*vTile.zw,dFdy(vRep)*vTile.zw);\n#else\nreturn texture2D(t,a);\n#endif\n}')
+      .replace('#include <map_fragment>','vec4 texelColor=atl(map);texelColor=mapTexelToLinear(texelColor);diffuseColor*=texelColor;')
+      .replace('#include <emissivemap_fragment>','totalEmissiveRadiance=diffuseColor.rgb*uGlow*uWarm;')};
+  m.customProgramCacheKey=()=>'atlasIn';return m})();
+function litMat(m){if(!m||Array.isArray(m)||m.isMeshBasicMaterial||m.transparent)return m;if(m===ATLAS_MAT)return ATLAS_IN;
+  let r=_litCache.get(m);if(r)return r;r=m.clone();if(r.emissive&&r.color){r.emissive.copy(r.color).multiplyScalar(LIT_GLOW);if(r.map){r.emissiveMap=r.map;r.emissive.setScalar(LIT_GLOW)}_litList.push([r,r.emissive.clone().multiplyScalar(1/LIT_GLOW)])}_litCache.set(m,r);return r}
+// 室内亮度：在街上看时（尤其晚上）店里像开着暖色灯，亮度不受外面夜色影响；走进去后慢慢回到正常
+function setLitGlow(k){const out=.26+.1*NIGHT,g=out+(.3-out)*k;LITU.value=g;LITW.value.setRGB(1,1-.15*NIGHT*(1-k),1-.36*NIGHT*(1-k));for(const[m,b]of _litList)m.emissive.copy(b).multiplyScalar(g).multiply(LITW.value)}
+function swEnter(v){const r=swRoom(v);if(v.kind==='club'&&!OWNP.club){if(player.money<50){toast('门票 $50，钱不够');return false}player.money-=50;STATS.spent+=50;toast('门票 -$50')}
+  INSIDE={r,ex:v.x,ez:v.z+.6,erot:0,armed:1,sw:1};player.ix=player.x-r.sw.ax;player.iz=player.z-r.sw.az;toggleAim(false);player.danceT=0;INSIDE.cz=null;
+  setTimeout(()=>{if(INSIDE&&INSIDE.r===r)toast(r.name)},150);return true}
+function swExit(){const I=INSIDE,r=I.r,v=r.sw.v,hg=.8*RS-.65;I.ex=clamp(r.sw.ax+player.ix,v.x-hg,v.x+hg);I.ez=Math.max(r.sw.az+player.iz,v.zf+.95);I.erot=player.rot;const cy=camYaw;exitRoom();camYaw=cy;}
+// 在店里时，外面的车和行人照常动
+function swWorld(dt){for(const c of[...cars]){if(c.dead||c===player.car)continue;if(c.hold){c.speed=0;continue}if(c.police)driveCop(c,dt);else if(c.gangCar&&c.driver==='ai')driveGang(c,dt);else if(c.driver==='ai')driveAI(c,dt)}
+  for(const p of[...peds])updPed(p,dt);updLights();updVenues(dt);
+  // 色调：门口还是街上的色调，越往里走越接近室内的暖色调（出门时反过来），不会一下子跳变
+  updDayNight(dt);updGrade();if(INSIDE&&INSIDE.sw){const r=INSIDE.r,t=clamp((r.b.z1+.3*RS-player.iz)/4,0,1);swBlend(t*t*(3-2*t))}}
+const _wc=new THREE.Color(0xfff0dc),_wg=new THREE.Color(0x7a6048),_v1=new THREE.Vector3(1,1,1),_v0=new THREE.Vector3();
+function swBlend(k){if(k<=0)return;const u=compM.uniforms,L=(a,b)=>a+(b-a)*k;
+  u.uB.value=L(u.uB.value,.1);u.uRay.value=L(u.uRay.value,0);u.uMul.value.lerp(_v1,k);u.uAdd.value.lerp(_v0,k);u.uSat.value=L(u.uSat.value,1.04);u.uCon.value=L(u.uCon.value,1.03);u.uVig.value=L(u.uVig.value,.28);
+  brightM.uniforms.uThr.value=L(brightM.uniforms.uThr.value,.97);hemi.intensity=L(hemi.intensity,Math.max(hemi.intensity,.85));hemi.color.lerp(_wc,k);hemi.groundColor.lerp(_wg,k)}
+// 墙上开窗洞：xa~xb 一段墙，win={wl,wr,y0,y1} 处留空
+function holeWall(xa,xb,zc,th,h,win,mk,put){const P=(x0,x1,y0,y1)=>{if(x1-x0<.02||y1-y0<.02)return;const m=mk(x1-x0,y1-y0,th);m.castShadow=false;put(m,(x0+x1)/2,(y0+y1)/2,zc)};
+  if(!win){P(xa,xb,0,h);return}P(xa,win.wl,0,h);P(win.wr,xb,0,h);P(win.wl,win.wr,0,win.y0);P(win.wl,win.wr,win.y1,h)}
+// 门洞：门关着时挡住；店里的人在门口附近也摆好姿势
+function updSW(dt){const t=performance.now()/1000;
+  for(const q of VENUE_R){const v=q.v;if(!v.sw)continue;const d=Math.hypot(player.x-v.x,player.z-v.zf);
+    if(d<90&&!v.room)swRoom(v);if(v.room){const a=v.room.sw.anchor;a.visible=d<160;if(d<45&&!(INSIDE&&INSIDE.r===v.room)){for(const n of v.room.npcs)pose(n.m,n.st,t+n.off,0);for(const f of v.room.anim)f(t)}}
+    const w=v.wdoor;if(w&&w.blk){
+      // 人站在门口（门洞里或门前）时门一直开着，避免门关上把人卡在门洞里
+      const inGap=!player.car&&!INSIDE&&Math.abs(player.x-v.x)<w.w/2+.6&&player.z>v.zf-1.4&&player.z<v.zf+1.2;if(inGap)w.hold=Math.max(w.hold,.4);
+      const onBlk=Math.abs(player.x-v.x)<w.w/2+.8&&player.z>v.zf-1&&player.z<v.zf+1;
+      const open=w.open>.45||(onBlk&&!INSIDE);
+      // 保险：在门口被墙“夹住”就推到门前空地
+      if(!INSIDE&&!player.car&&onBlk&&hit(player.x,player.z,.6)&&!hit(v.x,v.zf+1.3,.6)){player.x=v.x;player.z=v.zf+1.3}w.blk.x0=open?1e9:w.bx0;w.blk.x1=open?1e9:w.bx1}
+    // 从外面走进门洞 → 进店
+    if(w&&!INSIDE&&!player.car&&!cut&&w.open>.5&&player.z<v.zf-.15&&player.z>v.zf-2.5&&Math.abs(player.x-v.x)<w.w/2)swEnter(v)}
+  {let k=0;if(INSIDE&&INSIDE.sw){const r=INSIDE.r,t=clamp((r.b.z1+.3*RS-player.iz)/4,0,1);k=t*t*(3-2*t)}setLitGlow(k)}}
+
 // 车间菜单关掉 = 把车开出门外
 function bayExit(){const c=player.car;if(!c)return;for(const b of[...SHOPS.map(s=>s.bay),...PROPS.map(p=>p.bay)])if(b&&inBay(b,c.x,c.z)){c.x=b.x;c.z=b.zf+5.5;c.h=0;c.speed=0;c.mesh.position.set(c.x,c.mesh.position.y,c.z);c.mesh.rotation.y=0;camYaw=0;return}}
 
@@ -3715,13 +3828,13 @@ function updGang(dt){if(INSIDE)return;
 function drawGangZones(g2){for(const g of GANGS){if(!g.set)continue;const c=g.own?'rgba(255,200,61,.45)':'rgba('+[(g.col>>16)&255,(g.col>>8)&255,g.col&255].join(',')+',.38)';g2.fillStyle=c;
   for(const[i,j]of g.blocks)g2.fillRect(rx(i)+RD/2,rz(j)+RD/2,bW(i),bD(j))}}
 function updExtra(dt){const e=Math.sin((gameHour-6)/24*Math.PI*2);NIGHT=clamp((-e+.12)/.3,0,1);
-  updStory(dt);updProps(dt);updInteract();updNpcTalk();updChallenges(dt);updGang(dt);updVenues();updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updGfx(dt);updPerf();
+  updStory(dt);updProps(dt);updInteract();updNpcTalk();updChallenges(dt);updGang(dt);updVenues(dt);updEvents(dt);updDamage(dt);updWeather(dt);updRain(dt);updPuddles();updLens(dt);updNightFx(dt);updFires(dt);updMarkers();updGfx(dt);updPerf();
   if(PROMPT&&(PROMPT.t!==last||cut||boarding)){PROMPT=null;$('prompt').hidden=true}
   if((umbT-=dt)<=0){umbT=1;updUmbrellas()}}
 
 // ===== 存档：每 5 秒、切到后台时自动保存（钱、主角、武器、位置、是否通关），页面刷新后可以接着玩 =====
 const SAVE_KEY='neonbay-save-v1';
-function snapshotState(){return{own:OWN,stats:STATS,ach:ACH_DONE,radio:radioIdx,hour:gameHour,money:player.money,hero:heroLook,w:wIdx,won,finished,x:player.car?player.car.x:player.x,z:player.car?player.car.z:player.z,story:{ch:STORY.ch,done:STORY.done},home:HOME.cars,outfits:OUTFITS,homeup:HOMEUP,chal:CHAL,dayn:DAYN,heistDay:HEIST_DAY,ownp:OWNP,garage:GARAGE,wx:WX.kind,turf:GANGS.filter(g=>g.own).map(g=>g.id)}}
+function snapshotState(){return{own:OWN,stats:STATS,ach:ACH_DONE,radio:radioIdx,hour:gameHour,money:player.money,hero:heroLook,w:wIdx,won,finished,x:INSIDE?INSIDE.ex:player.car?player.car.x:player.x,z:INSIDE?INSIDE.ez:player.car?player.car.z:player.z,story:{ch:STORY.ch,done:STORY.done},home:HOME.cars,outfits:OUTFITS,homeup:HOMEUP,chal:CHAL,dayn:DAYN,heistDay:HEIST_DAY,ownp:OWNP,garage:GARAGE,wx:WX.kind,turf:GANGS.filter(g=>g.own).map(g=>g.id)}}
 function saveGame(){if(!running)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(snapshotState()))}catch(e){}}
 function loadSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'null')}catch(e){return null}}
 function pickHeroUI(k){setHero(k);for(const b of document.querySelectorAll('.hero')){const on=b.id===(k==='heroM'?'pickM':'pickF');b.classList.toggle('on',on);b.setAttribute('aria-checked',on)}}
