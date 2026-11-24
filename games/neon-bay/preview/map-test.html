@@ -504,13 +504,13 @@ const whiteMat=new THREE.MeshBasicMaterial({color:0xf4f0e6,polygonOffset:true,po
 const edgeLine=(x,z,w,d)=>{const a=new THREE.Mesh(new THREE.PlaneGeometry(w,d,Math.max(1,Math.ceil(w/4)),Math.max(1,Math.ceil(d/4))),whiteMat);a.rotation.x=-Math.PI/2;a.position.set(x,.03,z);scene.add(a)};
 const dash=(x,z,w,d)=>{const a=new THREE.Mesh(new THREE.PlaneGeometry(w,d),lineMat);a.rotation.x=-Math.PI/2;a.position.set(x,.03,z);scene.add(a)};
 for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!degAll(i,j))continue;roadPlane(rx(i),rz(j),RD,RD);
-  if(edgeOK(i,j,1)&&CURVE.has(ek(i,j,1)))curveRoad(CURVE.get(ek(i,j,1)));else if(edgeOK(i,j,1)){const L=rx(i+1)-rx(i);roadPlane(rx(i)+L/2,rz(j),L,RD);for(const o of[-1,1])edgeLine(rx(i)+L/2,rz(j)+o*(LANE+2.6),L-RD-2,.3);for(let t=rx(i)+RD/2+4;t<rx(i+1)-RD/2-3;t+=10)dash(t+2.5,rz(j),5,.5)}
-  if(edgeOK(i,j,0)&&CURVE.has(ek(i,j,0)))curveRoad(CURVE.get(ek(i,j,0)));else if(edgeOK(i,j,0)){const L=rz(j+1)-rz(j);roadPlane(rx(i),rz(j)+L/2,RD,L,i===SHOP_I&&SHOPJ.has(j)?groundMat('stone',0xe8c0a8):asphalt);for(const o of[-1,1])edgeLine(rx(i)+o*(LANE+2.6),rz(j)+L/2,.3,L-RD-2);for(let t=rz(j)+RD/2+4;t<rz(j+1)-RD/2-3;t+=10)dash(rx(i),t+2.5,.5,5)}}
+  if(edgeOK(i,j,1)&&CURVE.has(ek(i,j,1)))curveRoad(CURVE.get(ek(i,j,1)));else if(edgeOK(i,j,1)){const L=rx(i+1)-rx(i);roadPlane(rx(i)+L/2,rz(j),L-RD,RD);for(const o of[-1,1])edgeLine(rx(i)+L/2,rz(j)+o*(LANE+2.6),L-RD-2,.3);for(let t=rx(i)+RD/2+4;t<rx(i+1)-RD/2-3;t+=10)dash(t+2.5,rz(j),5,.5)}
+  if(edgeOK(i,j,0)&&CURVE.has(ek(i,j,0)))curveRoad(CURVE.get(ek(i,j,0)));else if(edgeOK(i,j,0)){const L=rz(j+1)-rz(j);roadPlane(rx(i),rz(j)+L/2,RD,L-RD,i===SHOP_I&&SHOPJ.has(j)?groundMat('stone',0xe8c0a8):asphalt);for(const o of[-1,1])edgeLine(rx(i)+o*(LANE+2.6),rz(j)+L/2,.3,L-RD-2);for(let t=rz(j)+RD/2+4;t<rz(j+1)-RD/2-3;t+=10)dash(rx(i),t+2.5,.5,5)}}
 // 斜路路面（比街区地面略高，盖在人行道和草地上面）
 const diagSeg=(k,t)=>{const[i,j]=k.split(',').map(Number);return t==='a'?[rx(i),rz(j),rx(i+1),rz(j+1)]:[rx(i),rz(j+1),rx(i+1),rz(j)]};
 for(const[k,t]of DIAG){if(CURVE.has('D'+k)){curveRoad(CURVE.get('D'+k));continue}const[x0,z0,x1,z1]=diagSeg(k,t),L=Math.hypot(x1-x0,z1-z0),ang=Math.atan2(x1-x0,z1-z0);
-  const g=new THREE.PlaneGeometry(RD,L);{const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*RD/14,uv.getY(i)*L/14)}g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,asphalt);m.position.set((x0+x1)/2,.09,(z0+z1)/2);m.rotation.y=ang;m.receiveShadow=true;scene.add(m);
-  for(let d=RD/2+4;d<L-RD/2-3;d+=10){const dg=new THREE.PlaneGeometry(.5,5);dg.rotateX(-Math.PI/2);const dm=new THREE.Mesh(dg,lineMat);const f=(d+2.5)/L;dm.position.set(x0+(x1-x0)*f,.1,z0+(z1-z0)*f);dm.rotation.y=ang;scene.add(dm)}}
+  const g=new THREE.PlaneGeometry(RD,L);{const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*RD/14,uv.getY(i)*L/14)}g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,asphalt);m.position.set((x0+x1)/2,.12,(z0+z1)/2);m.rotation.y=ang;m.receiveShadow=true;m.updateMatrix();g.applyMatrix4(m.matrix);m.position.set(0,0,0);m.rotation.set(0,0,0);{const[bi,bj]=k.split(',').map(Number);clampGeoXZ(g,diagRect(bi,bj))}g.translate(-(x0+x1)/2,0,-(z0+z1)/2);m.position.set((x0+x1)/2,0,(z0+z1)/2);scene.add(m);
+  for(let d=RD/2+4;d<L-RD/2-3;d+=10){const dg=new THREE.PlaneGeometry(.5,5);dg.rotateX(-Math.PI/2);const dm=new THREE.Mesh(dg,lineMat);const f=(d+2.5)/L;dm.position.set(x0+(x1-x0)*f,.13,z0+(z1-z0)*f);dm.rotation.y=ang;scene.add(dm)}}
 // 点到线段的距离（斜路街区里种树、放东西时避开路面）
 const segDist=(x,z,x0,z0,x1,z1)=>{const dx=x1-x0,dz=z1-z0,t=clamp(((x-x0)*dx+(z-z0)*dz)/(dx*dx+dz*dz),0,1);return Math.hypot(x-x0-dx*t,z-z0-dz*t)};
 // 是否在路面上（直路、路口、斜路）：小物件放置前检查，在路上就不放
@@ -595,13 +595,14 @@ function ribbon(P,o0,o1,mat,y,uw,d0=0,d1=1e9){const pos=[],uv=[];let acc=0;const
     v.push(A[0],y,A[1],B[0],y,B[1],B[2],y,B[3],A[0],y,A[1],B[2],y,B[3],A[2],y,A[3]);const ua=A[4]/uw,ub=B[4]/uw,w=Math.abs(o1-o0)/uw;t.push(0,ua,0,ub,w,ub,0,ua,w,ub,w,ua)}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(t,2));g.computeVertexNormals();
   {const N=g.attributes.normal;for(let k=0;k<N.count;k++)N.setXYZ(k,0,1,0)}const m=new THREE.Mesh(g,mat);m.receiveShadow=true;scene.add(m);return m}
-function curveRoad(e){const P=e.pts,L=plen(P);ribbon(P,-RD/2,RD/2,asphalt,.02,14);
+function curveRoad(e){const P=e.pts,L=plen(P),bi=Math.min(e.i,e.i2),bj=Math.min(e.j,e.j2),dg=e.diag,Y=dg?.1:0;
+  {const m=ribbon(P,-RD/2,RD/2,asphalt,.02+Y,14);if(dg)clampGeoXZ(m.geometry,diagRect(bi,bj))}
   // 白边线、黄虚线都从路口外面开始画，不伸进路口
-  for(const o of[-1,1])ribbon(P,o*(LANE+2.6)-.15,o*(LANE+2.6)+.15,whiteMat,.03,4,BAND+2,L-BAND-2);
-  for(let d=BAND+4;d<L-BAND-6;d+=10)ribbon(P,-.25,.25,lineMat,.035,4,d,d+5)}
+  for(const o of[-1,1])ribbon(P,o*(LANE+2.6)-.15,o*(LANE+2.6)+.15,whiteMat,.03+Y,4,BAND+2,L-BAND-2);
+  for(let d=BAND+4;d<L-BAND-6;d+=10)ribbon(P,-.25,.25,lineMat,.035+Y,4,d,d+5)}
 // —— 弯道路边：反光桩、外侧路灯
-function curveDeco(e){const P=e.pts,L=plen(P);for(let t=BAND;t<L-BAND;t+=14)for(const s of[-1,1]){const q=ptAt(P,t),x=q.x+q.nx*s*(RD/2+1.6),z=q.z+q.nz*s*(RD/2+1.6);if(sdfAt(x,z)<2)continue;const p=box(.22,1,.22,0xf4f4f4);p.position.set(x,.5,z);scene.add(p);const r=box(.24,.18,.24,0xd83a3a);r.position.set(x,.85,z);scene.add(r)}
-  for(let t=BAND+20;t<L-BAND;t+=46){const q=ptAt(P,t),x=q.x+q.nx*(RD/2+2.2),z=q.z+q.nz*(RD/2+2.2);if(sdfAt(x,z)<3)continue;const lp=box(.3,7,.3,0x3a3448);lp.position.set(x,3.5,z);scene.add(lp);const l=new THREE.Mesh(new THREE.BoxGeometry(.9,.3,.9),lampMat);l.position.set(x-q.nx*.9,6.9,z-q.nz*.9);scene.add(l)}}
+function curveDeco(e){const P=e.pts,L=plen(P);for(let t=BAND;t<L-BAND;t+=14)for(const s of[-1,1]){const q=ptAt(P,t),x=q.x+q.nx*s*(RD/2+1.6),z=q.z+q.nz*s*(RD/2+1.6);if(sdfAt(x,z)<2||onRoad(x,z,.4))continue;const p=box(.22,1,.22,0xf4f4f4);p.position.set(x,.5,z);scene.add(p);const r=box(.24,.18,.24,0xd83a3a);r.position.set(x,.85,z);scene.add(r)}
+  for(let t=BAND+20;t<L-BAND;t+=46){const q=ptAt(P,t),x=q.x+q.nx*(RD/2+2.2),z=q.z+q.nz*(RD/2+2.2);if(sdfAt(x,z)<3||onRoad(x,z,.4))continue;const lp=box(.3,7,.3,0x3a3448);lp.position.set(x,3.5,z);scene.add(lp);const l=new THREE.Mesh(new THREE.BoxGeometry(.9,.3,.9),lampMat);l.position.set(x-q.nx*.9,6.9,z-q.nz*.9);scene.add(l)}}
 // —— 商铺街：临街一排小店（一楼橱窗、楼上住家、遮阳棚、招牌）
 function shopRow(i,j,side){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),s=side==='W'?-1:1,fx=cx+s*(W/2-2.8);let z=cz-D/2+3;const zEnd=cz+D/2-3;
   while(z<zEnd-6){const w=Math.min(rr(9,13),zEnd-z),dd=rr(13,17),h=Math.round(rr(8,13)/2)*2,bx=fx-s*dd/2,bz=z+w/2;
@@ -620,6 +621,22 @@ function festoon(i,j){const x=rx(i),za=rz(j)+BAND,zb=rz(j+1)-BAND,L=zb-za,n=Math
   if(j===Math.min(...SHOPJ)){const z=za-1;for(const s of[-1,1]){const c=box(1.4,9,1.4,0xb03a3a);c.position.set(x+s*(RD/2+2.4),4.5,z);scene.add(c)}
     const bm=box(RD+7,1.4,1.6,0xb03a3a);bm.position.set(x,9.4,z);scene.add(bm);const rf=box(RD+9,.5,2.4,0x2a2a32);rf.position.set(x,10.4,z);scene.add(rf);
     const sg=plainSign('商  业  街','#ffe08a','#8a1f2a',12,2.4);sg.position.set(x,7.6,z+.9);scene.add(sg);const sg2=plainSign('商  业  街','#ffe08a','#8a1f2a',12,2.4);sg2.position.set(x,7.6,z-.9);sg2.rotation.y=Math.PI;scene.add(sg2)}}
+
+// —— 斜路（直的、弯的）路面抬高到 .12（高过人行道 .05、草地 .08，远处不再闪），并且只铺在街区范围内：
+//    有马路的那一边按马路边裁掉，不伸进路口盖住斑马线、停止线
+function diagRect(bi,bj){const m=RD/2-2;return{x0:edgeOK(bi,bj,0)?rx(bi)+m:-1e9,x1:edgeOK(bi+1,bj,0)?rx(bi+1)-m:1e9,z0:edgeOK(bi,bj,1)?rz(bj)+m:-1e9,z1:edgeOK(bi,bj+1,1)?rz(bj+1)-m:1e9}}  // 盖到人行道伸进马路的 2 米路沿为止
+function clampGeoXZ(g,r){const P=g.attributes.position;for(let k=0;k<P.count;k++){P.setX(k,clamp(P.getX(k),r.x0,r.x1));P.setZ(k,clamp(P.getZ(k),r.z0,r.z1))}P.needsUpdate=true;g.computeBoundingSphere()}
+function diagPath(bi,bj){const k=bi+','+bj,e=CURVE.get('D'+k);if(e)return e.pts;const t=DIAG.get(k);if(!t)return null;const s=diagSeg(k,t);return[[s[0],s[1]],[s[2],s[3]]]}
+function pathDist(P,x,z){let bd=1e9,bs=0;for(let k=1;k<P.length;k++){const a=P[k-1],b=P[k],dx=b[0]-a[0],dz=b[1]-a[1],l2=dx*dx+dz*dz||1,t=clamp(((x-a[0])*dx+(z-a[1])*dz)/l2,0,1),px=a[0]+dx*t,pz=a[1]+dz*t,d=Math.hypot(x-px,z-pz);if(d<bd){bd=d;bs=(x-a[0])*dz-(z-a[1])*dx>0?1:-1}}return{d:bd,s:bs}}
+// 斜路街区的草地：沿斜路挖掉一条路宽的口子（草地和路面不再重叠）
+function cutDiagGrass(m,bi,bj){const P0=diagPath(bi,bj);if(!P0)return;m.updateMatrix();const g=m.geometry.clone();g.applyMatrix4(m.matrix);m.geometry=g;m.position.set(0,0,0);m.rotation.set(0,0,0);m.scale.set(1,1,1);
+  const P=g.attributes.position,H=RD/2+.3,I=g.index.array,keep=[];
+  for(let t=0;t<I.length;t+=3){const a=I[t],b=I[t+1],c=I[t+2],x=(P.getX(a)+P.getX(b)+P.getX(c))/3,z=(P.getZ(a)+P.getZ(b)+P.getZ(c))/3;if(pathDist(P0,x,z).d>=H)keep.push(a,b,c)}
+  g.setIndex(keep);
+  // 口子边上的顶点推到路边，口子边缘是直的
+  for(let k=0;k<P.count;k++){const x=P.getX(k),z=P.getZ(k),q=pathDist(P0,x,z);if(q.d<H){let best=null;for(let s=0;s<P0.length-1;s++){const a=P0[s],b=P0[s+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1,t=clamp(((x-a[0])*dx+(z-a[1])*dz)/(l*l),0,1),px=a[0]+dx*t,pz=a[1]+dz*t,dd=Math.hypot(x-px,z-pz);if(!best||dd<best.dd)best={dd,px,pz,nx:dz/l*q.s,nz:-dx/l*q.s}}
+    if(best){P.setX(k,best.px+best.nx*H);P.setZ(k,best.pz+best.nz*H)}}}
+  P.needsUpdate=true;g.computeBoundingSphere()}
 
 // ===== 海上山体：远处连绵大山 + 近海小岛礁石 =====
 // 高度 = 圆锥衰减 × 多层正弦噪声（山脊），颜色按高度分层，远的山按距离混入紫色雾气
@@ -934,7 +951,7 @@ let HOME_BUILD=false,LAST_FZ=0;function addHome(x,z,face,lw,ld){HOME_BUILD=true;
   HOME.door={x,z:z-face*2.5+face*10.5};HOME.pad={x:gx,z:gz+face*7.6,h:face>0?0:Math.PI,ox:gx,oz:gz+face*10.5}}
 function buildBlock(i,j){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),t=BTYPE[i+','+j];R=seedR(2,i,j);if(t==='zone')return;
   if(t==='diag'){const[x0,z0,x1,z1]=diagSeg(i+','+j,DIAG.get(i+','+j));
-    const g=tPlane(W-4,D-4,groundMat('grass'));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
+    const g=tPlane(W-4,D-4,groundMat('grass'));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);cutDiagGrass(g,i,j);scene.add(g);
     for(let k=0;k<Math.round(W*D/500);k++){const px=cx+rr(-W/2+5,W/2-5),pz=cz+rr(-D/2+5,D/2-5);if(segDist(px,pz,x0,z0,x1,z1)>13)palm(px,pz)}return}
   if(t==='park'){ // 公园 / 空地 + 长椅
     const g=tPlane(W-4,D-4,groundMat('grass'));g.rotation.x=-Math.PI/2;g.position.set(cx,.08,cz);scene.add(g);
