@@ -332,6 +332,8 @@ const inZone=(x,z,m=0)=>{for(const Z of ZONES)if(x>Z.x0-m&&x<Z.x1+m&&z>Z.z0-m&&z
 // 去掉死胡同（场地切断后留下的断头路），避免车开进去掉头
 {let ch=true;while(ch){ch=false;for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||BRW(i,j))continue;const L=DIRS8.filter(([a,b])=>linkOK(i,j,a,b));if(L.length!==1)continue;const[a,b]=L[0];
   if(a&&b)DIAG.delete(Math.min(i,i+a)+','+Math.min(j,j+b));else EDGE_OFF.add(a?ek(Math.min(i,i+a),j,1):ek(i,Math.min(j,j+b),0));ch=true}}}
+// 一块地是否压到了路（弯道会切进街区）：压到就不在这块地上盖楼/盖房
+function lotOnRoad(x,z,w,d){for(let u=-.5;u<=.5;u+=.125)for(let v=-.5;v<=.5;v+=.125){const px=x+u*(w-2),pz=z+v*(d-2);if(onRoad(px,pz,.5))return true}return false}
 
 // 地面高度（游戏逻辑和画面共用）：路面按两头路口高度线性过渡，街区内部是街区高度，桥面单独算
 const BAND=RD/2+2.5;
@@ -358,7 +360,19 @@ function curveNear(e,x,z){const P=e.pts;let bd=1e9,bt=0,acc=0,tot=0;for(let k=1;
   for(let k=1;k<P.length;k++){const[ax,az]=P[k-1],[bx,bz]=P[k],dx=bx-ax,dz=bz-az,l2=dx*dx+dz*dz||1,t=clamp(((x-ax)*dx+(z-az)*dz)/l2,0,1),d=Math.hypot(x-ax-dx*t,z-az-dz*t),sl=Math.sqrt(l2);if(d<bd){bd=d;bt=(acc+sl*t)/tot}acc+=sl}return{d:bd,t:bt}}
 function curvesAt(x,z){return CURVE_CELL.get(_ri(x)*100+_rj(z))||[]}
 // 沿着弯道走 d 米（从 a 端量起）的位置和方向
-function curvePt(e,s){const P=e.pts,f=clamp(s,0,1)*(P.length-1),k=Math.min(P.length-2,f|0),u=f-k,a=P[k],b=P[k+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1;return{x:a[0]+dx*u,z:a[1]+dz*u,tx:dx/l,tz:dz/l}}
+function curvePt(e,s){const P=e.pts;if(!e.cum){e.cum=[0];for(let k=1;k<P.length;k++)e.cum.push(e.cum[k-1]+Math.hypot(P[k][0]-P[k-1][0],P[k][1]-P[k-1][1]))}
+  const C=e.cum,d=clamp(s,0,1)*C[C.length-1];let lo=0,hi=P.length-2;while(lo<hi){const m=(lo+hi+1)>>1;if(C[m]<=d)lo=m;else hi=m-1}  // 按弧长取点（和 curveNear 的 t 一致）
+  const k=lo,a=P[k],b=P[k+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1,u=clamp((d-C[k])/l,0,1);return{x:a[0]+dx*u,z:a[1]+dz*u,tx:dx/l,tz:dz/l}}
+// 路段长度（弯道按弧长）、两段路之间的转角（弧度）；NPC 尽量不走调头式的急弯
+function edgeKey(i0,j0,i1,j1){const dg=i0!==i1&&j0!==j1,fw=dg?i1>i0:(i1>i0||j1>j0);return dg?'D'+Math.min(i0,i1)+','+Math.min(j0,j1):fw?ek(i0,j0,i1!==i0?1:0):ek(i1,j1,i1!==i0?1:0)}
+function edgeLen(i0,j0,i1,j1){const e=CURVE.get(edgeKey(i0,j0,i1,j1));return e?e.L:laneOf(i0,j0,i1,j1).L}
+const _TA=new Map();
+function turnAng(i0,j0,i1,j1,i2,j2){const k=i0+','+j0+','+i1+','+j1+','+i2+','+j2;let v=_TA.get(k);if(v!==undefined)return v;
+  const L=edgeLen(i0,j0,i1,j1),a=lanePt(i0,j0,i1,j1,L-8),b=lanePt(i0,j0,i1,j1,L),c=lanePt(i1,j1,i2,j2,0),d=lanePt(i1,j1,i2,j2,8);
+  const ux=b.x-a.x,uz=b.z-a.z,vx=d.x-c.x,vz=d.z-c.z;v=Math.acos(clamp((ux*vx+uz*vz)/((Math.hypot(ux,uz)*Math.hypot(vx,vz))||1),-1,1));_TA.set(k,v);return v}
+// NPC 在当前路段上走了多远：弯道按投影到弧线上的位置算（以前按直线投影，急弯处目标点会跑到车后面，车原地打转）
+function laneProg(c,ln){const i0=c.ni-c.dx,j0=c.nj-c.dz,i1=c.ni,j1=c.nj,dg=i0!==i1&&j0!==j1,fw=dg?i1>i0:(i1>i0||j1>j0),key=dg?'D'+Math.min(i0,i1)+','+Math.min(j0,j1):fw?ek(i0,j0,i1!==i0?1:0):ek(i1,j1,i1!==i0?1:0),e=CURVE.get(key);
+  if(!e)return{p:(c.x-ln.ax)*ln.ux+(c.z-ln.az)*ln.uz,L:ln.L};const q=curveNear(e,c.x,c.z);return{p:(fw?q.t:1-q.t)*e.L,L:e.L}}
 // 车道上的点：从 (i0,j0) 往 (i1,j1) 方向走 d 米，靠右 LANE 米（弯道按弧线走）
 function lanePt(i0,j0,i1,j1,d){const dg=i0!==i1&&j0!==j1,fw=dg?i1>i0:(i1>i0||j1>j0),key=dg?'D'+Math.min(i0,i1)+','+Math.min(j0,j1):fw?ek(i0,j0,i1!==i0?1:0):ek(i1,j1,i1!==i0?1:0),e=CURVE.get(key);
   if(!e){const ln=laneOf(i0,j0,i1,j1);return{x:ln.ax+ln.ux*d,z:ln.az+ln.uz*d}}
@@ -933,13 +947,13 @@ function buildBlock(i,j){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),t=BTYPE[i+',
     put(cylG(.1,.1,4),0x6a6a72,cx-W/2+3,2,cz-D/2+3);palm(cx-W/2+3,cz+D/2-3);palm(cx+W/2-3,cz-D/2+3);palm(cx+W/2-3,cz+D/2-3);return}
   if(t==='houses'){ // 平房住宅区：按街区大小分成若干户，每户朝向最近的街道
     const nx=Math.max(1,Math.round(W/38)),nz=Math.max(1,Math.round(D/36)),lw=W/nx,ld=D/nz;
-    for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){const hx=cx-W/2+lw*(a+.5),hz=cz-D/2+ld*(b+.5);if(HOME.blk===i+','+j&&a===0&&b===0){addHome(hx,hz,HOME.face,lw,ld);continue}if(R()<.12){palm(hx,hz);continue}addHouse(hx,hz,nz===1?(R()<.5?1:-1):(b<nz/2?-1:1),lw,ld)}
+    for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){const hx=cx-W/2+lw*(a+.5),hz=cz-D/2+ld*(b+.5);if(HOME.blk===i+','+j&&a===0&&b===0){addHome(hx,hz,HOME.face,lw,ld);continue}if(R()<.12){palm(hx,hz);continue}if(lotOnRoad(hx,hz,lw,ld))continue;addHouse(hx,hz,nz===1?(R()<.5?1:-1):(b<nz/2?-1:1),lw,ld)}
     return}
   // 楼房：大街区分成多块地，部分空着当小广场
   const SS=SHOPST.get(i+','+j);if(SS)shopRow(i,j,SS);
   const nx=W>104?3:W>64?2:1,nz=D>104?3:D>64?2:1,lw=W/nx,ld=D/nz;
   for(let a=0;a<nx;a++)for(let b=0;b<nz;b++){
-    const ox=cx-W/2+lw*(a+.5),oz=cz-D/2+ld*(b+.5);
+    const ox=cx-W/2+lw*(a+.5),oz=cz-D/2+ld*(b+.5);if(lotOnRoad(ox,oz,lw,ld))continue;
     if(SS&&(SS==='W'?ox-lw/2<cx-W/2+20:ox+lw/2>cx+W/2-20)){continue}
     if(nx*nz>1&&R()<.06){if(!nearVenue(ox,oz,3))palm(ox,oz);continue}
     const w=nx*nz===1?Math.min(W,D)*rr(.48,.62):Math.max(18,Math.min(lw,ld)-rr(10,16));
@@ -2277,42 +2291,44 @@ let CHASE=null,chaseT=0;
 function chaseMap(){const px=player.car?player.car.x:player.x,pz=player.car?player.car.z:player.z;let best=null,bd=1e9;
   for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||!degAll(i,j))continue;const d=Math.hypot(rx(i)-px,rz(j)-pz);if(d<bd){bd=d;best=[i,j]}}
   const dist=new Map(),q=[best];dist.set(best+'',0);while(q.length){const[i,j]=q.shift(),d0=dist.get(i+','+j);for(const[a,b]of DIRS8)if(linkOK(i,j,a,b)){const k=(i+a)+','+(j+b);if(!dist.has(k)){dist.set(k,d0+1);q.push([i+a,j+b])}}}CHASE=dist}
-function aiChoose(c){if(c.bus&&BUS.route)return busNext(c);if(c.chase&&CHASE){let best=null,bd=1e9;for(const[a,b]of DIRS8)if(linkOK(c.ni,c.nj,a,b)){const d=CHASE.get((c.ni+a)+','+(c.nj+b))??1e9;if(d<bd||(d===bd&&a===c.dx&&b===c.dz)){bd=d;best=[a,b]}}if(best)return best}const d=DIRS8.filter(([a,b])=>linkOK(c.ni,c.nj,a,b)&&!(a===-c.dx&&b===-c.dz));if(!d.length)return[-c.dx,-c.dz];
+function aiChoose(c){if(c.bus&&BUS.route)return busNext(c);if(c.chase&&CHASE){let best=null,bd=1e9;for(const[a,b]of DIRS8)if(linkOK(c.ni,c.nj,a,b)){const d=CHASE.get((c.ni+a)+','+(c.nj+b))??1e9;if(d<bd||(d===bd&&a===c.dx&&b===c.dz)){bd=d;best=[a,b]}}if(best)return best}let d=DIRS8.filter(([a,b])=>linkOK(c.ni,c.nj,a,b)&&!(a===-c.dx&&b===-c.dz));if(!d.length)return[-c.dx,-c.dz];{const d2=d.filter(([a,b])=>turnAng(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj,c.ni+a,c.nj+b)<2);if(d2.length)d=d2}
   const st=d.find(([a,b])=>a===c.dx&&b===c.dz);if(st&&R()<.55)return st;return d[(R()*d.length)|0]}
 function aiPickNext(c){const[a,b]=c.nd||aiChoose(c);c.nd=null;c.dx=a;c.dz=b;c.ni+=a;c.nj+=b;if(c.bus&&BUS.route){c.bus.k=(c.bus.k+1)%BUS.route.length;c.bus.left=-1}}
 // 车道线：从上一个路口到下一个路口，向右偏 LANE
 function laneOf(i0,j0,i1,j1){const p0=node(i0,j0),p1=node(i1,j1),L=Math.hypot(p1.x-p0.x,p1.z-p0.z)||1,ux=(p1.x-p0.x)/L,uz=(p1.z-p0.z)/L;
   return{ax:p0.x+uz*LANE,az:p0.z-ux*LANE,bx:p1.x+uz*LANE,bz:p1.z-ux*LANE,ux,uz,L}}
 function spawnTraffic(patrol){const i=(R()*(NX+1))|0,j=(R()*(NZ+1))|0;if(!nodeOK(i,j)||!degAll(i,j))return;const n=node(i,j);
-  if(Math.hypot(n.x-player.x,n.z-player.z)<50)return;
+  if(Math.hypot(n.x-player.x,n.z-player.z)<50)return;if(cars.some(o=>!o.dead&&Math.hypot(o.x-n.x,o.z-n.z)<RD/2+18))return;
   const c=makeCar(n.x,n.z,0,patrol?{police:true}:{});if(patrol){c.driver='ai';c.patrol=1}c.ni=i;c.nj=j;c.dx=0;c.dz=0;c.nd=null;
   {const d=DIRS8.filter(([a,b])=>linkOK(i,j,a,b));const[a,b]=d[(R()*d.length)|0];c.dx=a;c.dz=b;c.ni+=a;c.nj+=b}
   const ln=laneOf(i,j,c.ni,c.nj);c.x=ln.ax+ln.ux*(RD/2+4);c.z=ln.az+ln.uz*(RD/2+4);c.h=Math.atan2(ln.ux,ln.uz);c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h}
 function driveAI(c,dt){let ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj);
-  let rem=(ln.bx-c.x)*ln.ux+(ln.bz-c.z)*ln.uz;
+  let LP_=laneProg(c,ln),rem=LP_.L-LP_.p;
   if(rem<RD*1.4&&!c.nd)c.nd=aiChoose(c);           // 快到路口时先决定往哪拐
-  if(rem<RD*.45){aiPickNext(c);ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj);rem=(ln.bx-c.x)*ln.ux+(ln.bz-c.z)*ln.uz}
+  if(rem<RD*.45){aiPickNext(c);ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj);LP_=laneProg(c,ln);rem=LP_.L-LP_.p}
   // 纯追踪：在车道中心线上往前看 LA 米作为目标点；超出这段路就接到下一段车道上，拐弯自然成弧线
-  const prog=(c.x-ln.ax)*ln.ux+(c.z-ln.az)*ln.uz,LA=Math.max(7,Math.abs(c.speed)*.6);let tx,tz;
-  if(prog+LA<=ln.L-RD*.45||!c.nd){const t=Math.min(prog+LA,ln.L),q=lanePt(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj,t);tx=q.x;tz=q.z}
-  else{const e=prog+LA-ln.L+RD*.45,q=lanePt(c.ni,c.nj,c.ni+c.nd[0],c.nj+c.nd[1],e);tx=q.x;tz=q.z}
+  const prog=LP_.p,LA=Math.max(7,Math.abs(c.speed)*.6)+(c.wide||0);let tx,tz;
+  if(prog+LA<=LP_.L-RD*.45||!c.nd){const t=Math.min(prog+LA,LP_.L),q=lanePt(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj,t);tx=q.x;tz=q.z}
+  else{const e=prog+LA-LP_.L+RD*.45,q=lanePt(c.ni,c.nj,c.ni+c.nd[0],c.nj+c.nd[1],e);tx=q.x;tz=q.z}
   const turning=c.nd&&(c.nd[0]!==c.dx||c.nd[1]!==c.dz)&&rem<RD*1.6;
-  const want=Math.atan2(tx-c.x,tz-c.z);let diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;
-  let block=false;const fx=Math.sin(c.h),fz=Math.cos(c.h);
+  const want=Math.atan2(tx-c.x,tz-c.z);let diff=Math.atan2(Math.sin(want-c.h),Math.cos(want-c.h));
+  c.wide=Math.abs(diff)>1.1?Math.min(30,(c.wide||0)+dt*25):Math.max(0,(c.wide||0)-dt*8);let block=false;const fx=Math.sin(c.h),fz=Math.cos(c.h);
   const obs=[...cars.filter(o=>o!==c&&!o.dead),player.car?null:player,...peds.filter(q=>!q.dead&&Math.abs(q.x-c.x)<16&&Math.abs(q.z-c.z)<16)].filter(Boolean);
   let bPed=false;
-  for(const o of obs){const dx=o.x-c.x,dz=o.z-c.z,f=dx*fx+dz*fz,s=Math.abs(dx*fz-dz*fx);if(f<=0||f>14+(c.hl||2.4)||s>(c.hw||1.1)+(o.kind?(o.hw||1.1):.4)+.5)continue;
+  for(const o of obs){const dx=o.x-c.x,dz=o.z-c.z,f=dx*fx+dz*fz,s=Math.abs(dx*fz-dz*fx);if(f<=0||s>(c.hw||1.1)+(o.kind?(o.hw||1.1):.4)+.5)continue;if(f>14+(c.hl||2.4)&&!(o.kind&&f<14+(c.hl||2.4)+Math.abs(c.speed)*1.3&&Math.abs(o.speed||0)<Math.abs(c.speed)-3))continue;
     if(o.kind){const same=Math.sin(o.h)*fx+Math.cos(o.h)*fz;if(same<.5&&f>6.5)continue;block=true} // 车：只让同向前车，横穿/对向的车贴近才停
     else if(f<11)bPed=true}                                                                            // 行人（含玩家）：一直礼让
   // 被车堵超过 4 秒：按喇叭，然后慢慢挤过去
   if(block&&!c.redStop){c.blockT=(c.blockT||0)+dt;if(c.blockT>4){if(!c.honked&&Math.hypot(c.x-player.x,c.z-player.z)<50){c.honked=1;SFX.horn()}block=false;if(c.blockT>7)c.blockT=0}}else{c.blockT=0;c.honked=0}
+  if(bPed&&!block){c.pedT=(c.pedT||0)+dt;if(c.pedT>2.5){c.pedT=0;if(Math.hypot(c.x-player.x,c.z-player.z)<50)SFX.horn();for(const q of peds){if(q.dead||q.cop)continue;const dx=q.x-c.x,dz=q.z-c.z,f=dx*fx+dz*fz,s=dx*fz-dz*fx;if(f<=0||f>14||Math.abs(s)>4)continue;q.flee=Math.max(q.flee||0,2.2);q.fleeFrom={x:c.x+fx*f+(Math.abs(s)<.3?fz*.5:0),z:c.z+fz*f-(Math.abs(s)<.3?fx*.5:0)};if(q.bench){q.bench.used=null;q.bench=null}q.act='walk'}}}else c.pedT=0;
   block=block||bPed;
   // 红灯 / 黄灯：在停止线前停下（已经进入路口的车继续通过）
   if(!c.chase&&(!c.police||player.wanted===0)){const grp=c.dz&&!c.dx?'b':'a';const stopD=rem-RD*.5-1.5;
     if(degAll(c.ni,c.nj)>=3&&LSTATE[grp]!=='g'&&stopD>-.5&&stopD<4+Math.abs(c.speed)*.7){block=true;c.redStop=1}else c.redStop=0}
-  const target=c.chase?(turning||Math.abs(diff)>.35?14:36):turning||Math.abs(diff)>.35?8:16;if(c.chase){bPed=false;block=false}
+  const target=c.chase?(turning||Math.abs(diff)>.35?14:36):Math.abs(diff)>1.1?4:turning||Math.abs(diff)>.35?8:16;if(c.chase){bPed=false;block=false}
   carPhysics(c,block?0:(c.speed<(c.blockT>4?4:target)?(c.chase?1:.6):0),clamp(diff*2.5,-1,1),block,dt);
-  if(Math.abs(c.speed)<.5&&!block){if((c.stuck+=dt)>3){c.x=tx;c.z=tz;c.h=Math.atan2(ln.ux,ln.uz);c.stuck=0}}else c.stuck=0}
+  if(Math.abs(c.speed)<.5&&!block){if((c.stuck+=dt)>3){c.x=tx;c.z=tz;c.h=Math.atan2(ln.ux,ln.uz);c.stuck=0}}else c.stuck=0;
+  if(Math.abs(diff)>1.1&&!c.chase&&!block&&Math.abs(c.speed)>1){if((c.orbT=(c.orbT||0)+dt)>5){c.x=tx;c.z=tz;c.h=Math.atan2(tx-c.x,tz-c.z)||Math.atan2(ln.ux,ln.uz);c.speed=0;c.orbT=0}}else c.orbT=0}
 
 // ===== 行人 =====
 const peds=[];const shirts=[0x22d3ee,0xffe14d,0x9cffd0,0xffffff,0xff7a2f,0x8a5cff];
@@ -2358,11 +2374,11 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
       else{p.hitT=(p.hitT??.5)-dt;st='punch';ex=1-Math.max(0,p.hitT)/1.1;if(p.hitT<=0){p.hitT=1.1;if(!cut){player.hp-=6;flashHurt();SFX.punch()}}}
       if(performance.now()-(p.lastSay||0)>4200)say(p,'thug')}
     p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.rot;pose(p.mesh,st,p.t,k,ex);return}
-  p.flee-=dt;p.wave-=dt;p.danceT-=dt;p.pause-=dt;
+  p.flee-=dt;if(p.flee<=0)p.fleeFrom=null;p.wave-=dt;p.danceT-=dt;p.pause-=dt;
   // 玩家走近，偶尔招手打招呼
   if(!p.waved&&!player.car&&pd<5&&p.flee<=0&&player.wanted===0&&R()<.5&&p.act!=='sit'){p.waved=1;p.wave=2.2;say(p,'wave')}
   let st='idle',k=0,sp=0;
-  if(p.flee>0){if(!p.screamed){p.screamed=1;if(R()<.55)say(p,'flee')}if(p.bench){p.bench.used=null;p.bench=null;p.act='walk'}p.rot=Math.atan2(p.x-player.x,p.z-player.z);st='run';sp=7.5}
+  if(p.flee>0){if(!p.screamed){p.screamed=1;if(R()<.55)say(p,'flee')}if(p.bench){p.bench.used=null;p.bench=null;p.act='walk'}p.rot=p.fleeFrom?Math.atan2(p.x-p.fleeFrom.x,p.z-p.fleeFrom.z):Math.atan2(p.x-player.x,p.z-player.z);st='run';sp=7.5}
   else if(p.wave>0){p.rot+=angDiff(Math.atan2(player.x-p.x,player.z-p.z),p.rot)*Math.min(1,dt*6);st='wave'}
   else if(p.danceT>0||p.act==='dance')st='dance';
   else switch(p.act){
@@ -2471,7 +2487,7 @@ function driveCop(c,dt){if(c.patrol&&c.driver==='ai'&&player.wanted===0){c.chase
     if(Math.hypot(px-c.x,pz-c.z)>45&&c.ni!==undefined&&!(c.rev>0)){if(!c.chase){c.chase=true;c.nd=null}driveAI(c,dt);return}c.chase=false}
   const tx=player.car?player.car.x:player.x,tz=player.car?player.car.z:player.z;
   if(player.wanted===0){driveAI2(c,dt);return}
-  const want=Math.atan2(tx-c.x,tz-c.z);let diff=((want-c.h+Math.PI*3)%(Math.PI*2))-Math.PI;const d=Math.hypot(tx-c.x,tz-c.z);
+  const want=Math.atan2(tx-c.x,tz-c.z);let diff=Math.atan2(Math.sin(want-c.h),Math.cos(want-c.h));const d=Math.hypot(tx-c.x,tz-c.z);
   if(c.rev>0){c.rev-=dt;carPhysics(c,-1,-clamp(diff*2,-1,1),false,dt);return}
   const near=d<17&&(!player.car||Math.abs(player.car.speed)<4);carPhysics(c,near?0:1,clamp(diff*2.5,-1,1),near||Math.abs(diff)>1.2&&c.speed>18,dt);
   // 停车放下警员步行追捕
@@ -3468,7 +3484,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.26.0';
+const VERSION='v0.26.1';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -3635,7 +3651,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.26','新地图',[['0.26.0','全新地图：西岛、东岛两座南北拉长的椭圆大岛，海峡里加了崖岛、望海岛两座悬崖小岛，三座跨海大桥相连；有高低差、台地和悬崖，环岛路沿着海岸弯曲，市区道路不再是方格；东岛有商业街。东岛南部新增机场（跑道、航站楼、塔台、机库、飞机），西岛南部新增监狱（高墙、岗楼、牢房楼），被抓后从监狱门口出来。两座小岛沿悬崖边是一排带泳池的高级别墅，围墙一间连一间。新增巴士环线：8 个站贯穿四座岛，每站停一会儿，在站台走到巴士旁按 E 上车（$5），到站按 E 下车，大地图上有线路和站点']]],
+ ['v0.26','新地图',[['0.26.1','NPC 车辆驾驶优化（用自动试驾程序把全部道路双向各跑一遍找出的问题）：弯道上不再原地打转（按弧线算行驶进度）；急转弯开过头会走大弧线回到车道，不再瞬移；不走调头式急弯；前面有慢车或停着的车会按车速提前刹车，不再追尾；被站在路上的行人挡住会按喇叭，行人让开；弯道切进街区的地方不再盖楼，车不会撞上路中间的楼'],['0.26.0','全新地图：西岛、东岛两座南北拉长的椭圆大岛，海峡里加了崖岛、望海岛两座悬崖小岛，三座跨海大桥相连；有高低差、台地和悬崖，环岛路沿着海岸弯曲，市区道路不再是方格；东岛有商业街。东岛南部新增机场（跑道、航站楼、塔台、机库、飞机），西岛南部新增监狱（高墙、岗楼、牢房楼），被抓后从监狱门口出来。两座小岛沿悬崖边是一排带泳池的高级别墅，围墙一间连一间。新增巴士环线：8 个站贯穿四座岛，每站停一会儿，在站台走到巴士旁按 E 上车（$5），到站按 E 下车，大地图上有线路和站点']]],
  ['v0.25','推门进店',[['0.25.1','泛光减弱一半多（晚上不再糊成一片）；招牌字改成高清、带细描边，远近都看得清'],['0.25.0','不用再按 E 进门：走到门前门会被推开，走进门洞就进去，出门也是走过去推门；枪店、便利店、酒吧、夜店、服装店、理发店、银行的店里面直接建在楼里，推开门就能看到店内，走进去不切画面，在店里外面的车和行人照常动；店门两边有小窗，里外都能看见，从街上看店里像开着灯，晚上尤其明显；进出门时色调随走进的深度平滑过渡；室内墙面和天花板换成写实贴图；家、别墅、阿杰车库小门也改成推门进入（推开后淡入切到室内）；卷帘门车或人靠近会自动升起；别墅没买时、被通缉时门是锁着的']]],
  ['v0.24','帮派',[['0.24.2','写实画风的人物也用卡通画风的脸：圆一点的头型、大眼睛，去掉了单独凸出来的鼻子和下巴；身体、衣服和光影不变'],['0.24.1','所有能进的地方都有了自己的楼：枪店、喷漆店、便利店、阿杰车库、酒吧、夜店、服装店、理发店、银行，门口有发光脚垫，走到门口按 E 进去；枪店现在是能走进去的店，在柜台买东西；喷漆店和阿杰车库是车间，开着车从卷帘门开进去才弹出菜单，关掉菜单车就自己开出门外；原来门口的立杆招牌改成挂在门头上'],['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
  ['v0.23','城市生活',[['0.23.0','新增服装店（换上衣、裤子、帽子、鞋）、理发店（换发型、染发、胡子）、海湾银行（撬金库，出门 4 星通缉，每天一次）；手机新增“出行”（打车直达，按距离收费）和“每日挑战”（每天 3 个，各 $800）；家可以装修（大屏电视、真皮沙发、成就奖杯墙）和扩建车库（停 3 辆）；可以找小贩买热狗、给街头艺人打赏；E 键提示按距离优先最近的；城市生成更平滑并按车速预加载；没被警察看到时开枪加星更少、更容易甩掉；零活奖励 ×1.6、主线奖励 ×1.5；竞速时间按实际距离计算；主线第一章阿杰会给一辆旧车；手机关闭多重采样省性能']]],
@@ -4210,7 +4226,7 @@ function busTick(c,dt){const B=c.bus;
   if(B.wait>0){B.wait-=dt;c.speed=0;if(B.wait<=0){B.left=B.k;if(player.ride===c){const n=busNextStop(c);toast('巴士开动了 · 下一站：'+(n?n.name:''))}}return true}
   if(BUS.stopAt.has(B.k)&&B.left!==B.k){const ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj),prog=(c.x-ln.ax)*ln.ux+(c.z-ln.az)*ln.uz,d=ln.L*.5-prog;
     if(d<.8&&d>-6){B.wait=BUS.WAIT;c.speed=0;B.left=B.k;const s=BUS.stops[BUS.stopAt.get(B.k)];if(player.ride===c)toast('到站：'+s.name+'  （按 E 下车）');else if(Math.hypot(c.x-player.x,c.z-player.z)<60)beep(660,.12,'sine',.05);return true}
-    if(d>0&&d<34)c.speed=Math.min(c.speed,Math.max(3,d*.5))}
+    if(d>0&&d<45)c.speed=Math.min(c.speed,Math.max(3,Math.sqrt(2*3.5*d)))}
   return false}
 function busBoard(c){if(player.money<BUS.FARE){toast('车费不够（$'+BUS.FARE+'）');return}player.money-=BUS.FARE;player.ride=c;player.mesh.visible=false;player.aiming=false;const n=busNextStop(c);
   toast('上车了  车费 -$'+BUS.FARE+(n?' · 下一站：'+n.name:''));SFX.doorClose&&SFX.doorClose()}
