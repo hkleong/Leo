@@ -182,6 +182,8 @@ const REAL=(()=>{try{return localStorage.getItem('nby-style')!=='toon'}catch(e){
 // 写实：建筑配色降低饱和度、略压暗（霓虹招牌不变）
 const _dc=new THREE.Color();const dsat=c=>{if(!REAL||typeof c!=='number')return c;_dc.setHex(c);const l=_dc.r*.3+_dc.g*.55+_dc.b*.15;_dc.setRGB((_dc.r*.3+l*.7)*.88,(_dc.g*.3+l*.7)*.87,(_dc.b*.3+l*.7)*.84);return _dc.getHex()};
 if(REAL){const P=THREE.MeshPhongMaterial;THREE.MeshToonMaterial=class extends P{constructor(p={}){const q=Object.assign({},p);delete q.gradientMap;super(q);this.userData.toonish=1;this.shininess=14;this.specular.setHex(0x1a1a1a)}}}
+// 画面整体做了"弯曲世界"（按顶点弯），超过 14 米的平面自动细分成 6 米一格，远处也能跟着路面一起弯
+{const PG=THREE.PlaneGeometry;THREE.PlaneGeometry=class extends PG{constructor(w=1,h=1,sx=1,sy=1){if(w<1500&&h<1500){if(sx===1&&w>14)sx=Math.ceil(w/6);if(sy===1&&h>14)sy=Math.ceil(h/6)}super(w,h,sx,sy)}}}
 // =====================================================================
 // 画面弯曲：游戏逻辑还在整齐的网格上算，画的时候把整个城市平滑地“扭”一下 —— 街道变成弧线、街区不规则
 // 同时在显卡里按地面高度把所有东西抬起来（台地、坡道、桥）
@@ -490,7 +492,7 @@ const GUNIT={asphalt:14,sidewalk:5,grass:5,sand:7,water:9,stone:6};const GM={};
 // 地面材质；带 tint 时把贴图染成那个颜色（保持原来的配色倾向）
 function groundMat(kind,tint){const k=kind+(tint||'');if(GM[k])return GM[k];const m=new THREE.MeshToonMaterial({map:groundTex(kind),gradientMap:toonGrad,color:dsat(tint||0xffffff)});m.userData.unit=GUNIT[kind];return GM[k]=m}
 // 按米平铺的平面
-function tPlane(w,d,mat,sx=1,sz=1){const g=new THREE.PlaneGeometry(w,d,sx,sz),u=mat.userData.unit||4,uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*w/u,uv.getY(i)*d/u);return new THREE.Mesh(g,mat)}
+function tPlane(w,d,mat,sx=Math.max(1,Math.ceil(w/6)),sz=Math.max(1,Math.ceil(d/6))){const g=new THREE.PlaneGeometry(w,d,sx,sz),u=mat.userData.unit||4,uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*w/u,uv.getY(i)*d/u);return new THREE.Mesh(g,mat)}
 // ShapeGeometry 的 UV 就是米坐标，单独复制一份贴图按单位缩放
 function shapeMat(kind,tint){if(kind==='grassD'){kind='grass';tint=0xc4dcc0}const k='sh'+kind+(tint||'');if(GM[k])return GM[k];const t=groundTex(kind).clone();t.needsUpdate=true;t.repeat.set(1/GUNIT[kind],1/GUNIT[kind]);return GM[k]=new THREE.MeshToonMaterial({map:t,gradientMap:toonGrad,color:dsat(tint||0xffffff)})}
 const flat=(sh,col,y)=>{const m=new THREE.Mesh(new THREE.ShapeGeometry(sh,2),typeof col==='string'?shapeMat(col):M(col));m.rotation.x=-Math.PI/2;m.position.y=y;m.receiveShadow=true;scene.add(m);return m};
@@ -1894,24 +1896,26 @@ function attack(){const w=WEAPONS[wIdx];
 const cars=[];
 const carColors=[0xff3d8b,0x1fb5a8,0xffe14d,0xf4f4f4,0x8a5cff,0xff7a2f,0x2fd17a,0x22252e,0x7fd8ff];
 const glassMat=new THREE.MeshLambertMaterial({color:0x1a2236}),tailMat=new THREE.MeshBasicMaterial({color:0xff2a3a}),headMat=new THREE.MeshBasicMaterial({color:0xfff4d0});
+// 长条物体按 6 米一段细分：画面的"弯曲世界"按顶点弯，只有两端顶点的长方块弯不起来，会像直线一样斜穿过马路
+const _sbG=new Map();function sbox(w,h,d,c){const sx=Math.max(1,Math.ceil(w/6)),sz=Math.max(1,Math.ceil(d/6)),k=[w,h,d,sx,sz].join(',');let g=_sbG.get(k);if(!g){g=new THREE.BoxGeometry(w,h,d,sx,1,sz);_sbG.set(k,g)}const m=new THREE.Mesh(g,typeof c==='number'?M(c):c);m.castShadow=m.receiveShadow=true;return m}
 // —— 额外的碰撞体（别墅围墙等）：按 20 米分格存，查得快
 var XSOL=new Map();
 function xsolAdd(x0,x1,z0,z1){const s={x0,x1,z0,z1};for(let i=Math.floor(x0/20);i<=Math.floor(x1/20);i++)for(let j=Math.floor(z0/20);j<=Math.floor(z1/20);j++){const k=i+','+j;if(!XSOL.has(k))XSOL.set(k,[]);XSOL.get(k).push(s)}}
 function xsolHit(x,z,r){for(let i=Math.floor((x-r)/20);i<=Math.floor((x+r)/20);i++)for(let j=Math.floor((z-r)/20);j<=Math.floor((z+r)/20);j++){const L=XSOL.get(i+','+j);if(L)for(const s of L)if(x>s.x0-r&&x<s.x1+r&&z>s.z0-r&&z<s.z1+r)return s}return null}
 // 沿一条线段摆一堵墙（转着放的长方块）+ 碰撞
-function wallSeg(ax,az,bx,bz,h,th,col,y0=0){const dx=bx-ax,dz=bz-az,l=Math.hypot(dx,dz);if(l<.3)return;const m=box(l+th*.5,h,th,col);m.position.set((ax+bx)/2,y0+h/2,(az+bz)/2);m.rotation.y=Math.atan2(dx,dz)-Math.PI/2;scene.add(m);
+function wallSeg(ax,az,bx,bz,h,th,col,y0=0){const dx=bx-ax,dz=bz-az,l=Math.hypot(dx,dz);if(l<.3)return;const m=sbox(l+th*.5,h,th,col);m.position.set((ax+bx)/2,y0+h/2,(az+bz)/2);m.rotation.y=Math.atan2(dx,dz)-Math.PI/2;scene.add(m);
   const n=Math.max(1,Math.ceil(l/2));for(let k=0;k<n;k++){const x=ax+dx*(k+.5)/n,z=az+dz*(k+.5)/n,e=Math.max(th/2,.6);xsolAdd(x-e,x+e,z-e,z+e)}}
-const gbox=(w,h,d)=>new THREE.Mesh(new THREE.BoxGeometry(w,h,d),glassMat);
+const gbox=(w,h,d)=>sbox(w,h,d,glassMat);
 const zsolid=(x0,x1,z0,z1)=>solids.push({x0,x1,z0,z1});
 // —— 飞机（静态停在停机坪上）
 function planeMesh(x,z,h,s=1,col=0x2a6fd0){const g=new THREE.Group();const W=M(0xf4f4f4),C=M(col);
   const fu=new THREE.Mesh(cylG(1.9*s,1.9*s,26*s,14),W);fu.rotation.x=Math.PI/2;fu.position.y=3.2*s;g.add(fu);
   const no=new THREE.Mesh(new THREE.SphereGeometry(1.9*s,14,10),W);no.scale.z=1.6;no.position.set(0,3.2*s,13*s);g.add(no);
   const ta=new THREE.Mesh(cylG(1.9*s,.5*s,6*s,12),W);ta.rotation.x=-Math.PI/2;ta.position.set(0,3.6*s,-16*s);g.add(ta);
-  const wi=box(28*s,.45*s,5*s,W);wi.position.set(0,2.6*s,0);g.add(wi);const st=box(10*s,.35*s,3*s,W);st.position.set(0,4*s,-17*s);g.add(st);
-  const fin=box(.4*s,6*s,4.5*s,C);fin.position.set(0,6.5*s,-17*s);g.add(fin);const stripe=box(3.9*s,.6*s,22*s,C);stripe.position.set(0,3.2*s,0);g.add(stripe);
+  const wi=sbox(28*s,.45*s,5*s,W);wi.position.set(0,2.6*s,0);g.add(wi);const st=sbox(10*s,.35*s,3*s,W);st.position.set(0,4*s,-17*s);g.add(st);
+  const fin=sbox(.4*s,6*s,4.5*s,C);fin.position.set(0,6.5*s,-17*s);g.add(fin);const stripe=sbox(3.9*s,.6*s,22*s,C);stripe.position.set(0,3.2*s,0);g.add(stripe);
   for(const sd of[-1,1]){const en=new THREE.Mesh(cylG(.9*s,.9*s,3.5*s,12),M(0xb8bcc4));en.rotation.x=Math.PI/2;en.position.set(sd*6*s,1.6*s,1*s);g.add(en)}
-  for(const[dx,dz]of[[0,10],[-3,-1],[3,-1]]){const w=box(.5*s,1.4*s,.8*s,0x1a1a1a);w.position.set(dx*s,.7*s,dz*s);g.add(w)}
+  for(const[dx,dz]of[[0,10],[-3,-1],[3,-1]]){const w=sbox(.5*s,1.4*s,.8*s,0x1a1a1a);w.position.set(dx*s,.7*s,dz*s);g.add(w)}
   g.position.set(x,0,z);g.rotation.y=h;scene.add(g);zsolid(x-14*s,x+14*s,z-14*s,z+14*s)}
 function buildAirport(Z){const W=Z.x1-Z.x0,D=Z.z1-Z.z0,cz=(Z.z0+Z.z1)/2;{const g=tPlane(W,D,groundMat('grass',0xb8d8a8),Math.ceil(W/8),Math.ceil(D/8));g.rotation.x=-Math.PI/2;g.position.set((Z.x0+Z.x1)/2,.1,cz);g.receiveShadow=true;scene.add(g)}
     const rwx=Z.x0+W*.66,rwL=D-26;Z.rw=[rwx,cz,36,rwL];const rw=tPlane(36,rwL,asphalt,4,Math.ceil(rwL/8));rw.rotation.x=-Math.PI/2;rw.position.set(rwx,.2,cz);scene.add(rw);
@@ -1923,34 +1927,34 @@ function buildAirport(Z){const W=Z.x1-Z.x0,D=Z.z1-Z.z0,cz=(Z.z0+Z.z1)/2;{const g
   const apX0=Z.x0+30,apX1=rwx-26,ap=tPlane(apX1-apX0,D*.62,asphalt,Math.ceil((apX1-apX0)/8),Math.ceil(D*.62/8));ap.rotation.x=-Math.PI/2;ap.position.set((apX0+apX1)/2,.18,cz);scene.add(ap);
   const tw=tPlane(rwx-18-apX1,16,asphalt,4,2);tw.rotation.x=-Math.PI/2;tw.position.set((apX1+rwx-18)/2,.18,cz);scene.add(tw);
   // 航站楼
-  const tL=D*.42,tx=Z.x0+15;const tb=gbox(22,10,tL);tb.position.set(tx,5,cz);scene.add(tb);const tr=box(26,1.2,tL+4,0xe8e4dc);tr.position.set(tx,10.6,cz);scene.add(tr);
-  for(let z=cz-tL/2+4;z<cz+tL/2;z+=8){const p=box(.6,10,.6,0xe8e4dc);p.position.set(tx+11.2,5,z);scene.add(p)}
-  const cn=box(8,.6,16,0xe8e4dc);cn.position.set(tx-15,5,cz);scene.add(cn);zsolid(tx-11,tx+11,cz-tL/2,cz+tL/2);
+  const tL=D*.42,tx=Z.x0+15;const tb=gbox(22,10,tL);tb.position.set(tx,5,cz);scene.add(tb);const tr=sbox(26,1.2,tL+4,0xe8e4dc);tr.position.set(tx,10.6,cz);scene.add(tr);
+  for(let z=cz-tL/2+4;z<cz+tL/2;z+=8){const p=sbox(.6,10,.6,0xe8e4dc);p.position.set(tx+11.2,5,z);scene.add(p)}
+  const cn=sbox(8,.6,16,0xe8e4dc);cn.position.set(tx-15,5,cz);scene.add(cn);zsolid(tx-11,tx+11,cz-tL/2,cz+tL/2);
   for(const s of[1,-1]){const sg=plainSign('C VI 国际机场','#ffffff','#1a4a8a',16,2.6);sg.position.set(tx+s*11.4,8.4,cz);sg.rotation.y=s*Math.PI/2;scene.add(sg)}
   // 塔台
   const twx=Z.x0+12,twz=Z.z0+16,tc=new THREE.Mesh(cylG(2.4,3,26,12),M(0xe8e4dc));tc.position.set(twx,13,twz);scene.add(tc);
-  const cab=gbox(9,4.2,9);cab.position.set(twx,28,twz);scene.add(cab);const cr=box(10.5,.8,10.5,0x3a3a40);cr.position.set(twx,30.5,twz);scene.add(cr);zsolid(twx-3,twx+3,twz-3,twz+3);
+  const cab=gbox(9,4.2,9);cab.position.set(twx,28,twz);scene.add(cab);const cr=sbox(10.5,.8,10.5,0x3a3a40);cr.position.set(twx,30.5,twz);scene.add(cr);zsolid(twx-3,twx+3,twz-3,twz+3);
   // 机库
-  for(const zz of[Z.z1-26,Z.z1-60]){if(zz<cz+D*.18)continue;const hx=Z.x0+20,hb=box(26,8,24,0xb8bcc4);hb.position.set(hx,4,zz);scene.add(hb);const rf=new THREE.Mesh(new THREE.CylinderGeometry(12,12,26,16,1,false,0,Math.PI),M(0x8a8e96));rf.rotation.z=Math.PI/2;rf.rotation.y=Math.PI/2;rf.position.set(hx,8,zz);scene.add(rf);zsolid(hx-13,hx+13,zz-12,zz+12)}
+  for(const zz of[Z.z1-26,Z.z1-60]){if(zz<cz+D*.18)continue;const hx=Z.x0+20,hb=sbox(26,8,24,0xb8bcc4);hb.position.set(hx,4,zz);scene.add(hb);const rf=new THREE.Mesh(new THREE.CylinderGeometry(12,12,26,16,1,false,0,Math.PI),M(0x8a8e96));rf.rotation.z=Math.PI/2;rf.rotation.y=Math.PI/2;rf.position.set(hx,8,zz);scene.add(rf);zsolid(hx-13,hx+13,zz-12,zz+12)}
   // 停着的飞机
   planeMesh((apX0+apX1)/2,cz-D*.16,Math.PI/2,1.5,0x2a6fd0);planeMesh((apX0+apX1)/2,cz+D*.1,Math.PI/2,1.3,0xd83a3a);planeMesh(rwx,Z.z0+70,Math.PI,1.6,0x22a86a);
   // 围栏
-  for(const[ax,az,bx,bz]of[[Z.x0+2,Z.z0+2,Z.x1-2,Z.z0+2],[Z.x1-2,Z.z0+2,Z.x1-2,Z.z1-2],[Z.x1-2,Z.z1-2,Z.x0+2,Z.z1-2]]){const m=box(Math.hypot(bx-ax,bz-az),2.2,.2,0x8a8e96);m.position.set((ax+bx)/2,1.1,(az+bz)/2);m.rotation.y=Math.atan2(bx-ax,bz-az)-Math.PI/2;scene.add(m)}
+  for(const[ax,az,bx,bz]of[[Z.x0+2,Z.z0+2,Z.x1-2,Z.z0+2],[Z.x1-2,Z.z0+2,Z.x1-2,Z.z1-2],[Z.x1-2,Z.z1-2,Z.x0+2,Z.z1-2]]){const m=sbox(Math.hypot(bx-ax,bz-az),2.2,.2,0x8a8e96);m.position.set((ax+bx)/2,1.1,(az+bz)/2);m.rotation.y=Math.atan2(bx-ax,bz-az)-Math.PI/2;scene.add(m)}
   Z.label=[(Z.x0+Z.x1)/2,cz]}
 function buildPrison(Z){const W=Z.x1-Z.x0,D=Z.z1-Z.z0,cx=(Z.x0+Z.x1)/2,cz=(Z.z0+Z.z1)/2,i=5,X0=Z.x0+i,X1=Z.x1-i,Z0=Z.z0+i,Z1=Z.z1-i,WC=0x9a968e;
   const yd=tPlane(W-8,D-8,groundMat('asphalt'),Math.ceil(W/8),Math.ceil(D/8));yd.rotation.x=-Math.PI/2;yd.position.set(cx,.12,cz);scene.add(yd);
   // 高墙（南面中间是大门）+ 墙头铁丝网
   const gw=12;for(const[ax,az,bx,bz]of[[X0,Z0,X1,Z0],[X1,Z0,X1,Z1],[X0,Z1,X0,Z0],[X0,Z1,cx-gw/2,Z1],[cx+gw/2,Z1,X1,Z1]]){wallSeg(ax,az,bx,bz,9,1.4,WC);wallSeg(ax,az,bx,bz,.6,.3,0x3a3a40,9.6)}
-  const gate=box(gw,7,.4,0x2a2a30);gate.position.set(cx,3.5,Z1);scene.add(gate);for(let k=-5;k<=5;k++){const b=box(.15,7,.5,0x5a5a62);b.position.set(cx+k,3.5,Z1);scene.add(b)}
+  const gate=sbox(gw,7,.4,0x2a2a30);gate.position.set(cx,3.5,Z1);scene.add(gate);for(let k=-5;k<=5;k++){const b=sbox(.15,7,.5,0x5a5a62);b.position.set(cx+k,3.5,Z1);scene.add(b)}
   const gs=plainSign('海湾监狱','#ffffff','#3a3a44',10,2);gs.position.set(cx,10.6,Z1+.9);scene.add(gs);
   // 岗楼
-  for(const[x,z]of[[X0,Z0],[X1,Z0],[X0,Z1],[X1,Z1]]){const t=box(5,16,5,0x8a8680);t.position.set(x,8,z);scene.add(t);const c=gbox(7,3.4,7);c.position.set(x,17.7,z);scene.add(c);const r=box(8,.6,8,0x3a3a40);r.position.set(x,19.7,z);scene.add(r);zsolid(x-2.5,x+2.5,z-2.5,z+2.5)}
+  for(const[x,z]of[[X0,Z0],[X1,Z0],[X0,Z1],[X1,Z1]]){const t=sbox(5,16,5,0x8a8680);t.position.set(x,8,z);scene.add(t);const c=gbox(7,3.4,7);c.position.set(x,17.7,z);scene.add(c);const r=sbox(8,.6,8,0x3a3a40);r.position.set(x,19.7,z);scene.add(r);zsolid(x-2.5,x+2.5,z-2.5,z+2.5)}
   // 牢房楼、办公楼
-  for(const[ox,oz,w,d,h]of[[cx-W*.18,cz-D*.18,W*.3,16,13],[cx+W*.18,cz-D*.18,W*.3,16,13],[cx,cz+D*.12,22,14,9]]){const b=box(w,h,d,0xa8a49c);b.position.set(ox,h/2,oz);scene.add(b);
-    for(let y=3;y<h-1;y+=3.4)for(let x=ox-w/2+2;x<ox+w/2-1;x+=2.6){const wn=box(.8,1.2,.2,0x2a2a30);wn.position.set(x,y,oz+d/2+.05);scene.add(wn)}zsolid(ox-w/2,ox+w/2,oz-d/2,oz+d/2)}
+  for(const[ox,oz,w,d,h]of[[cx-W*.18,cz-D*.18,W*.3,16,13],[cx+W*.18,cz-D*.18,W*.3,16,13],[cx,cz+D*.12,22,14,9]]){const b=sbox(w,h,d,0xa8a49c);b.position.set(ox,h/2,oz);scene.add(b);
+    for(let y=3;y<h-1;y+=3.4)for(let x=ox-w/2+2;x<ox+w/2-1;x+=2.6){const wn=sbox(.8,1.2,.2,0x2a2a30);wn.position.set(x,y,oz+d/2+.05);scene.add(wn)}zsolid(ox-w/2,ox+w/2,oz-d/2,oz+d/2)}
   // 放风场：篮球场
   const ct=tPlane(26,15,groundMat('asphalt',0xc86a4a),3,2);ct.rotation.x=-Math.PI/2;ct.position.set(cx,.17,cz+D*.34);scene.add(ct);
-  for(const s of[-1,1]){const p=box(.3,3.5,.3,0xe8e4dc);p.position.set(cx+s*12,1.75,cz+D*.34);scene.add(p);const bd=box(.2,1.2,1.8,0xf4f4f4);bd.position.set(cx+s*11.6,3.4,cz+D*.34);scene.add(bd)}
+  for(const s of[-1,1]){const p=sbox(.3,3.5,.3,0xe8e4dc);p.position.set(cx+s*12,1.75,cz+D*.34);scene.add(p);const bd=sbox(.2,1.2,1.8,0xf4f4f4);bd.position.set(cx+s*11.6,3.4,cz+D*.34);scene.add(bd)}
   Z.gate={x:cx,z:Z1+9};Z.label=[cx,cz]}
 if(AIRPORT)buildAirport(AIRPORT);if(PRISON)buildPrison(PRISON);
 // —— 两座小岛：沿悬崖边一排高级别墅，每间都有围墙，围墙一间连一间
@@ -1965,13 +1969,13 @@ for(const k of[1,2]){const P0=ISLANDS[k].poly,P=[];for(let q=0;q<P0.length;q++){
     const gA=at(s+PL/2-3.2,DOUT),gB=at(s+PL/2+3.2,DOUT);
     wallSeg(D[0],D[1],gA[0],gA[1],2.6,.6,WC);wallSeg(gB[0],gB[1],C[0],C[1],2.6,.6,WC);
     if(!prevOK)wallSeg(A[0],A[1],D[0],D[1],2.6,.6,WC);wallSeg(B[0],B[1],C[0],C[1],2.6,.6,WC);
-    {const g=box(6.2,2.2,.3,0x2a2a30);g.position.set((gA[0]+gB[0])/2,1.1,(gA[1]+gB[1])/2);g.rotation.y=Math.atan2(gB[0]-gA[0],gB[1]-gA[1])-Math.PI/2;scene.add(g)}
-    {const r=box(Math.hypot(B[0]-A[0],B[1]-A[1]),1.1,.12,0xc8e0f0);r.position.set((A[0]+B[0])/2,.9,(A[1]+B[1])/2);r.rotation.y=Math.atan2(B[0]-A[0],B[1]-A[1])-Math.PI/2;scene.add(r)}
+    {const g=sbox(6.2,2.2,.3,0x2a2a30);g.position.set((gA[0]+gB[0])/2,1.1,(gA[1]+gB[1])/2);g.rotation.y=Math.atan2(gB[0]-gA[0],gB[1]-gA[1])-Math.PI/2;scene.add(g)}
+    {const r=sbox(Math.hypot(B[0]-A[0],B[1]-A[1]),1.1,.12,0xc8e0f0);r.position.set((A[0]+B[0])/2,.9,(A[1]+B[1])/2);r.rotation.y=Math.atan2(B[0]-A[0],B[1]-A[1])-Math.PI/2;scene.add(r)}
     // 别墅：两层白色现代住宅，大玻璃，面朝大海；海边一侧是泳池
     const ry=Math.atan2(-M2[2],-M2[3]),hx=M2[0]-M2[2]*1.5,hz=M2[1]-M2[3]*1.5,rot=(m,lx,ly,lz)=>{const c=Math.cos(ry),sn=Math.sin(ry);m.position.set(hx+lx*c+lz*sn,ly,hz-lx*sn+lz*c);m.rotation.y=ry;scene.add(m)};
-    const pal=[0xf6f4ee,0xf0ebe0,0xe8eef2][idx%3];rot(box(18,4.6,11,pal),0,2.3,0);rot(gbox(17.6,3,.2),0,2.6,-5.6);rot(box(12,3.8,9,pal),-2,6.5,1);rot(gbox(11.6,2.4,.2),-2,6.6,-3.6);
-    rot(box(19,.5,12,0xd8d0c4),0,4.85,0);rot(box(13,.5,10,0xd8d0c4),-2,8.65,1);
-    const pool=new THREE.Mesh(new THREE.BoxGeometry(9,.2,4.5),new THREE.MeshBasicMaterial({color:0x4ac8e8}));rot(pool,2,.15,-9.5);rot(box(10,.25,5.5,0xe8e4dc),2,.08,-9.5);
+    const pal=[0xf6f4ee,0xf0ebe0,0xe8eef2][idx%3];rot(sbox(18,4.6,11,pal),0,2.3,0);rot(gbox(17.6,3,.2),0,2.6,-5.6);rot(sbox(12,3.8,9,pal),-2,6.5,1);rot(gbox(11.6,2.4,.2),-2,6.6,-3.6);
+    rot(sbox(19,.5,12,0xd8d0c4),0,4.85,0);rot(sbox(13,.5,10,0xd8d0c4),-2,8.65,1);
+    const pool=new THREE.Mesh(new THREE.BoxGeometry(9,.2,4.5),new THREE.MeshBasicMaterial({color:0x4ac8e8}));rot(pool,2,.15,-9.5);rot(sbox(10,.25,5.5,0xe8e4dc),2,.08,-9.5);
     {const c=Math.cos(ry),sn=Math.sin(ry),e=10;xsolAdd(hx-e,hx+e,hz-e,hz+e)}
     palm(...at(s+4,DIN+6).slice(0,2));VILLAS.push({x:hx,z:hz});prevOK=true})}
 
