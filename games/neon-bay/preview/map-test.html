@@ -352,6 +352,9 @@ for(const isW of[(i,j)=>nodeLand(i,j)&&rx(i)<WU(.34),(i,j)=>nodeLand(i,j)&&rx(i)
        let key,ca=a,cb=b,pp=pts;
        if(Math.abs(di)+Math.abs(dj)===1){const h=di?1:0,ci=Math.min(a[0],b[0]),cj=Math.min(a[1],b[1]);key=ek(ci,cj,h);EDGE_OFF.delete(key);if(a[0]>b[0]||a[1]>b[1]){ca=b;cb=a;pp=pts.slice().reverse()}}
        else{const bi=Math.min(a[0],b[0]),bj=Math.min(a[1],b[1]);DIAG.set(bi+','+bj,di===dj?'a':'b');key='D'+bi+','+bj;if(a[0]>b[0]){ca=b;cb=a;pp=pts.slice().reverse()}}
+       // 同一行/列两个路口之间的环岛路：横向偏移压到 0.6 米以内（以前会鼓进旁边街区 6~7 米，被人行道盖住、标线斜穿斑马线）
+       if(key[0]!=='D'){const A=pp[0],B=pp[pp.length-1],dx=B[0]-A[0],dz=B[1]-A[1],l=Math.hypot(dx,dz)||1,nx=-dz/l,nz=dx/l;let mx=0;for(const p of pp)mx=Math.max(mx,Math.abs((p[0]-A[0])*nx+(p[1]-A[1])*nz));
+         if(mx>.6){const f=.6/mx;pp=pp.map(p=>{const o=(p[0]-A[0])*nx+(p[1]-A[1])*nz;return[p[0]-nx*o*(1-f),p[1]-nz*o*(1-f)]})}}
        let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const[x,z]of pp){x0=Math.min(x0,x);x1=Math.max(x1,x);z0=Math.min(z0,z);z1=Math.max(z1,z)}
        const e={i:ca[0],j:ca[1],i2:cb[0],j2:cb[1],pts:pp,L,br:false,diag:key[0]==='D',bb:[x0-BAND,x1+BAND,z0-BAND,z1+BAND]};CURVE.set(key,e);
        for(let ci=_ri(e.bb[0]);ci<=_ri(e.bb[1]);ci++)for(let cj=_rj(e.bb[2]);cj<=_rj(e.bb[3]);cj++){const kk=ci*100+cj;if(!CURVE_CELL.has(kk))CURVE_CELL.set(kk,[]);CURVE_CELL.get(kk).push(e)}}}}}
