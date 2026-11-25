@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: one table under a brass rail; lobby of three seats, each game a felt panel with a shared chip rack. */
+/* Layout: one-screen app shell. Rail header, a felt table that scales to the remaining height, chip rack docked at the bottom. */
 :root {
   --felt: #0e3a2d;
   --felt-hi: #155240;
@@ -25,90 +25,107 @@
   --display: "Bodoni Moda", "Songti SC", "STSong", "Noto Serif SC", serif;
   --body: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* sizes that follow the screen height so a whole table fits without scrolling */
+  --cw: clamp(36px, 6.4vh, 58px);   /* card width */
+  --rc: clamp(14px, 2.5vh, 22px);   /* big road cell */
+  --gx: max(12px, env(safe-area-inset-left, 0px));
+  --gy: max(12px, env(safe-area-inset-right, 0px));
   color-scheme: dark;
+  background: var(--rail);
 }
 * { box-sizing: border-box; }
-html, body { min-height: 100%; }
+html, body { height: 100%; }
 body {
+  margin: 0; display: flex; flex-direction: column; overflow: hidden;
   background: radial-gradient(120% 80% at 50% 0%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
   background-color: var(--felt);
-  color: var(--ivory);
-  font-family: var(--body);
-  font-size: 15px;
-  line-height: 1.5;
+  color: var(--ivory); font-family: var(--body); font-size: 14px; line-height: 1.45;
 }
 button { font: inherit; color: inherit; cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: .4; }
 :focus-visible { outline: 2px solid var(--win); outline-offset: 2px; }
-
-.top {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
-  background: var(--rail);
-  border-bottom: 3px solid var(--brass-lo);
-  box-shadow: 0 6px 18px rgba(0,0,0,.35);
-}
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--rail); }
-.top-in, .wrap {
-  max-width: 980px; margin: 0 auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-.top-in { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-block: 10px; }
-.brand { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: .04em; color: var(--brass); margin: 0; cursor: pointer; background: none; border: 0; padding: 0; }
-.nav { display: flex; gap: 4px; flex-wrap: wrap; }
-.nav button { background: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 10px; color: var(--muted); }
-.nav button[aria-current="true"] { color: var(--ivory); border-color: var(--brass-lo); }
-.bank { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-.bank-label { font-size: 12px; letter-spacing: .12em; color: var(--muted); }
-#bank { font-family: var(--mono); font-size: 18px; color: var(--win); font-variant-numeric: tabular-nums; }
-.linkbtn { background: none; border: 1px solid var(--brass-lo); border-radius: 4px; padding: 2px 8px; font-size: 12px; color: var(--muted); }
-
-.wrap { padding-block: 24px 48px; display: grid; gap: 20px; }
-.stack { display: grid; gap: 20px; min-width: 0; }
-.wrap > *, .stack > *, .felt > * { min-width: 0; }
 [hidden] { display: none !important; }
-.note { color: var(--muted); font-size: 13px; margin: 0; }
+.note { color: var(--muted); font-size: 12px; margin: 0; }
+
+/* Header: one row */
+.top { flex: none; background: var(--rail); border-bottom: 2px solid var(--brass-lo); }
+.top-in { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; gap: 10px; padding: 6px var(--gy) 6px var(--gx); }
+.brand { font-family: var(--display); font-size: 19px; font-weight: 700; letter-spacing: .04em; color: var(--brass); background: none; border: 0; padding: 0; white-space: nowrap; }
+.nav { display: flex; gap: 2px; min-width: 0; }
+.nav button { background: none; border: 1px solid transparent; border-radius: 4px; padding: 3px 8px; color: var(--muted); white-space: nowrap; }
+.nav button[aria-current="true"] { color: var(--ivory); border-color: var(--brass-lo); }
+.bank { margin-left: auto; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.bank-label { font-size: 11px; color: var(--muted); }
+#bank { font-family: var(--mono); font-size: 16px; color: var(--win); font-variant-numeric: tabular-nums; }
+.iconbtn { background: none; border: 1px solid var(--brass-lo); border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 13px; line-height: 1; color: var(--muted); }
+
+/* Main area takes the remaining height; if a screen is really short it scrolls inside, never the page */
+main { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+main > section { flex: 1 1 auto; min-height: 0; width: 100%; max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; padding: 8px var(--gy) 8px var(--gx); }
+main > section > * { min-width: 0; }
+
+.bar { flex: none; display: flex; align-items: baseline; gap: 8px; }
+.bar h2 { font-family: var(--display); font-size: 20px; font-weight: 500; margin: 0; white-space: nowrap; }
+.bar .meta { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.rulebtn { margin-left: auto; flex: none; background: none; border: 1px solid var(--brass-lo); color: var(--brass); border-radius: 999px; padding: 1px 12px; font-size: 12px; }
 
 /* Lobby */
-.lobby-head h2 { font-family: var(--display); font-size: clamp(28px, 6vw, 44px); margin: 0; text-wrap: balance; font-weight: 500; }
-.seats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+#v-lobby { justify-content: center; gap: 14px; }
+.lobby-head h2 { font-family: var(--display); font-size: clamp(24px, 5vw, 40px); margin: 0; font-weight: 500; text-wrap: balance; }
+.seats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .seat {
   text-align: left; border: 1px solid var(--brass-lo); border-radius: 10px;
   background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.18));
-  padding: 20px; display: grid; gap: 10px; align-content: start;
+  padding: 16px; display: grid; gap: 6px; align-content: start;
   transition: transform .15s ease, border-color .15s ease;
 }
 .seat:hover { transform: translateY(-2px); border-color: var(--brass); }
-.seat .glyph { font-family: var(--display); font-size: 72px; line-height: 1; color: var(--brass); font-weight: 700; }
-.seat h3 { margin: 0; font-size: 20px; }
-.seat .en { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-.seat ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
-.seat .go { justify-self: start; margin-top: 4px; border: 1px solid var(--brass); color: var(--brass); padding: 4px 14px; border-radius: 999px; font-size: 13px; }
+.seat .glyph { font-family: var(--display); font-size: clamp(40px, 8vh, 72px); line-height: 1; color: var(--brass); font-weight: 700; }
+.seat h3 { margin: 0; font-size: 18px; }
+.seat .en { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.seat ul { margin: 0; padding-left: 16px; color: var(--muted); font-size: 12px; }
+.seat .go { justify-self: start; border: 1px solid var(--brass); color: var(--brass); padding: 2px 12px; border-radius: 999px; font-size: 12px; }
 
-/* Shared game chrome */
-.game-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-.game-head h2 { font-family: var(--display); font-size: 30px; margin: 0; font-weight: 500; }
-.game-head .en { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-details.rules { border: 1px solid rgba(201,164,92,.35); border-radius: 8px; padding: 8px 14px; background: rgba(0,0,0,.15); }
-details.rules summary { cursor: pointer; color: var(--brass); font-size: 13px; }
-details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); font-size: 13px; max-width: 70ch; }
-
-.rack {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  display: flex; gap: 8px; flex-wrap: nowrap; align-items: center; justify-content: center;
-  background: var(--rail); border-top: 2px solid var(--brass-lo); box-shadow: 0 -6px 18px rgba(0,0,0,.4);
-  padding-top: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+/* Felt table fills the space it is given */
+.felt {
+  flex: 1 1 auto; min-height: 0;
+  border: 6px solid var(--rail); outline: 1px solid var(--brass-lo); outline-offset: -8px;
+  border-radius: 16px; padding: 12px 14px;
+  background: radial-gradient(90% 70% at 50% 30%, var(--felt-hi), var(--felt));
+  display: flex; flex-direction: column; justify-content: space-evenly; gap: 8px;
+  box-shadow: inset 0 0 40px rgba(0,0,0,.35), 0 6px 20px rgba(0,0,0,.35);
 }
-.rack .lbl { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin-right: 4px; white-space: nowrap; }
-body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
-@media (max-width: 400px) { .rack .lbl { display: none; } }
+.felt > * { min-width: 0; flex: none; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn { border: 1px solid var(--brass); background: var(--brass); color: var(--ink); border-radius: 6px; padding: 6px 14px; font-weight: 600; white-space: nowrap; }
+.btn.ghost { background: transparent; color: var(--brass); }
+.msg { min-height: 1.45em; font-size: 14px; margin: 0; }
+.msg .w { color: var(--win); font-weight: 600; }
+.msg .l { color: #e68c8c; }
+.dealwrap { position: relative; display: inline-flex; margin-right: 6px; }
+.cdb {
+  --p: 1; --ring: var(--win);
+  position: absolute; top: -9px; right: -9px; width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center; font: 500 10px/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--ivory);
+  background: radial-gradient(circle, var(--rail) 62%, transparent 63%), conic-gradient(var(--ring) calc(var(--p) * 360deg), rgba(0,0,0,.45) 0);
+  box-shadow: 0 1px 3px rgba(0,0,0,.5); pointer-events: none;
+}
+.cdb.soon { --ring: #e0575f; color: #ffb3b3; }
+.cdb.off { --p: 0; color: var(--muted); }
+.toggle { background: transparent; border: 1px solid var(--brass-lo); border-radius: 999px; padding: 3px 10px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.toggle[aria-pressed="true"] { color: var(--ink); background: var(--brass); border-color: var(--brass); }
+
+/* Chip rack, docked at the bottom of the screen */
+.rack {
+  flex: none; display: flex; gap: 8px; align-items: center; justify-content: center;
+  background: var(--rail); border-top: 2px solid var(--brass-lo); box-shadow: 0 -6px 18px rgba(0,0,0,.4);
+  padding: 7px var(--gy) 7px var(--gx);
+}
+.rack .lbl { font-size: 11px; letter-spacing: .12em; color: var(--muted); margin-right: 2px; white-space: nowrap; }
 .chip {
   --c: #e9e2cf;
-  width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%;
-  border: 0; background:
-    radial-gradient(circle, var(--c) 52%, transparent 53%),
-    repeating-conic-gradient(var(--c) 0 20deg, #fff 20deg 40deg);
+  width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; border: 0; padding: 0;
+  background: radial-gradient(circle, var(--c) 52%, transparent 53%), repeating-conic-gradient(var(--c) 0 20deg, #fff 20deg 40deg);
   color: var(--ink); font-family: var(--mono); font-size: 11px; font-weight: 500;
   box-shadow: 0 2px 0 rgba(0,0,0,.5), inset 0 0 0 2px rgba(0,0,0,.25);
   transition: transform .12s ease;
@@ -121,40 +138,9 @@ body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom
 [data-v="1000"] { --c: #e0b647; }
 [data-v="5000"] { --c: #2a2a2a; color: #fff; }
 
-.felt {
-  border: 10px solid var(--rail);
-  outline: 2px solid var(--brass-lo); outline-offset: -12px;
-  border-radius: 18px; padding: 22px;
-  background: radial-gradient(90% 70% at 50% 30%, var(--felt-hi), var(--felt));
-  display: grid; gap: 18px;
-  box-shadow: inset 0 0 40px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.35);
-}
-.actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn {
-  border: 1px solid var(--brass); background: var(--brass); color: var(--ink);
-  border-radius: 6px; padding: 8px 18px; font-weight: 600;
-}
-.btn.ghost { background: transparent; color: var(--brass); }
-.msg { min-height: 1.5em; font-size: 16px; margin: 0; }
-.msg .w { color: var(--win); font-weight: 600; }
-.msg .l { color: #e68c8c; }
-.dealwrap { position: relative; display: inline-flex; margin-right: 8px; }
-.cdb {
-  --p: 1; --ring: var(--win);
-  position: absolute; top: -10px; right: -10px; width: 26px; height: 26px; border-radius: 50%;
-  display: grid; place-items: center; font: 500 11px/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--ivory);
-  background: radial-gradient(circle, var(--rail) 62%, transparent 63%), conic-gradient(var(--ring) calc(var(--p) * 360deg), rgba(0,0,0,.45) 0);
-  box-shadow: 0 1px 3px rgba(0,0,0,.5); pointer-events: none;
-}
-.cdb.soon { --ring: #e0575f; color: #ffb3b3; }
-.cdb.off { --p: 0; color: var(--muted); }
-.toggle { align-self: center; }
-.toggle { background: transparent; border: 1px solid var(--brass-lo); border-radius: 999px; padding: 3px 12px; font-size: 13px; color: var(--muted); }
-.toggle[aria-pressed="true"] { color: var(--ink); background: var(--brass); border-color: var(--brass); }
-
-.stake { display: inline-block; line-height: 0; --d: 28px; }
+/* Chip stacks on bets */
+.stake { display: inline-block; line-height: 0; --d: 26px; }
 .stake:empty { display: none; }
-/* A placed bet is drawn as a stack of chips, largest at the bottom, with the total on the top chip */
 .cstack { position: relative; display: inline-block; width: var(--d); height: calc(var(--d) + (var(--n) - 1) * 3px); }
 .mchip {
   position: absolute; left: 0; bottom: calc(var(--i) * 3px); width: var(--d); height: var(--d); border-radius: 50%;
@@ -167,129 +153,155 @@ body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom
   position: absolute; left: 50%; bottom: calc((var(--n) - 1) * 3px + var(--d) / 2); transform: translate(-50%, 50%);
   font: 500 10px/1.3 var(--mono); color: var(--ivory); background: rgba(0,0,0,.7); border-radius: 999px; padding: 0 4px; white-space: nowrap;
 }
-.spot .stake { --d: 30px; display: block; height: 46px; display: grid; place-items: end center; }
 .cell .stake, .hot .stake { pointer-events: none; }
 
 /* Cards */
-.hand { display: flex; gap: 6px; flex-wrap: wrap; min-height: 80px; align-items: center; }
+.hand { display: flex; gap: 5px; flex-wrap: wrap; min-height: calc(var(--cw) * 1.4); align-items: center; }
 .card {
-  width: 54px; height: 76px; border-radius: 6px; background: var(--ivory); color: var(--black);
-  position: relative; box-shadow: 0 2px 4px rgba(0,0,0,.4);
-  font-family: var(--display); font-weight: 700;
-  animation: deal .25s ease-out;
+  width: var(--cw); height: calc(var(--cw) * 1.4); border-radius: 5px; background: var(--ivory); color: var(--black);
+  position: relative; box-shadow: 0 2px 4px rgba(0,0,0,.4); flex: none;
+  font-family: var(--display); font-weight: 700; animation: deal .25s ease-out;
 }
-.card .r { position: absolute; top: 3px; left: 6px; font-size: 17px; line-height: 1; }
-.card .s { position: absolute; inset: 0; display: grid; place-items: center; font-size: 28px; padding-top: 10px; }
+.card .r { position: absolute; top: 2px; left: 5px; font-size: calc(var(--cw) * .32); line-height: 1; }
+.card .s { position: absolute; inset: 0; display: grid; place-items: center; font-size: calc(var(--cw) * .5); padding-top: calc(var(--cw) * .18); }
 .card.red { color: var(--red); }
-.card.back {
-  background: repeating-linear-gradient(45deg, #7a1f25 0 6px, #94303a 6px 12px);
-  outline: 3px solid var(--ivory); outline-offset: -6px;
-}
+.card.back { background: repeating-linear-gradient(45deg, #7a1f25 0 6px, #94303a 6px 12px); outline: 3px solid var(--ivory); outline-offset: -5px; }
 @keyframes deal { from { transform: translateY(-14px) rotate(-4deg); opacity: 0; } }
-.total { font-family: var(--mono); font-size: 13px; background: rgba(0,0,0,.35); padding: 1px 8px; border-radius: 999px; color: var(--ivory); }
+.total { font-family: var(--mono); font-size: 12px; background: rgba(0,0,0,.35); padding: 0 7px; border-radius: 999px; color: var(--ivory); }
+
+/* Rules sheet */
+.sheet { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.6); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) var(--gy) max(16px, env(safe-area-inset-bottom, 0px)) var(--gx); }
+.sheet-in { background: var(--felt-lo); border: 1px solid var(--brass-lo); border-radius: 12px; width: 100%; max-width: 560px; max-height: 100%; overflow: auto; padding: 14px 18px 18px; box-shadow: 0 20px 50px rgba(0,0,0,.5); }
+.sheet-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.sheet-head h3 { margin: 0; font-family: var(--display); font-weight: 500; font-size: 20px; }
+.sheet-head .iconbtn { margin-left: auto; width: 28px; height: 28px; font-size: 16px; }
+.sheet ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; display: grid; gap: 4px; }
+.sheet h4 { margin: 12px 0 6px; font-size: 13px; color: var(--ivory); }
 
 /* Baccarat */
-.bac-hands { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.bac-side { display: grid; gap: 8px; justify-items: center; text-align: center; }
-.bac-side h4 { margin: 0; font-size: 14px; letter-spacing: .1em; display: flex; align-items: center; gap: 8px; }
-.bac-side.won h4 { color: var(--win); }
-.bac-spots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.road-scroll { flex: none; overflow-x: auto; background: var(--ivory); border-radius: 6px; padding: 4px; }
+.road { display: grid; grid-template-rows: repeat(6, var(--rc)); grid-auto-columns: var(--rc); width: max-content; border-top: 1px solid #c9bfa6; border-left: 1px solid #c9bfa6; }
+.rc { border-right: 1px solid #c9bfa6; border-bottom: 1px solid #c9bfa6; position: relative; display: grid; place-items: center; }
+.br { width: calc(var(--rc) * .75); height: calc(var(--rc) * .75); border-radius: 50%; border: 2.5px solid; position: relative; }
+.br.B { border-color: var(--red); } .br.P { border-color: var(--p-blue); }
+.br .tl { position: absolute; left: 50%; top: 50%; width: calc(var(--rc) * .9); height: 2px; background: var(--zero); transform: translate(-50%, -50%) rotate(-45deg); }
+.br .tn { position: absolute; right: -6px; bottom: -6px; font-size: 9px; font-weight: 700; color: var(--zero); font-family: var(--mono); line-height: 1; }
+.br .pd { position: absolute; width: 5px; height: 5px; border-radius: 50%; border: 1px solid var(--ivory); }
+.br .pd.bp { background: var(--red); top: -4px; left: -4px; } .br .pd.pp { background: var(--p-blue); bottom: -4px; right: -4px; }
+.key { display: inline-flex; align-items: center; gap: 4px; }
+.key .br { --rc: 14px; display: inline-block; }
+.bac-hands { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.bac-side { display: grid; gap: 6px; justify-items: center; text-align: center; }
+.bac-side h4 { margin: 0; font-size: 13px; letter-spacing: .08em; display: flex; align-items: center; gap: 6px; }
+.bac-side.won h4 { color: var(--win) !important; }
+.bac-spots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
 .spot {
-  border: 1.5px solid rgba(242,234,216,.5); border-radius: 10px; background: rgba(0,0,0,.12);
-  padding: 10px 6px; display: grid; gap: 4px; justify-items: center; text-align: center; min-width: 0;
+  position: relative; border: 1.5px solid rgba(242,234,216,.5); border-radius: 9px; background: rgba(0,0,0,.12);
+  min-height: clamp(40px, 6.5vh, 60px); padding: 4px 6px; min-width: 0;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
 }
 .spot:hover:not(:disabled) { background: rgba(255,255,255,.06); }
-.spot b { font-size: 16px; }
-.spot small { color: var(--muted); font-size: 11px; font-family: var(--mono); }
+.spot .lab { display: grid; justify-items: center; line-height: 1.2; }
+.spot b { font-size: 15px; }
+.spot small { color: var(--muted); font-size: 10px; font-family: var(--mono); }
+.spot .stake { --d: 26px; }
 .spot.win { border-color: var(--win); box-shadow: 0 0 0 2px var(--win) inset; }
-.spot-p { grid-column: span 2; border-color: var(--p-blue); }
-.spot-b { grid-column: span 2; border-color: var(--red); }
-.spot-t { grid-column: span 2; border-color: var(--zero); }
+.spot-p, .spot-b, .spot-t { grid-column: span 2; min-height: clamp(52px, 9vh, 84px); }
+.spot-p { border-color: var(--p-blue); } .spot-b { border-color: var(--red); } .spot-t { border-color: var(--zero); }
 .spot-pp, .spot-bp { grid-column: span 3; }
-.road-scroll { overflow-x: auto; background: var(--ivory); border-radius: 6px; padding: 6px; }
-.road { display: grid; grid-template-rows: repeat(6, 22px); grid-auto-columns: 22px; width: max-content; border-top: 1px solid #c9bfa6; border-left: 1px solid #c9bfa6; }
-.rc { border-right: 1px solid #c9bfa6; border-bottom: 1px solid #c9bfa6; position: relative; display: grid; place-items: center; }
-.br { width: 16px; height: 16px; border-radius: 50%; border: 3px solid; position: relative; }
-.br.B { border-color: var(--red); } .br.P { border-color: var(--p-blue); }
-.br .tl { position: absolute; left: 50%; top: 50%; width: 20px; height: 2px; background: var(--zero); transform: translate(-50%, -50%) rotate(-45deg); }
-.br .tn { position: absolute; right: -6px; bottom: -6px; font-size: 9px; font-weight: 700; color: var(--zero); font-family: var(--mono); line-height: 1; }
-.br .pd { position: absolute; width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--ivory); }
-.br .pd.bp { background: var(--red); top: -5px; left: -5px; } .br .pd.pp { background: var(--p-blue); bottom: -5px; right: -5px; }
-.road-key { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; color: var(--muted); font-size: 12px; }
-.road-key .br { display: inline-block; width: 12px; height: 12px; border-width: 2px; vertical-align: -2px; margin-right: 4px; }
+.spot-pp .lab, .spot-bp .lab { grid-auto-flow: column; gap: 6px; align-items: baseline; }
 
 /* Blackjack */
-.bj-dealer, .bj-player { display: grid; gap: 8px; }
-.bj-label { font-size: 12px; letter-spacing: .14em; color: var(--muted); display: flex; gap: 8px; align-items: center; }
-.bj-hands { display: flex; gap: 14px; flex-wrap: wrap; }
-.bj-hand { padding: 8px; border-radius: 8px; border: 1px dashed transparent; display: grid; gap: 6px; }
+.bj-dealer, .bj-player { display: grid; gap: 4px; }
+.felt > .bj-player { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+.bj-label { font-size: 11px; letter-spacing: .14em; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.bj-hands { display: flex; gap: 10px; flex-wrap: wrap; min-height: calc(var(--cw) * 1.4 + 34px); align-content: flex-start; }
+.bj-hand { padding: 4px 6px; border-radius: 8px; border: 1px dashed transparent; display: grid; gap: 4px; }
 .bj-hand.active { border-color: var(--win); background: rgba(0,0,0,.15); }
-.bj-hand .meta { display: flex; gap: 6px; align-items: center; font-size: 12px; flex-wrap: wrap; }
+.bj-hand .meta { display: flex; gap: 6px; align-items: center; font-size: 12px; flex-wrap: wrap; min-height: 22px; }
+.bj-hand .meta .stake { --d: 18px; }
 .tag { font-size: 11px; padding: 0 6px; border-radius: 4px; background: rgba(0,0,0,.35); }
 .tag.w { background: var(--win); color: var(--ink); }
 .tag.l { background: #5a2226; }
-.betbox { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.bj-ctl { min-height: 72px; display: grid; align-content: center; }
+.betbox { display: flex; gap: 12px; align-items: center; }
 .circle {
-  width: 92px; height: 92px; border-radius: 50%; border: 2px solid var(--ivory);
-  background: rgba(0,0,0,.12); display: grid; place-items: center; align-content: center; gap: 2px; text-align: center; font-size: 12px; color: var(--muted);
+  width: 68px; height: 68px; flex: none; border-radius: 50%; border: 2px solid var(--ivory);
+  background: rgba(0,0,0,.12); display: grid; place-items: center; text-align: center; font-size: 11px; color: var(--muted); padding: 0;
 }
-.circle .stake { --d: 34px; }
+.circle .stake { --d: 30px; }
 .circle.has .hint { display: none; }
-.bj-hand .meta .stake { --d: 20px; }
-.insbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 10px 12px; border: 1px solid var(--brass); border-radius: 8px; }
+.insbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 6px 10px; border: 1px solid var(--brass); border-radius: 8px; font-size: 13px; }
+.paysline { text-align: center; letter-spacing: .12em; font-size: 10px; }
 
 /* Roulette */
-.rou-top { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; }
-.wheel-box { position: relative; width: 240px; height: 240px; max-width: 100%; justify-self: center; }
+.rou-top { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.wheel-box { position: relative; width: clamp(110px, 24vh, 230px); aspect-ratio: 1; max-width: 100%; }
 #wheel { width: 100%; height: 100%; display: block; }
-.pointer { position: absolute; left: 50%; top: -4px; transform: translateX(-50%); width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 16px solid var(--win); filter: drop-shadow(0 2px 2px rgba(0,0,0,.6)); }
-.rou-info { display: grid; gap: 10px; min-width: 0; }
-.result-big { font-family: var(--display); font-size: 56px; line-height: 1; font-weight: 700; display: flex; align-items: center; gap: 12px; }
-.pill { display: inline-grid; place-items: center; min-width: 30px; height: 30px; border-radius: 50%; font-family: var(--mono); font-size: 12px; color: #fff; }
+.pointer { position: absolute; left: 50%; top: -3px; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 13px solid var(--win); filter: drop-shadow(0 2px 2px rgba(0,0,0,.6)); }
+.rou-info { display: grid; gap: 6px; min-width: 0; }
+.result-big { font-family: var(--display); line-height: 1; font-weight: 700; display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.result-big > span:last-child { font-size: 16px !important; }
+.pill { display: inline-grid; place-items: center; min-width: 24px; height: 24px; border-radius: 50%; font-family: var(--mono); font-size: 11px; color: #fff; flex: none; }
 .pill.r { background: var(--red); } .pill.b { background: var(--black); border: 1px solid #555; } .pill.g { background: var(--zero); }
-.result-big .pill { min-width: 64px; height: 64px; font-size: 28px; font-family: var(--display); }
-.hist { display: flex; gap: 4px; flex-wrap: wrap; }
-.table-scroll { overflow-x: auto; padding-bottom: 4px; }
+.result-big .pill { min-width: 44px; height: 44px; font-size: 20px; font-family: var(--display); }
+.hist { display: flex; gap: 3px; flex-wrap: nowrap; overflow: hidden; min-height: 24px; }
 .rtable {
-  display: grid; grid-template-columns: 40px repeat(12, minmax(34px, 1fr)) 44px;
-  grid-template-rows: repeat(3, 42px) 38px 38px; gap: 3px; min-width: 560px;
+  --hs: 18px;
+  display: grid; grid-template-columns: 1.3fr repeat(12, 1fr) 1.3fr;
+  grid-template-rows: repeat(3, clamp(28px, 5.4vh, 46px)) clamp(24px, 4.4vh, 38px) clamp(24px, 4.4vh, 38px); gap: 3px;
 }
 .cell {
-  border: 1px solid rgba(242,234,216,.55); background: transparent; color: var(--ivory);
-  display: grid; place-items: center; position: relative; font-family: var(--display); font-weight: 700; font-size: 16px; border-radius: 3px; padding: 0;
+  border: 1px solid rgba(242,234,216,.55); background: transparent; color: var(--ivory); min-width: 0;
+  display: grid; place-items: center; position: relative; font-family: var(--display); font-weight: 700; font-size: clamp(11px, 2.4vh, 17px); border-radius: 3px; padding: 0;
 }
 .cell.n-r { background: var(--red); } .cell.n-b { background: var(--black); } .cell.n-g { background: var(--zero); }
-.cell.outside { font-family: var(--body); font-weight: 600; font-size: 13px; }
+.cell.outside { font-family: var(--body); font-weight: 600; font-size: 12px; }
 .cell:hover:not(:disabled) { filter: brightness(1.2); }
-.cell .stake { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; --d: 24px; }
+.cell .stake { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; --d: 22px; }
 .cell.hit { box-shadow: 0 0 0 3px var(--win); z-index: 1; }
 .zone { position: relative; pointer-events: none; z-index: 3; }
-.hot { position: absolute; pointer-events: auto; border: 0; padding: 0; background: transparent; border-radius: 50%; width: 18px; height: 18px; }
-.hot::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--win); opacity: 0; transition: opacity .1s; }
+.hot { position: absolute; pointer-events: auto; border: 0; padding: 0; background: transparent; border-radius: 50%; width: var(--hs); height: var(--hs); }
+.hot::after { content: ""; position: absolute; inset: 28%; border-radius: 50%; background: var(--win); opacity: 0; transition: opacity .1s; }
 .hot:hover::after, .hot:focus-visible::after { opacity: .9; }
 @media (hover: none) { .hot::after { opacity: .35; } }
-.hot.e { right: -10.5px; top: calc(50% - 9px); }
-.hot.w { left: -10.5px; top: calc(50% - 9px); }
-.hot.n { top: -10.5px; left: calc(50% - 9px); }
-.hot.s { bottom: -10.5px; left: calc(50% - 9px); }
-.hot.ne { top: -10.5px; right: -10.5px; }
-.hot.nw { top: -10.5px; left: -10.5px; }
-.hot.se { bottom: -10.5px; right: -10.5px; }
-.hot.sw { bottom: -10.5px; left: -10.5px; }
-.hot .stake { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; --d: 20px; }
+.hot.e { right: calc(var(--hs) / -2 - 1.5px); top: calc(50% - var(--hs) / 2); }
+.hot.w { left: calc(var(--hs) / -2 - 1.5px); top: calc(50% - var(--hs) / 2); }
+.hot.n { top: calc(var(--hs) / -2 - 1.5px); left: calc(50% - var(--hs) / 2); }
+.hot.s { bottom: calc(var(--hs) / -2 - 1.5px); left: calc(50% - var(--hs) / 2); }
+.hot.ne { top: calc(var(--hs) / -2 - 1.5px); right: calc(var(--hs) / -2 - 1.5px); }
+.hot.nw { top: calc(var(--hs) / -2 - 1.5px); left: calc(var(--hs) / -2 - 1.5px); }
+.hot.se { bottom: calc(var(--hs) / -2 - 1.5px); right: calc(var(--hs) / -2 - 1.5px); }
+.hot.sw { bottom: calc(var(--hs) / -2 - 1.5px); left: calc(var(--hs) / -2 - 1.5px); }
+.hot .stake { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; --d: 18px; }
 .hot.hit .cstack, .cell.hit .cstack { filter: drop-shadow(0 0 3px var(--win)) drop-shadow(0 0 3px var(--win)); }
-.diamond { width: 16px; height: 16px; transform: rotate(45deg); border-radius: 2px; }
+.diamond { width: 13px; height: 13px; transform: rotate(45deg); border-radius: 2px; }
 .diamond.r { background: var(--red); } .diamond.b { background: var(--black); border: 1px solid #777; }
+.rou-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: space-between; }
 
 @media (max-width: 640px) {
-  .rou-top { grid-template-columns: 1fr; }
-  .bac-spots { grid-template-columns: repeat(6, 1fr); }
+  .brand { display: none; }
+  .bank-label { display: none; }
+  .seats { grid-template-columns: 1fr; gap: 8px; }
+  .seat { grid-template-columns: auto 1fr; column-gap: 14px; row-gap: 2px; padding: 12px 14px; }
+  .seat .glyph { grid-row: 1 / span 4; align-self: center; width: 1.3em; text-align: center; }
+  .seat .go { display: none; }
+  .felt { padding: 10px; border-width: 4px; border-radius: 12px; outline-offset: -6px; }
   .spot b { font-size: 14px; }
-  .felt { padding: 14px; border-width: 6px; }
-  .bank { margin-left: 0; width: 100%; }
+  .rtable { --hs: 14px; }
+  .cell .stake { --d: 18px; }
+  .hot .stake { --d: 15px; }
+  .cell.outside { font-size: 11px; }
+  .btn { padding: 6px 11px; }
+  .rack .lbl { display: none; }
+  .chip { width: 36px; height: 36px; }
+}
+@media (max-width: 360px) {
+  .nav button { padding: 3px 5px; }
+  .btn { padding: 5px 9px; font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .card { animation: none; }
+  .card, .mchip { animation: none; }
   .seat, .chip { transition: none; }
 }
 </style>
@@ -304,16 +316,16 @@ body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom
       <button type="button" data-go="roulette">轮盘</button>
     </nav>
     <div class="bank">
-      <span class="bank-label">筹码余额</span>
+      <span class="bank-label">余额</span>
       <span id="bank">10,000</span>
-      <button class="linkbtn" id="resetBank" type="button">重置为 10,000</button>
+      <button class="iconbtn" id="resetBank" type="button" title="余额重置为 10,000" aria-label="余额重置为 10,000">↺</button>
     </div>
   </div>
 </header>
 
-<main class="wrap">
+<main>
   <!-- Lobby -->
-  <section id="v-lobby" class="stack">
+  <section id="v-lobby">
     <div class="lobby-head">
       <h2>选一张桌子坐下</h2>
       <p class="note">纯娱乐模拟：所有筹码都是虚拟的，不涉及真实金钱。规则按国际通行标准设置。</p>
@@ -323,104 +335,95 @@ body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom
         <span class="glyph">9</span>
         <span class="en">Punto Banco</span>
         <h3>百家乐</h3>
-        <ul><li>8 副牌，固定补牌规则</li><li>闲 1:1 · 庄 0.95:1 · 和 8:1</li><li>闲对 / 庄对 11:1</li></ul>
+        <ul><li>8 副牌 · 每 30 秒自动开局</li><li>闲 1:1 · 庄 0.95:1 · 和 8:1 · 对子 11:1</li></ul>
         <span class="go">入座</span>
       </button>
       <button class="seat" type="button" data-go="blackjack">
         <span class="glyph">21</span>
         <span class="en">Blackjack</span>
         <h3>21点</h3>
-        <ul><li>6 副牌，庄家软 17 停牌</li><li>Blackjack 赔 3:2，保险 2:1</li><li>可加倍、分牌（最多 4 手）、投降</li></ul>
+        <ul><li>6 副牌 · 庄家软 17 停牌 · BJ 赔 3:2</li><li>保险 · 加倍 · 分牌 · 投降</li></ul>
         <span class="go">入座</span>
       </button>
       <button class="seat" type="button" data-go="roulette">
         <span class="glyph">0</span>
         <span class="en">European Roulette</span>
         <h3>轮盘</h3>
-        <ul><li>欧式单零，37 个格子</li><li>单号 35:1 · 分注 17:1 · 街注 11:1 · 角注 8:1</li><li>线注 5:1 · 打/列 2:1</li><li>红黑 / 单双 / 大小 1:1</li></ul>
+        <ul><li>欧式单零 · 单号 35:1</li><li>分注 · 街注 · 角注 · 线注 · 外围注</li></ul>
         <span class="go">入座</span>
       </button>
     </div>
   </section>
 
-  <!-- Shared chip rack -->
-  <div class="rack" id="rack" hidden>
-    <span class="lbl">选择筹码</span>
-  </div>
-
   <!-- Baccarat -->
   <section id="v-baccarat" hidden>
-    <div class="stack">
-      <div class="game-head"><h2>百家乐</h2><span class="en">Punto Banco · 8 decks</span></div>
-      <div>
-        <div class="road-key" style="margin-bottom:6px">
-          <b style="color:var(--ivory)">大路</b>
-          <span><span class="br B"></span>庄</span>
-          <span><span class="br P"></span>闲</span>
-          <span><span style="color:var(--zero);font-weight:700">／</span> 和（数字为连续和局数）</span>
-          <span>红点 = 庄对 · 蓝点 = 闲对</span>
-          <span>牌靴剩余 <span id="bacShoe">416</span> 张，换靴时清空路单</span>
-        </div>
-        <div class="road-scroll" id="bacRoadScroll"><div class="road" id="bacRoad"></div></div>
+    <div class="bar"><h2>百家乐</h2><span class="meta">大路 · 8 副牌 · 牌靴剩余 <span id="bacShoe">416</span> 张</span><button class="rulebtn" type="button" data-rules="rules-bac">规则</button></div>
+    <div class="road-scroll" id="bacRoadScroll"><div class="road" id="bacRoad"></div></div>
+    <div class="felt">
+      <div class="bac-hands">
+        <div class="bac-side" id="bacPSide"><h4 style="color:#8fb4ff">闲 PLAYER <span class="total" id="bacPT">–</span></h4><div class="hand" id="bacP"></div></div>
+        <div class="bac-side" id="bacBSide"><h4 style="color:#ff9a9a">庄 BANKER <span class="total" id="bacBT">–</span></h4><div class="hand" id="bacB"></div></div>
       </div>
-      <div class="felt">
-        <div class="bac-hands">
-          <div class="bac-side" id="bacPSide"><h4 style="color:#8fb4ff">闲 PLAYER <span class="total" id="bacPT">–</span></h4><div class="hand" id="bacP"></div></div>
-          <div class="bac-side" id="bacBSide"><h4 style="color:#ff9a9a">庄 BANKER <span class="total" id="bacBT">–</span></h4><div class="hand" id="bacB"></div></div>
-        </div>
-        <div class="bac-spots">
-          <button class="spot spot-pp" data-bac="ppair" type="button"><b>闲对</b><small>11:1</small><span class="stake"></span></button>
-          <button class="spot spot-bp" data-bac="bpair" type="button"><b>庄对</b><small>11:1</small><span class="stake"></span></button>
-          <button class="spot spot-p" data-bac="player" type="button"><b>闲</b><small>1:1</small><span class="stake"></span></button>
-          <button class="spot spot-t" data-bac="tie" type="button"><b>和</b><small>8:1</small><span class="stake"></span></button>
-          <button class="spot spot-b" data-bac="banker" type="button"><b>庄</b><small>0.95:1</small><span class="stake"></span></button>
-        </div>
-        <p class="msg" id="bacMsg">每 30 秒自动开一局（发牌按钮右上角为倒计时），倒计时内随时下注；也可以点「发牌」立即开局。</p>
-        <div class="actions">
-          <span class="dealwrap"><button class="btn" id="bacDeal" type="button">发牌</button><span class="cdb" id="bacCd" aria-live="off" title="距离自动开局的秒数">30</span></span>
-          <button class="btn ghost" id="bacRebet" type="button">重复上局</button>
-          <button class="btn ghost" id="bacClear" type="button">清除下注</button>
-          <button class="toggle" id="bacAuto" type="button" aria-pressed="true">自动开局：开</button>
-        </div>
+      <div class="bac-spots">
+        <button class="spot spot-pp" data-bac="ppair" type="button"><span class="lab"><b>闲对</b><small>11:1</small></span><span class="stake"></span></button>
+        <button class="spot spot-bp" data-bac="bpair" type="button"><span class="lab"><b>庄对</b><small>11:1</small></span><span class="stake"></span></button>
+        <button class="spot spot-p" data-bac="player" type="button"><span class="lab"><b>闲</b><small>1:1</small></span><span class="stake"></span></button>
+        <button class="spot spot-t" data-bac="tie" type="button"><span class="lab"><b>和</b><small>8:1</small></span><span class="stake"></span></button>
+        <button class="spot spot-b" data-bac="banker" type="button"><span class="lab"><b>庄</b><small>0.95:1</small></span><span class="stake"></span></button>
       </div>
-      <details class="rules"><summary>百家乐规则（Punto Banco 国际规则）</summary>
-        <ul>
-          <li>点数：A 为 1，2–9 按面值，10、J、Q、K 为 0；总点数取个位数。</li>
-          <li>任一方前两张为 8 或 9 点（天牌），双方都不再补牌。</li>
-          <li>闲家 0–5 点补一张，6–7 点停牌。</li>
-          <li>闲家停牌时，庄家 0–5 点补牌，6–7 点停牌。</li>
-          <li>闲家补了第三张时，庄家：0–2 补；3 点除非闲第三张为 8 都补；4 点在闲第三张为 2–7 时补；5 点在 4–7 时补；6 点在 6–7 时补；7 点停。</li>
-          <li>赔率：闲 1:1；庄 1:1 抽 5% 佣金（即 0.95:1）；和 8:1，和局时庄闲下注退回；闲对/庄对（前两张同点数牌面）11:1。</li>
-          <li>8 副牌洗入牌靴，剩余约 1/4 时重新洗牌。</li>
-        </ul>
-      </details>
+      <p class="msg" id="bacMsg">倒计时结束自动开局，期间随时下注。</p>
+      <div class="actions">
+        <span class="dealwrap"><button class="btn" id="bacDeal" type="button">发牌</button><span class="cdb" id="bacCd" aria-live="off" title="距离自动开局的秒数">30</span></span>
+        <button class="btn ghost" id="bacRebet" type="button">重复下注</button>
+        <button class="btn ghost" id="bacClear" type="button">清除</button>
+        <button class="toggle" id="bacAuto" type="button" aria-pressed="true">自动开局</button>
+      </div>
     </div>
+    <div class="sheet" id="rules-bac" hidden><div class="sheet-in" role="dialog" aria-label="百家乐规则">
+      <div class="sheet-head"><h3>百家乐规则</h3><span class="note">Punto Banco 国际规则</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <ul>
+        <li>点数：A 为 1，2–9 按面值，10、J、Q、K 为 0；总点数取个位数。</li>
+        <li>任一方前两张为 8 或 9 点（天牌），双方都不再补牌。</li>
+        <li>闲家 0–5 点补一张，6–7 点停牌。</li>
+        <li>闲家停牌时，庄家 0–5 点补牌，6–7 点停牌。</li>
+        <li>闲家补了第三张时，庄家：0–2 补；3 点除非闲第三张为 8 都补；4 点在闲第三张为 2–7 时补；5 点在 4–7 时补；6 点在 6–7 时补；7 点停。</li>
+        <li>赔率：闲 1:1；庄 1:1 抽 5% 佣金（即 0.95:1）；和 8:1，和局时庄闲下注退回；闲对/庄对（前两张同点数牌面）11:1。</li>
+        <li>8 副牌洗入牌靴，剩余约 1/4 时重新洗牌，路单同时清空。</li>
+        <li>每 30 秒自动开一局（发牌按钮右上角为倒计时），也可以点「发牌」立即开局或关闭自动开局；不下注也可以发牌看路。</li>
+      </ul>
+      <h4>大路怎么看</h4>
+      <ul>
+        <li><span class="key"><span class="br B"></span>庄赢</span>　<span class="key"><span class="br P"></span>闲赢</span>：同一方连赢往下排，换另一方赢另起一列；满 6 格向右转（长龙）。</li>
+        <li>和局画在前一格上的绿色斜线，数字为连续和局数。</li>
+        <li>红点（左上）= 庄对，蓝点（右下）= 闲对。</li>
+      </ul>
+    </div></div>
   </section>
 
   <!-- Blackjack -->
   <section id="v-blackjack" hidden>
-    <div class="stack">
-      <div class="game-head"><h2>21点</h2><span class="en">Blackjack · 6 decks · S17 · 3:2</span></div>
-      <div class="felt">
-        <div class="bj-dealer">
-          <div class="bj-label">庄家 DEALER <span class="total" id="bjDT">–</span></div>
-          <div class="hand" id="bjD"></div>
-        </div>
-        <p class="note" style="text-align:center;letter-spacing:.12em">BLACKJACK PAYS 3 TO 2 · DEALER STANDS ON ALL 17s · INSURANCE PAYS 2 TO 1</p>
-        <div class="bj-player">
-          <div class="bj-label">玩家 PLAYER</div>
-          <div class="bj-hands" id="bjHands"></div>
-        </div>
+    <div class="bar"><h2>21点</h2><span class="meta">6 副牌 · S17 · 牌靴剩余 <span id="bjShoe">312</span> 张</span><button class="rulebtn" type="button" data-rules="rules-bj">规则</button></div>
+    <div class="felt">
+      <div class="bj-dealer">
+        <div class="bj-label">庄家 DEALER <span class="total" id="bjDT">–</span></div>
+        <div class="hand" id="bjD"></div>
+      </div>
+      <p class="note paysline">BLACKJACK PAYS 3 TO 2 · DEALER STANDS ON ALL 17s · INSURANCE PAYS 2 TO 1</p>
+      <div class="bj-player">
+        <div class="bj-label">玩家 PLAYER</div>
+        <div class="bj-hands" id="bjHands"><div class="hand"></div></div>
+      </div>
+      <div class="bj-ctl">
         <div class="betbox" id="bjBetBox">
-          <button class="circle" id="bjCircle" type="button"><span class="hint">点击下注</span><span class="stake" id="bjStake"></span></button>
+          <button class="circle" id="bjCircle" type="button"><span class="hint">点击<br>下注</span><span class="stake" id="bjStake"></span></button>
           <div class="actions">
             <button class="btn" id="bjDeal" type="button">发牌</button>
-            <button class="btn ghost" id="bjRebet" type="button">重复上局</button>
-            <button class="btn ghost" id="bjClear" type="button">清除下注</button>
+            <button class="btn ghost" id="bjRebet" type="button">重复下注</button>
+            <button class="btn ghost" id="bjClear" type="button">清除</button>
           </div>
         </div>
         <div class="insbar" id="bjIns" hidden>
-          <span>庄家明牌是 A，是否购买保险（下注额的一半，赔 2:1）？</span>
+          <span>庄家明牌是 A，买保险吗？（原注一半，赔 2:1）</span>
           <button class="btn" id="bjInsYes" type="button">买保险</button>
           <button class="btn ghost" id="bjInsNo" type="button">不买</button>
         </div>
@@ -431,66 +434,71 @@ body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom
           <button class="btn ghost" id="bjSplit" type="button">分牌</button>
           <button class="btn ghost" id="bjSurrender" type="button">投降</button>
         </div>
-        <p class="msg" id="bjMsg">选择筹码，点击圆圈下注，然后发牌。</p>
       </div>
-      <p class="note">牌靴剩余 <span id="bjShoe">312</span> 张</p>
-      <details class="rules"><summary>21点规则（国际通行规则）</summary>
-        <ul>
-          <li>6 副牌，剩余约 1/4 时重新洗牌。</li>
-          <li>点数：2–10 按面值，J/Q/K 为 10，A 为 1 或 11。目标是比庄家更接近 21 点且不超过。</li>
-          <li>前两张为 A + 10 点牌即 Blackjack，赔 3:2。</li>
-          <li>庄家明牌为 A 或 10 点牌时会查看底牌；庄家 Blackjack 时立即结算，玩家只输原始下注。</li>
-          <li>庄家明牌为 A 时可买保险（原注一半），庄家 Blackjack 则保险赔 2:1。</li>
-          <li>庄家 16 点及以下必须要牌，17 点（含软 17）停牌。</li>
-          <li>任意前两张可加倍（下注翻倍，只再拿一张）；分牌后也可加倍。</li>
-          <li>两张点数相同可分牌，最多分成 4 手；A 分牌后每手只发一张，且不可再分。分牌后的 21 点不算 Blackjack。</li>
-          <li>投降（后手投降 Late Surrender）：仅限前两张牌、未分牌时；庄家确认不是 Blackjack 后才可投降，放弃本手并退回一半下注。</li>
-          <li>普通获胜 1:1，平局退回下注。</li>
-        </ul>
-      </details>
+      <p class="msg" id="bjMsg">选择筹码，点击圆圈下注，然后发牌。</p>
     </div>
+    <div class="sheet" id="rules-bj" hidden><div class="sheet-in" role="dialog" aria-label="21点规则">
+      <div class="sheet-head"><h3>21点规则</h3><span class="note">国际通行规则</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <ul>
+        <li>6 副牌，剩余约 1/4 时重新洗牌。</li>
+        <li>点数：2–10 按面值，J/Q/K 为 10，A 为 1 或 11。目标是比庄家更接近 21 点且不超过。</li>
+        <li>前两张为 A + 10 点牌即 Blackjack，赔 3:2。</li>
+        <li>庄家明牌为 A 或 10 点牌时会查看底牌；庄家 Blackjack 时立即结算，玩家只输原始下注。</li>
+        <li>庄家明牌为 A 时可买保险（原注一半），庄家 Blackjack 则保险赔 2:1。</li>
+        <li>庄家 16 点及以下必须要牌，17 点（含软 17）停牌。</li>
+        <li>任意前两张可加倍（下注翻倍，只再拿一张）；分牌后也可加倍。</li>
+        <li>两张点数相同可分牌，最多分成 4 手；A 分牌后每手只发一张，且不可再分。分牌后的 21 点不算 Blackjack。</li>
+        <li>投降（后手投降 Late Surrender）：仅限前两张牌、未分牌时；庄家确认不是 Blackjack 后才可投降，放弃本手并退回一半下注。</li>
+        <li>普通获胜 1:1，平局退回下注。</li>
+      </ul>
+    </div></div>
   </section>
 
   <!-- Roulette -->
   <section id="v-roulette" hidden>
-    <div class="stack">
-      <div class="game-head"><h2>轮盘</h2><span class="en">European · single zero</span></div>
-      <div class="felt">
-        <div class="rou-top">
-          <div class="wheel-box"><canvas id="wheel" width="480" height="480" aria-label="轮盘"></canvas><div class="pointer"></div></div>
-          <div class="rou-info">
-            <div class="result-big" id="rouResult"><span class="note" style="font-family:var(--body)">尚未开球</span></div>
-            <div><p class="note" style="margin-bottom:4px">最近结果</p><div class="hist" id="rouHist"></div></div>
-            <p class="msg" id="rouMsg">选择筹码，点击桌面下注，然后转动轮盘。</p>
-            <div class="actions">
-              <button class="btn" id="rouSpin" type="button">转动</button>
-              <button class="btn ghost" id="rouRebet" type="button">重复上局</button>
-              <button class="btn ghost" id="rouClear" type="button">清除下注</button>
-            </div>
-          </div>
+    <div class="bar"><h2>轮盘</h2><span class="meta">欧式单零 · 37 格</span><button class="rulebtn" type="button" data-rules="rules-rou">规则</button></div>
+    <div class="felt">
+      <div class="rou-top">
+        <div class="wheel-box"><canvas id="wheel" width="480" height="480" aria-label="轮盘"></canvas><div class="pointer"></div></div>
+        <div class="rou-info">
+          <div class="result-big" id="rouResult"><span class="note" style="font-family:var(--body)">尚未开球</span></div>
+          <div class="hist" id="rouHist"></div>
+          <p class="msg" id="rouMsg">点数字、边线或交角下注，然后转动。</p>
         </div>
-        <div class="table-scroll"><div class="rtable" id="rtable"></div></div>
-        <p class="note">本桌总下注 <span id="rouTotal" style="font-family:var(--mono);color:var(--ivory)">0</span></p>
       </div>
-      <details class="rules"><summary>轮盘规则（欧式单零国际规则）</summary>
-        <ul>
-          <li>轮盘共 37 格：0 与 1–36。0 为绿色，不属于红黑、单双、大小任何一方。</li>
-          <li>单号（Straight up）35:1：点数字本身。</li>
-          <li>分注（Split，相邻两个号码）17:1：点两个号码之间的边线，包括 0 与 1/2/3 之间。</li>
-          <li>街注（Street，一横排三个号码）11:1：点第一打下方、该列号码底边的中点。</li>
-          <li>角注（Corner，四个号码）8:1：点四个号码交汇的角。</li>
-          <li>线注（Six line，相邻两排共六个号码）5:1：点两排之间底边的角。</li>
-          <li>三数（0/1/2 或 0/2/3）11:1、首四（0/1/2/3）8:1：点 0 与号码交界的角。</li>
-          <li>鼠标悬停或点按边线、交角时会出现金色圆点，表示可在该处下注。</li>
-          <li>打（1–12、13–24、25–36）与列（每一竖列 12 个号码）2:1。</li>
-          <li>红/黑、单/双、小（1–18）/大（19–36）1:1。</li>
-          <li>开出 0 时，所有外围注（打、列、红黑、单双、大小）均输。</li>
-          <li>每局可同时在多处下注，开球后统一结算。</li>
-        </ul>
-      </details>
+      <div class="rtable" id="rtable"></div>
+      <div class="rou-foot">
+        <div class="actions">
+          <button class="btn" id="rouSpin" type="button">转动</button>
+          <button class="btn ghost" id="rouRebet" type="button">重复下注</button>
+          <button class="btn ghost" id="rouClear" type="button">清除</button>
+        </div>
+        <span class="note">总下注 <span id="rouTotal" style="font-family:var(--mono);color:var(--ivory)">0</span></span>
+      </div>
     </div>
+    <div class="sheet" id="rules-rou" hidden><div class="sheet-in" role="dialog" aria-label="轮盘规则">
+      <div class="sheet-head"><h3>轮盘规则</h3><span class="note">欧式单零国际规则</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <ul>
+        <li>轮盘共 37 格：0 与 1–36。0 为绿色，不属于红黑、单双、大小任何一方。</li>
+        <li>单号（Straight up）35:1：点数字本身。</li>
+        <li>分注（Split，相邻两个号码）17:1：点两个号码之间的边线，包括 0 与 1/2/3 之间。</li>
+        <li>街注（Street，一横排三个号码）11:1：点底排号码的下边线。</li>
+        <li>角注（Corner，四个号码）8:1：点四个号码交汇的角。</li>
+        <li>线注（Six line，相邻两排共六个号码）5:1：点两排之间下边的角。</li>
+        <li>三数（0/1/2 或 0/2/3）11:1、首四（0/1/2/3）8:1：点 0 与号码交界的角。</li>
+        <li>边线和交角上的淡金色圆点就是可以下注的位置。</li>
+        <li>打（1–12、13–24、25–36）与列（每一横排 12 个号码，右侧 2:1）2:1。</li>
+        <li>红/黑、单/双、小（1–18）/大（19–36）1:1。</li>
+        <li>开出 0 时，所有外围注（打、列、红黑、单双、大小）均输。</li>
+      </ul>
+    </div></div>
   </section>
 </main>
+
+<!-- Shared chip rack, docked at the bottom -->
+<div class="rack" id="rack" hidden>
+  <span class="lbl">筹码</span>
+</div>
 
 <script>
 (function () {
@@ -588,6 +596,7 @@ body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom
     document.body.classList.toggle("has-rack", v !== "lobby");
     $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === v ? "true" : "false"));
     if (v === "roulette") drawWheel();
+    if (v === "baccarat") { renderRoad(); renderRoad(); }
   }
   $$("[data-go]").forEach((b) => b.addEventListener("click", () => {
     const v = b.dataset.go;
@@ -596,6 +605,12 @@ body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom
     window.scrollTo({ top: 0 });
   }));
   window.addEventListener("hashchange", () => show(location.hash.slice(1) || "lobby"));
+  // Rules sheets
+  $$("[data-rules]").forEach((b) => b.addEventListener("click", () => { $("#" + b.dataset.rules).hidden = false; }));
+  $$(".sheet").forEach((sh) => sh.addEventListener("click", (e) => {
+    if (e.target === sh || e.target.closest("[data-close]")) sh.hidden = true;
+  }));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") $$(".sheet").forEach((sh) => { sh.hidden = true; }); });
   $("#resetBank").addEventListener("click", () => { addBank(START - S.bank); });
 
   /* ======================================================
@@ -722,8 +737,10 @@ body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom
       cells.set(col + "," + row, last);
       maxCol = Math.max(maxCol, col);
     }
-    const cols = Math.max(30, maxCol + 4);
-    const road = $("#bacRoad"); road.innerHTML = "";
+    const road = $("#bacRoad"), sc = $("#bacRoadScroll");
+    const cellW = (road.firstElementChild && road.firstElementChild.getBoundingClientRect().width) || 18;
+    const cols = Math.max(Math.ceil((sc.clientWidth - 8) / cellW), maxCol + 4, 12);
+    road.innerHTML = "";
     for (let c = 0; c < cols; c++) for (let r = 0; r < 6; r++) {
       const d = document.createElement("div");
       d.className = "rc"; d.style.gridColumn = c + 1; d.style.gridRow = r + 1;
@@ -736,12 +753,13 @@ body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom
       }
       road.appendChild(d);
     }
-    const sc = $("#bacRoadScroll");
-    sc.scrollLeft = Math.max(0, (maxCol - 10) * 22);
+    const cw = sc.scrollWidth / cols;
+    sc.scrollLeft = Math.max(0, (maxCol + 3) * cw - sc.clientWidth);
   }
   renderRoad();
   bacRender();
   renderAuto();
+  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (S.view === "baccarat") { renderRoad(); renderRoad(); } }, 150); });
 
   /* ======================================================
      BLACKJACK
