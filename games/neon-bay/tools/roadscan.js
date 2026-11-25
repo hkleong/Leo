@@ -29,9 +29,9 @@ const SCAN=`// 路面扫描 v2：每个路面格子（1m）记录最上面的几
  // 每格保存最多 6 层水平面 (y, 材质)
  const L=6,HY=new Float32Array(nx*nz*L).fill(-99),HM=new Int16Array(nx*nz*L).fill(-1),OBS=new Map(),LONG=new Map();
  const A=new THREE.Vector3(),B=new THREE.Vector3(),C=new THREE.Vector3(),mtx=new THREE.Matrix4(),tmp=new THREE.Matrix4();let nTri=0;
- const visit=(o,matW,nm,mi)=>{const g=o.geometry,P=g.attributes.position;if(!P||!P.array)return;const idx=g.index,nt=idx?idx.count/3:P.count/3;
+ const visit=(o,matW,nm,mi)=>{const nwM=!Array.isArray(o.material)&&o.material&&o.material.defines&&('NOWARPH' in o.material.defines);const g=o.geometry,P=g.attributes.position;if(!P||!P.array)return;const idx=g.index,nt=idx?idx.count/3:P.count/3;
   for(let t=0;t<nt;t++){const a=idx?idx.getX(t*3):t*3,b=idx?idx.getX(t*3+1):t*3+1,c=idx?idx.getX(t*3+2):t*3+2;
-   A.fromBufferAttribute(P,a).applyMatrix4(matW);B.fromBufferAttribute(P,b).applyMatrix4(matW);C.fromBufferAttribute(P,c).applyMatrix4(matW);nTri++;
+   A.fromBufferAttribute(P,a).applyMatrix4(matW);B.fromBufferAttribute(P,b).applyMatrix4(matW);C.fromBufferAttribute(P,c).applyMatrix4(matW);if(nwM){A.y-=GH(A.x,A.z);B.y-=GH(B.x,B.z);C.y-=GH(C.x,C.z)}nTri++;
    const ymin=Math.min(A.y,B.y,C.y),ymax=Math.max(A.y,B.y,C.y);if(ymin>4.5||ymax<-.3)continue;
    const bx0=Math.min(A.x,B.x,C.x),bx1=Math.max(A.x,B.x,C.x),bz0=Math.min(A.z,B.z,C.z),bz1=Math.max(A.z,B.z,C.z);if(bx1-bx0>400||bz1-bz0>400)continue;
    const i0=Math.max(0,Math.floor((bx0-x0)/st)),i1=Math.min(nx-1,Math.floor((bx1-x0)/st)),j0=Math.max(0,Math.floor((bz0-z0)/st)),j1=Math.min(nz-1,Math.floor((bz1-z0)/st));
