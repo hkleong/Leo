@@ -93,19 +93,27 @@ details.rules { border: 1px solid rgba(201,164,92,.35); border-radius: 8px; padd
 details.rules summary { cursor: pointer; color: var(--brass); font-size: 13px; }
 details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); font-size: 13px; max-width: 70ch; }
 
-.rack { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.rack .lbl { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin-right: 4px; }
+.rack {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: flex; gap: 8px; flex-wrap: nowrap; align-items: center; justify-content: center;
+  background: var(--rail); border-top: 2px solid var(--brass-lo); box-shadow: 0 -6px 18px rgba(0,0,0,.4);
+  padding-top: 8px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.rack .lbl { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin-right: 4px; white-space: nowrap; }
+body.has-rack main.wrap { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 400px) { .rack .lbl { display: none; } }
 .chip {
   --c: #e9e2cf;
-  width: 50px; height: 50px; border-radius: 50%;
+  width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%;
   border: 0; background:
     radial-gradient(circle, var(--c) 52%, transparent 53%),
     repeating-conic-gradient(var(--c) 0 20deg, #fff 20deg 40deg);
-  color: var(--ink); font-family: var(--mono); font-size: 12px; font-weight: 500;
+  color: var(--ink); font-family: var(--mono); font-size: 11px; font-weight: 500;
   box-shadow: 0 2px 0 rgba(0,0,0,.5), inset 0 0 0 2px rgba(0,0,0,.25);
   transition: transform .12s ease;
 }
-.chip[aria-pressed="true"] { transform: translateY(-4px); box-shadow: 0 0 0 3px var(--win), 0 6px 10px rgba(0,0,0,.4); }
+.chip[aria-pressed="true"] { transform: translateY(-3px); box-shadow: 0 0 0 3px var(--win), 0 6px 10px rgba(0,0,0,.4); }
 [data-v="10"] { --c: #d9d4c6; }
 [data-v="50"] { --c: #d0473f; color: #fff; }
 [data-v="100"] { --c: #2b6cc4; color: #fff; }
@@ -130,13 +138,17 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
 .msg { min-height: 1.5em; font-size: 16px; margin: 0; }
 .msg .w { color: var(--win); font-weight: 600; }
 .msg .l { color: #e68c8c; }
-.autobar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.cd { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 14px; color: var(--ivory); min-width: 9em; }
-.cd b { font-size: 20px; color: var(--win); }
-.cd.soon b { color: #ff8f8f; }
-.cdbar { flex: 1 1 160px; height: 6px; border-radius: 999px; background: rgba(0,0,0,.35); overflow: hidden; }
-.cdbar i { display: block; height: 100%; width: 100%; background: var(--brass); transform-origin: left; transition: transform 1s linear; }
-.cd.soon + .cdbar i { background: #d2575e; }
+.dealwrap { position: relative; display: inline-flex; margin-right: 8px; }
+.cdb {
+  --p: 1; --ring: var(--win);
+  position: absolute; top: -10px; right: -10px; width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; font: 500 11px/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--ivory);
+  background: radial-gradient(circle, var(--rail) 62%, transparent 63%), conic-gradient(var(--ring) calc(var(--p) * 360deg), rgba(0,0,0,.45) 0);
+  box-shadow: 0 1px 3px rgba(0,0,0,.5); pointer-events: none;
+}
+.cdb.soon { --ring: #e0575f; color: #ffb3b3; }
+.cdb.off { --p: 0; color: var(--muted); }
+.toggle { align-self: center; }
 .toggle { background: transparent; border: 1px solid var(--brass-lo); border-radius: 999px; padding: 3px 12px; font-size: 13px; color: var(--muted); }
 .toggle[aria-pressed="true"] { color: var(--ink); background: var(--brass); border-color: var(--brass); }
 
@@ -318,7 +330,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
         <span class="glyph">21</span>
         <span class="en">Blackjack</span>
         <h3>21点</h3>
-        <ul><li>6 副牌，庄家软 17 停牌</li><li>Blackjack 赔 3:2，保险 2:1</li><li>可加倍、分牌（最多 4 手）</li></ul>
+        <ul><li>6 副牌，庄家软 17 停牌</li><li>Blackjack 赔 3:2，保险 2:1</li><li>可加倍、分牌（最多 4 手）、投降</li></ul>
         <span class="go">入座</span>
       </button>
       <button class="seat" type="button" data-go="roulette">
@@ -340,6 +352,17 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   <section id="v-baccarat" hidden>
     <div class="stack">
       <div class="game-head"><h2>百家乐</h2><span class="en">Punto Banco · 8 decks</span></div>
+      <div>
+        <div class="road-key" style="margin-bottom:6px">
+          <b style="color:var(--ivory)">大路</b>
+          <span><span class="br B"></span>庄</span>
+          <span><span class="br P"></span>闲</span>
+          <span><span style="color:var(--zero);font-weight:700">／</span> 和（数字为连续和局数）</span>
+          <span>红点 = 庄对 · 蓝点 = 闲对</span>
+          <span>牌靴剩余 <span id="bacShoe">416</span> 张，换靴时清空路单</span>
+        </div>
+        <div class="road-scroll" id="bacRoadScroll"><div class="road" id="bacRoad"></div></div>
+      </div>
       <div class="felt">
         <div class="bac-hands">
           <div class="bac-side" id="bacPSide"><h4 style="color:#8fb4ff">闲 PLAYER <span class="total" id="bacPT">–</span></h4><div class="hand" id="bacP"></div></div>
@@ -352,28 +375,13 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
           <button class="spot spot-t" data-bac="tie" type="button"><b>和</b><small>8:1</small><span class="stake"></span></button>
           <button class="spot spot-b" data-bac="banker" type="button"><b>庄</b><small>0.95:1</small><span class="stake"></span></button>
         </div>
-        <div class="autobar">
-          <span class="cd" id="bacCd">下一局 <b>30</b> 秒</span>
-          <span class="cdbar"><i id="bacCdBar"></i></span>
-          <button class="toggle" id="bacAuto" type="button" aria-pressed="true">自动开局：开</button>
-        </div>
-        <p class="msg" id="bacMsg">每 30 秒自动开一局，倒计时内随时下注；也可以点「发牌」立即开局。</p>
+        <p class="msg" id="bacMsg">每 30 秒自动开一局（发牌按钮右上角为倒计时），倒计时内随时下注；也可以点「发牌」立即开局。</p>
         <div class="actions">
-          <button class="btn" id="bacDeal" type="button">发牌</button>
+          <span class="dealwrap"><button class="btn" id="bacDeal" type="button">发牌</button><span class="cdb" id="bacCd" aria-live="off" title="距离自动开局的秒数">30</span></span>
           <button class="btn ghost" id="bacRebet" type="button">重复上局</button>
           <button class="btn ghost" id="bacClear" type="button">清除下注</button>
+          <button class="toggle" id="bacAuto" type="button" aria-pressed="true">自动开局：开</button>
         </div>
-      </div>
-      <div>
-        <div class="road-key" style="margin-bottom:6px">
-          <b style="color:var(--ivory)">大路</b>
-          <span><span class="br B"></span>庄</span>
-          <span><span class="br P"></span>闲</span>
-          <span><span style="color:var(--zero);font-weight:700">／</span> 和（数字为连续和局数）</span>
-          <span>红点 = 庄对 · 蓝点 = 闲对</span>
-          <span>牌靴剩余 <span id="bacShoe">416</span> 张，换靴时清空路单</span>
-        </div>
-        <div class="road-scroll" id="bacRoadScroll"><div class="road" id="bacRoad"></div></div>
       </div>
       <details class="rules"><summary>百家乐规则（Punto Banco 国际规则）</summary>
         <ul>
@@ -421,6 +429,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
           <button class="btn" id="bjStand" type="button">停牌</button>
           <button class="btn ghost" id="bjDouble" type="button">加倍</button>
           <button class="btn ghost" id="bjSplit" type="button">分牌</button>
+          <button class="btn ghost" id="bjSurrender" type="button">投降</button>
         </div>
         <p class="msg" id="bjMsg">选择筹码，点击圆圈下注，然后发牌。</p>
       </div>
@@ -435,6 +444,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
           <li>庄家 16 点及以下必须要牌，17 点（含软 17）停牌。</li>
           <li>任意前两张可加倍（下注翻倍，只再拿一张）；分牌后也可加倍。</li>
           <li>两张点数相同可分牌，最多分成 4 手；A 分牌后每手只发一张，且不可再分。分牌后的 21 点不算 Blackjack。</li>
+          <li>投降（后手投降 Late Surrender）：仅限前两张牌、未分牌时；庄家确认不是 Blackjack 后才可投降，放弃本手并退回一半下注。</li>
           <li>普通获胜 1:1，平局退回下注。</li>
         </ul>
       </details>
@@ -575,8 +585,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
     S.view = v;
     VIEWS.forEach((x) => { $("#v-" + x).hidden = x !== v; });
     rack.hidden = v === "lobby";
-    // keep rack right under the game title
-    if (v !== "lobby") { const sec = $("#v-" + v + " .stack"); sec.insertBefore(rack, sec.children[1]); }
+    document.body.classList.toggle("has-rack", v !== "lobby");
     $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === v ? "true" : "false"));
     if (v === "roulette") drawWheel();
   }
@@ -681,10 +690,10 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   let autoLeft = AUTO, autoOn = true;
   function renderAuto() {
     const cd = $("#bacCd");
-    if (!autoOn) { cd.innerHTML = "自动开局已关闭"; cd.classList.remove("soon"); $("#bacCdBar").style.transform = "scaleX(0)"; return; }
-    cd.innerHTML = bac.busy ? "开牌中…" : "下一局 <b>" + autoLeft + "</b> 秒";
-    cd.classList.toggle("soon", !bac.busy && autoLeft <= 5);
-    $("#bacCdBar").style.transform = "scaleX(" + (bac.busy ? 0 : autoLeft / AUTO) + ")";
+    cd.classList.toggle("off", !autoOn);
+    cd.classList.toggle("soon", autoOn && !bac.busy && autoLeft <= 5);
+    cd.textContent = !autoOn ? "–" : bac.busy ? "…" : String(autoLeft);
+    cd.style.setProperty("--p", !autoOn || bac.busy ? 0 : autoLeft / AUTO);
   }
   function resetAuto() { autoLeft = AUTO; renderAuto(); }
   $("#bacAuto").addEventListener("click", () => {
@@ -787,6 +796,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
     const two = canAct && h.cards.length === 2;
     $("#bjDouble").disabled = !two || S.bank < h.bet;
     $("#bjSplit").disabled = !two || cv(h.cards[0]) !== cv(h.cards[1]) || bj.hands.length >= 4 || S.bank < h.bet || !!h.aces;
+    $("#bjSurrender").disabled = !two || bj.hands.length > 1 || !!h.split;
   }
   $("#bjCircle").addEventListener("click", () => {
     if (bj.phase !== "bet" || bj.busy) return;
@@ -915,6 +925,19 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
       if (hv(h.cards).t >= 21) h.done = true;
     }
     await bjNext();
+  });
+
+  // Late surrender: only on the original two-card hand, after the dealer has checked for blackjack
+  $("#bjSurrender").addEventListener("click", () => {
+    if (!ready()) return;
+    const h = bj.hands[0];
+    if (bj.hands.length !== 1 || h.cards.length !== 2 || h.split) return;
+    h.done = true; h.result = { text: "投降", cls: "l" };
+    bj.hole = false;
+    const back = h.bet / 2;
+    addBank(back);
+    bj.phase = "bet"; unlock();
+    msg($("#bjMsg"), "你选择投降，退回一半下注 " + fmt(back) + "。本局 " + net(back - h.bet - bj.ins));
   });
 
   async function bjDealer() {
