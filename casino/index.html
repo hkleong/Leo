@@ -474,6 +474,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .jp b { font: 700 clamp(13px, 2.3vh, 18px)/1.2 var(--mono); font-variant-numeric: tabular-nums; }
 .jp.grand { grid-column: 1 / -1; background: linear-gradient(180deg, #b3151b, #5e0a0d); border-color: var(--win); }
 .jp.grand b { font-size: clamp(17px, 3vh, 24px); color: #ffe08a; }
+.jp b { display: inline-flex; }
+.jp b span { font: inherit; letter-spacing: 0; opacity: 1; }
+.jp b .od { display: inline-block; height: 1.2em; overflow: hidden; position: relative; }
+.jp b .od-s { display: flex; flex-direction: column; will-change: transform; }
+.jp b .od-s i { font-style: normal; height: 1.2em; line-height: 1.2em; text-align: center; }
+.jp b .od-c { display: inline-block; height: 1.2em; }
 .jp.major { background: linear-gradient(180deg, #7a2bb0, #3a1258); }
 .jp.minor { background: linear-gradient(180deg, #1f5fc4, #0e2f66); }
 .jp.mini { background: linear-gradient(180deg, #1e8a4a, #0d4424); }
@@ -891,7 +897,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" data-go="roulette"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><circle cx="24" cy="24" r="3" fill="currentColor"/><path d="M24 6v7M24 35v7M6 24h7M35 24h7M11.3 11.3l5 5M31.7 31.7l5 5M36.7 11.3l-5 5M16.3 31.7l-5 5"/><circle cx="34" cy="15" r="2.4" fill="currentColor" stroke="none"/></svg></span><b>轮盘</b><small>欧式单零 · 35:1</small></button>
         <button class="gtile" type="button" data-go="poker"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="17" height="25" rx="3" transform="rotate(-16 14 26)"/><rect x="15.5" y="10" width="17" height="25" rx="3"/><rect x="25" y="13" width="17" height="25" rx="3" transform="rotate(16 34 26)" fill="currentColor" fill-opacity=".12"/><path d="M24 17l3 4h-6z" fill="currentColor" stroke="none"/></svg></span><b>三张牌</b><small>对子加注 40:1</small></button>
         <button class="gtile" type="button" data-go="holdem"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M36.7 11.3l-3.5 3.5M14.8 33.2l-3.5 3.5"/><path d="M24 17c3 3 6 5 6 8a3 3 0 0 1-5 2l1 4h-4l1-4a3 3 0 0 1-5-2c0-3 3-5 6-8z" fill="currentColor" stroke="none"/></svg></span><b>德州扑克</b><small>盲注最高 500:1</small></button>
-        <button class="gtile" type="button" data-go="slotseries"><span class="ico"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><b>老虎机系列</b><small>幸运 7 · 龙腾财宝</small></button>
+        <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><b>老虎机系列</b><small>幸运 7 · 龙腾财宝</small></button>
       </div>
     </div>
   </section>
@@ -1625,7 +1631,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   let slotLast = "dragon";
   try { const v = localStorage.getItem("gbc-slot"); if (v === "slots" || v === "dragon") slotLast = v; } catch (e) {}
   $$("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go === "slotseries" ? slotLast : b.dataset.go)));
-  $$(".mt-pick").forEach((b) => b.addEventListener("click", () => { $("#slotPicker").hidden = false; }));
+  $$(".mt-pick, #lobbySlots").forEach((b) => b.addEventListener("click", () => { $("#slotPicker").hidden = false; }));
   $$("#slotPicker .mcard").forEach((b) => b.addEventListener("click", () => { $("#slotPicker").hidden = true; switchMachine(b.dataset.m); }));
   function switchMachine(m) {
     if (m === S.view) return;
@@ -3126,8 +3132,45 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     return { win, cells, lines };
   }
   const mgCount = (grid, s) => grid.reduce((t, col) => t + col.filter((g) => g.s === s).length, 0);
+  // GRAND and MAJOR are odometers: when the pool grows, the digits roll up to the new amount
+  const odo = { GRAND: { shown: null, from: 0, to: 0, t0: 0 }, MAJOR: { shown: null, from: 0, to: 0, t0: 0 } };
+  let odoRaf = 0;
+  function odoBuild(el, v) {
+    const txt = fmt(Math.floor(v));
+    el.innerHTML = txt.split("").map((ch) => /\d/.test(ch)
+      ? '<span class="od"><span class="od-s">' + "01234567890".split("").map((d) => "<i>" + d + "</i>").join("") + "</span></span>"
+      : '<span class="od-c">' + ch + "</span>").join("");
+    el.dataset.len = txt.length;
+  }
+  function odoSet(el, v) {
+    if (+el.dataset.len !== fmt(Math.floor(v)).length) odoBuild(el, v);
+    const strips = el.querySelectorAll(".od-s"), n = strips.length;
+    strips.forEach((st, idx) => {
+      const k = n - 1 - idx, x = v / Math.pow(10, k), base = Math.floor(x) % 10;
+      // a digit rolls smoothly while the digit to its right turns over from 9 to 0
+      const pos = k === 0 ? x % 10 : base + Math.max(0, (x - Math.floor(x)) * 10 - 9);
+      st.style.transform = "translateY(" + (-pos * 100 / 11).toFixed(3) + "%)";
+    });
+  }
+  function odoTick(now) {
+    let busy = false;
+    for (const k in odo) {
+      const o = odo[k], el = $("#jp" + k);
+      const t = Math.min(1, (now - o.t0) / 1600), e = 1 - Math.pow(1 - t, 3);
+      odoSet(el, o.from + (o.to - o.from) * e);
+      if (t < 1) busy = true;
+    }
+    odoRaf = busy ? requestAnimationFrame(odoTick) : 0;
+  }
   function jpRender(flash) {
-    for (const k of ["GRAND", "MAJOR", "MINOR", "MINI"]) $("#jp" + k).textContent = fmt(Math.round(jpMult(k) * mgBetShown()));
+    for (const k of ["MINOR", "MINI"]) $("#jp" + k).textContent = fmt(Math.round(jpMult(k) * mgBetShown()));
+    const now = performance.now();
+    for (const k in odo) {
+      const o = odo[k], v = Math.round(jpMult(k) * mgBetShown());
+      if (o.shown === null || v < o.shown || reduced) { odoBuild($("#jp" + k), v); odoSet($("#jp" + k), v); o.from = o.to = v; o.t0 = 0; }
+      else if (v !== o.shown) { const cur = o.from + (o.to - o.from) * Math.min(1, (now - o.t0) / 1600); o.from = cur; o.to = v; o.t0 = now; if (!odoRaf) odoRaf = requestAnimationFrame(odoTick); }
+      o.shown = v;
+    }
     if (flash) { const el = $('#mgJps [data-jp="' + flash + '"]'); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
   }
   function mgRender() {
