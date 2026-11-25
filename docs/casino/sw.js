@@ -1,6 +1,6 @@
 // Offline support for the 绿呢俱乐部 home-screen app.
 // Bump VERSION whenever index.html changes so installed copies pick up the update.
-const VERSION = "gbc-cc175e6d64";
+const VERSION = "gbc-5ae8fd3a0d";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 
 self.addEventListener("install", (e) => {
