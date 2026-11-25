@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.9.0">
+<meta name="version" content="0.9.1">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -100,7 +100,23 @@ main > section > * { min-width: 0; }
   background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.2)); transition: border-color .15s ease, transform .15s ease;
 }
 .btile:hover, .gtile:hover { border-color: var(--brass); transform: translateY(-1px); }
-.btile { padding: 7px 8px 8px; display: grid; gap: 5px; }
+.btile { padding: 7px 8px 8px; display: grid; gap: 5px; position: relative; overflow: hidden; }
+.bt-shuf { position: absolute; left: 6px; right: 6px; top: 34px; bottom: 6px; border-radius: 6px; background: rgba(6,6,8,.82); display: grid; place-content: center; justify-items: center; gap: 4px; z-index: 2; }
+.bt-shuf b { font-size: 13px; color: var(--win); letter-spacing: .1em; }
+.bt-shuf small { font-size: 11px; color: var(--ivory); min-height: 1em; }
+.bs-cards { position: relative; width: 64px; height: 30px; }
+.bs-cards i { position: absolute; left: 50%; top: 0; width: 20px; height: 28px; margin-left: -10px; border-radius: 3px; background: repeating-linear-gradient(45deg, #7a1f25 0 3px, #94303a 3px 6px); outline: 1.5px solid var(--ivory); outline-offset: -3px; }
+.bt-shuf[data-stage="0"] .bs-cards i:nth-child(odd) { animation: bsl .5s ease-in-out infinite alternate; }
+.bt-shuf[data-stage="0"] .bs-cards i:nth-child(even) { animation: bsr .5s ease-in-out infinite alternate; }
+.bt-shuf[data-stage="0"] .bs-cards i:nth-child(3), .bt-shuf[data-stage="0"] .bs-cards i:nth-child(4) { animation-delay: .25s; }
+@keyframes bsl { from { transform: translateX(-20px) rotate(-12deg); } to { transform: translateX(0) rotate(0); } }
+@keyframes bsr { from { transform: translateX(20px) rotate(12deg); } to { transform: translateX(0) rotate(0); } }
+.bt-shuf[data-stage="1"] .bs-cards i { animation: bsin .7s ease-in infinite; }
+.bt-shuf[data-stage="1"] .bs-cards i:nth-child(2) { animation-delay: .15s; } .bt-shuf[data-stage="1"] .bs-cards i:nth-child(3) { animation-delay: .3s; } .bt-shuf[data-stage="1"] .bs-cards i:nth-child(4) { animation-delay: .45s; }
+@keyframes bsin { from { transform: translate(-24px, -6px); opacity: 1; } to { transform: translate(22px, 4px) scale(.6); opacity: 0; } }
+.bt-shuf[data-stage="2"] .bs-cards i { animation: bsburn .9s ease-out infinite; }
+.bt-shuf[data-stage="2"] .bs-cards i:nth-child(2) { animation-delay: .22s; } .bt-shuf[data-stage="2"] .bs-cards i:nth-child(3) { animation-delay: .44s; } .bt-shuf[data-stage="2"] .bs-cards i:nth-child(4) { animation-delay: .66s; }
+@keyframes bsburn { from { transform: translateX(22px); opacity: 0; } 30% { opacity: 1; } to { transform: translate(-26px, 2px) rotate(-8deg); opacity: .9; } }
 .bt-head { display: flex; align-items: center; gap: 6px; }
 .bt-head b { font-family: var(--display); font-size: 15px; font-weight: 700; margin-right: auto; }
 .bt-ico { color: var(--brass); display: inline-flex; }
@@ -997,12 +1013,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><b>老虎机系列</b><small>龙腾财宝 · 宝石瀑布 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.9.0</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.9.1</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
   </div></div>
 
   <!-- Baccarat -->
@@ -1805,15 +1821,54 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     go(m);
   }
   // swipe left / right on a machine to switch to the other one
-  ["#v-slots", "#v-dragon", "#v-gems"].forEach((sel) => {
-    const el = $(sel); let sx = 0, sy = 0, st = 0, ok = false, at = 0;
-    el.addEventListener("touchstart", (e) => { const t = e.touches[0]; ok = e.touches.length === 1 && !e.target.closest(".chipwrap, .autowrap, .sheet"); sx = t.clientX; sy = t.clientY; st = Date.now(); }, { passive: true });
-    el.addEventListener("touchend", (e) => {
-      if (!ok) return;
-      const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
-      if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - st < 900) { at = Date.now(); const i = MACHINES.indexOf(sel.slice(3)); switchMachine(MACHINES[(i + (dx < 0 ? 1 : -1) + MACHINES.length) % MACHINES.length]); }
+  // Drag to switch: the chosen parts follow the finger, then slide out while the next one slides in from the other side.
+  //   root     element that listens for the drag
+  //   parts()  elements that move (returns the current ones)
+  //   canGo()  false -> the parts only give a little and spring back (with an optional reason shown)
+  //   commit(d) swap the content (d = +1 next, -1 previous); may return the new parts to slide in
+  function dragSwitch(root, parts, canGo, commit, blockSel) {
+    let sx = 0, sy = 0, st = 0, ok = false, drag = false, dx = 0, at = 0;
+    const W = () => root.getBoundingClientRect().width || innerWidth;
+    const setX = (els, x, ms, ease) => els.forEach((e) => { e.style.transition = ms ? "transform " + ms + "ms " + (ease || "ease-out") + ", opacity " + ms + "ms" : "none"; e.style.transform = x ? "translateX(" + x + "px)" : ""; e.style.opacity = x ? String(Math.max(0.35, 1 - Math.abs(x) / W())) : ""; });
+    root.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      ok = e.touches.length === 1 && !e.target.closest(blockSel || ".chipwrap, .autowrap, .sheet, .road-scroll, .bb-wrap");
+      sx = t.clientX; sy = t.clientY; st = Date.now(); drag = false; dx = 0;
     }, { passive: true });
-    el.addEventListener("click", (e) => { if (Date.now() - at < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
+    root.addEventListener("touchmove", (e) => {
+      if (!ok) return;
+      const t = e.touches[0], mx = t.clientX - sx, my = t.clientY - sy;
+      if (!drag) { if (Math.abs(my) > 12 && Math.abs(my) > Math.abs(mx)) { ok = false; return; } if (Math.abs(mx) > 10) drag = true; else return; }
+      dx = canGo() ? mx : mx * 0.15;
+      setX(parts(), dx, 0);
+    }, { passive: true });
+    root.addEventListener("touchend", async () => {
+      if (!ok || !drag) return;
+      at = Date.now();
+      const w = W(), go = canGo() && (Math.abs(dx) > w * 0.18 || (Math.abs(dx) > 40 && Date.now() - st < 300));
+      if (!go) { setX(parts(), 0, 220); if (!canGo() && canGo.reason) toast(canGo.reason()); return; }
+      const d = dx < 0 ? 1 : -1, ms = reduced ? 0 : 200, out = parts();
+      setX(out, -d * w, ms, "ease-in");
+      await sleep(ms);
+      const next = commit(d) || parts();
+      setX(out, 0, 0);
+      setX(next, d * w, 0); void root.offsetWidth;
+      setX(next, 0, reduced ? 0 : 260, "cubic-bezier(.2,.8,.3,1)");
+      setTimeout(() => setX(next, 0, 0), 300);
+    });
+    // a swipe that starts on a bet spot or a button must not also press it
+    root.addEventListener("click", (e) => { if (Date.now() - at < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
+  }
+  // slot machines: the whole machine slides
+  ["#v-slots", "#v-dragon", "#v-gems"].forEach((sel) => {
+    const busy = () => (S.view === "slots" && sl.spinning) || (S.view === "dragon" && mg.spinning) || (S.view === "gems" && gm.spinning);
+    const can = () => !busy(); can.reason = () => "正在旋转，转完再换机台";
+    dragSwitch($(sel), () => [$("#v-" + S.view)], can, (d) => {
+      const i = MACHINES.indexOf(S.view), m = MACHINES[(i + d + MACHINES.length) % MACHINES.length];
+      sl.auto = 0; mg.auto = 0; gm.auto = 0;
+      show(m); try { history.replaceState(null, "", "#" + m); } catch (e) { location.hash = m; }
+      return [$("#v-" + m)];
+    });
   });
   window.addEventListener("hashchange", () => show(location.hash.slice(1) || "lobby"));
   $$("[data-rules]").forEach((b) => b.addEventListener("click", () => { closePops(); $("#" + b.dataset.rules).hidden = false; }));
@@ -1900,31 +1955,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     msg($("#bacMsg"), h.msg);
   }
   // Swipe left / right on the table to move to the next / previous table
-  let swipeAt = 0;
-  function switchBy(d) {
-    if (bac.busy) { toast("开牌中，稍后再换桌"); return; }
-    useTable((tables.indexOf(bac) + d + tables.length) % tables.length);
-    toast("百家乐 " + bac.name + " 桌");
-    if (!reduced) ["#v-baccarat .btable", "#v-baccarat .roads", "#v-baccarat .bstats"].forEach((sel) => {
-      const el = $(sel); if (el.animate) el.animate([{ transform: "translateX(" + d * 60 + "px)", opacity: 0.2 }, { transform: "none", opacity: 1 }], { duration: 260, easing: "ease-out" });
+  {
+    const top = () => ["#v-baccarat .btable", "#v-baccarat .roads", "#v-baccarat .bstats"].map((q) => $(q));
+    const can = () => !bac.busy; can.reason = () => "开牌中，稍后再换桌";
+    dragSwitch($("#v-baccarat"), top, can, (d) => {
+      useTable((tables.indexOf(bac) + d + tables.length) % tables.length);
+      toast("百家乐 " + bac.name + " 桌");
+      return top();
     });
   }
-  (function () {
-    const el = $("#v-baccarat");
-    let sx = 0, sy = 0, st = 0, ok = false;
-    el.addEventListener("touchstart", (e) => {
-      const t = e.touches[0];
-      ok = e.touches.length === 1 && !e.target.closest(".road-scroll, .chipwrap, .sheet");
-      sx = t.clientX; sy = t.clientY; st = Date.now();
-    }, { passive: true });
-    el.addEventListener("touchend", (e) => {
-      if (!ok) return;
-      const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
-      if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - st < 900) { swipeAt = Date.now(); switchBy(dx < 0 ? 1 : -1); }
-    }, { passive: true });
-    // a swipe that starts on a bet spot must not also place a bet
-    el.addEventListener("click", (e) => { if (Date.now() - swipeAt < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
-  })();
   function useTable(i) {
     if (bac.busy || tables[i] === bac) return;
     bac = tables[i]; bacSave();
@@ -2158,6 +2197,17 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       if (!el) return;
       el.textContent = !autoOn ? "已暂停" : tb.shuffling || tb.autoLeft > AUTO ? "换牌靴中" : tb.busy ? "开牌中" : (hasBets(tb) ? "有下注 · " : "") + tb.autoLeft + " 秒";
       el.classList.toggle("soon", autoOn && !tb.busy && tb.autoLeft <= 3);
+      // the lobby shows the shoe change too: shuffling, loading the shoe, then the burn
+      const sh = document.getElementById("lsh" + i), changing = tb.shuffling || tb.autoLeft > AUTO;
+      if (sh) {
+        sh.hidden = !changing;
+        if (changing) {
+          const left = tb.shuffling ? 10 : tb.autoLeft - AUTO, stage = left > 6 ? 0 : left > 3 ? 1 : 2;
+          sh.dataset.stage = stage;
+          sh.querySelector("b").textContent = ["洗牌中", "装入牌靴", "烧牌"][stage];
+          sh.querySelector("small").textContent = stage === 2 && tb.burnNote ? tb.burnNote.replace("新牌靴 · ", "") : "";
+        }
+      }
     });
   }
   $("#bacAuto").addEventListener("click", () => {
@@ -2275,7 +2325,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     b.type = "button"; b.className = "btile";
     b.innerHTML = '<span class="bt-head"><span class="bt-ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="10" width="20" height="28" rx="3" transform="rotate(-10 16 24)"/><rect x="21" y="9" width="21" height="30" rx="3" fill="currentColor" fill-opacity=".14"/><text x="31.5" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor" stroke="none">'+tb.name+'</text></svg></span><b>百家乐 ' + tb.name + '</b><span class="bt-cd" id="lcd' + i + '"></span></span>' +
       '<span class="road-scroll mini" id="lrs' + i + '"><span class="road" id="lr' + i + '"></span></span>' +
-      '<span class="bt-stats" id="lst' + i + '"></span>';
+      '<span class="bt-stats" id="lst' + i + '"></span>' +
+      '<span class="bt-shuf" id="lsh' + i + '" hidden><span class="bs-cards"><i></i><i></i><i></i><i></i></span><b>洗牌中</b><small></small></span>';
     b.addEventListener("click", () => { if (!bac.busy) { bac = tables[i]; bacSave(); showLastHand(); } go("baccarat"); });
     $("#lobbyBac").appendChild(b);
   });
