@@ -1362,7 +1362,7 @@ function busPre(){const nk=(i,j)=>i+','+j,isl=(i,j)=>{const x=rx(i),z=rz(j);retu
 // 站前空地：沿路段 ±22 米、从人行道外沿往里 SB_D 米，地面和路面一样高
 function busSB(){for(const s of BP.stops){const ax=rx(s.a[0]),az=rz(s.a[1]),L=Math.hypot(rx(s.b[0])-ax,rz(s.b[1])-az),ln={ux:(rx(s.b[0])-ax)/L,uz:(rz(s.b[1])-az)/L,L},nx=ln.uz,nz=-ln.ux,cx=(ax+rx(s.b[0]))/2,cz=(az+rz(s.b[1]))/2,hl=Math.min(22,ln.L/2-BAND-4);if(hl<8)continue;
   const P=[];for(const a of[-hl,hl])for(const b of[BAND-.6,BAND+SB_D])P.push([cx+ln.ux*a+nx*b,cz+ln.uz*a+nz*b]);
-  SBR.push({x0:Math.min(...P.map(p=>p[0])),x1:Math.max(...P.map(p=>p[0])),z0:Math.min(...P.map(p=>p[1])),z1:Math.max(...P.map(p=>p[1])),h:hN(s.a[0],s.a[1])})}}
+  SBR.push({x0:Math.min(...P.map(p=>p[0])),x1:Math.max(...P.map(p=>p[0])),z0:Math.min(...P.map(p=>p[1])),z1:Math.max(...P.map(p=>p[1])),h:hN(s.a[0],s.a[1]),nx,nz})}}
 const inSB=(x,z,m=0)=>{for(const r of SBR)if(x>r.x0-m&&x<r.x1+m&&z>r.z0-m&&z<r.z1+m)return r;return null};
 // 一个矩形减掉若干矩形，剩下的拆成小矩形 [x0,x1,z0,z1]
 function rectMinus(r,holes){let out=[r];for(const h of holes){const nx=[];for(const q of out){const a=Math.max(q[0],h.x0),b=Math.min(q[1],h.x1),c=Math.max(q[2],h.z0),d=Math.min(q[3],h.z1);if(a>=b||c>=d){nx.push(q);continue}
@@ -1591,9 +1591,10 @@ const wallMat=new THREE.MeshToonMaterial({color:REAL?0xe0d6c6:0x9a9086,map:REAL?
 for(const[i,j]of VALID){const h=hB(i,j),x0=rx(i)+BAND,x1=rx(i+1)-BAND,z0=rz(j)+BAND,z1=rz(j+1)-BAND;
   const sides=[[x0,z0,x1,z0],[x1,z0,x1,z1],[x1,z1,x0,z1],[x0,z1,x0,z0]];const pos=[];
   for(const[ax,az,bx,bz]of sides){const L=Math.hypot(bx-ax,bz-az),n=Math.max(1,Math.ceil(L/4));
-    for(let k=0;k<n;k++){const t0=k/n,t1=(k+1)/n,pa=[ax+(bx-ax)*t0,az+(bz-az)*t0],pb=[ax+(bx-ax)*t1,az+(bz-az)*t1];
+    const TT=[];for(let k=0;k<n;k++){const a0=k/n,a1=(k+1)/n,ma=[ax+(bx-ax)*a0,az+(bz-az)*a0],mb=[ax+(bx-ax)*a1,az+(bz-az)*a1];if(SBR.length&&(inSB(ma[0],ma[1],1)||inSB(mb[0],mb[1],1)||inSB((ma[0]+mb[0])/2,(ma[1]+mb[1])/2,1))){for(let q=0;q<16;q++)TT.push([a0+(a1-a0)*q/16,a0+(a1-a0)*(q+1)/16])}else TT.push([a0,a1])}
+    for(const[t0,t1]of TT){const pa=[ax+(bx-ax)*t0,az+(bz-az)*t0],pb=[ax+(bx-ax)*t1,az+(bz-az)*t1];
       const ga=Gexact(pa[0]+(pa[0]===x0?-1.2:pa[0]===x1?1.2:0),pa[1]+(pa[1]===z0?-1.2:pa[1]===z1?1.2:0)),gb=Gexact(pb[0]+(pb[0]===x0?-1.2:pb[0]===x1?1.2:0),pb[1]+(pb[1]===z0?-1.2:pb[1]===z1?1.2:0));
-      if(inSB((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,.6))continue;if(Math.abs(ga-h)<.3&&Math.abs(gb-h)<.3)continue;const lo0=Math.min(ga,h)-.4,hi0=Math.max(ga,h)+.25,lo1=Math.min(gb,h)-.4,hi1=Math.max(gb,h)+.25;
+      if(inSB((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,-.3))continue;if(Math.abs(ga-h)<.3&&Math.abs(gb-h)<.3)continue;const lo0=Math.min(ga,h)-.4,hi0=Math.max(ga,h)+.25,lo1=Math.min(gb,h)-.4,hi1=Math.max(gb,h)+.25;
       pos.push(pa[0],lo0,pa[1],pb[0],lo1,pb[1],pb[0],hi1,pb[1],pa[0],lo0,pa[1],pb[0],hi1,pb[1],pa[0],hi0,pa[1])}}
   if(pos.length){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
     if(REAL){
@@ -1601,6 +1602,17 @@ for(const[i,j]of VALID){const h=hB(i,j),x0=rx(i)+BAND,x1=rx(i+1)-BAND,z0=rz(j)+B
       g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
     }
     g.computeVertexNormals();const m=new THREE.Mesh(g,wallMat);m.castShadow=m.receiveShadow=true;m.userData.noLift=1;scene.add(m)}}
+// —— 站前空地的三面挡土墙
+{const pos=[];const seg=(ax,az,bx,bz,ox,oz,rh)=>{const L=Math.hypot(bx-ax,bz-az),n=Math.max(1,Math.ceil(L/2));for(let k=0;k<n;k++){const pa=[ax+(bx-ax)*k/n,az+(bz-az)*k/n],pb=[ax+(bx-ax)*(k+1)/n,az+(bz-az)*(k+1)/n];
+    const la=Gexact(pa[0]+ox,pa[1]+oz),lb=Gexact(pb[0]+ox,pb[1]+oz);if(la<rh+1&&lb<rh+1)continue;const lo=rh-.4;pos.push(pa[0],lo,pa[1],pb[0],lo,pb[1],pb[0],lb+.25,pb[1],pa[0],lo,pa[1],pb[0],lb+.25,pb[1],pa[0],la+.25,pa[1])}};
+  for(const r of SBR){const e=1.2;if(r.nx){const bx=r.nx>0?r.x1:r.x0,xa=r.nx>0?r.x0+.6:r.x0,xb=r.nx>0?r.x1:r.x1-.6;seg(bx,r.z0,bx,r.z1,r.nx*e,0,r.h);seg(xa,r.z0,xb,r.z0,0,-e,r.h);seg(xa,r.z1,xb,r.z1,0,e,r.h)}
+    else{const bz=r.nz>0?r.z1:r.z0,za=r.nz>0?r.z0+.6:r.z0,zb=r.nz>0?r.z1:r.z1-.6;seg(r.x0,bz,r.x1,bz,0,r.nz*e,r.h);seg(r.x0,za,r.x0,zb,-e,0,r.h);seg(r.x1,za,r.x1,zb,e,0,r.h)}}
+  // 转角立一根方柱，盖住墙和墙之间的接缝
+  for(const r of SBR){const C=r.nx?[[r.nx>0?r.x0+.6:r.x1-.6,r.z0],[r.nx>0?r.x0+.6:r.x1-.6,r.z1],[r.nx>0?r.x1:r.x0,r.z0],[r.nx>0?r.x1:r.x0,r.z1]]:[[r.x0,r.nz>0?r.z0+.6:r.z1-.6],[r.x1,r.nz>0?r.z0+.6:r.z1-.6],[r.x0,r.nz>0?r.z1:r.z0],[r.x1,r.nz>0?r.z1:r.z0]];
+    for(const[x,z]of C){let top=-1e9;for(const[dx,dz]of[[1.3,1.3],[1.3,-1.3],[-1.3,1.3],[-1.3,-1.3]])top=Math.max(top,Gexact(x+dx,z+dz));if(top<r.h+1)continue;const H=top+.55-(r.h-.4);
+      const p=new THREE.Mesh(new THREE.BoxGeometry(1.6,H,1.6),wallMat);p.position.set(x,r.h-.4+H/2,z);p.castShadow=p.receiveShadow=true;p.userData.noLift=1;scene.add(p)}}
+  if(pos.length){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));const uv=[];for(let i=0;i<pos.length;i+=3)uv.push((pos[i]+pos[i+2])/8,pos[i+1]/5);
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.computeVertexNormals();const m=new THREE.Mesh(g,wallMat);m.castShadow=m.receiveShadow=true;m.userData.noLift=1;scene.add(m)}}
 // —— 路边挡土墙（不限街区）：沿路面外沿（人行道外边）找路和地高差超过 1 米的地方，砌竖直石墙
 {const S=HG,pos=[],isR=(x,z)=>{_gRoad=0;Gexact(x,z);return _gRoad===1};
   const cross=(ax,az,bx,bz)=>{let ra=isR(ax,az);for(let k=0;k<10;k++){const mx=(ax+bx)/2,mz=(az+bz)/2;if(isR(mx,mz)===ra){ax=mx;az=mz}else{bx=mx;bz=mz}}return[(ax+bx)/2,(az+bz)/2]};
