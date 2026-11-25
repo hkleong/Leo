@@ -68,7 +68,8 @@ button:disabled { cursor: not-allowed; opacity: .4; }
 html.ios-app .top { padding-top: calc(env(safe-area-inset-top, 0px) + 34px); }
 .top-in { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; gap: 8px; padding: 6px var(--gy) 6px var(--gx); }
 .brand { font-family: var(--display); font-size: 19px; font-weight: 700; letter-spacing: .04em; color: var(--brass); background: none; border: 0; padding: 0; white-space: nowrap; }
-.nav { display: flex; gap: 1px; min-width: 0; }
+.nav { display: flex; gap: 1px; min-width: 0; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+.nav::-webkit-scrollbar { display: none; }
 .nav button { background: none; border: 1px solid transparent; border-radius: 4px; padding: 3px 7px; color: var(--muted); white-space: nowrap; }
 .nav button[aria-current="true"] { color: var(--ivory); border-color: var(--brass-lo); }
 .bank { margin-left: auto; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
@@ -97,8 +98,12 @@ main > section > * { min-width: 0; }
 }
 .btile:hover, .gtile:hover { border-color: var(--brass); transform: translateY(-1px); }
 .btile { padding: 7px 8px 8px; display: grid; gap: 5px; }
-.bt-head { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
-.bt-head b { font-family: var(--display); font-size: 15px; font-weight: 700; }
+.bt-head { display: flex; align-items: center; gap: 6px; }
+.bt-head b { font-family: var(--display); font-size: 15px; font-weight: 700; margin-right: auto; }
+.bt-ico { color: var(--brass); display: inline-flex; }
+.bt-ico svg { width: clamp(22px, 3.4vh, 30px); height: clamp(22px, 3.4vh, 30px); }
+.gtile .ico { color: var(--brass); display: inline-flex; }
+.gtile .ico svg { width: clamp(30px, 5.4vh, 48px); height: clamp(30px, 5.4vh, 48px); }
 .bt-cd { font: 500 11px/1 var(--mono); color: var(--muted); white-space: nowrap; }
 .bt-cd.soon { color: #ff9a9a; }
 .road-scroll.mini { overflow: hidden; padding: 2px; border-radius: 4px; }
@@ -109,7 +114,8 @@ main > section > * { min-width: 0; }
 .bt-stats { font: 500 11px/1 var(--mono); color: var(--muted); display: flex; gap: 8px; }
 .bt-stats i { font-style: normal; }
 .bt-stats .P { color: #8fb4ff; } .bt-stats .B { color: #ff9a9a; } .bt-stats .T { color: #6fd39a; }
-.gtiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.gtiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 640px) { .gtiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .gtile { padding: 8px 9px 7px; } .gtile .glyph { font-size: clamp(22px, 4vh, 36px); } .gtile small { display: none; } }
 .gtile { padding: 10px 10px 9px; display: grid; gap: 1px; justify-items: start; }
 .gtile .glyph { font-family: var(--display); font-size: clamp(26px, 5vh, 44px); line-height: 1; color: var(--brass); font-weight: 700; }
 .gtile b { font-size: 15px; }
@@ -428,6 +434,50 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .diamond { width: 13px; height: 13px; transform: rotate(45deg); border-radius: 2px; }
 .diamond.r { background: var(--red); } .diamond.b { background: var(--black); border: 1px solid #777; }
 
+/* Texas Hold'em */
+.th-main { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.th-ante, .th-blind, .th-play { border-radius: 8px; min-height: clamp(56px, 9.5vh, 92px); align-items: flex-end !important; padding-bottom: 7px !important; }
+.th-ante { background: linear-gradient(160deg, #2a62d0, #173b8c); }
+.th-blind { background: linear-gradient(180deg, #4a4a52, #26262b); }
+.th-play { background: linear-gradient(200deg, #b08d2c, #5c4712); }
+.th-ante .lab b, .th-blind .lab b, .th-play .lab b { font-size: clamp(15px, 2.7vh, 22px); letter-spacing: .08em; }
+.game .th-ante .stake, .game .th-blind .stake, .game .th-play .stake { top: 27%; --d: 22px; }
+.th-trips { min-height: clamp(36px, 5.8vh, 52px); justify-content: flex-start !important; padding-left: 14px !important; }
+.th-trips .lab { grid-auto-flow: column; gap: 8px; align-items: baseline; }
+.game .th-trips .stake { left: 60%; }
+#v-holdem { --cw: clamp(26px, 4.4vh, 46px); }
+#v-holdem .btable.col { gap: 2px; }
+#thB { min-width: calc(var(--cw) * 5 + 16px); justify-content: center; }
+
+/* Slot machine */
+.btable.slot { justify-content: center; gap: 8px; }
+.slot-top { display: flex; justify-content: center; align-items: baseline; gap: 10px; }
+.slot-top b { font-family: var(--display); font-size: clamp(20px, 3.6vh, 30px); color: var(--brass); letter-spacing: .1em; }
+.slot-cab { --cell: clamp(52px, 11vh, 104px); display: flex; justify-content: center; align-items: center; gap: 6px; }
+.lmarks { display: grid; grid-template-rows: repeat(5, calc(var(--cell) * 3 / 5)); align-items: center; }
+.lmarks i { font: 700 11px/1 var(--mono); font-style: normal; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--brass-lo); color: var(--muted); }
+.lmarks i.on { background: var(--win); color: var(--ink); border-color: var(--win); }
+.reels { display: grid; grid-template-columns: repeat(3, var(--cell)); gap: 4px; padding: 6px; border-radius: 12px; background: linear-gradient(180deg, #2a2a30, #0d0d0f); border: 2px solid var(--brass); box-shadow: inset 0 0 18px rgba(0,0,0,.8), 0 0 0 4px rgba(0,0,0,.5); position: relative; }
+.reels::after { content: ""; position: absolute; left: 6px; right: 6px; top: 50%; height: 2px; margin-top: -1px; background: rgba(212,175,55,.35); pointer-events: none; }
+.reel { height: calc(var(--cell) * 3); overflow: hidden; border-radius: 6px; background: linear-gradient(180deg, #d9d2bd, #f6f0de 30%, #f6f0de 70%, #d9d2bd); }
+.reel .col { will-change: transform; }
+.sym { height: var(--cell); display: grid; place-items: center; font-size: calc(var(--cell) * .52); line-height: 1; color: var(--black); border-bottom: 1px solid rgba(0,0,0,.08); }
+.sym.win { background: radial-gradient(circle, rgba(242,210,122,.85), rgba(242,210,122,0) 70%); animation: symwin .5s ease-in-out 3 alternate; }
+@keyframes symwin { to { transform: scale(1.08); } }
+.sym .s7 { font-family: var(--display); font-weight: 700; color: #c4161c; font-size: calc(var(--cell) * .66); text-shadow: 0 2px 0 #7a0d10; }
+.sym .sbar { font: 800 calc(var(--cell) * .2)/1 var(--body); color: #fff; background: #1d1d1f; border: 2px solid var(--brass); padding: 4px 6px; border-radius: 4px; letter-spacing: .06em; }
+.sym .sstar { color: #d4a017; text-shadow: 0 1px 0 #7a5a00; }
+.sym .sred { color: var(--red); }
+.paytable { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; background: rgba(0,0,0,.35); border: 1px solid var(--brass-lo); border-radius: 8px; padding: 4px; }
+.paytable span { display: grid; justify-items: center; font: 500 11px/1.2 var(--mono); color: var(--muted); }
+.paytable span b { font-size: 15px; color: var(--ivory); font-family: var(--display); }
+.paytable span b.s7 { color: #ff5a5f; } .paytable span b.sred { color: #ff7a7f; } .paytable span b.sstar { color: var(--win); }
+.paytable span b.sbar { font: 800 10px/1.6 var(--body); }
+.sl-bet { min-height: clamp(40px, 6.5vh, 58px); justify-content: flex-start !important; padding-left: 14px !important; }
+.sl-bet .lab { grid-auto-flow: column; gap: 8px; align-items: baseline; }
+.game .sl-bet .stake { left: 62%; }
+#slRepeat { visibility: hidden; }
+
 /* Three Card Poker */
 .pk-row { display: grid; gap: 4px; justify-items: center; }
 .pk-row .bj-label { justify-content: center; }
@@ -463,6 +513,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 }
 @media (max-height: 640px) {
   .lobby-head .note { display: none; }
+  .btile .road { --rc: 7px; }
+  #v-lobby { gap: 7px; }
   .paysline { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -480,6 +532,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <button type="button" data-go="blackjack">21点</button>
       <button type="button" data-go="roulette">轮盘</button>
       <button type="button" data-go="poker">三张牌</button>
+      <button type="button" data-go="holdem">德州</button>
+      <button type="button" data-go="slots">老虎机</button>
     </nav>
     <div class="bank">
       <span class="bank-label">余额</span>
@@ -504,9 +558,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <div class="lsec">
       <h3>其他游戏</h3>
       <div class="gtiles">
-        <button class="gtile" type="button" data-go="blackjack"><span class="glyph">21</span><b>21点</b><small>BJ 赔 3:2 · 软 17 停</small></button>
-        <button class="gtile" type="button" data-go="roulette"><span class="glyph">0</span><b>轮盘</b><small>欧式单零 · 35:1</small></button>
-        <button class="gtile" type="button" data-go="poker"><span class="glyph">3</span><b>三张牌</b><small>对子加注 40:1</small></button>
+        <button class="gtile" type="button" data-go="blackjack"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="9" width="20" height="28" rx="3" transform="rotate(-10 17 23)"/><rect x="21" y="11" width="20" height="28" rx="3" transform="rotate(8 31 25)" fill="currentColor" fill-opacity=".12"/><text x="31" y="29" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor" stroke="none" transform="rotate(8 31 25)">21</text></svg></span><b>21点</b><small>BJ 赔 3:2 · 软 17 停</small></button>
+        <button class="gtile" type="button" data-go="roulette"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><circle cx="24" cy="24" r="3" fill="currentColor"/><path d="M24 6v7M24 35v7M6 24h7M35 24h7M11.3 11.3l5 5M31.7 31.7l5 5M36.7 11.3l-5 5M16.3 31.7l-5 5"/><circle cx="34" cy="15" r="2.4" fill="currentColor" stroke="none"/></svg></span><b>轮盘</b><small>欧式单零 · 35:1</small></button>
+        <button class="gtile" type="button" data-go="poker"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="17" height="25" rx="3" transform="rotate(-16 14 26)"/><rect x="15.5" y="10" width="17" height="25" rx="3"/><rect x="25" y="13" width="17" height="25" rx="3" transform="rotate(16 34 26)" fill="currentColor" fill-opacity=".12"/><path d="M24 17l3 4h-6z" fill="currentColor" stroke="none"/></svg></span><b>三张牌</b><small>对子加注 40:1</small></button>
+        <button class="gtile" type="button" data-go="holdem"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M36.7 11.3l-3.5 3.5M14.8 33.2l-3.5 3.5"/><path d="M24 17c3 3 6 5 6 8a3 3 0 0 1-5 2l1 4h-4l1-4a3 3 0 0 1-5-2c0-3 3-5 6-8z" fill="currentColor" stroke="none"/></svg></span><b>德州扑克</b><small>盲注最高 500:1</small></button>
+        <button class="gtile" type="button" data-go="slots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机</b><small>3 卷轴 · 5 线</small></button>
       </div>
     </div>
     <div class="lfoot"><button class="linkbtn" id="resetBank" type="button">余额重置为 10,000</button></div>
@@ -582,7 +638,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>闲家对子 / 庄家对子：该方前两张点数牌面相同，11:1。任一对子：任一方成对，5:1。</li>
         <li>完美对子：任一方前两张为同花同点，25:1；两方都是，200:1。</li>
         <li>龙宝：所押一方以天牌赢 1:1，天牌和局退回；非天牌赢 9 点 30:1、8 点 10:1、7 点 6:1、6 点 4:1、5 点 2:1、4 点 1:1；赢 3 点及以下或输则输。</li>
-        <li>共 4 张桌（A–D），各自有 8 副牌的牌靴、路单和倒计时，每 15 秒自动开一局；底部的 A B C D 可以换桌。</li>
+        <li>共 4 张桌（A–D），各自有 8 副牌的牌靴、路单和倒计时，每 15 秒自动开一局。在牌桌上左右滑动，或点底部的 A B C D，可以换桌。</li>
         <li>剩余约 1/4 时换新牌靴（约 10 秒）：洗牌、装入牌靴，然后烧牌——翻开第一张，按它的点数再烧掉相应张数（A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。换靴后路单清空。</li>
         <li>离开牌桌（去大厅、别的桌或别的游戏）时，即使有下注也照常倒数开局，结果自动结算并在屏幕上方提示。路单和牌靴保存在本机。</li>
       </ul>
@@ -691,6 +747,97 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>线注（相邻两排六个号码）5:1：点两排之间下边的角。三数（0/1/2、0/2/3）11:1、首四（0/1/2/3）8:1：点 0 与号码交界的角。</li>
         <li>打（1–12、13–24、25–36）与列（右侧 2:1）2:1。红/黑、单/双、小（1–18）/大（19–36）1:1。</li>
         <li>开出 0 时，所有外围注均输。边线和交角上的淡金色圆点就是可以下注的位置。</li>
+      </ul>
+    </div></div>
+  </section>
+
+  <!-- Ultimate Texas Hold'em -->
+  <section id="v-holdem" class="game" hidden>
+    <div class="btable col">
+      <div class="shoebox" id="thShoeBox" aria-hidden="true"></div>
+      <div class="pk-row" id="thDRow"><div class="bj-label">庄家 DEALER <span class="total" id="thDR">–</span></div><div class="hand" id="thD"></div></div>
+      <div class="pk-row"><div class="bj-label">公共牌 BOARD</div><div class="hand" id="thB"></div></div>
+      <div class="pk-row" id="thPRow"><div class="bj-label">玩家 PLAYER <span class="total" id="thPR">–</span></div><div class="hand" id="thP"></div></div>
+      <p class="tmsg" id="thMsg">下底注（盲注自动跟同额），然后发牌</p>
+    </div>
+    <div class="pkbets">
+      <button class="spot side sx th-trips" data-th="trips" type="button"><span class="lab"><b>三条奖励</b><small>3–50:1</small></span><span class="stake"></span></button>
+      <div class="th-main">
+        <button class="spot th-ante" data-th="ante" type="button"><span class="lab"><b>底注</b><small>1:1</small></span><span class="stake"></span></button>
+        <button class="spot th-blind" data-th="blind" type="button" disabled><span class="lab"><b>盲注</b><small>1–500:1</small></span><span class="stake"></span></button>
+        <button class="spot th-play" data-th="play" type="button" disabled><span class="lab"><b>加注</b><small>1:1</small></span><span class="stake"></span></button>
+      </div>
+    </div>
+    <div class="acts">
+      <div class="actrow" id="thBetBox"><button class="btn big" id="thDeal" type="button">发牌</button></div>
+      <div class="actrow" id="thPre" hidden><button class="btn" id="thR4" type="button">加注 4×</button><button class="btn" id="thR3" type="button">加注 3×</button><button class="btn ghost" id="thC1" type="button">过牌</button></div>
+      <div class="actrow" id="thFlop" hidden><button class="btn" id="thR2" type="button">加注 2×</button><button class="btn ghost" id="thC2" type="button">过牌</button></div>
+      <div class="actrow" id="thRiver" hidden><button class="btn" id="thR1" type="button">加注 1×</button><button class="btn ghost" id="thFold" type="button">弃牌</button></div>
+    </div>
+    <div class="bctl" data-g="th"></div>
+    <div class="bfoot">
+      <div>总投注额 <b id="thBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+      <div class="r"><span>终极德州扑克 · 单副牌</span><span>庄家一对以上合格</span></div>
+    </div>
+    <div class="sheet" id="menu-th" hidden><div class="sheet-in" role="dialog" aria-label="德州扑克菜单">
+      <div class="sheet-head"><h3>德州扑克</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <div class="menu-grid">
+        <button class="btn ghost" id="thRebet" type="button" data-close>重复上局下注</button>
+        <button class="btn ghost" id="thClear" type="button" data-close>清除下注</button>
+        <button class="btn ghost" type="button" data-close data-rules="rules-th">规则</button>
+      </div>
+    </div></div>
+    <div class="sheet" id="rules-th" hidden><div class="sheet-in" role="dialog" aria-label="德州扑克规则">
+      <div class="sheet-head"><h3>终极德州扑克规则</h3><span class="note">Ultimate Texas Hold'em</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <ul>
+        <li>单副 52 张牌，每局重新洗牌。你和庄家各两张底牌，共用五张公共牌，各取七张中最好的五张比大小。</li>
+        <li>先下底注（Ante），盲注（Blind）自动下同样金额；可另下三条奖励（Trips）。</li>
+        <li>翻牌前：可加注底注的 4 倍或 3 倍，或过牌。翻牌后（三张公共牌）：没加注过的可加注 2 倍或过牌。河牌后（五张公共牌）：没加注过的可加注 1 倍，或弃牌。每局只能加注一次。</li>
+        <li>弃牌输掉底注和盲注；三条奖励照常按你的最终牌型结算。</li>
+        <li>庄家需要一对或更好才合格；不合格时底注退回，加注和盲注照常比牌。</li>
+        <li>你赢：加注 1:1，底注 1:1（庄家合格时），盲注按下表（顺子以下退回）。平局：全部退回。庄家赢：底注、盲注、加注都输。</li>
+        <li>牌型从大到小：皇家同花顺 > 同花顺 > 四条 > 葫芦 > 同花 > 顺子 > 三条 > 两对 > 一对 > 高牌。A-2-3-4-5 是最小的顺子。</li>
+      </ul>
+      <h4>盲注赔率（你赢时）</h4>
+      <table><tr><td>皇家同花顺</td><td>500:1</td></tr><tr><td>同花顺</td><td>50:1</td></tr><tr><td>四条</td><td>10:1</td></tr><tr><td>葫芦</td><td>3:1</td></tr><tr><td>同花</td><td>3:2</td></tr><tr><td>顺子</td><td>1:1</td></tr><tr><td>其他</td><td>退回</td></tr></table>
+      <h4>三条奖励赔率（只看你的牌，不论输赢）</h4>
+      <table><tr><td>皇家同花顺</td><td>50:1</td></tr><tr><td>同花顺</td><td>40:1</td></tr><tr><td>四条</td><td>30:1</td></tr><tr><td>葫芦</td><td>9:1</td></tr><tr><td>同花</td><td>7:1</td></tr><tr><td>顺子</td><td>4:1</td></tr><tr><td>三条</td><td>3:1</td></tr></table>
+    </div></div>
+  </section>
+
+  <!-- Slot machine -->
+  <section id="v-slots" class="game" hidden>
+    <div class="btable col slot">
+      <div class="slot-top"><b>幸运 7</b><span class="note">3 卷轴 · 5 条线</span></div>
+      <div class="slot-cab">
+        <div class="lmarks" aria-hidden="true"><i data-l="1">2</i><i data-l="3">4</i><i data-l="0">1</i><i data-l="4">5</i><i data-l="2">3</i></div>
+        <div class="reels" id="slReels"></div>
+        <div class="lmarks" aria-hidden="true"><i data-l="1">2</i><i data-l="4">5</i><i data-l="0">1</i><i data-l="3">4</i><i data-l="2">3</i></div>
+      </div>
+      <p class="tmsg" id="slMsg">下每线注，然后旋转</p>
+    </div>
+    <div class="paytable" id="slPay"></div>
+    <div class="pkbets"><button class="spot side sx sl-bet" data-sl="line" type="button"><span class="lab"><b>每线下注</b><small>× 5 条线</small></span><span class="stake"></span></button></div>
+    <div class="acts"><div class="actrow"><button class="btn big" id="slSpin" type="button">旋转</button></div></div>
+    <div class="bctl" data-g="sl"></div>
+    <div class="bfoot">
+      <div>每次旋转 <b id="slBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+      <div class="r"><span>老虎机 · 3 卷轴 5 线</span><span>理论回报约 96%</span></div>
+    </div>
+    <div class="sheet" id="menu-sl" hidden><div class="sheet-in" role="dialog" aria-label="老虎机菜单">
+      <div class="sheet-head"><h3>老虎机</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <div class="menu-grid">
+        <button class="btn ghost" id="slClear" type="button" data-close>清除下注</button>
+        <button class="btn ghost" type="button" data-close data-rules="rules-sl">规则</button>
+      </div>
+    </div></div>
+    <div class="sheet" id="rules-sl" hidden><div class="sheet-in" role="dialog" aria-label="老虎机规则">
+      <div class="sheet-head"><h3>老虎机规则</h3><span class="note">幸运 7 · 3 卷轴 5 线</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <ul>
+        <li>点「每线下注」放筹码，决定每条线的注额；每次旋转花费 每线注 × 5。注额会一直保留，可以连续旋转。</li>
+        <li>5 条线：中间横线、上横线、下横线、两条对角线（两侧的数字标出每条线）。</li>
+        <li>任一条线上三个相同符号即中奖，奖金 = 每线注 × 下表倍数；多条线可同时中奖。</li>
+        <li>每个卷轴有 20 格：7 有 1 格、★ 2 格、BAR 3 格、♦ 4 格、♥ 4 格、♠ 6 格，三个卷轴独立随机停止，理论回报率约 96%。</li>
       </ul>
     </div></div>
   </section>
@@ -889,7 +1036,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   });
   document.addEventListener("click", (e) => { if (!e.target.closest(".chipwrap")) closePops(); });
   // "重复" puts last round's bets back on the table (same as 重复上局下注 in the menu)
-  $$(".bctl[data-g]").forEach((bar) => { const g = bar.dataset.g; $("#" + g + "Repeat").addEventListener("click", () => $("#" + g + "Rebet").click()); });
+  $$(".bctl[data-g]").forEach((bar) => { const g = bar.dataset.g; $("#" + g + "Repeat").addEventListener("click", () => { const rb = $("#" + g + "Rebet"); if (rb) rb.click(); }); });
   syncChips();
 
   /* ---------- Cards, shoe and the deal animation ---------- */
@@ -942,12 +1089,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
 
   /* ---------- Navigation and sheets ---------- */
-  const VIEWS = ["lobby", "baccarat", "blackjack", "roulette", "poker"];
+  const VIEWS = ["lobby", "baccarat", "blackjack", "roulette", "poker", "holdem", "slots"];
   function show(v) {
     if (!VIEWS.includes(v)) v = "lobby";
     S.view = v;
     VIEWS.forEach((x) => { $("#v-" + x).hidden = x !== v; });
     $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === v ? "true" : "false"));
+    const cur = $('.nav button[aria-current="true"]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "nearest" });
     closePops();
     if (v === "roulette") drawWheel();
     if (v === "baccarat") { if (!bac.busy) showLastHand(); renderRoad(); bacRender(); }
@@ -1044,6 +1192,32 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (h.win !== "player") $("#bacBSide").classList.add("won");
     msg($("#bacMsg"), h.msg);
   }
+  // Swipe left / right on the table to move to the next / previous table
+  let swipeAt = 0;
+  function switchBy(d) {
+    if (bac.busy) { toast("开牌中，稍后再换桌"); return; }
+    useTable((tables.indexOf(bac) + d + tables.length) % tables.length);
+    toast("百家乐 " + bac.name + " 桌");
+    if (!reduced) ["#v-baccarat .btable", "#v-baccarat .roads", "#v-baccarat .bstats"].forEach((sel) => {
+      const el = $(sel); if (el.animate) el.animate([{ transform: "translateX(" + d * 60 + "px)", opacity: 0.2 }, { transform: "none", opacity: 1 }], { duration: 260, easing: "ease-out" });
+    });
+  }
+  (function () {
+    const el = $("#v-baccarat");
+    let sx = 0, sy = 0, st = 0, ok = false;
+    el.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      ok = e.touches.length === 1 && !e.target.closest(".road-scroll, .chipwrap, .sheet");
+      sx = t.clientX; sy = t.clientY; st = Date.now();
+    }, { passive: true });
+    el.addEventListener("touchend", (e) => {
+      if (!ok) return;
+      const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - st < 900) { swipeAt = Date.now(); switchBy(dx < 0 ? 1 : -1); }
+    }, { passive: true });
+    // a swipe that starts on a bet spot must not also place a bet
+    el.addEventListener("click", (e) => { if (Date.now() - swipeAt < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
+  })();
   function useTable(i) {
     if (bac.busy || tables[i] === bac) return;
     bac = tables[i]; bacSave();
@@ -1392,7 +1566,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   tables.forEach((tb, i) => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "btile";
-    b.innerHTML = '<span class="bt-head"><b>百家乐 ' + tb.name + '</b><span class="bt-cd" id="lcd' + i + '"></span></span>' +
+    b.innerHTML = '<span class="bt-head"><span class="bt-ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="10" width="20" height="28" rx="3" transform="rotate(-10 16 24)"/><rect x="21" y="9" width="21" height="30" rx="3" fill="currentColor" fill-opacity=".14"/><text x="31.5" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor" stroke="none">'+tb.name+'</text></svg></span><b>百家乐 ' + tb.name + '</b><span class="bt-cd" id="lcd' + i + '"></span></span>' +
       '<span class="road-scroll mini" id="lrs' + i + '"><span class="road" id="lr' + i + '"></span></span>' +
       '<span class="bt-stats" id="lst' + i + '"></span>';
     b.addEventListener("click", () => { if (!bac.busy) { bac = tables[i]; bacSave(); showLastHand(); } go("baccarat"); });
@@ -2014,10 +2188,298 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     pk.phase = "bet"; pk.busy = false; pkRender();
   }
 
+  /* ======================================================
+     ULTIMATE TEXAS HOLD'EM (single deck, shuffled every hand)
+     ====================================================== */
+  const HN = ["高牌", "一对", "两对", "三条", "顺子", "同花", "葫芦", "四条", "同花顺", "皇家同花顺"];
+  const TH_BLIND = { 4: 1, 5: 1.5, 6: 3, 7: 10, 8: 50, 9: 500 };          // Blind pays when you win
+  const TH_TRIPS = { 3: 3, 4: 4, 5: 7, 6: 9, 7: 30, 8: 40, 9: 50 };       // Trips pays on your final hand
+  // 5-card rank: [category, tiebreakers...]
+  function eval5(cs) {
+    const vs = cs.map(RV).sort((a, b) => b - a);
+    const cnt = {}; vs.forEach((v) => { cnt[v] = (cnt[v] || 0) + 1; });
+    const groups = Object.keys(cnt).map((v) => [cnt[v], +v]).sort((a, b) => b[0] - a[0] || b[1] - a[1]);
+    const flush = cs.every((c) => c.s === cs[0].s);
+    let sh = 0;
+    if (groups.length === 5) { if (vs[0] - vs[4] === 4) sh = vs[0]; else if (vs[0] === 14 && vs[1] === 5) sh = 5; } // A-2-3-4-5 is the lowest straight
+    if (sh && flush) return [sh === 14 ? 9 : 8, sh];
+    if (groups[0][0] === 4) return [7, groups[0][1], groups[1][1]];
+    if (groups[0][0] === 3 && groups[1][0] === 2) return [6, groups[0][1], groups[1][1]];
+    if (flush) return [5].concat(vs);
+    if (sh) return [4, sh];
+    if (groups[0][0] === 3) return [3].concat(groups.map((g) => g[1]));
+    if (groups[0][0] === 2 && groups[1][0] === 2) return [2].concat(groups.map((g) => g[1]));
+    if (groups[0][0] === 2) return [1].concat(groups.map((g) => g[1]));
+    return [0].concat(vs);
+  }
+  const cmpRank = (a, b) => { for (let i = 0; i < Math.max(a.length, b.length); i++) { const d = (a[i] || 0) - (b[i] || 0); if (d) return d; } return 0; };
+  // best five-card hand out of 5, 6 or 7 cards
+  function best7(cs) {
+    if (cs.length <= 5) return eval5(cs);
+    let best = null;
+    const pick = [];
+    (function rec(start) {
+      if (pick.length === 5) { const r = eval5(pick.map((i) => cs[i])); if (!best || cmpRank(r, best) > 0) best = r; return; }
+      for (let i = start; i < cs.length; i++) { pick.push(i); rec(i + 1); pick.pop(); }
+    })(0);
+    return best;
+  }
+  const rankName = (r) => (r[0] === 0 ? RN(r[1]) + " 高" : HN[r[0]] + (r[0] === 1 || r[0] === 3 || r[0] === 7 ? " " + RN(r[1]) : ""));
+  const th = { bets: { ante: 0, blind: 0, play: 0, trips: 0 }, hist: [], last: null, phase: "bet", busy: false, P: [], D: [], B: [], deck: null };
+  const thTotal = () => th.bets.ante + th.bets.blind + th.bets.play + th.bets.trips;
+  function thRender() {
+    $$("#v-holdem .spot").forEach((s) => {
+      const k = s.dataset.th;
+      setStake(s.querySelector(".stake"), th.bets[k]);
+      if (k === "ante" || k === "trips") s.disabled = th.phase !== "bet" || th.busy;
+    });
+    const betting = th.phase === "bet";
+    $("#thBetBox").hidden = !betting;
+    $("#thPre").hidden = th.phase !== "pre";
+    $("#thFlop").hidden = th.phase !== "flop";
+    $("#thRiver").hidden = th.phase !== "river";
+    $("#thDeal").disabled = th.busy;
+    const a = th.bets.ante;
+    [["#thR4", 4], ["#thR3", 3], ["#thR2", 2], ["#thR1", 1]].forEach(([id, m]) => { $(id).disabled = th.busy || S.bank < a * m; $(id).textContent = "加注 " + m + "× · " + fmt(a * m); });
+    ["#thC1", "#thC2", "#thFold"].forEach((id) => { $(id).disabled = th.busy; });
+    $("#thUndo").disabled = !betting || th.busy || !th.hist.length;
+    $("#thDouble").disabled = !betting || th.busy || !thTotal();
+    $("#thClear").disabled = !betting || !thTotal();
+    $("#thRebet").disabled = !betting || !th.last;
+    $("#thRepeat").disabled = $("#thRebet").disabled;
+    $("#thBetTotal").textContent = fmt(thTotal());
+  }
+  function thClearWins() {
+    $$("#v-holdem .spot").forEach((x) => x.classList.remove("win"));
+    $("#thPRow").classList.remove("won"); $("#thDRow").classList.remove("won");
+  }
+  // Ante and Blind go down together; Trips is optional
+  function thAdd(k, a) {
+    const need = k === "ante" ? a * 2 : a;
+    if (!take(need)) { msg($("#thMsg"), '<span class="l">筹码不足</span>'); return false; }
+    if (k === "ante") { th.bets.ante += a; th.bets.blind += a; } else th.bets[k] += a;
+    th.hist.push([k, a]); return true;
+  }
+  $$("#v-holdem .spot").forEach((s) => s.addEventListener("click", () => {
+    const k = s.dataset.th;
+    if (th.phase !== "bet" || th.busy || (k !== "ante" && k !== "trips")) return;
+    thClearWins();
+    if (k === "trips" && !th.bets.ante && !th.hist.length) msg($("#thMsg"), "三条奖励需要同时下底注");
+    thAdd(k, S.chip); thRender();
+  }));
+  $("#thUndo").addEventListener("click", () => {
+    if (th.phase !== "bet" || th.busy || !th.hist.length) return;
+    const [k, a] = th.hist.pop();
+    if (k === "ante") { th.bets.ante -= a; th.bets.blind -= a; addBank(a * 2); } else { th.bets[k] -= a; addBank(a); }
+    thRender();
+  });
+  $("#thDouble").addEventListener("click", () => {
+    if (th.phase !== "bet" || th.busy) return;
+    const t = thTotal(); if (!t) return;
+    if (!take(t)) { msg($("#thMsg"), '<span class="l">筹码不足，无法加倍</span>'); return; }
+    const a = th.bets.ante, tr = th.bets.trips;
+    if (a) { th.hist.push(["ante", a]); th.bets.ante += a; th.bets.blind += a; }
+    if (tr) { th.hist.push(["trips", tr]); th.bets.trips += tr; }
+    thRender();
+  });
+  $("#thClear").addEventListener("click", () => { addBank(thTotal()); th.bets = { ante: 0, blind: 0, play: 0, trips: 0 }; th.hist = []; thRender(); });
+  $("#thRebet").addEventListener("click", () => {
+    if (!th.last) return;
+    addBank(thTotal()); th.bets = { ante: 0, blind: 0, play: 0, trips: 0 }; th.hist = [];
+    if (!take(th.last.ante * 2 + th.last.trips)) { msg($("#thMsg"), '<span class="l">筹码不足，无法重复上局下注</span>'); thRender(); return; }
+    th.bets.ante = th.bets.blind = th.last.ante; th.bets.trips = th.last.trips;
+    if (th.last.ante) th.hist.push(["ante", th.last.ante]);
+    if (th.last.trips) th.hist.push(["trips", th.last.trips]);
+    thRender();
+  });
+  async function thBoard(n) {
+    for (let i = 0; i < n; i++) {
+      const c = th.deck.draw(); th.B.push(c);
+      const el = flipCard(c); $("#thB").appendChild(el); dealFromShoe(el, "#thShoeBox", { sound: true });
+      await sleep(DEAL_MS * 0.7);
+    }
+    $("#thPR").textContent = rankName(best7(th.P.concat(th.B)));
+  }
+  $("#thDeal").addEventListener("click", async () => {
+    if (th.busy || th.phase !== "bet") return;
+    if (!th.bets.ante) { msg($("#thMsg"), "请先下底注（盲注会自动跟同额）"); return; }
+    th.busy = true; thClearWins(); thRender();
+    th.deck = new Shoe(1); th.P = []; th.D = []; th.B = [];
+    ["#thP", "#thD", "#thB"].forEach((id) => { $(id).innerHTML = ""; });
+    $("#thPR").textContent = "–"; $("#thDR").textContent = "–";
+    msg($("#thMsg"), "发牌中…");
+    for (let i = 0; i < 2; i++) {
+      const pc = th.deck.draw(); th.P.push(pc);
+      const pel = flipCard(pc); $("#thP").appendChild(pel); dealFromShoe(pel, "#thShoeBox", { sound: true });
+      await sleep(DEAL_MS * 0.8);
+      const dc = th.deck.draw(); th.D.push(dc);
+      const del = flipCard(dc, true); $("#thD").appendChild(del); dealFromShoe(del, "#thShoeBox", { sound: true, faceDown: true });
+      await sleep(DEAL_MS * 0.8);
+    }
+    $("#thPR").textContent = th.P[0].r === th.P[1].r ? "一对 " + th.P[0].r : "高牌";
+    th.phase = "pre"; th.busy = false; thRender();
+    msg($("#thMsg"), "翻牌前：加注 4 倍或 3 倍，或者过牌");
+  });
+  async function thRaise(m) {
+    if (th.busy) return;
+    if (!take(th.bets.ante * m)) { msg($("#thMsg"), '<span class="l">筹码不足，无法加注</span>'); return; }
+    th.bets.play = th.bets.ante * m;
+    th.busy = true; thRender();
+    await thBoard(5 - th.B.length);
+    await thShowdown(false);
+  }
+  $("#thR4").addEventListener("click", () => thRaise(4));
+  $("#thR3").addEventListener("click", () => thRaise(3));
+  $("#thR2").addEventListener("click", () => thRaise(2));
+  $("#thR1").addEventListener("click", () => thRaise(1));
+  $("#thC1").addEventListener("click", async () => {
+    if (th.busy || th.phase !== "pre") return;
+    th.busy = true; thRender(); await thBoard(3);
+    th.phase = "flop"; th.busy = false; thRender();
+    msg($("#thMsg"), "翻牌：加注 2 倍或者过牌");
+  });
+  $("#thC2").addEventListener("click", async () => {
+    if (th.busy || th.phase !== "flop") return;
+    th.busy = true; thRender(); await thBoard(2);
+    th.phase = "river"; th.busy = false; thRender();
+    msg($("#thMsg"), "河牌：加注 1 倍，或者弃牌");
+  });
+  $("#thFold").addEventListener("click", async () => {
+    if (th.busy || th.phase !== "river") return;
+    th.busy = true; thRender();
+    await thShowdown(true);
+  });
+  async function thShowdown(folded) {
+    th.phase = "show"; thRender();
+    for (const el of $$("#thD .card")) { flipOver(el); await sleep(reduced ? 30 : 280); }
+    const p = best7(th.P.concat(th.B)), d = best7(th.D.concat(th.B));
+    const qual = d[0] >= 1;
+    $("#thPR").textContent = rankName(p);
+    $("#thDR").textContent = rankName(d) + (qual ? "" : " · 不合格");
+    const { ante, blind, play, trips } = th.bets;
+    const total = ante + blind + play + trips;
+    let pay = 0, outcome;
+    const win = {};
+    if (folded) outcome = "你弃牌";
+    else {
+      const c = cmpRank(p, d);
+      if (c > 0) {
+        pay += play * 2; win.play = true;
+        if (qual) { pay += ante * 2; win.ante = true; } else pay += ante;
+        const bm = TH_BLIND[p[0]];
+        if (bm) { pay += blind * (1 + bm); win.blind = true; } else pay += blind;
+        outcome = "你赢" + (qual ? "" : "（庄家不合格，底注退回）") + (bm ? " · 盲注 " + (bm === 1.5 ? "3:2" : bm + ":1") : "");
+        $("#thPRow").classList.add("won");
+      } else if (c === 0) { pay += ante + blind + play; outcome = "平局，全部退回"; }
+      else { if (!qual) pay += ante; outcome = "庄家赢" + (qual ? "" : "（庄家不合格，底注退回）"); $("#thDRow").classList.add("won"); }
+    }
+    const tm = TH_TRIPS[p[0]];
+    if (trips && tm) { pay += trips * (1 + tm); win.trips = true; outcome += " · 三条奖励 " + tm + ":1"; }
+    pay = Math.round(pay * 100) / 100;
+    if (pay) addBank(pay);
+    $$("#v-holdem .spot").forEach((s) => { if (win[s.dataset.th]) s.classList.add("win"); });
+    msg($("#thMsg"), "你：<b>" + rankName(p) + "</b> · 庄家：" + rankName(d) + " · " + outcome + " · " + net(pay - total));
+    if (pay > total) SND.win();
+    th.last = { ante, trips };
+    th.bets = { ante: 0, blind: 0, play: 0, trips: 0 }; th.hist = [];
+    th.phase = "bet"; th.busy = false; thRender();
+  }
+
+  /* ======================================================
+     SLOT MACHINE — 3 reels, 5 lines
+     ====================================================== */
+  const SL_SYM = [
+    { html: '<b class="s7">7</b>', pay: 200, n: 1, name: "7" },
+    { html: '<span class="sstar">★</span>', pay: 100, n: 2, name: "★" },
+    { html: '<b class="sbar">BAR</b>', pay: 50, n: 3, name: "BAR" },
+    { html: '<span class="sred">♦</span>', pay: 30, n: 4, name: "♦" },
+    { html: '<span class="sred">♥</span>', pay: 20, n: 4, name: "♥" },
+    { html: "<span>♠</span>", pay: 10, n: 6, name: "♠" },
+  ];
+  const SL_LINES = [[1, 1, 1], [0, 0, 0], [2, 2, 2], [0, 1, 2], [2, 1, 0]]; // row on each reel
+  // three reel strips of 20 stops with the same symbol counts in different orders
+  const SL_STRIPS = [7, 11, 13].map((seed) => {
+    const a = []; SL_SYM.forEach((s, i) => { for (let k = 0; k < s.n; k++) a.push(i); });
+    let x = seed; for (let i = a.length - 1; i > 0; i--) { x = (x * 1103515245 + 12345) % 2147483648; const j = x % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  });
+  const sl = { line: 0, hist: [], stops: [0, 5, 10], spinning: false };
+  $("#slPay").innerHTML = SL_SYM.map((s) => '<span><b class="' + (s.name === "7" ? "s7" : s.name === "★" ? "sstar" : s.name === "BAR" ? "sbar" : s.name === "♠" ? "" : "sred") + '">' + s.name + "</b>×" + s.pay + "</span>").join("");
+  const reelsEl = $("#slReels");
+  for (let r = 0; r < 3; r++) { const d = document.createElement("div"); d.className = "reel"; d.innerHTML = '<div class="col"></div>'; reelsEl.appendChild(d); }
+  const symHTML = (i) => '<div class="sym">' + SL_SYM[i].html + "</div>";
+  const visible = (r, stop) => [0, 1, 2].map((k) => SL_STRIPS[r][(stop + k) % 20]);
+  function slDrawStatic() {
+    $$("#slReels .reel").forEach((reel, r) => {
+      const col = reel.querySelector(".col");
+      if (col.getAnimations) col.getAnimations().forEach((a) => a.cancel());
+      col.style.transform = ""; col.innerHTML = visible(r, sl.stops[r]).map(symHTML).join("");
+    });
+  }
+  function slRender() {
+    setStake($("#v-slots .sl-bet .stake"), sl.line);
+    $("#v-slots .sl-bet").disabled = sl.spinning;
+    $("#slSpin").disabled = sl.spinning || !sl.line;
+    $("#slSpin").textContent = sl.line ? "旋转 · " + fmt(sl.line * 5) : "旋转";
+    $("#slUndo").disabled = sl.spinning || !sl.hist.length;
+    $("#slDouble").disabled = sl.spinning || !sl.line;
+    $("#slClear").disabled = sl.spinning || !sl.line;
+    $("#slRepeat").disabled = true;
+    $("#slBetTotal").textContent = fmt(sl.line * 5);
+  }
+  // the line bet is kept between spins; chips are only taken when you spin
+  $("#v-slots .sl-bet").addEventListener("click", () => { if (sl.spinning) return; sl.line += S.chip; sl.hist.push(S.chip); SND.chip(); slRender(); });
+  $("#slUndo").addEventListener("click", () => { if (sl.spinning || !sl.hist.length) return; sl.line -= sl.hist.pop(); slRender(); });
+  $("#slDouble").addEventListener("click", () => { if (sl.spinning || !sl.line) return; sl.hist.push(sl.line); sl.line *= 2; SND.chip(); slRender(); });
+  $("#slClear").addEventListener("click", () => { sl.line = 0; sl.hist = []; slRender(); });
+  $("#slSpin").addEventListener("click", async () => {
+    if (sl.spinning || !sl.line) return;
+    const cost = sl.line * 5;
+    if (!take(cost)) { msg($("#slMsg"), '<span class="l">余额不足，点右上角 + 加余额</span>'); return; }
+    sl.spinning = true; slRender();
+    $$("#slReels .sym.win").forEach((e) => e.classList.remove("win")); $$(".lmarks i").forEach((e) => e.classList.remove("on"));
+    msg($("#slMsg"), "旋转中…");
+    const stops = [rand(20), rand(20), rand(20)];
+    const cell = $("#slReels .reel").getBoundingClientRect().height / 3;
+    const runs = [];
+    $$("#slReels .reel").forEach((reel, r) => {
+      const col = reel.querySelector(".col");
+      const spins = 18 + r * 7;                               // later reels spin longer
+      const seq = visible(r, sl.stops[r]);
+      for (let k = 0; k < spins; k++) seq.push(rand(SL_SYM.length));
+      seq.push(...visible(r, stops[r]));
+      col.innerHTML = seq.map(symHTML).join("");
+      const dist = (seq.length - 3) * cell, dur = reduced ? 80 : 1100 + r * 450;
+      const a = col.animate ? col.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.15,.6,.25,1)", fill: "forwards" }) : null;
+      runs.push(new Promise((res) => setTimeout(() => { SND.flip(); res(); }, dur)));
+      if (!a) col.style.transform = "translateY(-" + dist + "px)";
+    });
+    // ticking while the reels run
+    const tick = setInterval(() => SND.ball(), 70);
+    await Promise.all(runs); clearInterval(tick);
+    sl.stops = stops; slDrawStatic();
+    let pay = 0; const hits = [];
+    SL_LINES.forEach((rows, li) => {
+      const syms = rows.map((row, r) => SL_STRIPS[r][(stops[r] + row) % 20]);
+      if (syms[0] === syms[1] && syms[1] === syms[2]) {
+        const s = SL_SYM[syms[0]];
+        pay += sl.line * s.pay; hits.push("第 " + (li + 1) + " 线 " + s.name + s.name + s.name);
+        rows.forEach((row, r) => $$("#slReels .reel")[r].querySelectorAll(".sym")[row].classList.add("win"));
+        $$('.lmarks i[data-l="' + li + '"]').forEach((e) => e.classList.add("on"));
+      }
+    });
+    if (pay) { addBank(pay); SND.win(); }
+    msg($("#slMsg"), hits.length ? hits.join(" · ") + " · " + net(pay - cost) : "没有中奖 · " + net(-cost));
+    sl.spinning = false; slRender();
+  });
+  slDrawStatic();
+
   /* ---------- Start ---------- */
   bjRender();
   rouRender();
   pkRender();
+  thRender();
+  slRender();
   show(location.hash.slice(1) || "lobby");
 
   // Home-screen app: offline cache (only where service workers are allowed, e.g. GitHub Pages)
