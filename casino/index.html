@@ -1144,8 +1144,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>243 路：同一种符号从最左边一列开始，连续 3、4、5 列都有出现就中奖，不论在哪一行。奖金 = 赔率 × 下注 × 路数（每列出现的个数相乘）。</li>
         <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-W"/></svg> <b>财</b>（财神元宝）是百搭，只出现在第 2–4 列，可以代替所有普通符号。</li>
         <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-S"/></svg> <b>福</b> 出现 3 / 4 / 5 个（任意位置）触发 8 / 12 / 20 次免费旋转，免费旋转里所有奖金 ×2，可以再次触发。</li>
-        <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-C"/></svg> 金币出现 6 个或以上（任意位置）触发「金币锁定」：金币锁住，其余格子重转 3 次（每次由你点「锁定旋转」；自动旋转时可在「自动」里勾选让它自动转）；每出现新金币，次数重置为 3。结束时拿走所有金币上的奖金；15 格全部填满再加 GRAND 头奖。</li>
-        <li>金币上是 0.3–3 倍下注的奖金，或者 MINI / MINOR / MAJOR 头奖。</li>
+        <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-C"/></svg> 金币出现 6 个或以上（任意位置）触发「金币锁定」：金币锁住，其余格子重转 3 次，每个空格每次约 5% 机会转出新金币（每次由你点「锁定旋转」；自动旋转时可在「自动」里勾选让它自动转）；每出现新金币，次数重置为 3。结束时拿走所有金币上的奖金；15 格全部填满再加 GRAND 头奖。</li>
+        <li>金币上是 0.25–2.5 倍下注的奖金，或者 MINI / MINOR / MAJOR 头奖。</li>
       </ul>
       <h4>四级头奖（按当前下注计算）</h4>
       <ul>
@@ -3081,9 +3081,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     // middle reels carry more 财 wilds (6) so small wins come more often
     COUNTS: [0, 1, 1, 1, 0].map((m) => (m ? { W: 6, D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 2, S: 2, C: 10 } : { D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 6, S: 1, C: 10 })),
     PAY: { D: [0.86, 2.7, 8.7], F: [0.54, 1.73, 5.4], H: [0.42, 1.4, 4.3], L: [0.33, 0.87, 3.45], A: [0.17, 0.42, 1.73], K: [0.17, 0.42, 1.73], Q: [0.085, 0.26, 1.4], J: [0.085, 0.26, 1.4], T: [0.085, 0.26, 1.4] },
-    // more coins on the reels (hold & spin every ~31 spins), each coin worth less (0.3–3× the stake)
-    COIN: [{ x: 0.3, w: 30 }, { x: 0.5, w: 25 }, { x: 1, w: 15 }, { x: 1.5, w: 10 }, { x: 2, w: 6 }, { x: 3, w: 4 }, { jp: "MINI", w: 1.05 }, { jp: "MINOR", w: 0.525 }, { jp: "MAJOR", w: 0.175 }],
-    P_COIN: 0.03, FS: { 3: 8, 4: 12, 5: 20 }, FS_MULT: 2,
+    // hold & spin every ~31 spins; each open cell has a 5% chance per respin to land a coin worth 0.25–2.5× the stake
+    COIN: [{ x: 0.25, w: 30 }, { x: 0.4, w: 25 }, { x: 0.7, w: 15 }, { x: 1.2, w: 10 }, { x: 1.8, w: 6 }, { x: 2.5, w: 4 }, { jp: "MINI", w: 0.7 }, { jp: "MINOR", w: 0.35 }, { jp: "MAJOR", w: 0.12 }],
+    P_COIN: 0.05, FS: { 3: 8, 4: 12, 5: 20 }, FS_MULT: 2,
     JP_BASE: { MINI: 10, MINOR: 25, MAJOR: 150, GRAND: 1000 }, JP_GROW: { MAJOR: 0.01, GRAND: 0.02 },
   };
   const MG_STRIPS = MGC.COUNTS.map((cnt, r) => {
@@ -3230,12 +3230,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     for (let p = 0; p < 15; p++) {
       if (locked.has(p) && !fresh.includes(p)) continue;
       const r = Math.floor(p / 3), i = p % 3, el = cols[r].querySelectorAll(".mc")[i];
-      const n = 7 + r * 2 + i, items = [];
+      const n = 18 + r * 5 + i * 2, items = [];
       for (let k = 0; k < n; k++) items.push(rand(100) < 35 ? coinHTML(mgCoin()) : "");
       items.push(fresh.includes(p) ? coinHTML(locked.get(p)) : "");
       el.classList.add("rolling");
       el.innerHTML = '<div class="cstrip">' + items.map((h) => "<div>" + h + "</div>").join("") + "</div>";
-      const strip = el.firstChild, dist = (items.length - 1) * cellH, dur = mgT(700 + r * 120 + i * 40);
+      const strip = el.firstChild, dist = (items.length - 1) * cellH, dur = mgT(1500 + r * 350 + i * 90);
       if (strip.animate && !reduced) strip.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.2,.6,.3,1)", fill: "forwards" });
       else strip.style.transform = "translateY(-" + dist + "px)";
       runs.push(sleep(dur));
