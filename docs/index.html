@@ -1294,7 +1294,7 @@ const inZone=(x,z,m=0)=>{for(const Z of ZONES)if(x>Z.x0-m&&x<Z.x1+m&&z>Z.z0-m&&z
 {let ch=true;while(ch){ch=false;for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){if(!nodeOK(i,j)||BRW(i,j))continue;const L=DIRS8.filter(([a,b])=>linkOK(i,j,a,b));if(L.length!==1)continue;const[a,b]=L[0];
   if(a&&b)DIAG.delete(Math.min(i,i+a)+','+Math.min(j,j+b));else EDGE_OFF.add(a?ek(Math.min(i,i+a),j,1):ek(i,Math.min(j,j+b),0));ch=true}}}
 // 一块地是否压到了路（弯道会切进街区）：压到就不在这块地上盖楼/盖房
-function lotOnRoad(x,z,w,d){for(let u=-.5;u<=.5;u+=.125)for(let v=-.5;v<=.5;v+=.125){const px=x+u*(w-2),pz=z+v*(d-2);if(onRoad(px,pz,.5))return true}return false}
+function lotOnRoad(x,z,w,d){for(let u=-.5;u<=.5;u+=.125)for(let v=-.5;v<=.5;v+=.125){const px=x+u*(w-2),pz=z+v*(d-2);if(onRoad(px,pz,.5)||inSB(px,pz,1))return true}return false}
 
 // 地面高度（游戏逻辑和画面共用）：路面按两头路口高度线性过渡，街区内部是街区高度，桥面单独算
 const BAND=RD/2+2.5;
@@ -1346,7 +1346,7 @@ CURVE_READY=true;
 
 const _bok=new Map(),_eok=new Map(),_dg=new Map();const bOKc=(i,j)=>{const k=i*100+j;let v=_bok.get(k);if(v===undefined){v=blockOK(i,j);_bok.set(k,v)}return v},eOKc=(i,j,h)=>{const k=(i*100+j)*2+h;let v=_eok.get(k);if(v===undefined){v=edgeOK(i,j,h);_eok.set(k,v)}return v},dgc=(i,j)=>{const k=i*100+j;let v=_dg.get(k);if(v===undefined){v=nodeOK(i,j)&&degAll(i,j)>0;_dg.set(k,v)}return v};
 let _gRoad=0;
-function Gexact(x,z){const i=_ri(x),j=_rj(z);
+function Gexact(x,z){for(const r of SBR)if(x>r.x0&&x<r.x1&&z>r.z0&&z<r.z1){_gRoad=1;return r.h}const i=_ri(x),j=_rj(z);
   const ni=(i<NX&&x-RX[i]>RX[i+1]-x)?i+1:i,nj=(j<NZ&&z-RZ[j]>RZ[j+1]-z)?j+1:j;
   const nearX=Math.abs(x-rx(ni))<=BAND,nearZ=Math.abs(z-rz(nj))<=BAND;
   if(nearX&&nearZ&&dgc(ni,nj)){_gRoad=1;return hN(ni,nj)}
@@ -1355,6 +1355,35 @@ function Gexact(x,z){const i=_ri(x),j=_rj(z);
   if(nearX&&j<NZ&&eOKc(ni,j,0)&&!CURVE.has(ek(ni,j,0))){_gRoad=1;const a=rz(j)+BAND,b=rz(j+1)-BAND,t=clamp((z-a)/(b-a||1),0,1);return hN(ni,j)+(hN(ni,j+1)-hN(ni,j))*t}
   if(i<NX&&j<NZ&&bOKc(i,j)&&x>rx(i)&&z>rz(j))return hB(i,j);
   return sdfAt(x,z)>0?LP(x,z):0}
+function busPre(){const nk=(i,j)=>i+','+j,isl=(i,j)=>{const x=rx(i),z=rz(j);return x<WU(.34)?0:x>WU(.66)?3:z<0?1:2};
+  const cands=[];for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++)for(const h of[0,1]){if(!edgeOK(i,j,h)||CURVE.has(ek(i,j,h)))continue;const i2=h?i+1:i,j2=h?j:j+1;
+    if(!nodeLand(i,j)||!nodeLand(i2,j2)||BRW(i,j)||BRW(i2,j2)||hN(i,j)!==hN(i2,j2)||isl(i,j)!==isl(i2,j2))continue;const x=(rx(i)+rx(i2))/2,z=(rz(j)+rz(j2))/2;if(inZone(x,z,30))continue;
+    cands.push({a:[i,j],b:[i2,j2],x,z,k:isl(i,j)})}
+  const want=[[.17,.2,0,'西岛北'],[.2,.5,0,'西岛中'],[.17,.8,0,'西岛南'],[.5,.74,2,'望海岛'],[.83,.8,3,'东岛南'],[.8,.5,3,'东岛中'],[.83,.2,3,'东岛北'],[.5,.26,1,'崖岛']];
+  let stops=[];for(const[u,v,k,name]of want){let best=null,bd=1e9;for(const c of cands){if(c.k!==k||stops.some(s=>s.c===c||Math.hypot(s.c.x-c.x,s.c.z-c.z)<200))continue;const d=Math.hypot(c.x-WU(u),c.z-WV(v));if(d<bd){bd=d;best=c}}
+    if(best){let nm=name;for(const Z of ZONES)if(Math.hypot((Z.x0+Z.x1)/2-best.x,(Z.z0+Z.z1)/2-best.z)<300)nm=name+'·'+Z.name;stops.push({c:best,a:best.a,b:best.b,x:best.x,z:best.z,name:nm})}}
+  const path=(src,dst,banFirst,ban)=>{const D=new Map(),P=new Map(),Q=[[0,src]];D.set(nk(...src),0);const ks=nk(...src),kd=nk(...dst),kb=nk(...ban),kf=nk(...banFirst);
+    while(Q.length){let bi=0;for(let q=1;q<Q.length;q++)if(Q[q][0]<Q[bi][0])bi=q;const[d,u]=Q.splice(bi,1)[0],ku=nk(...u);if(d>D.get(ku))continue;if(ku===kd)break;
+      for(const[a,b]of DIRS8){if(!linkOK(u[0],u[1],a,b))continue;const v=[u[0]+a,u[1]+b],kv=nk(...v);if(kv===kb&&kv!==kd)continue;if(ku===ks&&kv===kf)continue;
+        const nd=d+Math.hypot(rx(v[0])-rx(u[0]),rz(v[1])-rz(u[1]));if(nd<(D.get(kv)??1e18)){D.set(kv,nd);P.set(kv,u);Q.push([nd,v])}}}
+    if(!D.has(kd))return(kb!=='-9,-9'?path(src,dst,[-9,-9],[-9,-9]):null);const out=[];let c=dst;while(nk(...c)!==ks){out.push(c);c=P.get(nk(...c))}return out.reverse()};
+  BP.dbg={cands:cands.length,stops0:stops.map(s=>s.name)};
+  // 每一站的方向：朝着下一站开
+  for(let pass=0;pass<2;pass++){stops.forEach((s,q)=>{const t=stops[(q+1)%stops.length];if(Math.hypot(rx(s.a[0])-t.x,rz(s.a[1])-t.z)<Math.hypot(rx(s.b[0])-t.x,rz(s.b[1])-t.z)){const z=s.a;s.a=s.b;s.b=z}});
+    const ok=stops.filter((s,q)=>path(s.b,stops[(q+1)%stops.length].a,s.a,stops[(q+1)%stops.length].b));if(ok.length===stops.length)break;stops=ok}
+  BP.dbg.stops1=stops.map(s=>s.name);if(stops.length<3)return;const RT=[stops[0].a];
+  for(let q=0;q<stops.length;q++){const s=stops[q],t=stops[(q+1)%stops.length];RT.push(s.b);s.k=RT.length-1;const p=path(s.b,t.a,s.a,t.b);if(!p){BP.dbg.fail=q;return}RT.push(...p)}
+  RT.pop();BP.RT=RT;BP.stops=stops;busSB()}
+
+// 站前空地：沿路段 ±22 米、从人行道外沿往里 SB_D 米，地面和路面一样高
+function busSB(){for(const s of BP.stops){const ax=rx(s.a[0]),az=rz(s.a[1]),L=Math.hypot(rx(s.b[0])-ax,rz(s.b[1])-az),ln={ux:(rx(s.b[0])-ax)/L,uz:(rz(s.b[1])-az)/L,L},nx=ln.uz,nz=-ln.ux,cx=(ax+rx(s.b[0]))/2,cz=(az+rz(s.b[1]))/2,hl=Math.min(22,ln.L/2-BAND-4);if(hl<8)continue;
+  const P=[];for(const a of[-hl,hl])for(const b of[BAND-.6,BAND+SB_D])P.push([cx+ln.ux*a+nx*b,cz+ln.uz*a+nz*b]);
+  SBR.push({x0:Math.min(...P.map(p=>p[0])),x1:Math.max(...P.map(p=>p[0])),z0:Math.min(...P.map(p=>p[1])),z1:Math.max(...P.map(p=>p[1])),h:hN(s.a[0],s.a[1]),nx,nz})}}
+const inSB=(x,z,m=0)=>{for(const r of SBR)if(x>r.x0-m&&x<r.x1+m&&z>r.z0-m&&z<r.z1+m)return r;return null};
+// 一个矩形减掉若干矩形，剩下的拆成小矩形 [x0,x1,z0,z1]
+function rectMinus(r,holes){let out=[r];for(const h of holes){const nx=[];for(const q of out){const a=Math.max(q[0],h.x0),b=Math.min(q[1],h.x1),c=Math.max(q[2],h.z0),d=Math.min(q[3],h.z1);if(a>=b||c>=d){nx.push(q);continue}
+  if(q[0]<a)nx.push([q[0],a,q[2],q[3]]);if(b<q[1])nx.push([b,q[1],q[2],q[3]]);if(q[2]<c)nx.push([a,b,q[2],c]);if(d<q[3])nx.push([a,b,d,q[3]])}out=nx}return out.filter(q=>q[1]-q[0]>.3&&q[3]-q[2]>.3)}
+var SBR=[];const SB_D=6,BP={};try{busPre()}catch(e){window.__bpErr=String(e)+' '+(e.stack||'').split('\n')[1]}
 const HG=(()=>{const st=2,x0=WU(-.16),z0=WV(-.16),nx=Math.ceil((WU(1.16)-x0)/st)+1,nz=Math.ceil((WV(1.16)-z0)/st)+1,a=new Float32Array(nx*nz);
   const rm=new Uint8Array(nx*nz);for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){_gRoad=0;a[j*nx+i]=Gexact(x0+i*st,z0+j*st);rm[j*nx+i]=_gRoad}return{st,x0,z0,nx,nz,a,rm}})();
 function roadMask(x,z){const S=HG,i=Math.round((x-S.x0)/S.st),j=Math.round((z-S.z0)/S.st);return i>=0&&j>=0&&i<S.nx&&j<S.nz&&S.rm[j*S.nx+i]===1}
@@ -1532,7 +1561,7 @@ function onRoad(x,z,m=0){const h=RD/2+m,[ci,cj]=cellOf(x,z);
     if(edgeOK(i,j,0)&&!CURVE.has(ek(i,j,0))&&Math.abs(x-rx(i))<h&&z>rz(j)-h&&z<rz(j+1)+h)return true}
   for(const e of curvesAt(x,z))if(x>e.bb[0]&&x<e.bb[1]&&z>e.bb[2]&&z<e.bb[3]&&curveNear(e,x,z).d<h)return true;
   for(const[k,t]of DIAG){if(CURVE.has('D'+k))continue;const[x0,z0,x1,z1]=diagSeg(k,t);if(segDist(x,z,x0,z0,x1,z1)<h)return true}return false}
-const guard=(name,x,z,m)=>{if(onRoad(x,z,m)||inZone(x,z,3)){SKIP[name]=(SKIP[name]||0)+1;return true}return false};
+const guard=(name,x,z,m)=>{if(name!=='bus'&&inSB(x,z,.5)||onRoad(x,z,m)||inZone(x,z,3)){SKIP[name]=(SKIP[name]||0)+1;return true}return false};
 // 断开的路段变成草地带，种几棵椰子树
 const brokenStrips=[];
 for(let i=0;i<NX;i++)for(let j=0;j<=NZ;j++)if(nodeOK(i,j)&&nodeOK(i+1,j)&&EDGE_OFF.has(ek(i,j,1)))brokenStrips.push([(rx(i)+rx(i+1))/2,rz(j),rx(i+1)-rx(i)-RD,RD]);
@@ -1578,9 +1607,10 @@ const wallMat=new THREE.MeshToonMaterial({color:REAL?0xe0d6c6:0x9a9086,map:REAL?
 for(const[i,j]of VALID){const h=hB(i,j),x0=rx(i)+BAND,x1=rx(i+1)-BAND,z0=rz(j)+BAND,z1=rz(j+1)-BAND;
   const sides=[[x0,z0,x1,z0],[x1,z0,x1,z1],[x1,z1,x0,z1],[x0,z1,x0,z0]];const pos=[];
   for(const[ax,az,bx,bz]of sides){const L=Math.hypot(bx-ax,bz-az),n=Math.max(1,Math.ceil(L/4));
-    for(let k=0;k<n;k++){const t0=k/n,t1=(k+1)/n,pa=[ax+(bx-ax)*t0,az+(bz-az)*t0],pb=[ax+(bx-ax)*t1,az+(bz-az)*t1];
+    const TT=[];for(let k=0;k<n;k++){const a0=k/n,a1=(k+1)/n,ma=[ax+(bx-ax)*a0,az+(bz-az)*a0],mb=[ax+(bx-ax)*a1,az+(bz-az)*a1];if(SBR.length&&(inSB(ma[0],ma[1],1)||inSB(mb[0],mb[1],1)||inSB((ma[0]+mb[0])/2,(ma[1]+mb[1])/2,1))){for(let q=0;q<16;q++)TT.push([a0+(a1-a0)*q/16,a0+(a1-a0)*(q+1)/16])}else TT.push([a0,a1])}
+    for(const[t0,t1]of TT){const pa=[ax+(bx-ax)*t0,az+(bz-az)*t0],pb=[ax+(bx-ax)*t1,az+(bz-az)*t1];
       const ga=Gexact(pa[0]+(pa[0]===x0?-1.2:pa[0]===x1?1.2:0),pa[1]+(pa[1]===z0?-1.2:pa[1]===z1?1.2:0)),gb=Gexact(pb[0]+(pb[0]===x0?-1.2:pb[0]===x1?1.2:0),pb[1]+(pb[1]===z0?-1.2:pb[1]===z1?1.2:0));
-      if(Math.abs(ga-h)<.3&&Math.abs(gb-h)<.3)continue;const lo0=Math.min(ga,h)-.4,hi0=Math.max(ga,h)+.25,lo1=Math.min(gb,h)-.4,hi1=Math.max(gb,h)+.25;
+      if(inSB((pa[0]+pb[0])/2,(pa[1]+pb[1])/2,-.3))continue;if(Math.abs(ga-h)<.3&&Math.abs(gb-h)<.3)continue;const lo0=Math.min(ga,h)-.4,hi0=Math.max(ga,h)+.25,lo1=Math.min(gb,h)-.4,hi1=Math.max(gb,h)+.25;
       pos.push(pa[0],lo0,pa[1],pb[0],lo1,pb[1],pb[0],hi1,pb[1],pa[0],lo0,pa[1],pb[0],hi1,pb[1],pa[0],hi0,pa[1])}}
   if(pos.length){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
     if(REAL){
@@ -1588,6 +1618,17 @@ for(const[i,j]of VALID){const h=hB(i,j),x0=rx(i)+BAND,x1=rx(i+1)-BAND,z0=rz(j)+B
       g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
     }
     g.computeVertexNormals();const m=new THREE.Mesh(g,wallMat);m.castShadow=m.receiveShadow=true;m.userData.noLift=1;scene.add(m)}}
+// —— 站前空地的三面挡土墙
+{const pos=[];const seg=(ax,az,bx,bz,ox,oz,rh)=>{const L=Math.hypot(bx-ax,bz-az),n=Math.max(1,Math.ceil(L/2));for(let k=0;k<n;k++){const pa=[ax+(bx-ax)*k/n,az+(bz-az)*k/n],pb=[ax+(bx-ax)*(k+1)/n,az+(bz-az)*(k+1)/n];
+    const la=Gexact(pa[0]+ox,pa[1]+oz),lb=Gexact(pb[0]+ox,pb[1]+oz);if(la<rh+1&&lb<rh+1)continue;const lo=rh-.4;pos.push(pa[0],lo,pa[1],pb[0],lo,pb[1],pb[0],lb+.25,pb[1],pa[0],lo,pa[1],pb[0],lb+.25,pb[1],pa[0],la+.25,pa[1])}};
+  for(const r of SBR){const e=1.2;if(r.nx){const bx=r.nx>0?r.x1:r.x0,xa=r.nx>0?r.x0+.6:r.x0,xb=r.nx>0?r.x1:r.x1-.6;seg(bx,r.z0,bx,r.z1,r.nx*e,0,r.h);seg(xa,r.z0,xb,r.z0,0,-e,r.h);seg(xa,r.z1,xb,r.z1,0,e,r.h)}
+    else{const bz=r.nz>0?r.z1:r.z0,za=r.nz>0?r.z0+.6:r.z0,zb=r.nz>0?r.z1:r.z1-.6;seg(r.x0,bz,r.x1,bz,0,r.nz*e,r.h);seg(r.x0,za,r.x0,zb,-e,0,r.h);seg(r.x1,za,r.x1,zb,e,0,r.h)}}
+  // 转角立一根方柱，盖住墙和墙之间的接缝
+  for(const r of SBR){const C=r.nx?[[r.nx>0?r.x0+.6:r.x1-.6,r.z0],[r.nx>0?r.x0+.6:r.x1-.6,r.z1],[r.nx>0?r.x1:r.x0,r.z0],[r.nx>0?r.x1:r.x0,r.z1]]:[[r.x0,r.nz>0?r.z0+.6:r.z1-.6],[r.x1,r.nz>0?r.z0+.6:r.z1-.6],[r.x0,r.nz>0?r.z1:r.z0],[r.x1,r.nz>0?r.z1:r.z0]];
+    for(const[x,z]of C){let top=-1e9;for(const[dx,dz]of[[1.3,1.3],[1.3,-1.3],[-1.3,1.3],[-1.3,-1.3]])top=Math.max(top,Gexact(x+dx,z+dz));if(top<r.h+1)continue;const H=top+.55-(r.h-.4);
+      const p=new THREE.Mesh(new THREE.BoxGeometry(1.6,H,1.6),wallMat);p.position.set(x,r.h-.4+H/2,z);p.castShadow=p.receiveShadow=true;p.userData.noLift=1;scene.add(p)}}
+  if(pos.length){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));const uv=[];for(let i=0;i<pos.length;i+=3)uv.push((pos[i]+pos[i+2])/8,pos[i+1]/5);
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.computeVertexNormals();const m=new THREE.Mesh(g,wallMat);m.castShadow=m.receiveShadow=true;m.userData.noLift=1;scene.add(m)}}
 // —— 路边挡土墙（不限街区）：沿路面外沿（人行道外边）找路和地高差超过 1 米的地方，砌竖直石墙
 {const S=HG,pos=[],isR=(x,z)=>{_gRoad=0;Gexact(x,z);return _gRoad===1};
   const cross=(ax,az,bx,bz)=>{let ra=isR(ax,az);for(let k=0;k<10;k++){const mx=(ax+bx)/2,mz=(az+bz)/2;if(isR(mx,mz)===ra){ax=mx;az=mz}else{bx=mx;bz=mz}}return[(ax+bx)/2,(az+bz)/2]};
@@ -1669,12 +1710,12 @@ function curveDeco(e){const P=e.pts,L=plen(P);if(REAL)streetKerbs(P,RD/2,BAND+2,
   for(let t=BAND+20;t<L-BAND;t+=46){const q=ptAt(P,t),x=q.x+q.nx*(RD/2+2.2),z=q.z+q.nz*(RD/2+2.2);if(sdfAt(x,z)<3||onRoad(x,z,.4))continue;const lp=box(.3,7,.3,0x3a3448);lp.position.set(x,3.5,z);scene.add(lp);const l=new THREE.Mesh(new THREE.BoxGeometry(.9,.3,.9),lampMat);l.position.set(x-q.nx*.9,6.9,z-q.nz*.9);scene.add(l)}}
 // —— 商铺街：临街一排小店（一楼橱窗、楼上住家、遮阳棚、招牌）
 function shopRow(i,j,side){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),s=side==='W'?-1:1,fx=cx+s*(W/2-2.8);let z=cz-D/2+3;const zEnd=cz+D/2-3;
-  while(z<zEnd-6){const w=Math.min(rr(9,13),zEnd-z),dd=rr(13,17),h=Math.round(rr(8,13)/2)*2,bx=fx-s*dd/2,bz=z+w/2;
+  while(z<zEnd-6){const w=Math.min(rr(9,13),zEnd-z),dd=rr(13,17),h=Math.round(rr(8,13)/2)*2,bz=z+w/2,FX=fx-s*(SBR.some(r=>fx>r.x0-3&&fx<r.x1+3&&z+w>r.z0&&z<r.z1)?SB_D:0),bx=FX-s*dd/2;
     if(REAL){
       const model=buildingArt.dimensions('shop',w-.3,dd);
-      const rot=s*Math.PI/2, x=fx-s*model.d/2;
+      const rot=s*Math.PI/2, x=FX-s*model.d/2;
       buildingArt.draw(model,x,bz,rot);
-      addSign(fx+s*.32,(model.ground-.78)*model.scale,bz,rot,Math.min(model.w*.56,6.5));
+      addSign(FX+s*.32,(model.ground-.78)*model.scale,bz,rot,Math.min(model.w*.56,6.5));
       solids.push(buildingArt.footprint(model,x,bz,rot));
       z+=w;
       continue;
@@ -1683,9 +1724,9 @@ function shopRow(i,j,side){const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j),s=side==='
     const gf=tiledBox(dd,4.4,w-.3,shopMat((R()*4)|0),16,4.4);gf.position.set(bx,2.2,bz);scene.add(gf);
     const up=facadeBox(dd,h-4.4,w-.3,fst,fcol);up.position.set(bx,4.4+(h-4.4)/2,bz);scene.add(up);
     const belt=box(dd+.4,.35,w-.1,trim);belt.position.set(bx,4.55,bz);scene.add(belt);const cor=box(dd+.8,.6,w+.1,trim);cor.position.set(bx,h+.3,bz);scene.add(cor);
-    const ac=[0xff6f91,0x22d3ee,0xffd166,0xf4f4f4,0x8a5cff,0x5cff7a][(R()*6)|0],aw=box(2.4,.22,w-1.2,ac);aw.position.set(fx+s*1.1,4.05,bz);aw.rotation.z=s*.26;scene.add(aw);
-    addSign(fx+s*.32,5.6,bz,s>0?Math.PI/2:-Math.PI/2,Math.min(w*.72,7.5));
-    solids.push({x0:Math.min(fx,fx-s*dd),x1:Math.max(fx,fx-s*dd),z0:z+.15,z1:z+w-.15});z+=w}}
+    const ac=[0xff6f91,0x22d3ee,0xffd166,0xf4f4f4,0x8a5cff,0x5cff7a][(R()*6)|0],aw=box(2.4,.22,w-1.2,ac);aw.position.set(FX+s*1.1,4.05,bz);aw.rotation.z=s*.26;scene.add(aw);
+    addSign(FX+s*.32,5.6,bz,s>0?Math.PI/2:-Math.PI/2,Math.min(w*.72,7.5));
+    solids.push({x0:Math.min(FX,FX-s*dd),x1:Math.max(FX,FX-s*dd),z0:z+.15,z1:z+w-.15});z+=w}}
 // —— 商铺街的街景：两排挂满彩灯的灯柱、花箱，北头一座牌坊
 function festoon(i,j){const x=rx(i),za=rz(j)+BAND,zb=rz(j+1)-BAND,L=zb-za,n=Math.max(2,Math.round(L/16));const cols=[0xffe08a,0xff8ab0,0x8ae0ff,0xb8ff8a];
   for(let k=0;k<=n;k++){const z=za+L*k/n;for(const s of[-1,1]){const p=box(.26,6.8,.26,0x2a2a32);p.position.set(x+s*(RD/2+1.7),3.4,z);scene.add(p)}
@@ -1992,7 +2033,7 @@ const seedR=(...k)=>{let h=2166136261;for(const v of k){h=Math.imul(h^((v*265443
 for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){
   if(!blockOK(i,j))continue;
   const{x:cx,z:cz}=bcen(i,j),W=bW(i),D=bD(j);
-  if([hN(i,j),hN(i+1,j),hN(i,j+1),hN(i+1,j+1)].some(h=>Math.abs(h-hB(i,j))>1)){const sm=groundMat('sidewalk',0xf0d8e4),pl=(w,d,x,z,y)=>{const p=tPlane(w,d,sm,Math.ceil(w/4),Math.ceil(d/4));p.rotation.x=-Math.PI/2;p.position.set(x,y,z);p.receiveShadow=true;scene.add(p)};pl(W-5,D-5,cx,cz,.052);for(const s of[-1,1]){pl(W+4,4.5,cx,cz+s*(D/2-.25),.048);pl(4.5,D-5,cx+s*(W/2-.25),cz,.048)}}else{  const side=tPlane(W+4,D+4,groundMat('sidewalk',0xf0d8e4),Math.ceil((W+4)/4),Math.ceil((D+4)/4));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);}
+  if([hN(i,j),hN(i+1,j),hN(i,j+1),hN(i+1,j+1)].some(h=>Math.abs(h-hB(i,j))>1)){const sm=groundMat('sidewalk',0xf0d8e4),pl=(w,d,x,z,y)=>{const p=tPlane(w,d,sm,Math.ceil(w/4),Math.ceil(d/4));p.rotation.x=-Math.PI/2;p.position.set(x,y,z);p.receiveShadow=true;scene.add(p)};for(const q of rectMinus([cx-(W-5)/2,cx+(W-5)/2,cz-(D-5)/2,cz+(D-5)/2],SBR))pl(q[1]-q[0],q[3]-q[2],(q[0]+q[1])/2,(q[2]+q[3])/2,.052);for(const r of SBR){const a=Math.max(r.x0,cx-W/2-2),b=Math.min(r.x1,cx+W/2+2),c=Math.max(r.z0,cz-D/2-2),d=Math.min(r.z1,cz+D/2+2);if(b>a+.3&&d>c+.3)pl(b-a,d-c,(a+b)/2,(c+d)/2,.048)}for(const s of[-1,1]){pl(W+4,4.5,cx,cz+s*(D/2-.25),.048);pl(4.5,D-5,cx+s*(W/2-.25),cz,.048)}}else{  const side=tPlane(W+4,D+4,groundMat('sidewalk',0xf0d8e4),Math.ceil((W+4)/4),Math.ceil((D+4)/4));side.rotation.x=-Math.PI/2;side.position.set(cx,.05,cz);side.receiveShadow=true;scene.add(side);}
   if(ZONEB.has(i+','+j)){BTYPE[i+','+j]='zone';continue}
   if(i===VB[0]&&j===VB[1]){villa={x:cx,z:cz};continue}
   if(i===SB[0]&&j===SB[1]){station={x:cx,z:cz,w:W,d:D};continue}
@@ -2156,7 +2197,7 @@ const props0={
 };
 const props={};for(const k in props0)props[k]=(x,z,ry)=>{if(!guard(k,x,z,.4))props0[k](x,z,ry)};
 // 公交站：顶棚 + 透明后墙 + 长椅 + 站牌
-function busStop(x,z,ry){if(guard('bus',x,z,1.5))return;const ax=Math.sin(ry),az=Math.cos(ry),px=Math.cos(ry),pz=-Math.sin(ry);
+function busStop(x,z,ry,gm=1.5){if(guard('bus',x,z,gm))return;const ax=Math.sin(ry),az=Math.cos(ry),px=Math.cos(ry),pz=-Math.sin(ry);
   put(REAL?rgeo(6.15,.29,2.53,.24):new THREE.BoxGeometry(6,.2,2.4),REAL?pixelSurface('iron',0x9cb7b7):0x22d3ee,x,3.2,z,ry);
   for(const sd of[-1,1]){
     put(REAL?rgeo(.14,3.15,.17,.25):cylG(.1,.1,3.2),REAL?pixelSurface('iron'):0xdde2ea,x+px*sd*2.8-ax*.9,1.6,z+pz*sd*2.8-az*.9,ry);
@@ -3637,6 +3678,7 @@ function updPed(p,dt){if(p.dead){p.dead+=dt;if(p.dead>8)dropPed(p);return}
     if(p.knock<=0){p.mesh.rotation.x=0;p.flee=p.pers==='timid'?14:6;p.thug=0;if(p.pers==='tough'&&!p.cop&&!p.robber){p.thug=1;p.thugT=10;p.flee=0;say(p,'thug','你找死！')}else if(p.pers==='grumpy')say(p,'hurt','你等着！');if(p.bench){p.bench.used=null;p.bench=null}p.act='walk'}return}
   const pd=Math.hypot(player.x-p.x,player.z-p.z);
   for(const c of cars)if(!c.dead&&Math.abs(c.speed)>8&&Math.abs(c.x-p.x)<14&&Math.abs(c.z-p.z)<14&&carDist(c,p.x,p.z)<.45){killPed(p,c===player.car);return}
+  if(p.busq&&busPedTick(p,dt))return;
   if(p.gang&&gangPed(p,dt,pd))return;
   // 主线里的混混：靠近就冲上来打你
   if(p.thug&&p.thugT!==undefined&&(p.thugT-=dt)<=0){p.thug=0;p.thugT=undefined;p.act='walk';p.flee=4}
@@ -3691,7 +3733,7 @@ function updParking(dt){if((parkT-=dt)>0)return;parkT=.5;const px=player.x,pz=pl
   for(const sp of PARK){if(sp.used&&(sp.used.dead||!cars.includes(sp.used)||sp.used.driver)){sp.used=null}
     if(sp.used){const d=Math.hypot(sp.x-px,sp.z-pz);if(d>230&&sp.used!==player.car&&!sp.used.hold){removeCar(sp.used);sp.used=null}else near++}}
   for(let k=0;k<12&&near<20;k++){const sp=PARK[(Math.random()*PARK.length)|0];if(sp.used)continue;const d=Math.hypot(sp.x-px,sp.z-pz);if(d<60||d>170)continue;
-    if(cars.some(c=>!c.dead&&Math.hypot(c.x-sp.x,c.z-sp.z)<7))continue;if(Math.random()<.35)continue;
+    if(cars.some(c=>!c.dead&&Math.hypot(c.x-sp.x,c.z-sp.z)<7))continue;if(Math.random()<.35)continue;if(BUS.stops&&BUS.stops.some(s=>Math.hypot(s.bx-sp.x,s.bz-sp.z)<20))continue;
     const c=makeCar(sp.x,sp.z,sp.h);c.driver=null;c.street=1;sp.used=c;near++}}
 // 红绿灯：两组交替，绿 5 秒 → 黄 1 秒 → 红
 const LSTATE={a:'g',b:'r'};
@@ -4458,7 +4500,7 @@ let EVT=null,evtT=30;
 const eBeam=new THREE.Mesh(new THREE.CylinderGeometry(2,2,60,14,1,true),new THREE.MeshBasicMaterial({color:0xff9a3d,transparent:true,opacity:.45,depthWrite:false,side:THREE.DoubleSide}));eBeam.visible=false;scene.add(eBeam);
 function walkSpot(minD,maxD){for(let k=0;k<80;k++){const[i,j]=VALID[(R()*VALID.length)|0];if(!blockOK(i,j))continue;const c=bcen(i,j);if(Math.abs(Math.hypot(c.x-player.x,c.z-player.z)-(minD+maxD)/2)>(maxD-minD)/2+80)continue;
   const p=sidePt(i,j,R()*perim(bdim(i,j))),pd=Math.hypot(p.x-player.x,p.z-player.z);if(pd>minD&&pd<maxD&&!hit(p.x,p.z,1.2))return p}return null}
-function parkSpot(minD,maxD){const c=PARK.filter(sp=>{if(sp.used)return false;const d=Math.hypot(sp.x-player.x,sp.z-player.z);return d>minD&&d<maxD&&!cars.some(o=>!o.dead&&Math.hypot(o.x-sp.x,o.z-sp.z)<9)});return c.length?c[(R()*c.length)|0]:null}
+function parkSpot(minD,maxD){const c=PARK.filter(sp=>{if(sp.used)return false;if(BUS.stops&&BUS.stops.some(s=>Math.hypot(s.bx-sp.x,s.bz-sp.z)<20))return false;const d=Math.hypot(sp.x-player.x,sp.z-player.z);return d>minD&&d<maxD&&!cars.some(o=>!o.dead&&Math.hypot(o.x-sp.x,o.z-sp.z)<9)});return c.length?c[(R()*c.length)|0]:null}
 const EVENTS={
  rob(){const p=walkSpot(45,110);if(!p)return null;const v=spawnPed(p.x,p.z),r=spawnPed(p.x+1.2,p.z+.6,'biker');if(!v||!r){if(v)dropPed(v);if(r)dropPed(r);return null}
    v.keep=r.keep=1;v.act='idle';v.partner=r.partner=null;r.robber=1;r.screamed=1;r.act='idle';r.rot=Math.atan2(v.x-r.x,v.z-r.z);
@@ -4767,7 +4809,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.27.0';
+const VERSION='v0.27.1';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -4937,7 +4979,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.27','像素材质',[['0.27.0','写实像素融合版：全城换成像素风材质——柏油路、路面标线、排水口、人行道、石砖、草地、沙滩、水面和岩壁；建筑四面、屋顶和夜间窗光；水泥墙、铁艺栏杆和石基围栏；车漆、车辆标识和出租车顶灯；人物衣料和脸部；医院、警察局门牌，商店和路牌招牌']]],
+ ['v0.27','像素材质',[[['0.27.1','巴士：进站时平滑靠到路边停车道停靠，不再挡住车道，停完再并回车道；站前路面画了黄框 BUS 专用区，不再刷路边停车；NPC 会在站台等车、上车，车上乘客到站下车后变成路人走开；站台挪到人行道上，不再被挡土墙、院子或楼挡住；站台后面的街区往后退出一块站前空地，高台上沿空地砌挡土墙，商业街店铺往后挪'],'0.27.0','写实像素融合版：全城换成像素风材质——柏油路、路面标线、排水口、人行道、石砖、草地、沙滩、水面和岩壁；建筑四面、屋顶和夜间窗光；水泥墙、铁艺栏杆和石基围栏；车漆、车辆标识和出租车顶灯；人物衣料和脸部；医院、警察局门牌，商店和路牌招牌']]],
  ['v0.26','新地图',[['0.26.2','道路和地形修复（用全路网试驾录像逐段检查）：环岛弯道不再切进街区、人行道不再盖住弯道；墙、长物体切成短段，不再和弯曲的道路错位（机场围墙不再压到路上）；斜路抬高并裁在自己街区内；路段和路口路面不再重叠闪烁；分岔口的标线不再横穿另一条路；弯道反光桩和路灯不放在别的路上；高台路边改成竖直挡土墙，不再有绿色斜坡盖到人行道，高台街区的院子和人行道不再被拉斜'],['0.26.1','NPC 车辆驾驶优化（用自动试驾程序把全部道路双向各跑一遍找出的问题）：弯道上不再原地打转（按弧线算行驶进度）；急转弯开过头会走大弧线回到车道，不再瞬移；不走调头式急弯；前面有慢车或停着的车会按车速提前刹车，不再追尾；被站在路上的行人挡住会按喇叭，行人让开；弯道切进街区的地方不再盖楼，车不会撞上路中间的楼'],['0.26.0','全新地图：西岛、东岛两座南北拉长的椭圆大岛，海峡里加了崖岛、望海岛两座悬崖小岛，三座跨海大桥相连；有高低差、台地和悬崖，环岛路沿着海岸弯曲，市区道路不再是方格；东岛有商业街。东岛南部新增机场（跑道、航站楼、塔台、机库、飞机），西岛南部新增监狱（高墙、岗楼、牢房楼），被抓后从监狱门口出来。两座小岛沿悬崖边是一排带泳池的高级别墅，围墙一间连一间。新增巴士环线：8 个站贯穿四座岛，每站停一会儿，在站台走到巴士旁按 E 上车（$5），到站按 E 下车，大地图上有线路和站点']]],
  ['v0.25','推门进店',[['0.25.1','泛光减弱一半多（晚上不再糊成一片）；招牌字改成高清、带细描边，远近都看得清'],['0.25.0','不用再按 E 进门：走到门前门会被推开，走进门洞就进去，出门也是走过去推门；枪店、便利店、酒吧、夜店、服装店、理发店、银行的店里面直接建在楼里，推开门就能看到店内，走进去不切画面，在店里外面的车和行人照常动；店门两边有小窗，里外都能看见，从街上看店里像开着灯，晚上尤其明显；进出门时色调随走进的深度平滑过渡；室内墙面和天花板换成写实贴图；家、别墅、阿杰车库小门也改成推门进入（推开后淡入切到室内）；卷帘门车或人靠近会自动升起；别墅没买时、被通缉时门是锁着的']]],
  ['v0.24','帮派',[['0.24.2','写实画风的人物也用卡通画风的脸：圆一点的头型、大眼睛，去掉了单独凸出来的鼻子和下巴；身体、衣服和光影不变'],['0.24.1','所有能进的地方都有了自己的楼：枪店、喷漆店、便利店、阿杰车库、酒吧、夜店、服装店、理发店、银行，门口有发光脚垫，走到门口按 E 进去；枪店现在是能走进去的店，在柜台买东西；喷漆店和阿杰车库是车间，开着车从卷帘门开进去才弹出菜单，关掉菜单车就自己开出门外；原来门口的立杆招牌改成挂在门头上'],['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
@@ -5489,37 +5531,66 @@ function liftDyn(on){if(on){_lift.length=0;
 
 // ===== 巴士：一条环线贯穿四座岛，每站停一会儿，可以上车坐到下一站 =====
 var BUS={route:null,stops:[],stopAt:new Map(),buses:[],ready:false,WAIT:9,FARE:5};
-function busBuild(){const nk=(i,j)=>i+','+j,isl=(i,j)=>{const x=rx(i),z=rz(j);return x<WU(.34)?0:x>WU(.66)?3:z<0?1:2};
-  const cands=[];for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++)for(const h of[0,1]){if(!edgeOK(i,j,h)||CURVE.has(ek(i,j,h)))continue;const i2=h?i+1:i,j2=h?j:j+1;
-    if(!nodeLand(i,j)||!nodeLand(i2,j2)||BRW(i,j)||BRW(i2,j2)||hN(i,j)!==hN(i2,j2)||isl(i,j)!==isl(i2,j2))continue;const x=(rx(i)+rx(i2))/2,z=(rz(j)+rz(j2))/2;if(inZone(x,z,30))continue;
-    cands.push({a:[i,j],b:[i2,j2],x,z,k:isl(i,j)})}
-  const want=[[.17,.2,0,'西岛北'],[.2,.5,0,'西岛中'],[.17,.8,0,'西岛南'],[.5,.74,2,'望海岛'],[.83,.8,3,'东岛南'],[.8,.5,3,'东岛中'],[.83,.2,3,'东岛北'],[.5,.26,1,'崖岛']];
-  let stops=[];for(const[u,v,k,name]of want){let best=null,bd=1e9;for(const c of cands){if(c.k!==k||stops.some(s=>s.c===c||Math.hypot(s.c.x-c.x,s.c.z-c.z)<200))continue;const d=Math.hypot(c.x-WU(u),c.z-WV(v));if(d<bd){bd=d;best=c}}
-    if(best){let nm=name;for(const Z of ZONES)if(Math.hypot((Z.x0+Z.x1)/2-best.x,(Z.z0+Z.z1)/2-best.z)<300)nm=name+'·'+Z.name;stops.push({c:best,a:best.a,b:best.b,x:best.x,z:best.z,name:nm})}}
-  const path=(src,dst,banFirst,ban)=>{const D=new Map(),P=new Map(),Q=[[0,src]];D.set(nk(...src),0);const ks=nk(...src),kd=nk(...dst),kb=nk(...ban),kf=nk(...banFirst);
-    while(Q.length){let bi=0;for(let q=1;q<Q.length;q++)if(Q[q][0]<Q[bi][0])bi=q;const[d,u]=Q.splice(bi,1)[0],ku=nk(...u);if(d>D.get(ku))continue;if(ku===kd)break;
-      for(const[a,b]of DIRS8){if(!linkOK(u[0],u[1],a,b))continue;const v=[u[0]+a,u[1]+b],kv=nk(...v);if(kv===kb&&kv!==kd)continue;if(ku===ks&&kv===kf)continue;
-        const nd=d+Math.hypot(rx(v[0])-rx(u[0]),rz(v[1])-rz(u[1]));if(nd<(D.get(kv)??1e18)){D.set(kv,nd);P.set(kv,u);Q.push([nd,v])}}}
-    if(!D.has(kd))return(kb!=='-9,-9'?path(src,dst,[-9,-9],[-9,-9]):null);const out=[];let c=dst;while(nk(...c)!==ks){out.push(c);c=P.get(nk(...c))}return out.reverse()};
-  BUS.dbg={cands:cands.length,stops0:stops.map(s=>s.name)};
-  // 每一站的方向：朝着下一站开
-  for(let pass=0;pass<2;pass++){stops.forEach((s,q)=>{const t=stops[(q+1)%stops.length];if(Math.hypot(rx(s.a[0])-t.x,rz(s.a[1])-t.z)<Math.hypot(rx(s.b[0])-t.x,rz(s.b[1])-t.z)){const z=s.a;s.a=s.b;s.b=z}});
-    const ok=stops.filter((s,q)=>path(s.b,stops[(q+1)%stops.length].a,s.a,stops[(q+1)%stops.length].b));if(ok.length===stops.length)break;stops=ok}
-  BUS.dbg.stops1=stops.map(s=>s.name);if(stops.length<3)return;const RT=[stops[0].a];
-  for(let q=0;q<stops.length;q++){const s=stops[q],t=stops[(q+1)%stops.length];RT.push(s.b);s.k=RT.length-1;const p=path(s.b,t.a,s.a,t.b);if(!p){BUS.dbg.fail=q;return}RT.push(...p)}
-  RT.pop();BUS.route=RT;BUS.stops=stops;stops.forEach((s,q)=>BUS.stopAt.set(s.k,q));
+function busBuild(){const RT=BP.RT,stops=BP.stops;BUS.dbg=BP.dbg;if(!RT)return;BUS.peds=[];BUS.route=RT;BUS.stops=stops;stops.forEach((s,q)=>BUS.stopAt.set(s.k,q));
   // 站台：放在车道这一侧的人行道上，面朝马路
   for(const s of stops){const ln=laneOf(s.a[0],s.a[1],s.b[0],s.b[1]),nx=ln.uz,nz=-ln.ux,cx=(rx(s.a[0])+rx(s.b[0]))/2,cz=(rz(s.a[1])+rz(s.b[1]))/2;
-    s.sx=cx+nx*(RD/2+3.4);s.sz=cz+nz*(RD/2+3.4);s.wx=cx+nx*(RD/2+1);s.wz=cz+nz*(RD/2+1);busStop(s.sx,s.sz,Math.atan2(-nx,-nz));
+    s.cx=cx;s.cz=cz;s.nx=nx;s.nz=nz;s.ux=ln.ux;s.uz=ln.uz;s.bx=cx+nx*PARK_O;s.bz=cz+nz*PARK_O;busBayPaint(s);
+    for(const sp of PARK)if(Math.hypot(sp.x-s.bx,sp.z-s.bz)<20&&sp.used&&!sp.used.driver&&sp.used!==player.car){removeCar(sp.used);sp.used=null}
+    s.sx=cx+nx*(RD/2+(inSB(cx+nx*(BAND+2),cz+nz*(BAND+2))?4.6:1.3));s.sz=cz+nz*(RD/2+(inSB(cx+nx*(BAND+2),cz+nz*(BAND+2))?4.6:1.3));s.wx=cx+nx*(RD/2+1);s.wz=cz+nz*(RD/2+1);busStop(s.sx,s.sz,Math.atan2(-nx,-nz),.6);
     const sg=plainSign('巴士 · '+s.name,'#ffffff','#1f8a9a',5.6,1);sg.position.set(s.sx,4.1,s.sz);sg.rotation.y=Math.atan2(-nx,-nz);scene.add(sg)}
   for(let q=0;q<3;q++)busSpawn(Math.floor(q*RT.length/3));BUS.ready=true}
 function busSpawn(k){const RT=BUS.route,a=RT[k],b=RT[(k+1)%RT.length],ln=laneOf(a[0],a[1],b[0],b[1]);
   const c=makeCar(ln.ax+ln.ux*(RD/2+2),ln.az+ln.uz*(RD/2+2),Math.atan2(ln.ux,ln.uz),{kind:'bus',color:0xffc83d});c.driver='ai';c.target=1;c.ni=b[0];c.nj=b[1];c.dx=b[0]-a[0];c.dz=b[1]-a[1];c.nd=null;
   c.bus={k:(k+1)%RT.length,wait:0,left:-1};c.mesh.position.set(c.x,0,c.z);c.mesh.rotation.y=c.h;BUS.buses.push(c);return c}
+function busBayPaint(s){const ry=Math.atan2(s.ux,s.uz),L=30,W=4.2;const pl=(w,l,mat,y,o=0,f=0)=>{const g=new THREE.PlaneGeometry(w,l,1,Math.max(1,Math.ceil(l/6)));g.rotateX(-Math.PI/2);const m=new THREE.Mesh(g,mat);m.rotation.y=ry;
+    m.position.set(s.bx+s.nx*o+s.ux*f,y,s.bz+s.nz*o+s.uz*f);m.userData.noLift=0;scene.add(m);return m};
+  const AM=asphalt.clone();AM.polygonOffset=true;AM.polygonOffsetFactor=-1;AM.polygonOffsetUnits=-2;pl(W,L,AM,.049);const Y=new THREE.MeshBasicMaterial({color:0xf2c230,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});for(const o of[-W/2,W/2])pl(.25,L,Y,.0499,o);for(const f of[-L/2,L/2])pl(W,.25,Y,.0499,0,f);
+  const cv=document.createElement('canvas');cv.width=256;cv.height=96;const g=cv.getContext('2d');g.fillStyle='#f2c230';g.font='bold 80px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('BUS',128,52);
+  const t=new THREE.CanvasTexture(cv);const m=pl(3.4,4.2,new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4}),.0499,0,-L/2+5);m.geometry.rotateY(Math.PI)}
 function busNext(c){const RT=BUS.route,n=RT[(c.bus.k+1)%RT.length];return[n[0]-c.ni,n[1]-c.nj]}
 function busNextStop(c){const RT=BUS.route;for(let q=0;q<RT.length;q++){const k=(c.bus.k+q)%RT.length;if(BUS.stopAt.has(k)&&k!==c.bus.left)return BUS.stops[BUS.stopAt.get(k)]}return null}
+// 靠站段由这里直接控制位置：横向偏移按平滑曲线从车道中线移到停车道（PARK_O），停稳后再移回
+const sstep=t=>{t=clamp(t,0,1);return t*t*(3-2*t)},BAYX=()=>PARK_O-LANE;
+function busBay(c,dt,ln,prog,d){const B=c.bus,s=BUS.stops[BUS.stopAt.get(B.k)],nx=ln.uz,nz=-ln.ux;
+  if(B.wait>0){B.wait-=dt;c.speed=0;if(B.wait>1.5)for(const p of s.q||[])if(peds.includes(p)&&p.busq&&p.busq.st==='wait'){p.busq.st='board';p.busq.bus=c;p.busq.delay=Math.random()*1.2}
+    if(BUS.peds.some(p=>p.busq&&p.busq.bus===c&&p.busq.st==='board'))B.wait=Math.max(B.wait,.4);
+    if(B.wait<=0){B.left=B.k;if(player.ride===c){const n=busNextStop(c);toast('巴士开动了 · 下一站：'+(n?n.name:''))}}return true}
+  if(B.left!==B.k){if(d<.5){B.wait=BUS.WAIT;c.speed=0;busArrive(c,s);if(player.ride===c)toast('到站：'+s.name+'  （按 E 下车）');else if(Math.hypot(c.x-player.x,c.z-player.z)<60)beep(660,.12,'sine',.05);return true}
+    c.speed=Math.min(Math.max(c.speed,3),Math.max(2,Math.sqrt(2*2.6*Math.max(0,d-.3))),c.speed+4*dt)}
+  else{let blk=false;for(const o of cars)if(o!==c&&!o.dead){const rx2=o.x-c.x,rz2=o.z-c.z,f=rx2*ln.ux+rz2*ln.uz,sd=Math.abs(rx2*nx+rz2*nz);if(f>0&&f<14&&sd<2.6){blk=true;break}}
+    c.speed=blk?Math.max(0,c.speed-12*dt):Math.min(13,c.speed+3*dt)}
+  const off=p=>{const dd=ln.L*.5-p;return BAYX()*(dd>0?sstep(1-dd/30):sstep(1+dd/24))},np=prog+c.speed*dt,o=off(np),g=(off(np+1)-off(np-1))/2;
+  c.x=ln.ax+ln.ux*np+nx*o;c.z=ln.az+ln.uz*np+nz*o;c.h=Math.atan2(ln.ux+nx*g,ln.uz+nz*g);c.mesh.position.x=c.x;c.mesh.position.z=c.z;c.mesh.rotation.y=c.h;return true}
+// 车门（右侧前门）在世界里的位置
+function busDoor(c){const fx=Math.sin(c.h),fz=Math.cos(c.h),rx2=Math.cos(c.h),rz2=-Math.sin(c.h);return{x:c.x+fx*3.2+rx2*2.6,z:c.z+fz*3.2+rz2*2.6}}
+// 到站：车上的人下来几个，站台上等车的人走过去上车
+function busArrive(c,s){const B=c.bus;B.pax=B.pax??((Math.random()*5)|0)+1;const n=Math.min(B.pax,((Math.random()*3)|0)+(Math.random()<.6?1:0));
+  for(let k=0;k<n;k++){B.pax--;setTimeout(()=>{if(!cars.includes(c))return;const dr=busDoor(c),p=busPed(dr.x,dr.z);if(!p)return;const t=(Math.random()-.5)*8,ux=Math.sin(c.h),uz=Math.cos(c.h);
+    p.busq={st:'off',tx:s.wx+ux*t,tz:s.wz+uz*t,bus:c}},k*700+300)}
+  for(const p of s.q||[])if(peds.includes(p)&&p.busq&&p.busq.st==='wait'){p.busq.st='board';p.busq.bus=c;p.busq.delay=Math.random()*1.2}}
+function busPed(x,z){_noPair=true;const look=NPC_KEYS[(Math.random()*NPC_KEYS.length)|0];const p=spawnPed(x,z,look);_noPair=false;if(!p)return null;
+  if(p.bench){p.bench.used=null;p.bench=null}p.partner=null;p.act='walk';p.onPath=false;p.job=null;BUS.peds.push(p);return p}
+// 等车 / 上车 / 下车 的行人：返回 true 表示这一帧由这里处理
+function busPedTick(p,dt){const q=p.busq;if(p.flee>0){p.busq=null;return false}
+  const walkTo=(tx,tz,sp)=>{const dx=tx-p.x,dz=tz-p.z,d=Math.hypot(dx,dz);if(d>.05){p.rot=Math.atan2(dx,dz);const m=Math.min(d,sp*dt);p.x+=dx/d*m;p.z+=dz/d*m}return d};
+  let st='idle',k=0;
+  if(q.st==='wait'){p.rot+=angDiff(q.face,p.rot)*Math.min(1,dt*4);st=p.t%9<3?'phone':'idle'}
+  else if(q.st==='board'){if((q.delay-=dt)>0){st='idle'}else{const c=q.bus;if(!cars.includes(c)||c.dead||!(c.bus&&c.bus.wait>0)){q.st='wait';return true}
+    const dr=busDoor(c);if(walkTo(dr.x,dr.z,3)<1.2){c.bus.pax=Math.min(24,(c.bus.pax||0)+1);dropPed(p);return true}st='walk';k=1}}
+  else if(q.st==='off'){if(walkTo(q.tx,q.tz,2.4)<.4){p.busq=null;p.act='walk';p.dir=Math.random()<.5?1:-1;pedSnap(p);return false}st='walk';k=1}
+  p.mesh.position.set(p.x,0,p.z);p.mesh.rotation.y=p.rot;pose(p.mesh,st,p.t,k);return true}
+// 站台上补等车的人：玩家附近的站各 1~4 人；离远了收掉
+let busPedT=0;function busPedsUpd(dt){if((busPedT-=dt)>0)return;busPedT=1.5;BUS.peds=BUS.peds.filter(p=>peds.includes(p)&&!p.dead);
+  for(const s of BUS.stops){s.q=(s.q||[]).filter(p=>peds.includes(p)&&p.busq&&p.busq.st!=='off');const d=Math.hypot(s.sx-player.x,s.sz-player.z);
+    if(d>260){for(const p of s.q)dropPed(p);s.q=[];s.want=null;continue}
+    if(d>170)continue;if(s.want==null)s.want=1+((Math.random()*4)|0);if(BUS.buses.some(c=>c.bus&&c.bus.wait>0&&Math.hypot(c.x-s.bx,c.z-s.bz)<25)){s.cool=25;continue}if((s.cool=(s.cool||0)-1.5)>0)continue;
+    const waiting=s.q.filter(p=>p.busq.st==='wait').length;if(waiting<s.want&&d>50){s.cool=6;const ux=s.ux,uz=s.uz,t=(Math.random()-.5)*6,o=Math.hypot(s.sx-s.cx,s.sz-s.cz)-1.6+Math.random()*.5,x=s.cx+s.nx*o+ux*t,z=s.cz+s.nz*o+uz*t,p=busPed(x,z);
+      if(p){p.busq={st:'wait',face:Math.atan2(-s.nx,-s.nz)+(Math.random()-.5)*.8};s.q.push(p)}}
+    if(Math.random()<.04)s.want=1+((Math.random()*4)|0)}}
 // 每帧（车辆循环里）：快到站减速，到站停 WAIT 秒
 function busTick(c,dt){const B=c.bus;
+  if(BUS.stopAt.has(B.k)){const ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj),prog=(c.x-ln.ax)*ln.ux+(c.z-ln.az)*ln.uz,d=ln.L*.5-prog;
+    if(d<34&&d>-28&&ln.L>70)return busBay(c,dt,ln,prog,d)}
   if(B.wait>0){B.wait-=dt;c.speed=0;if(B.wait<=0){B.left=B.k;if(player.ride===c){const n=busNextStop(c);toast('巴士开动了 · 下一站：'+(n?n.name:''))}}return true}
   if(BUS.stopAt.has(B.k)&&B.left!==B.k){const ln=laneOf(c.ni-c.dx,c.nj-c.dz,c.ni,c.nj),prog=(c.x-ln.ax)*ln.ux+(c.z-ln.az)*ln.uz,d=ln.L*.5-prog;
     if(d<.8&&d>-6){B.wait=BUS.WAIT;c.speed=0;B.left=B.k;const s=BUS.stops[BUS.stopAt.get(B.k)];if(player.ride===c)toast('到站：'+s.name+'  （按 E 下车）');else if(Math.hypot(c.x-player.x,c.z-player.z)<60)beep(660,.12,'sine',.05);return true}
@@ -5533,7 +5604,7 @@ function busLeave(){const c=player.ride;player.ride=null;player.mesh.visible=tru
   player.x=px;player.z=pz;player.y=0;player.vy=0;player.rot=c.h;SFX.doorOpen&&SFX.doorOpen()}
 function busRide(dt){const c=player.ride;if(!cars.includes(c)||c.dead){busLeave();return}player.x=c.x;player.z=c.z;player.rot=c.h;
   if(c.bus&&c.bus.wait>0)setPrompt('下车',busLeave)}
-function busUpd(dt){if(!BUS.ready){if(!BUS.route&&!BUS.tried){BUS.tried=1;try{busBuild()}catch(e){console.warn('bus',e)}}return}
+function busUpd(dt){if(BUS.ready)busPedsUpd(dt);if(!BUS.ready){if(!BUS.route&&!BUS.tried){BUS.tried=1;try{busBuild()}catch(e){console.warn('bus',e)}}return}
   for(const c of[...BUS.buses])if(!cars.includes(c)||c.dead||c.driver!=='ai'){if(c.bus)c.bus=null;c.target=0;BUS.buses.splice(BUS.buses.indexOf(c),1)}
   if(BUS.buses.length<3&&!player.ride){const RT=BUS.route;for(let t=0;t<20;t++){const k=(Math.random()*RT.length)|0,n=RT[k];if(Math.hypot(rx(n[0])-player.x,rz(n[1])-player.z)>260){busSpawn(k);break}}}
   if(!player.car&&!player.ride&&!boarding&&!cut)for(const c of BUS.buses)if(c.bus.wait>.6&&Math.hypot(c.x-player.x,c.z-player.z)<9){const n=busNextStop(c);setPrompt('上巴士（$'+BUS.FARE+'）'+(n?' → '+n.name:''),()=>busBoard(c),2);break}}
