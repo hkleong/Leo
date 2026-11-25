@@ -40,13 +40,14 @@
   --gy: max(12px, env(safe-area-inset-right, 0px));
   color-scheme: dark;
   background: var(--rail);
-  /* keep clear of the notch and home bar, also when installed to the home screen */
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
+/* The app shell is pinned to the screen, so iOS home-screen mode cannot shift or shorten it;
+   the header and the bottom edge add the notch / home-bar insets themselves. */
 body {
+  position: fixed; inset: 0; height: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   margin: 0; display: flex; flex-direction: column; overflow: hidden;
   background: radial-gradient(120% 80% at 50% 0%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
   background-color: var(--felt);
@@ -60,7 +61,7 @@ button:disabled { cursor: not-allowed; opacity: .4; }
 .note { color: var(--muted); font-size: 12px; margin: 0; }
 
 /* Header: one row */
-.top { flex: none; background: var(--rail); border-bottom: 2px solid var(--brass-lo); }
+.top { flex: none; background: var(--rail); border-bottom: 2px solid var(--brass-lo); padding-top: env(safe-area-inset-top, 0px); }
 .top-in { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; gap: 10px; padding: 6px var(--gy) 6px var(--gx); }
 .brand { font-family: var(--display); font-size: 19px; font-weight: 700; letter-spacing: .04em; color: var(--brass); background: none; border: 0; padding: 0; white-space: nowrap; }
 .nav { display: flex; gap: 2px; min-width: 0; }
@@ -118,6 +119,7 @@ main > section > * { min-width: 0; }
   box-shadow: inset 0 0 40px rgba(0,0,0,.35), 0 6px 20px rgba(0,0,0,.35);
 }
 .felt > * { min-width: 0; flex: none; }
+#v-blackjack .felt { position: relative; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .btn { border: 1px solid var(--brass); background: var(--brass); color: var(--ink); border-radius: 6px; padding: 6px 14px; font-weight: 600; white-space: nowrap; }
 .btn.ghost { background: transparent; color: var(--brass); }
@@ -616,6 +618,7 @@ main > section > * { min-width: 0; }
   <section id="v-blackjack" hidden>
     <div class="bar"><h2>21点</h2><span class="meta">6 副牌 · S17 · 牌靴剩余 <span id="bjShoe">312</span> 张</span><button class="rulebtn" type="button" data-rules="rules-bj">规则</button></div>
     <div class="felt">
+      <div class="shoebox" id="bjShoeBox" aria-hidden="true"></div>
       <div class="bj-dealer">
         <div class="bj-label">庄家 DEALER <span class="total" id="bjDT">–</span></div>
         <div class="hand" id="bjD"></div>
@@ -719,7 +722,7 @@ main > section > * { min-width: 0; }
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const DEAL_MS = reduced ? 60 : 380;
+  const DEAL_MS = reduced ? 60 : 560;
 
   /* ---------- Sound: small synthesized effects, no audio files ---------- */
   const SND = (() => {
@@ -986,9 +989,11 @@ main > section > * { min-width: 0; }
     d.innerHTML = '<div class="inner"><div class="face front"><span class="r">' + c.r + '</span><span class="s">' + c.s + '</span></div><div class="face back"></div></div>';
     return d;
   }
-  function dealFromShoe(card) {
+  function dealFromShoe(card, shoeSel, opts) {
+    opts = opts || {};
+    if (opts.sound) setTimeout(() => { if (!opts.faceDown) SND.flip(); }, reduced ? 0 : MOVE_MS * 0.62);
     if (reduced || !card.animate) return;
-    const sb = $("#bacShoeBox").getBoundingClientRect(), r = card.getBoundingClientRect();
+    const sb = $(shoeSel || "#bacShoeBox").getBoundingClientRect(), r = card.getBoundingClientRect();
     if (!sb.width || !r.width) return;
     const dx = sb.left + sb.width / 2 - (r.left + r.width / 2), dy = sb.top + sb.height / 2 - (r.top + r.height / 2);
     card.animate([
@@ -996,9 +1001,16 @@ main > section > * { min-width: 0; }
       { transform: "translate(" + dx * 0.35 + "px," + dy * 0.35 + "px) rotate(-4deg) scale(.95)", offset: 0.55 },
       { transform: "none" },
     ], { duration: MOVE_MS, easing: "cubic-bezier(.25,.7,.3,1)" });
+    if (opts.faceDown) return;
     card.querySelector(".inner").animate([
       { transform: "rotateY(180deg)" }, { transform: "rotateY(180deg)", offset: 0.3 }, { transform: "rotateY(0deg)" },
     ], { duration: MOVE_MS, easing: "ease-in-out" });
+  }
+  function flipOver(card) {
+    const inner = card.querySelector(".inner");
+    inner.style.transform = "";
+    SND.flip();
+    if (!reduced && inner.animate) inner.animate([{ transform: "rotateY(180deg)" }, { transform: "rotateY(0deg)" }], { duration: 380, easing: "ease-in-out" });
   }
 
   // Dragon Bonus multiplier (stake included): natural win 1:1, natural tie push, non-natural win by 9..4 pays 30..1
@@ -1210,6 +1222,13 @@ main > section > * { min-width: 0; }
      ====================================================== */
   const bj = { busy: false, shoe: new Shoe(6), bet: 0, lastBet: 0, hands: [], dealer: [], active: 0, phase: "bet", ins: 0, hole: true };
   { const draw0 = bj.shoe.draw.bind(bj.shoe); bj.shoe.draw = () => { SND.deal(); return draw0(); }; }
+  // each card is animated out of the shoe once, the first time it is drawn on the table
+  const bjSeen = new WeakSet();
+  function bjCard(c, faceDown) {
+    const d = flipCard(c);
+    if (faceDown) { d.querySelector(".inner").style.transform = "rotateY(180deg)"; d.setAttribute("aria-label", "暗牌"); }
+    return d;
+  }
   const cv = (c) => (c.r === "A" ? 1 : ["10", "J", "Q", "K"].includes(c.r) ? 10 : +c.r);
   function hv(cards) {
     let t = 0, a = 0;
@@ -1224,14 +1243,24 @@ main > section > * { min-width: 0; }
 
   function bjRender() {
     const dEl = $("#bjD"); dEl.innerHTML = "";
-    bj.dealer.forEach((c, i) => dEl.appendChild(cardEl(c, i === 1 && bj.hole)));
+    bj.dealer.forEach((c, i) => {
+      const down = i === 1 && bj.hole;
+      const el = bjCard(c, down); dEl.appendChild(el);
+      if (!bjSeen.has(c)) { bjSeen.add(c); dealFromShoe(el, "#bjShoeBox", { sound: true, faceDown: down }); }
+      else if (i === 1 && !bj.hole && !bj.holeShown) flipOver(el);
+      if (i === 1 && !bj.hole) bj.holeShown = true;
+    });
     $("#bjDT").textContent = !bj.dealer.length ? "–" : bj.hole ? String(hv([bj.dealer[0]]).t) : label(bj.dealer);
     const hs = $("#bjHands"); hs.innerHTML = "";
+    const newCards = [];
     bj.hands.forEach((h, i) => {
       const w = document.createElement("div");
       w.className = "bj-hand" + (bj.phase === "play" && i === bj.active ? " active" : "");
       const hand = document.createElement("div"); hand.className = "hand";
-      h.cards.forEach((c) => hand.appendChild(cardEl(c)));
+      h.cards.forEach((c) => {
+        const el = bjCard(c, false); hand.appendChild(el);
+        if (!bjSeen.has(c)) { bjSeen.add(c); newCards.push(el); }
+      });
       const meta = document.createElement("div"); meta.className = "meta";
       const v = hv(h.cards).t;
       meta.innerHTML = '<span class="total">' + (h.cards.length ? label(h.cards) : "–") + "</span>" +
@@ -1242,6 +1271,7 @@ main > section > * { min-width: 0; }
         (h.result ? '<span class="tag ' + (h.result.cls || "") + '">' + h.result.text + "</span>" : "");
       w.appendChild(hand); w.appendChild(meta); hs.appendChild(w);
     });
+    newCards.forEach((el) => dealFromShoe(el, "#bjShoeBox", { sound: true }));
     setStake($("#bjStake"), bj.bet); $("#bjCircle").classList.toggle("has", !!bj.bet);
     const betting = bj.phase === "bet";
     $("#bjBetBox").hidden = !betting;
@@ -1283,7 +1313,7 @@ main > section > * { min-width: 0; }
     if (bj.shoe.needsShuffle()) { bj.shoe.fill(); msg($("#bjMsg"), "牌靴已重新洗牌。"); }
     else msg($("#bjMsg"), "发牌中…");
     bj.lastBet = bj.bet;
-    bj.hands = [{ cards: [], bet: bj.bet }]; bj.bet = 0; bj.dealer = []; bj.hole = true; bj.ins = 0; bj.active = 0;
+    bj.hands = [{ cards: [], bet: bj.bet }]; bj.bet = 0; bj.dealer = []; bj.hole = true; bj.holeShown = false; bj.ins = 0; bj.active = 0;
     bj.phase = "dealing"; bjRender();
     const h = bj.hands[0];
     for (const who of ["p", "d", "p", "d"]) {
