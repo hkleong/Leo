@@ -2967,7 +2967,7 @@ function buildPerson(look){const lookKey=typeof look==='string'?look:null;let L=
     for(let k=0;k<2;k++){const hp=hips[k],kn=knees[k],lr=.112*sx*(fem?1.06:1),SH=.63+LEGX/2;
       addLoft(hp,[[.1,lr*.95,lr*.9],[0,lr*1.05,lr],[-.18,lr*.98,lr*.95],[-.42,lr*.8,lr*.78],[-KN,lr*.6,lr*.6]],legCol,pm,[['rg_spine',-.12,.1,.35],['rg_1_'+k,-KN+.1,-KN,.5]]);
       addLoft(kn,[[0,lr*.6,lr*.6],[-.1,lr*.66,lr*.68,-.01],[-.26,lr*.6,lr*.62,-.015],[-.48,lr*.44,lr*.44],[-SH+.02,lr*.38,lr*.38]],(x,y,z)=>legCol(x,y-KN,z),L.shorts?null:pm,[['rg_0_'+k,-.1,0,.5]])}}
-  if(!(lookKey&&glbPerson(g,lookKey)))skinPerson(g);
+  {const gk=lookKey||(L&&L.__hero);if(!(gk&&glbPerson(g,gk)))skinPerson(g)}
   g.userData.look=lookKey;if(lookKey==='heroF'||lookKey==='heroM')bodyVar(g,1);scene.add(g);return g}
 const PCACHE={};
 function rigOf(g,carry,look){const n=x=>g.getObjectByName(x),arr=a=>[0,1].map(k=>n('rg_'+a+'_'+k));
@@ -5240,7 +5240,7 @@ const BOTTOMS=[['深色长裤',{pants:0x2a2f3a,pantsMat:null,shorts:0,dress:null
 const HATS=[['不戴帽子',{hat:null}],['棒球帽',{hat:'capBack',hatCol:0xd84a3a}],['渔夫帽',{hat:'bucket',hatCol:0xe8d8b0}],['礼帽',{hat:'fedora',hatCol:0x2a2a2a}],['草帽',{hat:'sun',hatCol:0xe0c27a}]];
 const SHOES=[['白球鞋',{shoes:0xf4f4f4,boots:0}],['黑球鞋',{shoes:0x1a1a1a,boots:0}],['棕色靴子',{shoes:0x6a4a2a,boots:1}],['红球鞋',{shoes:0xd84a3a,boots:0}]];
 const HAIRS=[['短发','short'],['背头','slick'],['寸头','buzz'],['长发','long'],['马尾','pony'],['丸子头','bun'],['卷发','curly']],HAIRC=[['黑色',0x1a1a1a],['棕色',0x4a2e1a],['金色',0xc8a060],['酒红',0x8a2a2a],['银白',0xe0e0e0]];
-function heroLookObj(k){return Object.assign({},LOOKS[k],OUTFITS[k]||{})}
+function heroLookObj(k){return Object.assign({__hero:k},LOOKS[k],OUTFITS[k]||{})}
 function rebuildHero(){const inRoom=INSIDE&&!INSIDE.sw?INSIDE.r.scene:null,old=player.mesh;const p=old.position.clone(),r=old.rotation.clone();(old.parent||scene).remove(old);
   player.mesh=buildPerson(heroLookObj(heroLook));const h=heroLook==='heroM'?1.04:.97;player.mesh.scale.set(1,h,1);player.mesh.userData.bs=player.mesh.scale.clone();player.mesh.userData.look=heroLook;
   player.mesh.position.copy(p);player.mesh.rotation.copy(r);if(inRoom)inRoom.add(player.mesh);attachWeapon()}

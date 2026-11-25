@@ -6,7 +6,9 @@ def R(a,b,n=1):
   global s
   c=s.count(a);assert c==n,(a[:80],c);s=s.replace(a,b)
 R("function buildPerson(look){",open(SP+'charglbData.js').read()+open(SP+'charglb.js').read()+"function buildPerson(look){")
-R("  skinPerson(g);\n  g.userData.look=lookKey;","  if(!(lookKey&&glbPerson(g,lookKey)))skinPerson(g);\n  g.userData.look=lookKey;")
+R("  skinPerson(g);\n  g.userData.look=lookKey;","  {const gk=lookKey||(L&&L.__hero);if(!(gk&&glbPerson(g,gk)))skinPerson(g)}\n  g.userData.look=lookKey;")
+# 主角带服装的造型对象：标记是哪个主角，好换成模型
+R("function heroLookObj(k){return Object.assign({},LOOKS[k],OUTFITS[k]||{})}","function heroLookObj(k){return Object.assign({__hero:k},LOOKS[k],OUTFITS[k]||{})}")
 if len(sys.argv)>3:
   import re
   s=re.sub(r"const VERSION='[^']*';","const VERSION='%s';"%sys.argv[3],s,count=1)
