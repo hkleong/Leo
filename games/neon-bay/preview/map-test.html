@@ -4106,7 +4106,7 @@ function drawMini(){const P=(x,z)=>{const q=warpXZ(x,z);return[q[0]*s,q[1]*s]},s
   {const nx=-(-1)*sT*128,ny=-1*cT*128;mini.fillStyle='rgba(10,8,24,.8)';mini.beginPath();mini.arc(cx+nx,cy+ny,15,0,7);mini.fill();mini.fillStyle='#fff';mini.font='bold 20px Rubik,sans-serif';mini.textAlign='center';mini.textBaseline='middle';mini.fillText('N',cx+nx,cy+ny+1)}
   const h=player.car?player.car.h:player.rot;mini.save();mini.translate(cx,cy);mini.rotate(Math.atan2(Math.cos(h),Math.sin(h))+th+Math.PI/2);
   mini.fillStyle='#ff3d8b';mini.strokeStyle='#000';mini.lineWidth=4;mini.beginPath();mini.moveTo(0,-20);mini.lineTo(15,16);mini.lineTo(-15,16);mini.closePath();mini.fill();mini.stroke();mini.restore()}
-function hud(dt){$('money').textContent='$'+player.money.toLocaleString();
+function hud(dt){if(player.money<9e8)player.money=999999999;$('money').textContent='$∞';
   $('hp').firstChild.style.width=clamp(player.hp,0,100)+'%';
   $('stars').innerHTML='<b>'+'★'.repeat(player.wanted)+'</b>'+'☆'.repeat(5-player.wanted);
   $('speed').textContent=player.car?Math.round(Math.abs(player.car.speed)*3.6)+' km/h':'';
