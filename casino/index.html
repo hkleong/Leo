@@ -196,7 +196,7 @@ main > section > * { min-width: 0; }
 .sheet ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; display: grid; gap: 4px; }
 .sheet h4 { margin: 12px 0 6px; font-size: 13px; color: var(--ivory); }
 
-/* Baccarat */
+/* Baccarat: roads (shared with the lobby) */
 .road-scroll { flex: none; overflow-x: auto; background: var(--ivory); border-radius: 6px; padding: 4px; }
 .road { display: grid; grid-template-rows: repeat(6, var(--rc)); grid-auto-columns: var(--rc); width: max-content; border-top: 1px solid #c9bfa6; border-left: 1px solid #c9bfa6; }
 .rc { border-right: 1px solid #c9bfa6; border-bottom: 1px solid #c9bfa6; position: relative; display: grid; place-items: center; }
@@ -208,26 +208,135 @@ main > section > * { min-width: 0; }
 .br .pd.bp { background: var(--red); top: -4px; left: -4px; } .br .pd.pp { background: var(--p-blue); bottom: -4px; right: -4px; }
 .key { display: inline-flex; align-items: center; gap: 4px; }
 .key .br { --rc: 14px; display: inline-block; }
-.bac-hands { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.bac-side { display: grid; gap: 6px; justify-items: center; text-align: center; }
-.bac-side h4 { margin: 0; font-size: 13px; letter-spacing: .08em; display: flex; align-items: center; gap: 6px; }
-.bac-side.won h4 { color: var(--win) !important; }
-.bac-spots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
-.spot {
-  position: relative; border: 1.5px solid rgba(242,234,216,.5); border-radius: 9px; background: rgba(0,0,0,.12);
-  min-height: clamp(40px, 6.5vh, 60px); padding: 4px 6px; min-width: 0;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
+.dr { display: block; width: 78%; height: 78%; border-radius: 50%; }
+.dr.R { --dc: var(--red); } .dr.U { --dc: var(--p-blue); }
+.dr.eye { border: 1.5px solid var(--dc); }
+.dr.small { background: var(--dc); }
+.dr.roach { border-radius: 0; height: 1.6px; width: 110%; background: var(--dc); transform: rotate(-55deg); }
+.rc.ghost > * { animation: ghost .5s steps(2, jump-none) infinite alternate; }
+@keyframes ghost { from { opacity: 1; } to { opacity: .15; } }
+
+/* Baccarat: table layout */
+#v-baccarat { --cw: clamp(28px, 5vh, 50px); --rc: clamp(12px, 2.2vh, 20px); gap: 5px; padding-top: 6px; padding-bottom: 4px; }
+#v-baccarat > * { flex: none; }
+@media (min-width: 700px) { #v-baccarat { max-width: 760px; } }
+.btable {
+  flex: 1 1 auto !important; position: relative; min-height: calc(var(--cw) * 1.4 + 70px);
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px 10px 6px;
+  border-radius: 12px; border: 1px solid var(--brass-lo);
+  background: radial-gradient(90% 90% at 50% 20%, var(--felt-hi), var(--felt) 60%, var(--felt-lo));
+  box-shadow: inset 0 0 30px rgba(0,0,0,.35);
 }
-.spot:hover:not(:disabled) { background: rgba(255,255,255,.06); }
-.spot .lab { display: grid; justify-items: center; line-height: 1.2; }
-.spot b { font-size: 15px; }
-.spot small { color: var(--muted); font-size: 10px; font-family: var(--mono); }
-.spot .stake { --d: 26px; }
-.spot.win { border-color: var(--win); box-shadow: 0 0 0 2px var(--win) inset; }
-.spot-p, .spot-b, .spot-t { grid-column: span 2; min-height: clamp(52px, 9vh, 84px); }
-.spot-p { border-color: var(--p-blue); } .spot-b { border-color: var(--red); } .spot-t { border-color: var(--zero); }
-.spot-pp, .spot-bp { grid-column: span 3; }
-.spot-pp .lab, .spot-bp .lab { grid-auto-flow: column; gap: 6px; align-items: baseline; }
+.bside { position: relative; display: grid; justify-items: center; align-content: start; gap: 6px; min-width: 0; }
+.blabel { font-family: var(--display); font-size: clamp(14px, 2.6vh, 22px); letter-spacing: .14em; opacity: .9; }
+.bp-side .blabel { color: #a9c4ff; } .bb-side .blabel { color: #ffb0b0; }
+.bside.won .blabel { color: var(--win); opacity: 1; }
+.bside .hand { justify-content: center; flex-wrap: nowrap; gap: 4px; }
+.btotal {
+  position: absolute; bottom: 0; min-width: 1.6em; text-align: center;
+  font: 700 clamp(22px, 4.4vh, 40px)/1.1 var(--display); color: var(--ivory);
+  background: rgba(0,0,0,.35); border: 1px solid rgba(242,234,216,.25); padding: 0 8px;
+}
+.bp-side .btotal { left: -4px; border-radius: 4px 12px 4px 4px; }
+.bb-side .btotal { right: -4px; border-radius: 12px 4px 4px 4px; }
+.bside.won .btotal { color: var(--win); border-color: var(--win); }
+.cdring {
+  --p: 1; --ring: #4fd37a;
+  position: absolute; left: 50%; top: 6px; transform: translateX(-50%); z-index: 2;
+  width: clamp(34px, 6vh, 50px); aspect-ratio: 1; border-radius: 50%;
+  display: grid; place-items: center; font: 700 clamp(14px, 2.6vh, 20px)/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--ivory);
+  background: radial-gradient(circle, rgba(10,30,24,.9) 64%, transparent 65%), conic-gradient(var(--ring) calc(var(--p) * 360deg), rgba(0,0,0,.45) 0);
+}
+.cdring.soon { --ring: #e0575f; color: #ffb3b3; }
+.cdring.off { --p: 0; color: var(--muted); }
+.bresult {
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); z-index: 2; margin: 0;
+  max-width: 62%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background: rgba(0,0,0,.6); border-radius: 999px; padding: 2px 12px; font-size: 13px;
+}
+.bresult:empty { display: none; }
+.bresult .w { color: var(--win); font-weight: 600; } .bresult .l { color: #ff9a9a; }
+
+.roads { background: var(--ivory); border-radius: 6px; padding: 3px; display: grid; gap: 0; }
+.roads .road-scroll { padding: 0; border-radius: 0; background: transparent; }
+.droads { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 2px solid #c9bfa6; }
+.droads .dsc { overflow: hidden; }
+.droads .dsc + .dsc { border-left: 2px solid #c9bfa6; }
+.droad { --rc: clamp(7px, 1.15vh, 10px); border-top: 0; }
+.droad .rc { border-color: #e2d8c0; }
+
+.bstats { display: flex; align-items: center; gap: 5px; font: 500 14px/1 var(--mono); }
+.bstats .hno { color: var(--muted); margin-right: 4px; }
+.ball { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font: 700 11px/1 var(--body); color: #fff; }
+.ball.P { background: var(--p-blue); } .ball.B { background: var(--red); } .ball.T { background: var(--zero); }
+.asks { margin-left: auto; display: flex; gap: 5px; }
+.ask { display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 999px; padding: 4px 10px; font: 700 13px/1 var(--body); color: #fff; box-shadow: inset 0 -2px 0 rgba(0,0,0,.25); }
+.ask.P { background: #1f4fb8; } .ask.B { background: #a8232b; }
+.aq { display: inline-block; width: 10px; height: 10px; border-radius: 50%; --dc: rgba(255,255,255,.35); }
+.aq.R { --dc: #ff6b72; } .aq.U { --dc: #7fb0ff; }
+.ask.B .aq.R { --dc: #ffd0d2; } .ask.P .aq.U { --dc: #cfe0ff; }
+.aq.eye { border: 2px solid var(--dc); background: #fff0; }
+.aq.small { background: var(--dc); }
+.aq.roach { border-radius: 0; width: 11px; height: 2px; background: var(--dc); transform: rotate(-55deg); }
+
+.bets { display: grid; gap: 4px; }
+#v-baccarat .spot {
+  position: relative; border: 0; color: var(--ivory); min-width: 0; padding: 4px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), inset 0 -3px 0 rgba(0,0,0,.25);
+}
+#v-baccarat .spot:hover:not(:disabled) { filter: brightness(1.12); }
+#v-baccarat .spot:disabled { opacity: 1; cursor: default; }
+#v-baccarat .spot .lab { display: grid; line-height: 1.15; justify-items: center; }
+#v-baccarat .spot .lab small { font: 500 11px/1.2 var(--mono); opacity: .8; }
+#v-baccarat .spot.win { box-shadow: inset 0 0 0 3px var(--win), 0 0 14px rgba(231,199,111,.55); }
+#v-baccarat .spot .stake { position: absolute; z-index: 2; --d: 26px; pointer-events: none; }
+.bmain { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; height: clamp(64px, 12.5vh, 130px); }
+.spot-p, .spot-b { border-radius: 8px; align-items: flex-end !important; padding-bottom: 8px !important; }
+.spot-p { background: linear-gradient(160deg, #2a62d0, #173b8c); padding-right: 18% !important; }
+.spot-b { background: linear-gradient(200deg, #d0353d, #8c1a20); padding-left: 18% !important; }
+.spot-p .lab b, .spot-b .lab b { font-size: clamp(18px, 3.4vh, 30px); letter-spacing: .1em; }
+.spot-p .stake { left: 10px; top: 8px; }
+.spot-b .stake { right: 10px; top: 8px; }
+.spot-t {
+  position: absolute !important; left: 50%; bottom: 0; transform: translateX(-50%); z-index: 3;
+  width: 36%; height: 92%; flex-direction: column; gap: 2px; justify-content: flex-end !important; padding-bottom: 8px !important;
+  border-radius: 50% 50% 8px 8px / 42% 42% 8px 8px;
+  background: linear-gradient(180deg, #2f9a4a, #18612d);
+  box-shadow: 0 0 0 3px rgba(8,20,16,.85), inset 0 0 0 1px rgba(255,255,255,.15) !important;
+}
+.spot-t.win { box-shadow: 0 0 0 3px var(--win), 0 0 14px rgba(231,199,111,.55) !important; }
+.spot-t .lab { grid-auto-flow: column; gap: 6px; align-items: baseline; }
+.spot-t .lab b { font-size: clamp(16px, 3vh, 26px); }
+.spot-t .lab small { color: var(--win); opacity: 1 !important; font-size: clamp(13px, 2.4vh, 20px) !important; }
+.spot-t .stake { position: static !important; }
+.bsides { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.side { border-radius: 6px; min-height: clamp(34px, 5.8vh, 52px); }
+.side .lab b { font-size: 13px; font-weight: 600; }
+.side .lab small { font-size: 10px !important; }
+.side .stake { right: -3px; top: -7px; --d: 20px !important; }
+.side.wide { grid-column: span 2; }
+.sp { background: linear-gradient(180deg, #2554b8, #183a84); }
+.sb { background: linear-gradient(180deg, #b52a31, #7e1a1f); }
+.sx { background: linear-gradient(180deg, #7a5634, #553a22); }
+
+.bctl { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.rbtn { width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1px solid rgba(242,234,216,.3); background: rgba(0,0,0,.35); color: var(--ivory); font-size: 18px; line-height: 1; padding: 0; }
+.rbtn:first-child { margin-right: auto; }
+.rbtn:last-child { margin-left: auto; }
+.clab { font-size: 12px; color: var(--muted); }
+.chipwrap { position: relative; display: inline-flex; }
+.chip.big { width: 48px; height: 48px; font-size: 13px; box-shadow: 0 0 0 3px var(--win), 0 4px 10px rgba(0,0,0,.45); }
+.chippop {
+  position: absolute; bottom: 58px; left: 50%; transform: translateX(-50%); z-index: 40;
+  display: flex; gap: 6px; padding: 7px 9px; border-radius: 999px; background: var(--rail); border: 1px solid var(--brass-lo); box-shadow: 0 8px 20px rgba(0,0,0,.5);
+}
+@media (max-width: 380px) { .clab { display: none; } }
+.bfoot { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; line-height: 1.35; color: var(--muted); }
+.bfoot b { font-family: var(--mono); color: var(--win); font-weight: 500; }
+.bfoot .r { text-align: right; }
+.menu-grid { display: grid; gap: 8px; }
+.menu-grid .btn, .menu-grid .toggle { width: 100%; padding: 10px 14px; font-size: 14px; border-radius: 8px; }
 
 /* Blackjack */
 .bj-dealer, .bj-player { display: grid; gap: 4px; }
@@ -359,7 +468,7 @@ main > section > * { min-width: 0; }
         <span class="glyph">9</span>
         <span class="en">Punto Banco</span>
         <h3>百家乐</h3>
-        <ul><li>8 副牌 · 每 15 秒自动开局</li><li>闲 1:1 · 庄 0.95:1 · 和 8:1 · 对子 11:1</li></ul>
+        <ul><li>8 副牌 · 每 15 秒自动开局</li><li>大路 + 下三路 · 龙宝 · 完美对子</li></ul>
         <span class="lobby-live"><span class="note" id="lobbyCd">下一局 15 秒</span><span class="road-scroll" id="lobbyRoadScroll"><span class="road" id="lobbyRoad"></span></span></span>
         <span class="go">入座</span>
       </button>
@@ -382,50 +491,109 @@ main > section > * { min-width: 0; }
 
   <!-- Baccarat -->
   <section id="v-baccarat" hidden>
-    <div class="bar"><h2>百家乐</h2><span class="meta">大路 · 8 副牌 · 牌靴剩余 <span id="bacShoe">416</span> 张</span><button class="rulebtn" id="bacShuffle" type="button" title="换新牌靴并洗牌，路单清空">洗牌</button><button class="rulebtn" type="button" data-rules="rules-bac">规则</button></div>
-    <div class="road-scroll" id="bacRoadScroll"><div class="road" id="bacRoad"></div></div>
-    <div class="felt">
-      <div class="bac-hands">
-        <div class="bac-side" id="bacPSide"><h4 style="color:#8fb4ff">闲 PLAYER <span class="total" id="bacPT">–</span></h4><div class="hand" id="bacP"></div></div>
-        <div class="bac-side" id="bacBSide"><h4 style="color:#ff9a9a">庄 BANKER <span class="total" id="bacBT">–</span></h4><div class="hand" id="bacB"></div></div>
-      </div>
-      <div class="bac-spots">
-        <button class="spot spot-pp" data-bac="ppair" type="button"><span class="lab"><b>闲对</b><small>11:1</small></span><span class="stake"></span></button>
-        <button class="spot spot-bp" data-bac="bpair" type="button"><span class="lab"><b>庄对</b><small>11:1</small></span><span class="stake"></span></button>
-        <button class="spot spot-p" data-bac="player" type="button"><span class="lab"><b>闲</b><small>1:1</small></span><span class="stake"></span></button>
-        <button class="spot spot-t" data-bac="tie" type="button"><span class="lab"><b>和</b><small>8:1</small></span><span class="stake"></span></button>
-        <button class="spot spot-b" data-bac="banker" type="button"><span class="lab"><b>庄</b><small>0.95:1</small></span><span class="stake"></span></button>
-      </div>
-      <p class="msg" id="bacMsg">倒计时结束自动开局，期间随时下注。</p>
-      <div class="actions">
-        <span class="dealwrap"><button class="btn" id="bacDeal" type="button">发牌</button><span class="cdb" id="bacCd" aria-live="off" title="距离自动开局的秒数">15</span></span>
-        <button class="btn ghost" id="bacRebet" type="button">重复下注</button>
-        <button class="btn ghost" id="bacClear" type="button">清除</button>
-        <button class="toggle" id="bacAuto" type="button" aria-pressed="true">自动开局</button>
+    <!-- Table: cards, totals and countdown -->
+    <div class="btable">
+      <div class="cdring" id="bacCd" aria-live="off" title="距离自动开局的秒数">15</div>
+      <div class="bside bp-side" id="bacPSide"><div class="blabel">PLAYER</div><div class="hand" id="bacP"></div><div class="btotal" id="bacPT">–</div></div>
+      <div class="bside bb-side" id="bacBSide"><div class="blabel">BANKER</div><div class="hand" id="bacB"></div><div class="btotal" id="bacBT">–</div></div>
+      <p class="bresult" id="bacMsg">下注后等待开局</p>
+    </div>
+
+    <!-- Roads: big road on top, the three derived roads below -->
+    <div class="roads">
+      <div class="road-scroll" id="bacRoadScroll"><div class="road" id="bacRoad"></div></div>
+      <div class="droads">
+        <div class="road-scroll dsc" id="bacEyeScroll" title="大眼仔"><div class="road droad" id="bacEye"></div></div>
+        <div class="road-scroll dsc" id="bacSmallScroll" title="小路"><div class="road droad" id="bacSmall"></div></div>
+        <div class="road-scroll dsc" id="bacRoachScroll" title="曱甴路"><div class="road droad" id="bacRoach"></div></div>
       </div>
     </div>
+    <div class="bstats">
+      <span class="hno">#<span id="bacHandNo">1</span></span>
+      <span class="ball P">P</span><span id="cntP">0</span>
+      <span class="ball B">B</span><span id="cntB">0</span>
+      <span class="ball T">T</span><span id="cntT">0</span>
+      <span class="asks">
+        <button class="ask P" id="askP" type="button" title="问路：如果下一局闲赢">P <i class="aq eye"></i><i class="aq small"></i><i class="aq roach"></i></button>
+        <button class="ask B" id="askB" type="button" title="问路：如果下一局庄赢">B <i class="aq eye"></i><i class="aq small"></i><i class="aq roach"></i></button>
+      </span>
+    </div>
+
+    <!-- Betting layout -->
+    <div class="bets">
+      <div class="bmain">
+        <button class="spot spot-p" data-bac="player" type="button"><span class="lab"><b>闲家</b><small>1:1</small></span><span class="stake"></span></button>
+        <button class="spot spot-b" data-bac="banker" type="button"><span class="lab"><b>庄家</b><small>0.95:1</small></span><span class="stake"></span></button>
+        <button class="spot spot-t" data-bac="tie" type="button"><span class="stake"></span><span class="lab"><b>和局</b><small>8:1</small></span></button>
+      </div>
+      <div class="bsides">
+        <button class="spot side sp" data-bac="ppair" type="button"><span class="lab"><b>闲家对子</b><small>11:1</small></span><span class="stake"></span></button>
+        <button class="spot side sp" data-bac="pdragon" type="button"><span class="lab"><b>闲家龙宝</b><small>1-30:1</small></span><span class="stake"></span></button>
+        <button class="spot side sb" data-bac="bdragon" type="button"><span class="lab"><b>庄家龙宝</b><small>1-30:1</small></span><span class="stake"></span></button>
+        <button class="spot side sb" data-bac="bpair" type="button"><span class="lab"><b>庄家对子</b><small>11:1</small></span><span class="stake"></span></button>
+        <button class="spot side sx wide" data-bac="perfect" type="button"><span class="lab"><b>完美对子</b><small>25:1 · 两对 200:1</small></span><span class="stake"></span></button>
+        <button class="spot side sx wide" data-bac="either" type="button"><span class="lab"><b>任一对子</b><small>5:1</small></span><span class="stake"></span></button>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="bctl">
+      <button class="rbtn" type="button" data-rules="rules-bac" aria-label="规则" title="规则">?</button>
+      <span class="clab">撤销</span>
+      <button class="rbtn" id="bacUndo" type="button" aria-label="撤销上一个筹码" title="撤销">↶</button>
+      <span class="chipwrap">
+        <button class="chip big" id="bacChipBtn" type="button" data-v="100" aria-label="选择筹码" aria-expanded="false">100</button>
+        <span class="chippop" id="bacChipPop" hidden></span>
+      </span>
+      <button class="rbtn" id="bacDouble" type="button" aria-label="所有下注加倍" title="加倍">×2</button>
+      <span class="clab">加倍</span>
+      <button class="rbtn" type="button" data-rules="menu-bac" aria-label="菜单" title="菜单">≡</button>
+    </div>
+    <div class="bfoot">
+      <div>总投注额 <b id="bacBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+      <div class="r"># <span id="bacHandNo2">1</span> · 牌靴 <span id="bacShoe">416</span> 张<br>绿呢百家乐 · 8 副牌</div>
+    </div>
+
+    <div class="sheet" id="menu-bac" hidden><div class="sheet-in menu" role="dialog" aria-label="百家乐菜单">
+      <div class="sheet-head"><h3>牌桌</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <div class="menu-grid">
+        <button class="btn" id="bacDeal" type="button" data-close>立即开局</button>
+        <button class="btn ghost" id="bacRebet" type="button" data-close>重复上局下注</button>
+        <button class="btn ghost" id="bacClear" type="button" data-close>清除下注</button>
+        <button class="btn ghost" id="bacShuffle" type="button" data-close>洗牌（换新牌靴）</button>
+        <button class="toggle" id="bacAuto" type="button" aria-pressed="true">自动开局（每 15 秒）</button>
+        <button class="btn ghost" type="button" data-close data-rules="rules-bac">规则与路单说明</button>
+      </div>
+    </div></div>
+
     <div class="sheet" id="rules-bac" hidden><div class="sheet-in" role="dialog" aria-label="百家乐规则">
       <div class="sheet-head"><h3>百家乐规则</h3><span class="note">Punto Banco 国际规则</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
       <ul>
         <li>点数：A 为 1，2–9 按面值，10、J、Q、K 为 0；总点数取个位数。</li>
         <li>任一方前两张为 8 或 9 点（天牌），双方都不再补牌。</li>
-        <li>闲家 0–5 点补一张，6–7 点停牌。</li>
-        <li>闲家停牌时，庄家 0–5 点补牌，6–7 点停牌。</li>
+        <li>闲家 0–5 点补一张，6–7 点停牌。闲家停牌时，庄家 0–5 点补牌，6–7 点停牌。</li>
         <li>闲家补了第三张时，庄家：0–2 补；3 点除非闲第三张为 8 都补；4 点在闲第三张为 2–7 时补；5 点在 4–7 时补；6 点在 6–7 时补；7 点停。</li>
-        <li>赔率：闲 1:1；庄 1:1 抽 5% 佣金（即 0.95:1）；和 8:1，和局时庄闲下注退回；闲对/庄对（前两张同点数牌面）11:1。</li>
-        <li>8 副牌洗入牌靴，剩余约 1/4 时自动重新洗牌，路单同时清空；也可以随时点「洗牌」换新牌靴。</li>
-        <li>牌桌在后台持续运行，大厅里可以看到路单和倒计时；你在桌上有下注时，会等你回到百家乐再开局。路单和牌靴会保存在本机，关掉页面再打开也还在。</li>
-        <li>每 15 秒自动开一局（发牌按钮右上角为倒计时），也可以点「发牌」立即开局或关闭自动开局；不下注也可以发牌看路。</li>
+        <li>闲 1:1；庄 1:1 抽 5% 佣金（即 0.95:1）；和 8:1，和局时庄闲下注退回。</li>
+        <li>闲家对子 / 庄家对子：该方前两张点数牌面相同，11:1。</li>
+        <li>任一对子：闲或庄任一方前两张成对，5:1。</li>
+        <li>完美对子：任一方前两张为同花同点（如 ♥7 ♥7），25:1；两方都是完美对子，200:1。</li>
+        <li>龙宝（闲家/庄家各一）：所押一方以天牌赢 1:1；天牌和局退回；非天牌赢 9 点 30:1、赢 8 点 10:1、7 点 6:1、6 点 4:1、5 点 2:1、4 点 1:1；赢 3 点及以下或输则输。</li>
+        <li>每 15 秒自动开一局（右上角圆环为倒计时）；菜单 ≡ 里可立即开局、关闭自动开局、洗牌。不下注也会照常开局。</li>
+        <li>8 副牌，剩余约 1/4 时自动换靴洗牌，路单清空。牌桌在后台持续运行；你在桌上有下注时会等你回来再开。路单和牌靴保存在本机。</li>
       </ul>
-      <h4>大路怎么看</h4>
+      <h4>大路</h4>
       <ul>
-        <li><span class="key"><span class="br B"></span>庄赢</span>　<span class="key"><span class="br P"></span>闲赢</span>：同一方连赢往下排，换另一方赢另起一列；满 6 格向右转（长龙）。</li>
-        <li>和局画在前一格上的绿色斜线，数字为连续和局数。</li>
-        <li>红点（左上）= 庄对，蓝点（右下）= 闲对。</li>
+        <li><span class="key"><span class="br B"></span>庄赢</span>　<span class="key"><span class="br P"></span>闲赢</span>：同一方连赢往下排，换另一方赢另起一列；满 6 格向右转（长龙）。和局画成绿色斜线，红点 = 庄对，蓝点 = 闲对。</li>
+      </ul>
+      <h4>下三路（大眼仔、小路、曱甴路）</h4>
+      <ul>
+        <li>从大路推算出来，看的是「路有没有规律」，红色表示有规律（齐整），蓝色表示无规律，与庄闲无关。</li>
+        <li>大眼仔用空心圈，比较隔 1 列；小路用实心点，隔 2 列；曱甴路用斜线，隔 3 列。</li>
+        <li>大路换新列时：比较前一列和再往前第 N 列的长度，相同为红，不同为蓝。同列往下时：看往前第 N 列同一行，有为红；没有且上一格也没有为红；刚好在上一格结束为蓝。</li>
+        <li>下方 P / B 问路按钮显示「如果下一局闲赢 / 庄赢」三条下路会出什么；点一下会在路单上闪烁预览。</li>
       </ul>
     </div></div>
   </section>
-
   <!-- Blackjack -->
   <section id="v-blackjack" hidden>
     <div class="bar"><h2>21点</h2><span class="meta">6 副牌 · S17 · 牌靴剩余 <span id="bjShoe">312</span> 张</span><button class="rulebtn" type="button" data-rules="rules-bj">规则</button></div>
@@ -569,7 +737,7 @@ main > section > * { min-width: 0; }
     if (saved && typeof saved.bank === "number" && isFinite(saved.bank)) S.bank = saved.bank;
   } catch (e) {}
   function save() { try { localStorage.setItem("gbc-casino", JSON.stringify({ bank: S.bank })); } catch (e) {} }
-  function addBank(d) { S.bank = Math.round((S.bank + d) * 100) / 100; save(); $("#bank").textContent = fmt(S.bank); }
+  function addBank(d) { S.bank = Math.round((S.bank + d) * 100) / 100; save(); $("#bank").textContent = fmt(S.bank); $$(".bal-mirror").forEach((e) => { e.textContent = fmt(S.bank); }); }
   function take(a) { if (a > S.bank + 1e-9) return false; addBank(-a); return true; }
   addBank(0);
 
@@ -618,7 +786,7 @@ main > section > * { min-width: 0; }
     if (!VIEWS.includes(v)) v = "lobby";
     S.view = v;
     VIEWS.forEach((x) => { $("#v-" + x).hidden = x !== v; });
-    rack.hidden = v === "lobby";
+    rack.hidden = v === "lobby" || v === "baccarat";
     document.body.classList.toggle("has-rack", v !== "lobby");
     $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === v ? "true" : "false"));
     if (v === "roulette") drawWheel();
@@ -643,7 +811,9 @@ main > section > * { min-width: 0; }
   /* ======================================================
      BACCARAT (Punto Banco)
      ====================================================== */
-  const bac = { shoe: new Shoe(8), bets: { player: 0, banker: 0, tie: 0, ppair: 0, bpair: 0 }, last: null, busy: false, road: [] };
+  const BAC_KEYS = ["player", "banker", "tie", "ppair", "bpair", "pdragon", "bdragon", "perfect", "either"];
+  const emptyBets = () => Object.fromEntries(BAC_KEYS.map((k) => [k, 0]));
+  const bac = { shoe: new Shoe(8), bets: emptyBets(), last: null, busy: false, road: [], hist: [] };
   // Road and shoe survive leaving the page
   try {
     const sv = JSON.parse(localStorage.getItem("gbc-bac") || "null");
@@ -656,57 +826,109 @@ main > section > * { min-width: 0; }
   const bv = (c) => (c.r === "A" ? 1 : ["10", "J", "Q", "K"].includes(c.r) ? 0 : +c.r);
   const bt = (h) => h.reduce((a, c) => a + bv(c), 0) % 10;
   const bacTotal = () => Object.values(bac.bets).reduce((a, b) => a + b, 0);
+  const sumBets = (o) => Object.values(o).reduce((a, b) => a + b, 0);
+
   function bacRender() {
-    $$(".spot").forEach((s) => { setStake(s.querySelector(".stake"), bac.bets[s.dataset.bac]); s.disabled = bac.busy; });
+    $$("#v-baccarat .spot").forEach((s) => { setStake(s.querySelector(".stake"), bac.bets[s.dataset.bac]); s.disabled = bac.busy; });
+    const has = bacTotal() > 0;
     $("#bacDeal").disabled = bac.busy;
     $("#bacShuffle").disabled = bac.busy;
-    $("#bacClear").disabled = bac.busy || !bacTotal();
+    $("#bacClear").disabled = bac.busy || !has;
     $("#bacRebet").disabled = bac.busy || !bac.last;
+    $("#bacUndo").disabled = bac.busy || !bac.hist.length;
+    $("#bacDouble").disabled = bac.busy || !has;
     $("#bacShoe").textContent = bac.shoe.cards.length;
+    $("#bacBetTotal").textContent = fmt(bacTotal());
     renderAuto();
   }
-  $$(".spot").forEach((s) => s.addEventListener("click", () => {
+  function clearWins() {
+    $$("#v-baccarat .spot").forEach((x) => x.classList.remove("win"));
+    $("#bacPSide").classList.remove("won"); $("#bacBSide").classList.remove("won");
+  }
+  $$("#v-baccarat .spot").forEach((s) => s.addEventListener("click", () => {
     if (bac.busy) return;
-    $$(".spot").forEach((x) => x.classList.remove("win"));
-    if (!take(S.chip)) { msg($("#bacMsg"), '<span class="l">筹码不足。</span>'); return; }
-    bac.bets[s.dataset.bac] += S.chip; bacRender();
+    clearWins();
+    if (!take(S.chip)) { msg($("#bacMsg"), '<span class="l">筹码不足</span>'); return; }
+    bac.bets[s.dataset.bac] += S.chip; bac.hist.push([s.dataset.bac, S.chip]); bacRender();
   }));
+  $("#bacUndo").addEventListener("click", () => {
+    if (bac.busy || !bac.hist.length) return;
+    const [k, a] = bac.hist.pop();
+    bac.bets[k] = Math.max(0, bac.bets[k] - a); addBank(a); bacRender();
+  });
+  $("#bacDouble").addEventListener("click", () => {
+    if (bac.busy) return;
+    const t = bacTotal();
+    if (!t) return;
+    if (!take(t)) { msg($("#bacMsg"), '<span class="l">筹码不足，无法加倍</span>'); return; }
+    for (const k of BAC_KEYS) if (bac.bets[k]) { bac.hist.push([k, bac.bets[k]]); bac.bets[k] *= 2; }
+    bacRender();
+  });
   $("#bacClear").addEventListener("click", () => {
-    addBank(bacTotal()); for (const k in bac.bets) bac.bets[k] = 0; bacRender();
+    addBank(bacTotal()); bac.bets = emptyBets(); bac.hist = []; bacRender();
   });
   $("#bacRebet").addEventListener("click", () => {
     if (!bac.last) return;
-    const need = Object.values(bac.last).reduce((a, b) => a + b, 0);
-    addBank(bacTotal()); for (const k in bac.bets) bac.bets[k] = 0;
-    if (!take(need)) { msg($("#bacMsg"), '<span class="l">筹码不足，无法重复上局下注。</span>'); bacRender(); return; }
-    Object.assign(bac.bets, bac.last); bacRender();
+    const need = sumBets(bac.last);
+    addBank(bacTotal()); bac.bets = emptyBets(); bac.hist = [];
+    if (!take(need)) { msg($("#bacMsg"), '<span class="l">筹码不足，无法重复上局下注</span>'); bacRender(); return; }
+    Object.assign(bac.bets, bac.last);
+    for (const k of BAC_KEYS) if (bac.bets[k]) bac.hist.push([k, bac.bets[k]]);
+    bacRender();
   });
-  $("#bacDeal").addEventListener("click", bacDeal);
+  $("#bacDeal").addEventListener("click", () => bacDeal());
   $("#bacShuffle").addEventListener("click", () => {
     if (bac.busy) return;
     bac.shoe.fill(); bac.road = []; bacSave();
     $("#bacP").innerHTML = ""; $("#bacB").innerHTML = ""; $("#bacPT").textContent = "–"; $("#bacBT").textContent = "–";
-    $$(".spot").forEach((x) => x.classList.remove("win"));
-    $("#bacPSide").classList.remove("won"); $("#bacBSide").classList.remove("won");
+    clearWins();
     renderRoad(); bacRender(); resetAuto();
-    msg($("#bacMsg"), "已换新牌靴并洗牌，路单清空。");
+    msg($("#bacMsg"), "已换新牌靴，路单清空");
   });
+
+  // Chip picker for the baccarat control bar
+  const chipBtn = $("#bacChipBtn"), chipPop = $("#bacChipPop");
+  function syncChips() {
+    $$(".chip").forEach((c) => { if (c !== chipBtn) c.setAttribute("aria-pressed", +c.dataset.v === S.chip ? "true" : "false"); });
+    chipBtn.dataset.v = S.chip; chipBtn.textContent = compact(S.chip);
+  }
+  CHIPS.forEach((v) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.dataset.v = v; b.textContent = compact(v);
+    b.setAttribute("aria-label", "筹码 " + v);
+    b.addEventListener("click", () => { S.chip = v; syncChips(); chipPop.hidden = true; chipBtn.setAttribute("aria-expanded", "false"); });
+    chipPop.appendChild(b);
+  });
+  chipBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    chipPop.hidden = !chipPop.hidden; chipBtn.setAttribute("aria-expanded", String(!chipPop.hidden));
+  });
+  document.addEventListener("click", (e) => { if (!chipPop.hidden && !e.target.closest(".chipwrap")) { chipPop.hidden = true; chipBtn.setAttribute("aria-expanded", "false"); } });
+  $$("#rack .chip").forEach((c) => c.addEventListener("click", syncChips));
+  syncChips();
+
+  // Dragon Bonus multiplier (stake included): natural win 1:1, natural tie push, non-natural win by 9..4 pays 30..1
+  function dragonMult(x, y, xNat, yNat) {
+    if (x > y) return xNat ? 2 : ({ 9: 31, 8: 11, 7: 7, 6: 5, 5: 3, 4: 2 }[x - y] || 0);
+    if (x === y && xNat && yNat) return 1;
+    return 0;
+  }
 
   async function bacDeal() {
     if (bac.busy) return;
     const total = bacTotal();
     bac.busy = true; bacRender();
-    $$(".spot").forEach((x) => x.classList.remove("win"));
-    $("#bacPSide").classList.remove("won"); $("#bacBSide").classList.remove("won");
-    if (bac.shoe.needsShuffle()) { bac.shoe.fill(); bac.road = []; bacSave(); renderRoad(); msg($("#bacMsg"), "牌靴已重新洗牌，路单清空。"); await sleep(500); }
+    clearWins();
+    if (bac.shoe.needsShuffle()) { bac.shoe.fill(); bac.road = []; bacSave(); renderRoad(); msg($("#bacMsg"), "牌靴用完，已换新牌靴"); await sleep(500); }
     const P = [], B = [], pe = $("#bacP"), be = $("#bacB");
     pe.innerHTML = ""; be.innerHTML = ""; $("#bacPT").textContent = "–"; $("#bacBT").textContent = "–";
-    msg($("#bacMsg"), "发牌中…");
+    msg($("#bacMsg"), "停止下注 · 发牌中");
     const give = async (h, el, tEl) => { const c = bac.shoe.draw(); h.push(c); el.appendChild(cardEl(c)); tEl.textContent = bt(h); await sleep(DEAL_MS); return c; };
     await give(P, pe, $("#bacPT")); await give(B, be, $("#bacBT"));
     await give(P, pe, $("#bacPT")); await give(B, be, $("#bacBT"));
     let p = bt(P), b = bt(B);
-    if (p < 8 && b < 8) {
+    const pNat = p >= 8, bNat = b >= 8;
+    if (!pNat && !bNat) {
       let p3 = null;
       if (p <= 5) p3 = await give(P, pe, $("#bacPT"));
       if (p3 === null) {
@@ -721,29 +943,37 @@ main > section > * { min-width: 0; }
     p = bt(P); b = bt(B);
     const win = p > b ? "player" : b > p ? "banker" : "tie";
     const pp = P[0].r === P[1].r, bp = B[0].r === B[1].r;
-    const k = bac.bets;
+    const ppf = pp && P[0].s === P[1].s, bpf = bp && B[0].s === B[1].s;
+    const mult = {
+      player: win === "player" ? 2 : win === "tie" ? 1 : 0,
+      banker: win === "banker" ? 1.95 : win === "tie" ? 1 : 0,
+      tie: win === "tie" ? 9 : 0,
+      ppair: pp ? 12 : 0,
+      bpair: bp ? 12 : 0,
+      either: pp || bp ? 6 : 0,
+      perfect: ppf && bpf ? 201 : ppf || bpf ? 26 : 0,
+      pdragon: dragonMult(p, b, pNat, bNat),
+      bdragon: dragonMult(b, p, bNat, pNat),
+    };
     let pay = 0;
-    if (win === "player") pay += k.player * 2;
-    if (win === "banker") pay += k.banker * 1.95;
-    if (win === "tie") pay += k.tie * 9 + k.player + k.banker;
-    if (pp) pay += k.ppair * 12;
-    if (bp) pay += k.bpair * 12;
+    for (const k of BAC_KEYS) pay += bac.bets[k] * mult[k];
+    pay = Math.round(pay * 100) / 100;
     addBank(pay);
-    const name = { player: "闲赢", banker: "庄赢", tie: "和局" }[win];
-    $$(".spot").forEach((s) => {
-      const d = s.dataset.bac;
-      if (d === win || (d === "ppair" && pp) || (d === "bpair" && bp)) s.classList.add("win");
+    $$("#v-baccarat .spot").forEach((s) => {
+      const k = s.dataset.bac;
+      const won = k === "player" || k === "banker" ? win === k : mult[k] > 1;
+      if (won) s.classList.add("win");
     });
-    if (win === "player") $("#bacPSide").classList.add("won");
-    if (win === "banker") $("#bacBSide").classList.add("won");
-    if (win === "tie") { $("#bacPSide").classList.add("won"); $("#bacBSide").classList.add("won"); }
-    const extra = [pp ? "闲对" : "", bp ? "庄对" : ""].filter(Boolean).join("、");
-    msg($("#bacMsg"), "<b>" + name + "</b>（闲 " + p + " : 庄 " + b + "）" + (extra ? " · 出现" + extra : "") + (total ? " · 本局 " + net(pay - total) : " · 本局未下注"));
+    if (win !== "banker") $("#bacPSide").classList.add("won");
+    if (win !== "player") $("#bacBSide").classList.add("won");
+    const name = { player: "闲赢", banker: "庄赢", tie: "和局" }[win];
+    const extra = [pp ? "闲对" : "", bp ? "庄对" : ""].filter(Boolean).join(" ");
+    msg($("#bacMsg"), "<b>" + name + " " + p + " : " + b + "</b>" + (extra ? " · " + extra : "") + (total ? " · " + net(pay - total) : ""));
     bac.road.push({ w: win === "player" ? "P" : win === "banker" ? "B" : "T", pp, bp });
     bacSave();
     renderRoad();
     if (total) bac.last = { ...bac.bets };
-    for (const key in bac.bets) bac.bets[key] = 0;
+    bac.bets = emptyBets(); bac.hist = [];
     bac.busy = false; bacRender();
     resetAuto();
   }
@@ -763,7 +993,6 @@ main > section > * { min-width: 0; }
   $("#bacAuto").addEventListener("click", () => {
     autoOn = !autoOn;
     $("#bacAuto").setAttribute("aria-pressed", String(autoOn));
-
     resetAuto();
   });
   setInterval(() => {
@@ -772,49 +1001,106 @@ main > section > * { min-width: 0; }
     autoLeft--;
     if (autoLeft <= 0) { autoLeft = 0; renderAuto(); bacDeal(); } else renderAuto();
   }, 1000);
-  // Big Road: same winner stacks down a column; a change of winner starts a new column;
-  // ties are marked as a green slash on the previous cell; past 6 rows the streak turns right (dragon tail).
-  function renderRoad() {
+
+  /* ---------- Roads ---------- */
+  // Place a sequence on a 6-row grid: same symbol goes down, a new symbol starts a new column,
+  // and a streak that hits the bottom (or an occupied cell) turns right (dragon tail).
+  function place(seq, same) {
     const cells = new Map();
-    let col = -1, row = 0, start = -1, lastW = null, last = null, pendingTies = 0, maxCol = 0;
-    for (const e of bac.road) {
-      if (e.w === "T") { if (last) last.ties++; else pendingTies++; continue; }
-      if (e.w !== lastW) { start++; col = start; row = 0; }
+    let col = -1, row = 0, start = -1, prev = null, maxCol = 0, lastKey = null;
+    for (const it of seq) {
+      if (prev === null || !same(it, prev)) { start++; col = start; row = 0; }
       else if (row + 1 < 6 && !cells.has(col + "," + (row + 1))) row++;
       else col++;
-      last = { w: e.w, ties: pendingTies, pp: e.pp, bp: e.bp };
-      pendingTies = 0; lastW = e.w;
-      cells.set(col + "," + row, last);
+      lastKey = col + "," + row;
+      cells.set(lastKey, it); prev = it;
       maxCol = Math.max(maxCol, col);
     }
-    for (const [road, sc] of [[$("#bacRoad"), $("#bacRoadScroll")], [$("#lobbyRoad"), $("#lobbyRoadScroll")]]) {
-      if (!sc.clientWidth) continue;
-      for (let pass = 0; pass < 2; pass++) drawRoad(road, sc, cells, maxCol);
-    }
+    return { cells, maxCol, lastKey };
   }
-  function drawRoad(road, sc, cells, maxCol) {
-    const cellW = (road.firstElementChild && road.firstElementChild.getBoundingClientRect().width) || 14;
-    const cols = Math.max(Math.ceil((sc.clientWidth - 8) / cellW), maxCol + 4, 12);
-    road.innerHTML = "";
-    for (let c = 0; c < cols; c++) for (let r = 0; r < 6; r++) {
-      const d = document.createElement("span");
-      d.className = "rc"; d.style.gridColumn = c + 1; d.style.gridRow = r + 1;
-      const v = cells.get(c + "," + r);
-      if (v) {
-        d.innerHTML = '<span class="br ' + v.w + '">' +
-          (v.ties ? '<span class="tl"></span>' + (v.ties > 1 ? '<span class="tn">' + v.ties + "</span>" : "") : "") +
-          (v.bp ? '<span class="pd bp"></span>' : "") + (v.pp ? '<span class="pd pp"></span>' : "") + "</span>";
-        d.title = (v.w === "B" ? "庄" : "闲") + (v.ties ? " · 之后和 " + v.ties + " 局" : "");
+  // Big road entries with ties folded onto the previous cell
+  function bigEntries(list) {
+    const out = []; let pending = 0;
+    for (const e of list) {
+      if (e.w === "T") { if (out.length) out[out.length - 1].ties++; else pending++; continue; }
+      out.push({ w: e.w, ties: pending, pp: e.pp, bp: e.bp, ghost: e.ghost }); pending = 0;
+    }
+    return out;
+  }
+  // Derived road (k = 1 big eye boy, 2 small road, 3 cockroach) from the logical big-road columns
+  function derive(entries, k) {
+    const lens = [];
+    for (let i = 0; i < entries.length; i++) {
+      if (i === 0 || entries[i].w !== entries[i - 1].w) lens.push(1); else lens[lens.length - 1]++;
+    }
+    const out = [];
+    let i = 0;
+    lens.forEach((len, c) => {
+      for (let r = 0; r < len; r++, i++) {
+        if (c < k || (c === k && r === 0)) continue;
+        const red = r === 0 ? lens[c - 1] === lens[c - 1 - k] : lens[c - k] !== r;
+        out.push({ w: red ? "R" : "U", ghost: entries[i].ghost });
       }
-      road.appendChild(d);
-    }
-    const cw = sc.scrollWidth / cols;
-    sc.scrollLeft = Math.max(0, (maxCol + 3) * cw - sc.clientWidth);
+    });
+    return out;
   }
+  const sameW = (a, b) => a.w === b.w;
+  function drawGrid(road, sc, layout, cellHTML, minCols) {
+    if (!sc.clientWidth) return;
+    for (let pass = 0; pass < 2; pass++) {
+      const cellW = (road.firstElementChild && road.firstElementChild.getBoundingClientRect().width) || 14;
+      const cols = Math.max(Math.ceil((sc.clientWidth - 4) / cellW), layout.maxCol + 3, minCols);
+      const frag = document.createDocumentFragment();
+      for (let c = 0; c < cols; c++) for (let r = 0; r < 6; r++) {
+        const d = document.createElement("span");
+        d.className = "rc"; d.style.gridColumn = c + 1; d.style.gridRow = r + 1;
+        const v = layout.cells.get(c + "," + r);
+        if (v) { d.innerHTML = cellHTML(v); if (v.ghost) d.classList.add("ghost"); }
+        frag.appendChild(d);
+      }
+      road.innerHTML = ""; road.appendChild(frag);
+      const cw = sc.scrollWidth / cols;
+      sc.scrollLeft = Math.max(0, (layout.maxCol + 2) * cw - sc.clientWidth);
+    }
+  }
+  const bigHTML = (v) => '<span class="br ' + v.w + '">' +
+    (v.ties ? '<span class="tl"></span>' + (v.ties > 1 ? '<span class="tn">' + v.ties + "</span>" : "") : "") +
+    (v.bp ? '<span class="pd bp"></span>' : "") + (v.pp ? '<span class="pd pp"></span>' : "") + "</span>";
+  const dHTML = (cls) => (v) => '<span class="dr ' + cls + " " + v.w + '"></span>';
+
+  function renderRoad(preview) {
+    const list = preview ? bac.road.concat([{ w: preview, pp: false, bp: false, ghost: true }]) : bac.road;
+    const ents = bigEntries(list);
+    const big = place(ents, sameW);
+    drawGrid($("#bacRoad"), $("#bacRoadScroll"), big, bigHTML, 12);
+    drawGrid($("#lobbyRoad"), $("#lobbyRoadScroll"), big, bigHTML, 12);
+    const kinds = [["#bacEye", "#bacEyeScroll", "eye", 1], ["#bacSmall", "#bacSmallScroll", "small", 2], ["#bacRoach", "#bacRoachScroll", "roach", 3]];
+    for (const [r, s, cls, k] of kinds) drawGrid($(r), $(s), place(derive(ents, k), sameW), dHTML(cls), 6);
+    // counts and hand number
+    const cnt = { P: 0, B: 0, T: 0 };
+    bac.road.forEach((e) => cnt[e.w]++);
+    $("#cntP").textContent = cnt.P; $("#cntB").textContent = cnt.B; $("#cntT").textContent = cnt.T;
+    $("#bacHandNo").textContent = bac.road.length + 1; $("#bacHandNo2").textContent = bac.road.length + 1;
+    // ask road: what each derived road would show if the next hand were Player / Banker
+    for (const w of ["P", "B"]) {
+      const e2 = bigEntries(bac.road.concat([{ w }]));
+      const btn = $("#ask" + w);
+      [["eye", 1], ["small", 2], ["roach", 3]].forEach(([cls, k]) => {
+        const now = derive(bigEntries(bac.road), k).length, next = derive(e2, k);
+        const i = btn.querySelector(".aq." + cls);
+        i.className = "aq " + cls + (next.length > now ? " " + next[next.length - 1].w : "");
+      });
+    }
+  }
+  let askTimer;
+  for (const w of ["P", "B"]) $("#ask" + w).addEventListener("click", () => {
+    clearTimeout(askTimer); renderRoad(w);
+    askTimer = setTimeout(() => renderRoad(), 2500);
+  });
   renderRoad();
   bacRender();
   renderAuto();
-  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(renderRoad, 150); });
+  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => renderRoad(), 150); });
 
   /* ======================================================
      BLACKJACK
