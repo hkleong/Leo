@@ -1,6 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
+<meta name="version" content="0.8.10">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -138,6 +139,14 @@ main > section > * { min-width: 0; }
 .gtile b { font-size: 15px; }
 .gtile small { font-size: 11px; color: var(--muted); }
 .lfoot { display: flex; justify-content: center; margin-top: auto; }
+.verbtn { background: none; border: 0; color: var(--muted); font: 500 12px/1 var(--mono); letter-spacing: .06em; padding: 6px 10px; opacity: .8; }
+.verbtn b { color: var(--brass); font-weight: 600; }
+.vlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.vlist li { display: grid; grid-template-columns: 4.6em auto 1fr; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid rgba(212,175,55,.12); font-size: 13px; color: var(--muted); }
+.vlist li b { font: 600 13px/1.3 var(--mono); color: var(--ivory); }
+.vlist li:first-child b { color: var(--win); }
+.vlist li span { grid-column: 3; }
+.vlist .vmaj { font-style: normal; font-size: 10px; padding: 1px 6px; border-radius: 999px; background: var(--brass); color: var(--ink); }
 .linkbtn { background: none; border: 1px solid var(--brass-lo); border-radius: 999px; padding: 3px 12px; font-size: 12px; color: var(--muted); }
 
 /* Shared game stack */
@@ -634,6 +643,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 }
 @media (max-height: 640px) {
   .lobby-head .note { display: none; }
+  .verbtn { padding: 2px 8px; }
+  .lobby-head h2 { font-size: 20px; }
   .btile .road { --rc: 7px; }
   #v-lobby { gap: 7px; }
   .paysline { display: none; }
@@ -900,7 +911,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><b>老虎机系列</b><small>幸运 7 · 龙腾财宝</small></button>
       </div>
     </div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.8.10</b> · 更新记录</button></div>
   </section>
+
+  <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
+    <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+    <ol class="vlist"><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+  </div></div>
 
   <!-- Baccarat -->
   <section id="v-baccarat" class="game" hidden>
