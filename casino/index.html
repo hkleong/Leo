@@ -106,12 +106,12 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   transition: transform .12s ease;
 }
 .chip[aria-pressed="true"] { transform: translateY(-4px); box-shadow: 0 0 0 3px var(--win), 0 6px 10px rgba(0,0,0,.4); }
-.chip[data-v="10"] { --c: #d9d4c6; }
-.chip[data-v="50"] { --c: #d0473f; color: #fff; }
-.chip[data-v="100"] { --c: #2b6cc4; color: #fff; }
-.chip[data-v="500"] { --c: #6b3fa0; color: #fff; }
-.chip[data-v="1000"] { --c: #e0b647; }
-.chip[data-v="5000"] { --c: #2a2a2a; color: #fff; }
+[data-v="10"] { --c: #d9d4c6; }
+[data-v="50"] { --c: #d0473f; color: #fff; }
+[data-v="100"] { --c: #2b6cc4; color: #fff; }
+[data-v="500"] { --c: #6b3fa0; color: #fff; }
+[data-v="1000"] { --c: #e0b647; }
+[data-v="5000"] { --c: #2a2a2a; color: #fff; }
 
 .felt {
   border: 10px solid var(--rail);
@@ -130,13 +130,33 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
 .msg { min-height: 1.5em; font-size: 16px; margin: 0; }
 .msg .w { color: var(--win); font-weight: 600; }
 .msg .l { color: #e68c8c; }
+.autobar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.cd { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 14px; color: var(--ivory); min-width: 9em; }
+.cd b { font-size: 20px; color: var(--win); }
+.cd.soon b { color: #ff8f8f; }
+.cdbar { flex: 1 1 160px; height: 6px; border-radius: 999px; background: rgba(0,0,0,.35); overflow: hidden; }
+.cdbar i { display: block; height: 100%; width: 100%; background: var(--brass); transform-origin: left; transition: transform 1s linear; }
+.cd.soon + .cdbar i { background: #d2575e; }
+.toggle { background: transparent; border: 1px solid var(--brass-lo); border-radius: 999px; padding: 3px 12px; font-size: 13px; color: var(--muted); }
+.toggle[aria-pressed="true"] { color: var(--ink); background: var(--brass); border-color: var(--brass); }
 
-.stake {
-  display: inline-block; min-width: 0; font-family: var(--mono); font-size: 12px;
-  background: var(--ivory); color: var(--ink); border-radius: 999px; padding: 0 7px;
-  box-shadow: 0 1px 0 rgba(0,0,0,.5);
-}
+.stake { display: inline-block; line-height: 0; --d: 28px; }
 .stake:empty { display: none; }
+/* A placed bet is drawn as a stack of chips, largest at the bottom, with the total on the top chip */
+.cstack { position: relative; display: inline-block; width: var(--d); height: calc(var(--d) + (var(--n) - 1) * 3px); }
+.mchip {
+  position: absolute; left: 0; bottom: calc(var(--i) * 3px); width: var(--d); height: var(--d); border-radius: 50%;
+  background: radial-gradient(circle, var(--c) 50%, transparent 51%), repeating-conic-gradient(var(--c) 0 30deg, #fff 30deg 60deg);
+  box-shadow: 0 1px 0 rgba(0,0,0,.65), inset 0 0 0 1px rgba(0,0,0,.3);
+  animation: chipin .18s ease-out;
+}
+@keyframes chipin { from { transform: translateY(-8px); opacity: 0; } }
+.camt {
+  position: absolute; left: 50%; bottom: calc((var(--n) - 1) * 3px + var(--d) / 2); transform: translate(-50%, 50%);
+  font: 500 10px/1.3 var(--mono); color: var(--ivory); background: rgba(0,0,0,.7); border-radius: 999px; padding: 0 4px; white-space: nowrap;
+}
+.spot .stake { --d: 30px; display: block; height: 46px; display: grid; place-items: end center; }
+.cell .stake, .hot .stake { pointer-events: none; }
 
 /* Cards */
 .hand { display: flex; gap: 6px; flex-wrap: wrap; min-height: 80px; align-items: center; }
@@ -201,7 +221,9 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   width: 92px; height: 92px; border-radius: 50%; border: 2px solid var(--ivory);
   background: rgba(0,0,0,.12); display: grid; place-items: center; align-content: center; gap: 2px; text-align: center; font-size: 12px; color: var(--muted);
 }
-.circle .stake { font-size: 14px; }
+.circle .stake { --d: 34px; }
+.circle.has .hint { display: none; }
+.bj-hand .meta .stake { --d: 20px; }
 .insbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 10px 12px; border: 1px solid var(--brass); border-radius: 8px; }
 
 /* Roulette */
@@ -227,7 +249,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
 .cell.n-r { background: var(--red); } .cell.n-b { background: var(--black); } .cell.n-g { background: var(--zero); }
 .cell.outside { font-family: var(--body); font-weight: 600; font-size: 13px; }
 .cell:hover:not(:disabled) { filter: brightness(1.2); }
-.cell .stake { position: absolute; bottom: -6px; right: -4px; z-index: 2; font-size: 10px; padding: 0 5px; }
+.cell .stake { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; --d: 24px; }
 .cell.hit { box-shadow: 0 0 0 3px var(--win); z-index: 1; }
 .zone { position: relative; pointer-events: none; z-index: 3; }
 .hot { position: absolute; pointer-events: auto; border: 0; padding: 0; background: transparent; border-radius: 50%; width: 18px; height: 18px; }
@@ -242,9 +264,8 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
 .hot.nw { top: -10.5px; left: -10.5px; }
 .hot.se { bottom: -10.5px; right: -10.5px; }
 .hot.sw { bottom: -10.5px; left: -10.5px; }
-.hot .stake { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 10px; padding: 0 4px; z-index: 2; }
-.hot .stake:not(:empty) { outline: 2px solid var(--brass); }
-.hot.hit .stake:not(:empty) { outline-color: var(--win); box-shadow: 0 0 0 4px rgba(231,199,111,.5); }
+.hot .stake { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2; --d: 20px; }
+.hot.hit .cstack, .cell.hit .cstack { filter: drop-shadow(0 0 3px var(--win)) drop-shadow(0 0 3px var(--win)); }
 .diamond { width: 16px; height: 16px; transform: rotate(45deg); border-radius: 2px; }
 .diamond.r { background: var(--red); } .diamond.b { background: var(--black); border: 1px solid #777; }
 
@@ -331,7 +352,12 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
           <button class="spot spot-t" data-bac="tie" type="button"><b>和</b><small>8:1</small><span class="stake"></span></button>
           <button class="spot spot-b" data-bac="banker" type="button"><b>庄</b><small>0.95:1</small><span class="stake"></span></button>
         </div>
-        <p class="msg" id="bacMsg">可以先下注再发牌，也可以不下注直接发牌看路。</p>
+        <div class="autobar">
+          <span class="cd" id="bacCd">下一局 <b>30</b> 秒</span>
+          <span class="cdbar"><i id="bacCdBar"></i></span>
+          <button class="toggle" id="bacAuto" type="button" aria-pressed="true">自动开局：开</button>
+        </div>
+        <p class="msg" id="bacMsg">每 30 秒自动开一局，倒计时内随时下注；也可以点「发牌」立即开局。</p>
         <div class="actions">
           <button class="btn" id="bacDeal" type="button">发牌</button>
           <button class="btn ghost" id="bacRebet" type="button">重复上局</button>
@@ -378,7 +404,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
           <div class="bj-hands" id="bjHands"></div>
         </div>
         <div class="betbox" id="bjBetBox">
-          <button class="circle" id="bjCircle" type="button"><span>点击下注</span><span class="stake" id="bjStake"></span></button>
+          <button class="circle" id="bjCircle" type="button"><span class="hint">点击下注</span><span class="stake" id="bjStake"></span></button>
           <div class="actions">
             <button class="btn" id="bjDeal" type="button">发牌</button>
             <button class="btn ghost" id="bjRebet" type="button">重复上局</button>
@@ -465,6 +491,20 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   const DEAL_MS = reduced ? 60 : 380;
   const fmt = (n) => Number(n).toLocaleString("zh-CN", { maximumFractionDigits: 2 });
+  function chipBreak(a) {
+    const out = []; let r = Math.round(a * 100) / 100;
+    for (const v of [5000, 1000, 500, 100, 50, 10]) while (r >= v && out.length < 60) { out.push(v); r = Math.round((r - v) * 100) / 100; }
+    if (!out.length && a > 0) out.push(10);
+    return out;
+  }
+  function stakeHTML(a) {
+    if (!a) return "";
+    const cs = chipBreak(a).slice(0, 8);
+    return '<span class="cstack" style="--n:' + cs.length + '">' +
+      cs.map((v, i) => '<i class="mchip" data-v="' + v + '" style="--i:' + i + '"></i>').join("") +
+      '<b class="camt">' + compact(a) + "</b></span>";
+  }
+  function setStake(el, a) { const h = stakeHTML(a); if (el.dataset.a !== String(a || 0)) { el.innerHTML = h; el.dataset.a = String(a || 0); } }
   const compact = (n) => (n >= 1000 ? (n / 1000).toFixed(n % 1000 ? 1 : 0) + "k" : String(n));
 
   function rand(n) {
@@ -532,6 +572,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   const VIEWS = ["lobby", "baccarat", "blackjack", "roulette"];
   function show(v) {
     if (!VIEWS.includes(v)) v = "lobby";
+    S.view = v;
     VIEWS.forEach((x) => { $("#v-" + x).hidden = x !== v; });
     rack.hidden = v === "lobby";
     // keep rack right under the game title
@@ -556,11 +597,12 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   const bt = (h) => h.reduce((a, c) => a + bv(c), 0) % 10;
   const bacTotal = () => Object.values(bac.bets).reduce((a, b) => a + b, 0);
   function bacRender() {
-    $$(".spot").forEach((s) => { s.querySelector(".stake").textContent = bac.bets[s.dataset.bac] ? fmt(bac.bets[s.dataset.bac]) : ""; s.disabled = bac.busy; });
+    $$(".spot").forEach((s) => { setStake(s.querySelector(".stake"), bac.bets[s.dataset.bac]); s.disabled = bac.busy; });
     $("#bacDeal").disabled = bac.busy;
     $("#bacClear").disabled = bac.busy || !bacTotal();
     $("#bacRebet").disabled = bac.busy || !bac.last;
     $("#bacShoe").textContent = bac.shoe.cards.length;
+    renderAuto();
   }
   $$(".spot").forEach((s) => s.addEventListener("click", () => {
     if (bac.busy) return;
@@ -581,6 +623,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   $("#bacDeal").addEventListener("click", bacDeal);
 
   async function bacDeal() {
+    if (bac.busy) return;
     const total = bacTotal();
     bac.busy = true; bacRender();
     $$(".spot").forEach((x) => x.classList.remove("win"));
@@ -631,7 +674,30 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
     if (total) bac.last = { ...bac.bets };
     for (const key in bac.bets) bac.bets[key] = 0;
     bac.busy = false; bacRender();
+    resetAuto();
   }
+  // Auto-deal: one hand every 30 s while the baccarat table is on screen
+  const AUTO = 30;
+  let autoLeft = AUTO, autoOn = true;
+  function renderAuto() {
+    const cd = $("#bacCd");
+    if (!autoOn) { cd.innerHTML = "自动开局已关闭"; cd.classList.remove("soon"); $("#bacCdBar").style.transform = "scaleX(0)"; return; }
+    cd.innerHTML = bac.busy ? "开牌中…" : "下一局 <b>" + autoLeft + "</b> 秒";
+    cd.classList.toggle("soon", !bac.busy && autoLeft <= 5);
+    $("#bacCdBar").style.transform = "scaleX(" + (bac.busy ? 0 : autoLeft / AUTO) + ")";
+  }
+  function resetAuto() { autoLeft = AUTO; renderAuto(); }
+  $("#bacAuto").addEventListener("click", () => {
+    autoOn = !autoOn;
+    $("#bacAuto").setAttribute("aria-pressed", String(autoOn));
+    $("#bacAuto").textContent = "自动开局：" + (autoOn ? "开" : "关");
+    resetAuto();
+  });
+  setInterval(() => {
+    if (!autoOn || bac.busy || S.view !== "baccarat" || document.hidden) return;
+    autoLeft--;
+    if (autoLeft <= 0) { autoLeft = 0; renderAuto(); bacDeal(); } else renderAuto();
+  }, 1000);
   // Big Road: same winner stacks down a column; a change of winner starts a new column;
   // ties are marked as a green slash on the previous cell; past 6 rows the streak turns right (dragon tail).
   function renderRoad() {
@@ -666,6 +732,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   }
   renderRoad();
   bacRender();
+  renderAuto();
 
   /* ======================================================
      BLACKJACK
@@ -696,14 +763,14 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
       const meta = document.createElement("div"); meta.className = "meta";
       const v = hv(h.cards).t;
       meta.innerHTML = '<span class="total">' + (h.cards.length ? label(h.cards) : "–") + "</span>" +
-        '<span class="stake">' + fmt(h.bet) + "</span>" +
+        '<span class="stake">' + stakeHTML(h.bet) + "</span>" +
         (h.doubled ? '<span class="tag">加倍</span>' : "") +
         (isBJ(h) ? '<span class="tag w">Blackjack</span>' : "") +
         (v > 21 ? '<span class="tag l">爆牌</span>' : "") +
         (h.result ? '<span class="tag ' + (h.result.cls || "") + '">' + h.result.text + "</span>" : "");
       w.appendChild(hand); w.appendChild(meta); hs.appendChild(w);
     });
-    $("#bjStake").textContent = bj.bet ? fmt(bj.bet) : "";
+    setStake($("#bjStake"), bj.bet); $("#bjCircle").classList.toggle("has", !!bj.bet);
     const betting = bj.phase === "bet";
     $("#bjBetBox").hidden = !betting;
     $("#bjIns").hidden = bj.phase !== "insurance";
@@ -961,7 +1028,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   function rouRender() {
     $$("#rtable [data-k]").forEach((c) => {
       const v = rou.bets[c.dataset.k];
-      c.querySelector(".stake").textContent = v ? compact(v) : "";
+      setStake(c.querySelector(".stake"), v);
       c.disabled = rou.spinning;
     });
     $("#rouTotal").textContent = fmt(rouTotal());
