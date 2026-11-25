@@ -252,7 +252,17 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 @media (display-mode: standalone) { .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); } }
 .toast { max-width: 100%; background: rgba(11,11,12,.94); border: 1px solid var(--brass); border-radius: 999px; padding: 6px 14px; font-size: 13px; box-shadow: 0 8px 20px rgba(0,0,0,.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity .4s, transform .4s; }
 .toast.out { opacity: 0; transform: translateY(-8px); }
-.toast .w { color: var(--win); font-weight: 600; } .toast .l { color: #ff9a9a; }
+.toast .w { color: var(--win); font-weight: 600; }
+.bigwin { position: fixed; inset: 0; z-index: 90; background: radial-gradient(70% 55% at 50% 50%, rgba(60,40,0,.55), rgba(0,0,0,.86)); cursor: pointer; }
+.bigwin canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bw-in { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 4px; text-align: center; pointer-events: none; }
+.bw-t { margin: 0; font: 900 clamp(44px, 12vw, 96px)/1 var(--display); color: #ffe08a; letter-spacing: .08em; text-shadow: 0 0 24px rgba(255,170,0,.8), 0 4px 0 #8a5a00; animation: bwpulse 1s ease-in-out infinite alternate; }
+.bw-e { margin: 0; font: 800 clamp(16px, 4.5vw, 30px)/1 var(--body); color: #fff; letter-spacing: .3em; opacity: .9; }
+.bw-amt { margin-top: 14px; font: 800 clamp(36px, 11vw, 84px)/1 var(--mono); color: #fff; font-variant-numeric: tabular-nums; text-shadow: 0 0 18px rgba(255,215,0,.9), 0 3px 0 #a37a00; }
+.bw-skip { margin-top: 22px; font-size: 13px; color: rgba(255,255,255,.65); }
+@keyframes bwpulse { from { transform: scale(.96); } to { transform: scale(1.06); } }
+.bigwin.show .bw-in { animation: bwin .7s cubic-bezier(.2,1.5,.4,1); }
+@keyframes bwin { from { transform: scale(.4); opacity: 0; } } .toast .l { color: #ff9a9a; }
 .btable.shuffling .cdring, .btable.shuffling .bresult { visibility: hidden; }
 .stage { position: absolute; inset: 0; z-index: 6; border-radius: 12px; background: rgba(0,0,0,.62); overflow: hidden; pointer-events: none; }
 .stage .st-msg { position: absolute; left: 0; right: 0; top: 10px; text-align: center; margin: 0; font: 600 15px/1.3 var(--body); color: var(--win); letter-spacing: .08em; }
@@ -480,7 +490,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .mg-bet .lab { grid-auto-flow: column; gap: 8px; align-items: baseline; }
 .game .mg-bet .stake { left: 62%; }
 #mgRepeat { visibility: hidden; }
-#v-dragon .btn.big { min-width: 0; flex: 1 1 auto; max-width: 60%; }
+#v-dragon .btn.big { min-width: 0; flex: 1 1 auto; max-width: 50%; }
 
 .gtile .ico.emo { font-size: clamp(28px, 5vh, 44px); line-height: 1; }
 /* Texas Hold'em */
@@ -526,7 +536,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .sl-bet .lab { grid-auto-flow: column; gap: 8px; align-items: baseline; }
 .game .sl-bet .stake { left: 62%; }
 #slRepeat { visibility: hidden; }
-#v-slots .btn.big { min-width: 0; flex: 1 1 auto; max-width: 60%; }
+#v-slots .btn.big { min-width: 0; flex: 1 1 auto; max-width: 50%; }
+.spdbtn { border-radius: 999px; padding: 8px 12px; font: 700 15px/1 var(--mono); min-width: 3.4em; }
+.spdbtn.fast { background: var(--brass); color: var(--ink); }
 .autowrap { position: relative; display: inline-flex; }
 .autobtn { border-radius: 999px; padding: 8px 16px; font-size: 15px; min-width: 6.5em; }
 .autobtn.on { background: #c4161c; border-color: #ff6b6b; color: #fff; }
@@ -602,6 +614,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 </header>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="bigwin" id="bigwin" hidden role="dialog" aria-label="大奖"><canvas></canvas><div class="bw-in"><p class="bw-t">大奖</p><p class="bw-e">BIG WIN</p><b class="bw-amt">0</b><span class="bw-skip">点击任意处跳过</span></div></div>
 <main>
   <!-- Lobby -->
   <section id="v-lobby">
@@ -833,6 +846,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
           <button type="button" data-n="10">10 次</button><button type="button" data-n="25">25 次</button><button type="button" data-n="50">50 次</button><button type="button" data-n="100">100 次</button><button type="button" data-n="0">一直转</button>
         </span>
       </span>
+      <button class="btn ghost spdbtn" id="mgSpeed" type="button" title="旋转速度" aria-label="旋转速度">1×</button>
     </div></div>
     <div class="bctl" data-g="mg"></div>
     <div class="bfoot">
@@ -866,7 +880,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <tr><td>🐉 龙</td><td>2.5 / 8 / 25</td></tr><tr><td>🐟 锦鲤</td><td>1.5 / 5 / 15</td></tr><tr><td>🧧 红包</td><td>1.2 / 4 / 12</td></tr><tr><td>🏮 灯笼</td><td>1 / 2.5 / 10</td></tr>
         <tr><td>A · K</td><td>0.5 / 1.2 / 5</td></tr><tr><td>Q · J · 10</td><td>0.25 / 0.75 / 4</td></tr>
       </table>
-      <ul><li>理论回报率约 96%（用 600 万次旋转模拟验证）：免费旋转约每 156 次出现一次，金币锁定约每 100 次一次，GRAND 极为罕见。</li></ul>
+      <ul><li>「自动」旁边的 1× / 2× / 5× / 10× 调整旋转速度。一次赢得下注 20 倍以上（含免费旋转和金币锁定）会播放大奖动画，点任意处跳过。</li><li>理论回报率约 96%（用 600 万次旋转模拟验证）：免费旋转约每 156 次出现一次，金币锁定约每 100 次一次，GRAND 极为罕见。</li></ul>
     </div></div>
   </section>
 
@@ -946,6 +960,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
           <button type="button" data-n="10">10 次</button><button type="button" data-n="25">25 次</button><button type="button" data-n="50">50 次</button><button type="button" data-n="100">100 次</button><button type="button" data-n="0">一直转</button>
         </span>
       </span>
+      <button class="btn ghost spdbtn" id="slSpeed" type="button" title="旋转速度" aria-label="旋转速度">1×</button>
     </div></div>
     <div class="bctl" data-g="sl"></div>
     <div class="bfoot">
@@ -963,7 +978,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <div class="sheet-head"><h3>老虎机规则</h3><span class="note">幸运 7 · 3 卷轴 5 线</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
       <ul>
         <li>点「每线下注」放筹码，决定每条线的注额；每次旋转花费 每线注 × 5。注额会一直保留，可以连续旋转。</li>
-        <li>「自动」可以选择自动旋转 10、25、50、100 次或一直转，按「停止」结束；余额不够、注额清空或离开老虎机画面时会自动停止。</li>
+        <li>「自动」可以选择自动旋转 10、25、50、100 次或一直转，按「停止」结束；余额不够、注额清空或离开老虎机画面时会自动停止。旁边的 1× / 2× / 5× / 10× 调整旋转速度。</li>
+        <li>一次赢得下注 20 倍以上会播放大奖动画（20 倍大奖、50 倍巨奖、100 倍超级巨奖），点任意处可以跳过。</li>
         <li>5 条线：中间横线、上横线、下横线、两条对角线（两侧的数字标出每条线）。</li>
         <li>任一条线上三个相同符号即中奖，奖金 = 每线注 × 下表倍数；多条线可同时中奖。</li>
         <li>每个卷轴有 20 格：7 有 1 格、★ 2 格、BAR 3 格、♦ 4 格、♥ 4 格、♠ 6 格，三个卷轴独立随机停止，理论回报率约 96%。</li>
@@ -1043,6 +1059,71 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     return Math.floor(Math.random() * n);
   }
   function msg(el, html) { el.innerHTML = html; }
+  // Big win celebration: money bursts up from the bottom while the amount counts up from 0 (about 10 s, tap to skip)
+  function bigWin(amount, bet, speed) {
+    return new Promise((resolve) => {
+      const ov = $("#bigwin"), cv = ov.querySelector("canvas"), g = cv.getContext("2d"), amtEl = ov.querySelector(".bw-amt");
+      const ratio = amount / bet;
+      const tier = ratio >= 100 ? ["超级巨奖", "SUPER WIN"] : ratio >= 50 ? ["巨奖", "MEGA WIN"] : ["大奖", "BIG WIN"];
+      ov.querySelector(".bw-t").textContent = tier[0]; ov.querySelector(".bw-e").textContent = tier[1];
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const W = (cv.width = innerWidth * dpr), H = (cv.height = innerHeight * dpr);
+      const dur = reduced ? 900 : Math.max(2000, 10000 / (speed || 1));
+      const parts = [];
+      let done = false, raf = 0, lastTick = 0;
+      const t0 = performance.now();
+      ov.hidden = false; ov.classList.remove("show"); void ov.offsetWidth; ov.classList.add("show");
+      amtEl.textContent = "0"; SND.win();
+      function spawn(n) {
+        for (let i = 0; i < n && parts.length < 260; i++) parts.push({
+          x: W * (0.05 + Math.random() * 0.9), y: H + 30 * dpr,
+          vx: (Math.random() - 0.5) * 7 * dpr, vy: -(H * (0.016 + Math.random() * 0.014)),
+          r: (9 + Math.random() * 10) * dpr, ph: Math.random() * 6.28, sp: 0.1 + Math.random() * 0.2,
+          bill: Math.random() < 0.22, rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.2,
+        });
+      }
+      function draw(p) {
+        g.save(); g.translate(p.x, p.y);
+        if (p.bill) {
+          g.rotate(p.rot); g.scale(1, Math.abs(Math.cos(p.ph)) * 0.8 + 0.2);
+          g.fillStyle = "#2f8f4e"; g.fillRect(-p.r * 1.6, -p.r * 0.8, p.r * 3.2, p.r * 1.6);
+          g.strokeStyle = "#bff0c8"; g.lineWidth = 1.5 * dpr; g.strokeRect(-p.r * 1.4, -p.r * 0.6, p.r * 2.8, p.r * 1.2);
+          g.fillStyle = "#e9ffe9"; g.font = "700 " + Math.round(p.r) + "px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("¥", 0, 1);
+        } else {
+          const w = Math.max(0.12, Math.abs(Math.cos(p.ph)));
+          g.scale(w, 1);
+          const gr = g.createRadialGradient(-p.r * 0.3, -p.r * 0.3, p.r * 0.1, 0, 0, p.r);
+          gr.addColorStop(0, "#fff6c8"); gr.addColorStop(0.5, "#f0c33a"); gr.addColorStop(1, "#9a6b06");
+          g.fillStyle = gr; g.beginPath(); g.arc(0, 0, p.r, 0, Math.PI * 2); g.fill();
+          g.strokeStyle = "#ffe9a0"; g.lineWidth = 1.5 * dpr; g.beginPath(); g.arc(0, 0, p.r * 0.7, 0, Math.PI * 2); g.stroke();
+        }
+        g.restore();
+      }
+      function frame(now) {
+        const t = (now - t0) / dur;
+        const k = Math.min(1, t / 0.85), e = 1 - Math.pow(1 - k, 3);
+        amtEl.textContent = fmt(Math.floor(amount * e));
+        if (k < 1 && now - lastTick > 90) { SND.ball(); lastTick = now; }
+        if (t < 0.92) spawn(reduced ? 1 : 5);
+        g.clearRect(0, 0, W, H);
+        for (let i = parts.length - 1; i >= 0; i--) {
+          const p = parts[i];
+          p.vy += H * 0.00045; p.x += p.vx; p.y += p.vy; p.ph += p.sp; p.rot += p.vr;
+          if (p.y > H + 60 * dpr && p.vy > 0) { parts.splice(i, 1); continue; }
+          draw(p);
+        }
+        if (t >= 1) finish(false); else raf = requestAnimationFrame(frame);
+      }
+      function finish(skipped) {
+        if (done) return; done = true;
+        cancelAnimationFrame(raf);
+        amtEl.textContent = fmt(amount); SND.win();
+        setTimeout(() => { ov.hidden = true; ov.onclick = null; g.clearRect(0, 0, W, H); resolve(); }, skipped ? 350 : 700);
+      }
+      ov.onclick = () => finish(true);
+      raf = requestAnimationFrame(frame);
+    });
+  }
   function toast(html) {
     const t = document.createElement("div"); t.className = "toast"; t.innerHTML = html;
     const box = document.getElementById("toasts"); box.appendChild(t);
@@ -2531,7 +2612,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     let x = seed; for (let i = a.length - 1; i > 0; i--) { x = (x * 1103515245 + 12345) % 2147483648; const j = x % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
     return a;
   });
-  const sl = { line: 0, hist: [], stops: [0, 5, 10], spinning: false, auto: 0 };
+  const sl = { line: 0, hist: [], stops: [0, 5, 10], spinning: false, auto: 0, speed: 1 };
+  const slT = (ms) => (reduced ? Math.min(ms, 60) : ms / sl.speed);
   $("#slPay").innerHTML = SL_SYM.map((s) => '<span><b class="' + (s.name === "7" ? "s7" : s.name === "★" ? "sstar" : s.name === "BAR" ? "sbar" : s.name === "♠" ? "" : "sred") + '">' + s.name + "</b>×" + s.pay + "</span>").join("");
   const reelsEl = $("#slReels");
   for (let r = 0; r < 3; r++) { const d = document.createElement("div"); d.className = "reel"; d.innerHTML = '<div class="col"></div>'; reelsEl.appendChild(d); }
@@ -2582,7 +2664,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       for (let k = 0; k < spins; k++) seq.push(rand(SL_SYM.length));
       seq.push(...visible(r, stops[r]));
       col.innerHTML = seq.map(symHTML).join("");
-      const dist = (seq.length - 3) * cell, dur = reduced ? 80 : 1100 + r * 450;
+      const dist = (seq.length - 3) * cell, dur = slT(1100 + r * 450);
       const a = col.animate ? col.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.15,.6,.25,1)", fill: "forwards" }) : null;
       runs.push(new Promise((res) => setTimeout(() => { SND.flip(); res(); }, dur)));
       if (!a) col.style.transform = "translateY(-" + dist + "px)";
@@ -2601,8 +2683,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         $$('.lmarks i[data-l="' + li + '"]').forEach((e) => e.classList.add("on"));
       }
     });
-    if (pay) { addBank(pay); SND.win(); }
+    if (pay) { addBank(pay); if (pay < cost * 20) SND.win(); }
     msg($("#slMsg"), hits.length ? hits.join(" · ") + " · " + net(pay - cost) : "没有中奖 · " + net(-cost));
+    if (pay >= cost * 20) await bigWin(pay, cost, sl.speed);
     sl.spinning = false; slRender();
     return true;
   }
@@ -2617,7 +2700,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       if (!ok) break;
       if (sl.auto !== Infinity && sl.auto > 0) sl.auto--;
       slRender();
-      if (sl.auto > 0) await sleep(reduced ? 60 : 450);
+      if (sl.auto > 0) await sleep(slT(450));
     }
     sl.auto = 0; slRender();
   }
@@ -2658,7 +2741,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     S: '<span class="scat"><i>福</i></span>',
   };
   const MG_NAME = { D: "🐉", F: "🐟", H: "🧧", L: "🏮", A: "A", K: "K", Q: "Q", J: "J", T: "10" };
-  const mg = { bet: 0, hist: [], spinning: false, auto: 0, jp: { MAJOR: MGC.JP_BASE.MAJOR, GRAND: MGC.JP_BASE.GRAND } };
+  const mgT = (ms) => (reduced ? Math.min(ms, 60) : ms / mg.speed);
+  const mg = { speed: 1, bet: 0, hist: [], spinning: false, auto: 0, jp: { MAJOR: MGC.JP_BASE.MAJOR, GRAND: MGC.JP_BASE.GRAND } };
   try { const sv = JSON.parse(localStorage.getItem("gbc-mg") || "null"); if (sv && sv.MAJOR >= 150 && sv.GRAND >= 1000) mg.jp = { MAJOR: sv.MAJOR, GRAND: sv.GRAND }; } catch (e) {}
   const mgSave = () => { try { localStorage.setItem("gbc-mg", JSON.stringify(mg.jp)); } catch (e) {} };
   const jpMult = (k) => (k === "MAJOR" || k === "GRAND" ? mg.jp[k] : MGC.JP_BASE[k]);
@@ -2729,7 +2813,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       for (let k = 0; k < n; k++) parts.push(cellHTML(randCell()));
       grid[r].forEach((c) => parts.push(cellHTML(c)));
       col.innerHTML = parts.join("");
-      const dist = (parts.length - 3) * cell, dur = reduced ? 60 : 800 + r * 220;
+      const dist = (parts.length - 3) * cell, dur = mgT(800 + r * 220);
       if (col.animate) col.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.2,.65,.25,1)", fill: "forwards" });
       else col.style.transform = "translateY(-" + dist + "px)";
       runs.push(new Promise((res) => setTimeout(() => { SND.flip(); res(); }, dur)));
@@ -2750,7 +2834,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   // Hold & Spin: coins lock, the rest respin 3 times, a new coin resets the count; fill all 15 for GRAND
   async function mgHold(grid) {
-    banner("金币锁定", "金币锁住 · 其余重转 3 次"); SND.win(); await sleep(reduced ? 200 : 1700); hideBanner();
+    banner("金币锁定", "金币锁住 · 其余重转 3 次"); SND.win(); await sleep(mgT(1700)); hideBanner();
     const locked = new Map();
     grid.forEach((col, r) => col.forEach((c, i) => { if (c.s === "C") locked.set(r * 3 + i, c.v); }));
     const view = () => [0, 1, 2, 3, 4].map((r) => [0, 1, 2].map((i) => (locked.has(r * 3 + i) ? { s: "C", v: locked.get(r * 3 + i) } : { s: "B" })));
@@ -2760,9 +2844,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     let respins = 3;
     $("#mgMode").textContent = "金币锁定 · 剩余 " + respins + " 次";
     while (respins > 0 && locked.size < 15) {
-      await sleep(reduced ? 50 : 450);
+      await sleep(mgT(450));
       reelCols().forEach((col, r) => col.querySelectorAll(".mc").forEach((el, i) => { if (!locked.has(r * 3 + i)) el.classList.add("spin"); }));
-      SND.deal(); await sleep(reduced ? 50 : 520);
+      SND.deal(); await sleep(mgT(520));
       const fresh = [];
       for (let p = 0; p < 15; p++) if (!locked.has(p) && rand(10000) < MGC.P_COIN * 10000) { locked.set(p, mgCoin()); fresh.push(p); }
       mgDrawGrid(view(), new Set(locked.keys()));
@@ -2777,12 +2861,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       const amt = Math.round(jpMult(k) * mg.bet);
       pay += amt; jpRender(k);
       if (k === "MAJOR" || k === "GRAND") { mg.jp[k] = MGC.JP_BASE[k]; mgSave(); }
-      banner(k + " 头奖", "+" + fmt(amt)); SND.win(); await sleep(reduced ? 200 : 2200);
+      banner(k + " 头奖", "+" + fmt(amt)); SND.win(); await sleep(mgT(2200));
     }
     pay = Math.round(pay * 100) / 100;
     if (pay) addBank(pay);
     banner("金币锁定 +" + fmt(pay), locked.size + " 个金币" + (jps.length ? " · " + jps.join(" · ") : "")); SND.win();
-    await sleep(reduced ? 200 : 2200); hideBanner();
+    await sleep(mgT(2200)); hideBanner();
     gridEl.classList.remove("hold");
     mgDrawGrid(grid);
     $("#mgMode").textContent = "243 路 · 5 × 3";
@@ -2790,18 +2874,18 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   async function mgFree(sc) {
     let left = MGC.FS[Math.min(sc, 5)], done = 0, total = 0;
-    banner("免费旋转 " + left + " 次", "所有奖金 ×2"); SND.win(); await sleep(reduced ? 200 : 1800); hideBanner();
+    banner("免费旋转 " + left + " 次", "所有奖金 ×2"); SND.win(); await sleep(mgT(1800)); hideBanner();
     while (left > 0) {
       left--; done++;
       $("#mgMode").textContent = "免费旋转 " + done + " / " + (done + left) + " · 累计 +" + fmt(total);
       const r = await mgOne(true);
       total += r.pay;
       if (r.coins >= 6) total += await mgHold(r.grid);
-      if (r.scat >= 3) { const more = MGC.FS[Math.min(r.scat, 5)]; left += more; banner("再得 " + more + " 次", "免费旋转"); await sleep(reduced ? 100 : 1300); hideBanner(); }
+      if (r.scat >= 3) { const more = MGC.FS[Math.min(r.scat, 5)]; left += more; banner("再得 " + more + " 次", "免费旋转"); await sleep(mgT(1300)); hideBanner(); }
       $("#mgMode").textContent = "免费旋转 " + done + " / " + (done + left) + " · 累计 +" + fmt(total);
-      await sleep(reduced ? 50 : 600);
+      await sleep(mgT(600));
     }
-    banner("免费旋转结束", "共赢 +" + fmt(total)); await sleep(reduced ? 200 : 2000); hideBanner();
+    banner("免费旋转结束", "共赢 +" + fmt(total)); await sleep(mgT(2000)); hideBanner();
     $("#mgMode").textContent = "243 路 · 5 × 3";
     return total;
   }
@@ -2817,8 +2901,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (r.lines.length) notes.push(r.lines.join(" "));
     if (r.coins >= 6) { const h = await mgHold(r.grid); total += h; notes.push("金币锁定 +" + fmt(h)); }
     if (r.scat >= 3) { const f = await mgFree(r.scat); total += f; notes.push("免费旋转 +" + fmt(f)); }
-    if (total > 0 && r.pay > 0 && r.pay === total) SND.win();
+    if (total > 0 && r.pay > 0 && r.pay === total && total < mg.bet * 20) SND.win();
     msg($("#mgMsg"), (notes.length ? notes.join(" · ") + " · " : "没有中奖 · ") + net(total - mg.bet));
+    if (total >= mg.bet * 20) await bigWin(total, mg.bet, mg.speed);
     mg.spinning = false; mgRender();
     return true;
   }
@@ -2831,7 +2916,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       if (!(await mgSpin())) break;
       if (mg.auto !== Infinity && mg.auto > 0) mg.auto--;
       mgRender();
-      if (mg.auto > 0) await sleep(reduced ? 60 : 500);
+      if (mg.auto > 0) await sleep(mgT(500));
     }
     mg.auto = 0; mgRender();
   }
@@ -2845,6 +2930,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   document.addEventListener("click", (e) => { if (!e.target.closest("#v-dragon .autowrap")) mgPop.hidden = true; });
   mgDrawGrid(mgNewGrid());
 
+  // Spin speed for the slot machines: 1× · 2× · 5× · 10×
+  const SPEEDS = [1, 2, 5, 10];
+  [["#slSpeed", sl], ["#mgSpeed", mg]].forEach(([id, st]) => {
+    const b = $(id);
+    b.addEventListener("click", () => {
+      st.speed = SPEEDS[(SPEEDS.indexOf(st.speed) + 1) % SPEEDS.length];
+      b.textContent = st.speed + "×"; b.classList.toggle("fast", st.speed > 1);
+    });
+  });
   /* ---------- Start ---------- */
   bjRender();
   rouRender();
