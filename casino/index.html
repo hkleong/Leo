@@ -780,20 +780,9 @@ main > section > * { min-width: 0; }
   $("#soundBtn").addEventListener("click", () => { SND.set(!SND.on); syncSoundBtn(); if (SND.on) SND.chip(); });
   syncSoundBtn();
 
-  // iOS home-screen apps can report a viewport that is shorter than the screen by the status-bar
-  // height, which leaves an empty strip at the bottom. Stretch the app to the real screen height there.
-  function fitHomeScreen() {
-    const iosApp = navigator.standalone === true;
-    document.documentElement.classList.toggle("ios-app", iosApp);
-    if (!iosApp) return;
-    const portrait = innerHeight >= innerWidth;
-    const full = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
-    if (full - innerHeight > 20) { document.body.style.bottom = "auto"; document.body.style.height = full + "px"; }
-    else { document.body.style.bottom = ""; document.body.style.height = ""; }
-  }
-  fitHomeScreen();
-  addEventListener("resize", fitHomeScreen);
-  addEventListener("orientationchange", () => setTimeout(fitHomeScreen, 300));
+  // iOS home-screen app: mark it so the header can sit below the status-bar fade.
+  // (iOS reserves a strip at the bottom of such apps that the page cannot draw into, so the app keeps the visible height.)
+  document.documentElement.classList.toggle("ios-app", navigator.standalone === true);
   const fmt = (n) => Number(n).toLocaleString("zh-CN", { maximumFractionDigits: 2 });
   function chipBreak(a) {
     const out = []; let r = Math.round(a * 100) / 100;
