@@ -67,6 +67,12 @@ main > section > * { min-width: 0; }
 .bar { flex: none; display: flex; align-items: baseline; gap: 8px; }
 .bar h2 { font-family: var(--display); font-size: 20px; font-weight: 500; margin: 0; white-space: nowrap; }
 .bar .meta { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.rulebtn + .rulebtn { margin-left: 0 !important; }
+.lobby-live { display: grid; gap: 4px; margin-top: 4px; min-width: 0; }
+.lobby-live .road-scroll { overflow: hidden; padding: 3px; }
+#lobbyRoad { --rc: 12px; }
+#lobbyRoad .br { border-width: 2px; }
+#lobbyRoad .tn { display: none; }
 .rulebtn { margin-left: auto; flex: none; background: none; border: 1px solid var(--brass-lo); color: var(--brass); border-radius: 999px; padding: 1px 12px; font-size: 12px; }
 
 /* Lobby */
@@ -286,6 +292,7 @@ main > section > * { min-width: 0; }
   .seat { grid-template-columns: auto 1fr; column-gap: 14px; row-gap: 2px; padding: 12px 14px; }
   .seat .glyph { grid-row: 1 / span 4; align-self: center; width: 1.3em; text-align: center; }
   .seat .go { display: none; }
+  .seat .lobby-live { grid-column: 1 / -1; }
   .felt { padding: 10px; border-width: 4px; border-radius: 12px; outline-offset: -6px; }
   .spot b { font-size: 14px; }
   .rtable { --hs: 14px; }
@@ -295,6 +302,11 @@ main > section > * { min-width: 0; }
   .btn { padding: 6px 11px; }
   .rack .lbl { display: none; }
   .chip { width: 36px; height: 36px; }
+}
+@media (max-height: 620px) {
+  .lobby-head .note { display: none; }
+  #v-lobby { gap: 8px; }
+  .seat { padding-block: 8px; }
 }
 @media (max-width: 360px) {
   .nav button { padding: 3px 5px; }
@@ -336,6 +348,7 @@ main > section > * { min-width: 0; }
         <span class="en">Punto Banco</span>
         <h3>百家乐</h3>
         <ul><li>8 副牌 · 每 30 秒自动开局</li><li>闲 1:1 · 庄 0.95:1 · 和 8:1 · 对子 11:1</li></ul>
+        <span class="lobby-live"><span class="note" id="lobbyCd">下一局 30 秒</span><span class="road-scroll" id="lobbyRoadScroll"><span class="road" id="lobbyRoad"></span></span></span>
         <span class="go">入座</span>
       </button>
       <button class="seat" type="button" data-go="blackjack">
@@ -357,7 +370,7 @@ main > section > * { min-width: 0; }
 
   <!-- Baccarat -->
   <section id="v-baccarat" hidden>
-    <div class="bar"><h2>百家乐</h2><span class="meta">大路 · 8 副牌 · 牌靴剩余 <span id="bacShoe">416</span> 张</span><button class="rulebtn" type="button" data-rules="rules-bac">规则</button></div>
+    <div class="bar"><h2>百家乐</h2><span class="meta">大路 · 8 副牌 · 牌靴剩余 <span id="bacShoe">416</span> 张</span><button class="rulebtn" id="bacShuffle" type="button" title="换新牌靴并洗牌，路单清空">洗牌</button><button class="rulebtn" type="button" data-rules="rules-bac">规则</button></div>
     <div class="road-scroll" id="bacRoadScroll"><div class="road" id="bacRoad"></div></div>
     <div class="felt">
       <div class="bac-hands">
@@ -388,7 +401,8 @@ main > section > * { min-width: 0; }
         <li>闲家停牌时，庄家 0–5 点补牌，6–7 点停牌。</li>
         <li>闲家补了第三张时，庄家：0–2 补；3 点除非闲第三张为 8 都补；4 点在闲第三张为 2–7 时补；5 点在 4–7 时补；6 点在 6–7 时补；7 点停。</li>
         <li>赔率：闲 1:1；庄 1:1 抽 5% 佣金（即 0.95:1）；和 8:1，和局时庄闲下注退回；闲对/庄对（前两张同点数牌面）11:1。</li>
-        <li>8 副牌洗入牌靴，剩余约 1/4 时重新洗牌，路单同时清空。</li>
+        <li>8 副牌洗入牌靴，剩余约 1/4 时自动重新洗牌，路单同时清空；也可以随时点「洗牌」换新牌靴。</li>
+        <li>牌桌在后台持续运行，大厅里可以看到路单和倒计时；你在桌上有下注时，会等你回到百家乐再开局。路单和牌靴会保存在本机，关掉页面再打开也还在。</li>
         <li>每 30 秒自动开一局（发牌按钮右上角为倒计时），也可以点「发牌」立即开局或关闭自动开局；不下注也可以发牌看路。</li>
       </ul>
       <h4>大路怎么看</h4>
@@ -596,7 +610,8 @@ main > section > * { min-width: 0; }
     document.body.classList.toggle("has-rack", v !== "lobby");
     $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === v ? "true" : "false"));
     if (v === "roulette") drawWheel();
-    if (v === "baccarat") { renderRoad(); renderRoad(); }
+    if (v === "baccarat" || v === "lobby") renderRoad();
+    renderAuto();
   }
   $$("[data-go]").forEach((b) => b.addEventListener("click", () => {
     const v = b.dataset.go;
@@ -617,12 +632,22 @@ main > section > * { min-width: 0; }
      BACCARAT (Punto Banco)
      ====================================================== */
   const bac = { shoe: new Shoe(8), bets: { player: 0, banker: 0, tie: 0, ppair: 0, bpair: 0 }, last: null, busy: false, road: [] };
+  // Road and shoe survive leaving the page
+  try {
+    const sv = JSON.parse(localStorage.getItem("gbc-bac") || "null");
+    if (sv && Array.isArray(sv.road) && Array.isArray(sv.cards) && sv.cards.length >= bac.shoe.cut && sv.cards.every((c) => RANKS.includes(c.r) && SUITS.includes(c.s))) {
+      bac.road = sv.road.filter((e) => e && ["P", "B", "T"].includes(e.w)).map((e) => ({ w: e.w, pp: !!e.pp, bp: !!e.bp }));
+      bac.shoe.cards = sv.cards.map((c) => ({ r: c.r, s: c.s }));
+    }
+  } catch (e) {}
+  function bacSave() { try { localStorage.setItem("gbc-bac", JSON.stringify({ road: bac.road, cards: bac.shoe.cards })); } catch (e) {} }
   const bv = (c) => (c.r === "A" ? 1 : ["10", "J", "Q", "K"].includes(c.r) ? 0 : +c.r);
   const bt = (h) => h.reduce((a, c) => a + bv(c), 0) % 10;
   const bacTotal = () => Object.values(bac.bets).reduce((a, b) => a + b, 0);
   function bacRender() {
     $$(".spot").forEach((s) => { setStake(s.querySelector(".stake"), bac.bets[s.dataset.bac]); s.disabled = bac.busy; });
     $("#bacDeal").disabled = bac.busy;
+    $("#bacShuffle").disabled = bac.busy;
     $("#bacClear").disabled = bac.busy || !bacTotal();
     $("#bacRebet").disabled = bac.busy || !bac.last;
     $("#bacShoe").textContent = bac.shoe.cards.length;
@@ -645,6 +670,15 @@ main > section > * { min-width: 0; }
     Object.assign(bac.bets, bac.last); bacRender();
   });
   $("#bacDeal").addEventListener("click", bacDeal);
+  $("#bacShuffle").addEventListener("click", () => {
+    if (bac.busy) return;
+    bac.shoe.fill(); bac.road = []; bacSave();
+    $("#bacP").innerHTML = ""; $("#bacB").innerHTML = ""; $("#bacPT").textContent = "–"; $("#bacBT").textContent = "–";
+    $$(".spot").forEach((x) => x.classList.remove("win"));
+    $("#bacPSide").classList.remove("won"); $("#bacBSide").classList.remove("won");
+    renderRoad(); bacRender(); resetAuto();
+    msg($("#bacMsg"), "已换新牌靴并洗牌，路单清空。");
+  });
 
   async function bacDeal() {
     if (bac.busy) return;
@@ -652,7 +686,7 @@ main > section > * { min-width: 0; }
     bac.busy = true; bacRender();
     $$(".spot").forEach((x) => x.classList.remove("win"));
     $("#bacPSide").classList.remove("won"); $("#bacBSide").classList.remove("won");
-    if (bac.shoe.needsShuffle()) { bac.shoe.fill(); bac.road = []; renderRoad(); msg($("#bacMsg"), "牌靴已重新洗牌，路单清空。"); await sleep(500); }
+    if (bac.shoe.needsShuffle()) { bac.shoe.fill(); bac.road = []; bacSave(); renderRoad(); msg($("#bacMsg"), "牌靴已重新洗牌，路单清空。"); await sleep(500); }
     const P = [], B = [], pe = $("#bacP"), be = $("#bacB");
     pe.innerHTML = ""; be.innerHTML = ""; $("#bacPT").textContent = "–"; $("#bacBT").textContent = "–";
     msg($("#bacMsg"), "发牌中…");
@@ -694,13 +728,14 @@ main > section > * { min-width: 0; }
     const extra = [pp ? "闲对" : "", bp ? "庄对" : ""].filter(Boolean).join("、");
     msg($("#bacMsg"), "<b>" + name + "</b>（闲 " + p + " : 庄 " + b + "）" + (extra ? " · 出现" + extra : "") + (total ? " · 本局 " + net(pay - total) : " · 本局未下注"));
     bac.road.push({ w: win === "player" ? "P" : win === "banker" ? "B" : "T", pp, bp });
+    bacSave();
     renderRoad();
     if (total) bac.last = { ...bac.bets };
     for (const key in bac.bets) bac.bets[key] = 0;
     bac.busy = false; bacRender();
     resetAuto();
   }
-  // Auto-deal: one hand every 30 s while the baccarat table is on screen
+  // Auto-deal: one hand every 30 s; keeps running from other screens unless you have chips on the table
   const AUTO = 30;
   let autoLeft = AUTO, autoOn = true;
   function renderAuto() {
@@ -709,16 +744,19 @@ main > section > * { min-width: 0; }
     cd.classList.toggle("soon", autoOn && !bac.busy && autoLeft <= 5);
     cd.textContent = !autoOn ? "–" : bac.busy ? "…" : String(autoLeft);
     cd.style.setProperty("--p", !autoOn || bac.busy ? 0 : autoLeft / AUTO);
+    const lc = $("#lobbyCd");
+    if (lc) lc.textContent = !autoOn ? "自动开局已关闭" : bac.busy ? "开牌中…" : bacTotal() && S.view !== "baccarat" ? "桌上有你的下注，回到百家乐后开局" : "下一局 " + autoLeft + " 秒";
   }
   function resetAuto() { autoLeft = AUTO; renderAuto(); }
   $("#bacAuto").addEventListener("click", () => {
     autoOn = !autoOn;
     $("#bacAuto").setAttribute("aria-pressed", String(autoOn));
-    $("#bacAuto").textContent = "自动开局：" + (autoOn ? "开" : "关");
+
     resetAuto();
   });
   setInterval(() => {
-    if (!autoOn || bac.busy || S.view !== "baccarat" || document.hidden) return;
+    if (!autoOn || bac.busy || document.hidden) return;
+    if (S.view !== "baccarat" && bacTotal() > 0) { renderAuto(); return; }
     autoLeft--;
     if (autoLeft <= 0) { autoLeft = 0; renderAuto(); bacDeal(); } else renderAuto();
   }, 1000);
@@ -737,12 +775,17 @@ main > section > * { min-width: 0; }
       cells.set(col + "," + row, last);
       maxCol = Math.max(maxCol, col);
     }
-    const road = $("#bacRoad"), sc = $("#bacRoadScroll");
-    const cellW = (road.firstElementChild && road.firstElementChild.getBoundingClientRect().width) || 18;
+    for (const [road, sc] of [[$("#bacRoad"), $("#bacRoadScroll")], [$("#lobbyRoad"), $("#lobbyRoadScroll")]]) {
+      if (!sc.clientWidth) continue;
+      for (let pass = 0; pass < 2; pass++) drawRoad(road, sc, cells, maxCol);
+    }
+  }
+  function drawRoad(road, sc, cells, maxCol) {
+    const cellW = (road.firstElementChild && road.firstElementChild.getBoundingClientRect().width) || 14;
     const cols = Math.max(Math.ceil((sc.clientWidth - 8) / cellW), maxCol + 4, 12);
     road.innerHTML = "";
     for (let c = 0; c < cols; c++) for (let r = 0; r < 6; r++) {
-      const d = document.createElement("div");
+      const d = document.createElement("span");
       d.className = "rc"; d.style.gridColumn = c + 1; d.style.gridRow = r + 1;
       const v = cells.get(c + "," + r);
       if (v) {
@@ -759,7 +802,7 @@ main > section > * { min-width: 0; }
   renderRoad();
   bacRender();
   renderAuto();
-  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (S.view === "baccarat") { renderRoad(); renderRoad(); } }, 150); });
+  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(renderRoad, 150); });
 
   /* ======================================================
      BLACKJACK
