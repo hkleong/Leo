@@ -361,8 +361,8 @@ main > section > * { min-width: 0; }
         <span class="glyph">9</span>
         <span class="en">Punto Banco</span>
         <h3>百家乐</h3>
-        <ul><li>8 副牌 · 每 30 秒自动开局</li><li>闲 1:1 · 庄 0.95:1 · 和 8:1 · 对子 11:1</li></ul>
-        <span class="lobby-live"><span class="note" id="lobbyCd">下一局 30 秒</span><span class="road-scroll" id="lobbyRoadScroll"><span class="road" id="lobbyRoad"></span></span></span>
+        <ul><li>8 副牌 · 每 15 秒自动开局</li><li>闲 1:1 · 庄 0.95:1 · 和 8:1 · 对子 11:1</li></ul>
+        <span class="lobby-live"><span class="note" id="lobbyCd">下一局 15 秒</span><span class="road-scroll" id="lobbyRoadScroll"><span class="road" id="lobbyRoad"></span></span></span>
         <span class="go">入座</span>
       </button>
       <button class="seat" type="button" data-go="blackjack">
@@ -400,7 +400,7 @@ main > section > * { min-width: 0; }
       </div>
       <p class="msg" id="bacMsg">倒计时结束自动开局，期间随时下注。</p>
       <div class="actions">
-        <span class="dealwrap"><button class="btn" id="bacDeal" type="button">发牌</button><span class="cdb" id="bacCd" aria-live="off" title="距离自动开局的秒数">30</span></span>
+        <span class="dealwrap"><button class="btn" id="bacDeal" type="button">发牌</button><span class="cdb" id="bacCd" aria-live="off" title="距离自动开局的秒数">15</span></span>
         <button class="btn ghost" id="bacRebet" type="button">重复下注</button>
         <button class="btn ghost" id="bacClear" type="button">清除</button>
         <button class="toggle" id="bacAuto" type="button" aria-pressed="true">自动开局</button>
@@ -417,7 +417,7 @@ main > section > * { min-width: 0; }
         <li>赔率：闲 1:1；庄 1:1 抽 5% 佣金（即 0.95:1）；和 8:1，和局时庄闲下注退回；闲对/庄对（前两张同点数牌面）11:1。</li>
         <li>8 副牌洗入牌靴，剩余约 1/4 时自动重新洗牌，路单同时清空；也可以随时点「洗牌」换新牌靴。</li>
         <li>牌桌在后台持续运行，大厅里可以看到路单和倒计时；你在桌上有下注时，会等你回到百家乐再开局。路单和牌靴会保存在本机，关掉页面再打开也还在。</li>
-        <li>每 30 秒自动开一局（发牌按钮右上角为倒计时），也可以点「发牌」立即开局或关闭自动开局；不下注也可以发牌看路。</li>
+        <li>每 15 秒自动开一局（发牌按钮右上角为倒计时），也可以点「发牌」立即开局或关闭自动开局；不下注也可以发牌看路。</li>
       </ul>
       <h4>大路怎么看</h4>
       <ul>
@@ -749,8 +749,8 @@ main > section > * { min-width: 0; }
     bac.busy = false; bacRender();
     resetAuto();
   }
-  // Auto-deal: one hand every 30 s; keeps running from other screens unless you have chips on the table
-  const AUTO = 30;
+  // Auto-deal: one hand every 15 s; keeps running from other screens unless you have chips on the table
+  const AUTO = 15;
   let autoLeft = AUTO, autoOn = true;
   function renderAuto() {
     const cd = $("#bacCd");
