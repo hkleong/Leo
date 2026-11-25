@@ -1,0 +1,967 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>绿呢俱乐部</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one table under a brass rail; lobby of three seats, each game a felt panel with a shared chip rack. */
+:root {
+  --felt: #0e3a2d;
+  --felt-hi: #155240;
+  --felt-lo: #0a2a21;
+  --rail: #24160f;
+  --brass: #c9a45c;
+  --brass-lo: #8a6d34;
+  --ivory: #f2ead8;
+  --ink: #17140f;
+  --muted: #9cb8aa;
+  --red: #b52a31;
+  --black: #1d1d1f;
+  --zero: #1d7a4f;
+  --p-blue: #2f6fd1;
+  --win: #e7c76f;
+  --display: "Bodoni Moda", "Songti SC", "STSong", "Noto Serif SC", serif;
+  --body: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: radial-gradient(120% 80% at 50% 0%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
+  background-color: var(--felt);
+  background-attachment: fixed;
+  color: var(--ivory);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .4; }
+:focus-visible { outline: 2px solid var(--win); outline-offset: 2px; }
+
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--rail);
+  border-bottom: 3px solid var(--brass-lo);
+  box-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--rail); }
+.top-in, .wrap {
+  max-width: 980px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.top-in { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-block: 10px; }
+.brand { font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: .04em; color: var(--brass); margin: 0; cursor: pointer; background: none; border: 0; padding: 0; }
+.nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.nav button { background: none; border: 1px solid transparent; border-radius: 4px; padding: 4px 10px; color: var(--muted); }
+.nav button[aria-current="true"] { color: var(--ivory); border-color: var(--brass-lo); }
+.bank { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.bank-label { font-size: 12px; letter-spacing: .12em; color: var(--muted); }
+#bank { font-family: var(--mono); font-size: 18px; color: var(--win); font-variant-numeric: tabular-nums; }
+.linkbtn { background: none; border: 1px solid var(--brass-lo); border-radius: 4px; padding: 2px 8px; font-size: 12px; color: var(--muted); }
+
+.wrap { padding-block: 24px 48px; display: grid; gap: 20px; }
+.stack { display: grid; gap: 20px; min-width: 0; }
+[hidden] { display: none !important; }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+
+/* Lobby */
+.lobby-head h2 { font-family: var(--display); font-size: clamp(28px, 6vw, 44px); margin: 0; text-wrap: balance; font-weight: 500; }
+.seats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.seat {
+  text-align: left; border: 1px solid var(--brass-lo); border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.18));
+  padding: 20px; display: grid; gap: 10px; align-content: start;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.seat:hover { transform: translateY(-2px); border-color: var(--brass); }
+.seat .glyph { font-family: var(--display); font-size: 72px; line-height: 1; color: var(--brass); font-weight: 700; }
+.seat h3 { margin: 0; font-size: 20px; }
+.seat .en { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.seat ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+.seat .go { justify-self: start; margin-top: 4px; border: 1px solid var(--brass); color: var(--brass); padding: 4px 14px; border-radius: 999px; font-size: 13px; }
+
+/* Shared game chrome */
+.game-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.game-head h2 { font-family: var(--display); font-size: 30px; margin: 0; font-weight: 500; }
+.game-head .en { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+details.rules { border: 1px solid rgba(201,164,92,.35); border-radius: 8px; padding: 8px 14px; background: rgba(0,0,0,.15); }
+details.rules summary { cursor: pointer; color: var(--brass); font-size: 13px; }
+details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); font-size: 13px; max-width: 70ch; }
+
+.rack { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.rack .lbl { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin-right: 4px; }
+.chip {
+  --c: #e9e2cf;
+  width: 50px; height: 50px; border-radius: 50%;
+  border: 0; background:
+    radial-gradient(circle, var(--c) 52%, transparent 53%),
+    repeating-conic-gradient(var(--c) 0 20deg, #fff 20deg 40deg);
+  color: var(--ink); font-family: var(--mono); font-size: 12px; font-weight: 500;
+  box-shadow: 0 2px 0 rgba(0,0,0,.5), inset 0 0 0 2px rgba(0,0,0,.25);
+  transition: transform .12s ease;
+}
+.chip[aria-pressed="true"] { transform: translateY(-4px); box-shadow: 0 0 0 3px var(--win), 0 6px 10px rgba(0,0,0,.4); }
+.chip[data-v="10"] { --c: #d9d4c6; }
+.chip[data-v="50"] { --c: #d0473f; color: #fff; }
+.chip[data-v="100"] { --c: #2b6cc4; color: #fff; }
+.chip[data-v="500"] { --c: #6b3fa0; color: #fff; }
+.chip[data-v="1000"] { --c: #e0b647; }
+.chip[data-v="5000"] { --c: #2a2a2a; color: #fff; }
+
+.felt {
+  border: 10px solid var(--rail);
+  outline: 2px solid var(--brass-lo); outline-offset: -12px;
+  border-radius: 18px; padding: 22px;
+  background: radial-gradient(90% 70% at 50% 30%, var(--felt-hi), var(--felt));
+  display: grid; gap: 18px;
+  box-shadow: inset 0 0 40px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.35);
+}
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  border: 1px solid var(--brass); background: var(--brass); color: var(--ink);
+  border-radius: 6px; padding: 8px 18px; font-weight: 600;
+}
+.btn.ghost { background: transparent; color: var(--brass); }
+.msg { min-height: 1.5em; font-size: 16px; margin: 0; }
+.msg .w { color: var(--win); font-weight: 600; }
+.msg .l { color: #e68c8c; }
+
+.stake {
+  display: inline-block; min-width: 0; font-family: var(--mono); font-size: 12px;
+  background: var(--ivory); color: var(--ink); border-radius: 999px; padding: 0 7px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.5);
+}
+.stake:empty { display: none; }
+
+/* Cards */
+.hand { display: flex; gap: 6px; flex-wrap: wrap; min-height: 80px; align-items: center; }
+.card {
+  width: 54px; height: 76px; border-radius: 6px; background: var(--ivory); color: var(--black);
+  position: relative; box-shadow: 0 2px 4px rgba(0,0,0,.4);
+  font-family: var(--display); font-weight: 700;
+  animation: deal .25s ease-out;
+}
+.card .r { position: absolute; top: 3px; left: 6px; font-size: 17px; line-height: 1; }
+.card .s { position: absolute; inset: 0; display: grid; place-items: center; font-size: 28px; padding-top: 10px; }
+.card.red { color: var(--red); }
+.card.back {
+  background: repeating-linear-gradient(45deg, #7a1f25 0 6px, #94303a 6px 12px);
+  outline: 3px solid var(--ivory); outline-offset: -6px;
+}
+@keyframes deal { from { transform: translateY(-14px) rotate(-4deg); opacity: 0; } }
+.total { font-family: var(--mono); font-size: 13px; background: rgba(0,0,0,.35); padding: 1px 8px; border-radius: 999px; color: var(--ivory); }
+
+/* Baccarat */
+.bac-hands { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.bac-side { display: grid; gap: 8px; justify-items: center; text-align: center; }
+.bac-side h4 { margin: 0; font-size: 14px; letter-spacing: .1em; display: flex; align-items: center; gap: 8px; }
+.bac-side.won h4 { color: var(--win); }
+.bac-spots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.spot {
+  border: 1.5px solid rgba(242,234,216,.5); border-radius: 10px; background: rgba(0,0,0,.12);
+  padding: 10px 6px; display: grid; gap: 4px; justify-items: center; text-align: center; min-width: 0;
+}
+.spot:hover:not(:disabled) { background: rgba(255,255,255,.06); }
+.spot b { font-size: 16px; }
+.spot small { color: var(--muted); font-size: 11px; font-family: var(--mono); }
+.spot.win { border-color: var(--win); box-shadow: 0 0 0 2px var(--win) inset; }
+.spot-p { grid-column: span 2; border-color: var(--p-blue); }
+.spot-b { grid-column: span 2; border-color: var(--red); }
+.spot-t { grid-column: span 2; border-color: var(--zero); }
+.spot-pp, .spot-bp { grid-column: span 3; }
+.road { display: grid; grid-template-rows: repeat(6, 18px); grid-auto-flow: column; grid-auto-columns: 18px; gap: 3px; overflow-x: auto; padding: 8px; background: var(--ivory); border-radius: 6px; min-height: 140px; }
+.bead { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; color: #fff; font-weight: 700; }
+.bead.P { background: var(--p-blue); } .bead.B { background: var(--red); } .bead.T { background: var(--zero); }
+
+/* Blackjack */
+.bj-dealer, .bj-player { display: grid; gap: 8px; }
+.bj-label { font-size: 12px; letter-spacing: .14em; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.bj-hands { display: flex; gap: 14px; flex-wrap: wrap; }
+.bj-hand { padding: 8px; border-radius: 8px; border: 1px dashed transparent; display: grid; gap: 6px; }
+.bj-hand.active { border-color: var(--win); background: rgba(0,0,0,.15); }
+.bj-hand .meta { display: flex; gap: 6px; align-items: center; font-size: 12px; flex-wrap: wrap; }
+.tag { font-size: 11px; padding: 0 6px; border-radius: 4px; background: rgba(0,0,0,.35); }
+.tag.w { background: var(--win); color: var(--ink); }
+.tag.l { background: #5a2226; }
+.betbox { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.circle {
+  width: 92px; height: 92px; border-radius: 50%; border: 2px solid var(--ivory);
+  background: rgba(0,0,0,.12); display: grid; place-items: center; align-content: center; gap: 2px; text-align: center; font-size: 12px; color: var(--muted);
+}
+.circle .stake { font-size: 14px; }
+.insbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 10px 12px; border: 1px solid var(--brass); border-radius: 8px; }
+
+/* Roulette */
+.rou-top { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; }
+.wheel-box { position: relative; width: 240px; height: 240px; max-width: 100%; justify-self: center; }
+#wheel { width: 100%; height: 100%; display: block; }
+.pointer { position: absolute; left: 50%; top: -4px; transform: translateX(-50%); width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 16px solid var(--win); filter: drop-shadow(0 2px 2px rgba(0,0,0,.6)); }
+.rou-info { display: grid; gap: 10px; min-width: 0; }
+.result-big { font-family: var(--display); font-size: 56px; line-height: 1; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+.pill { display: inline-grid; place-items: center; min-width: 30px; height: 30px; border-radius: 50%; font-family: var(--mono); font-size: 12px; color: #fff; }
+.pill.r { background: var(--red); } .pill.b { background: var(--black); border: 1px solid #555; } .pill.g { background: var(--zero); }
+.result-big .pill { min-width: 64px; height: 64px; font-size: 28px; font-family: var(--display); }
+.hist { display: flex; gap: 4px; flex-wrap: wrap; }
+.table-scroll { overflow-x: auto; padding-bottom: 4px; }
+.rtable {
+  display: grid; grid-template-columns: 40px repeat(12, minmax(34px, 1fr)) 44px;
+  grid-template-rows: repeat(3, 42px) 38px 38px; gap: 3px; min-width: 560px;
+}
+.cell {
+  border: 1px solid rgba(242,234,216,.55); background: transparent; color: var(--ivory);
+  display: grid; place-items: center; position: relative; font-family: var(--display); font-weight: 700; font-size: 16px; border-radius: 3px; padding: 0;
+}
+.cell.n-r { background: var(--red); } .cell.n-b { background: var(--black); } .cell.n-g { background: var(--zero); }
+.cell.outside { font-family: var(--body); font-weight: 600; font-size: 13px; }
+.cell:hover:not(:disabled) { filter: brightness(1.2); }
+.cell .stake { position: absolute; bottom: -6px; right: -4px; z-index: 2; font-size: 10px; padding: 0 5px; }
+.cell.hit { box-shadow: 0 0 0 3px var(--win); z-index: 1; }
+.diamond { width: 16px; height: 16px; transform: rotate(45deg); border-radius: 2px; }
+.diamond.r { background: var(--red); } .diamond.b { background: var(--black); border: 1px solid #777; }
+
+@media (max-width: 640px) {
+  .rou-top { grid-template-columns: 1fr; }
+  .bac-spots { grid-template-columns: repeat(6, 1fr); }
+  .spot b { font-size: 14px; }
+  .felt { padding: 14px; border-width: 6px; }
+  .bank { margin-left: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none; }
+  .seat, .chip { transition: none; }
+}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <button class="brand" data-go="lobby" type="button">绿呢俱乐部</button>
+    <nav class="nav" aria-label="游戏">
+      <button type="button" data-go="lobby">大厅</button>
+      <button type="button" data-go="baccarat">百家乐</button>
+      <button type="button" data-go="blackjack">21点</button>
+      <button type="button" data-go="roulette">轮盘</button>
+    </nav>
+    <div class="bank">
+      <span class="bank-label">筹码余额</span>
+      <span id="bank">10,000</span>
+      <button class="linkbtn" id="resetBank" type="button">重置为 10,000</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Lobby -->
+  <section id="v-lobby" class="stack">
+    <div class="lobby-head">
+      <h2>选一张桌子坐下</h2>
+      <p class="note">纯娱乐模拟：所有筹码都是虚拟的，不涉及真实金钱。规则按国际通行标准设置。</p>
+    </div>
+    <div class="seats">
+      <button class="seat" type="button" data-go="baccarat">
+        <span class="glyph">9</span>
+        <span class="en">Punto Banco</span>
+        <h3>百家乐</h3>
+        <ul><li>8 副牌，固定补牌规则</li><li>闲 1:1 · 庄 0.95:1 · 和 8:1</li><li>闲对 / 庄对 11:1</li></ul>
+        <span class="go">入座</span>
+      </button>
+      <button class="seat" type="button" data-go="blackjack">
+        <span class="glyph">21</span>
+        <span class="en">Blackjack</span>
+        <h3>21点</h3>
+        <ul><li>6 副牌，庄家软 17 停牌</li><li>Blackjack 赔 3:2，保险 2:1</li><li>可加倍、分牌（最多 4 手）</li></ul>
+        <span class="go">入座</span>
+      </button>
+      <button class="seat" type="button" data-go="roulette">
+        <span class="glyph">0</span>
+        <span class="en">European Roulette</span>
+        <h3>轮盘</h3>
+        <ul><li>欧式单零，37 个格子</li><li>单号 35:1 · 打/列 2:1</li><li>红黑 / 单双 / 大小 1:1</li></ul>
+        <span class="go">入座</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Shared chip rack -->
+  <div class="rack" id="rack" hidden>
+    <span class="lbl">选择筹码</span>
+  </div>
+
+  <!-- Baccarat -->
+  <section id="v-baccarat" hidden>
+    <div class="stack">
+      <div class="game-head"><h2>百家乐</h2><span class="en">Punto Banco · 8 decks</span></div>
+      <div class="felt">
+        <div class="bac-hands">
+          <div class="bac-side" id="bacPSide"><h4 style="color:#8fb4ff">闲 PLAYER <span class="total" id="bacPT">–</span></h4><div class="hand" id="bacP"></div></div>
+          <div class="bac-side" id="bacBSide"><h4 style="color:#ff9a9a">庄 BANKER <span class="total" id="bacBT">–</span></h4><div class="hand" id="bacB"></div></div>
+        </div>
+        <div class="bac-spots">
+          <button class="spot spot-pp" data-bac="ppair" type="button"><b>闲对</b><small>11:1</small><span class="stake"></span></button>
+          <button class="spot spot-bp" data-bac="bpair" type="button"><b>庄对</b><small>11:1</small><span class="stake"></span></button>
+          <button class="spot spot-p" data-bac="player" type="button"><b>闲</b><small>1:1</small><span class="stake"></span></button>
+          <button class="spot spot-t" data-bac="tie" type="button"><b>和</b><small>8:1</small><span class="stake"></span></button>
+          <button class="spot spot-b" data-bac="banker" type="button"><b>庄</b><small>0.95:1</small><span class="stake"></span></button>
+        </div>
+        <p class="msg" id="bacMsg">选择筹码，点击下注区下注，然后发牌。</p>
+        <div class="actions">
+          <button class="btn" id="bacDeal" type="button">发牌</button>
+          <button class="btn ghost" id="bacRebet" type="button">重复上局</button>
+          <button class="btn ghost" id="bacClear" type="button">清除下注</button>
+        </div>
+      </div>
+      <div>
+        <p class="note" style="margin-bottom:6px">珠盘路（蓝 = 闲，红 = 庄，绿 = 和）· 牌靴剩余 <span id="bacShoe">416</span> 张</p>
+        <div class="road" id="bacRoad"></div>
+      </div>
+      <details class="rules"><summary>百家乐规则（Punto Banco 国际规则）</summary>
+        <ul>
+          <li>点数：A 为 1，2–9 按面值，10、J、Q、K 为 0；总点数取个位数。</li>
+          <li>任一方前两张为 8 或 9 点（天牌），双方都不再补牌。</li>
+          <li>闲家 0–5 点补一张，6–7 点停牌。</li>
+          <li>闲家停牌时，庄家 0–5 点补牌，6–7 点停牌。</li>
+          <li>闲家补了第三张时，庄家：0–2 补；3 点除非闲第三张为 8 都补；4 点在闲第三张为 2–7 时补；5 点在 4–7 时补；6 点在 6–7 时补；7 点停。</li>
+          <li>赔率：闲 1:1；庄 1:1 抽 5% 佣金（即 0.95:1）；和 8:1，和局时庄闲下注退回；闲对/庄对（前两张同点数牌面）11:1。</li>
+          <li>8 副牌洗入牌靴，剩余约 1/4 时重新洗牌。</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <!-- Blackjack -->
+  <section id="v-blackjack" hidden>
+    <div class="stack">
+      <div class="game-head"><h2>21点</h2><span class="en">Blackjack · 6 decks · S17 · 3:2</span></div>
+      <div class="felt">
+        <div class="bj-dealer">
+          <div class="bj-label">庄家 DEALER <span class="total" id="bjDT">–</span></div>
+          <div class="hand" id="bjD"></div>
+        </div>
+        <p class="note" style="text-align:center;letter-spacing:.12em">BLACKJACK PAYS 3 TO 2 · DEALER STANDS ON ALL 17s · INSURANCE PAYS 2 TO 1</p>
+        <div class="bj-player">
+          <div class="bj-label">玩家 PLAYER</div>
+          <div class="bj-hands" id="bjHands"></div>
+        </div>
+        <div class="betbox" id="bjBetBox">
+          <button class="circle" id="bjCircle" type="button"><span>点击下注</span><span class="stake" id="bjStake"></span></button>
+          <div class="actions">
+            <button class="btn" id="bjDeal" type="button">发牌</button>
+            <button class="btn ghost" id="bjRebet" type="button">重复上局</button>
+            <button class="btn ghost" id="bjClear" type="button">清除下注</button>
+          </div>
+        </div>
+        <div class="insbar" id="bjIns" hidden>
+          <span>庄家明牌是 A，是否购买保险（下注额的一半，赔 2:1）？</span>
+          <button class="btn" id="bjInsYes" type="button">买保险</button>
+          <button class="btn ghost" id="bjInsNo" type="button">不买</button>
+        </div>
+        <div class="actions" id="bjPlay" hidden>
+          <button class="btn" id="bjHit" type="button">要牌</button>
+          <button class="btn" id="bjStand" type="button">停牌</button>
+          <button class="btn ghost" id="bjDouble" type="button">加倍</button>
+          <button class="btn ghost" id="bjSplit" type="button">分牌</button>
+        </div>
+        <p class="msg" id="bjMsg">选择筹码，点击圆圈下注，然后发牌。</p>
+      </div>
+      <p class="note">牌靴剩余 <span id="bjShoe">312</span> 张</p>
+      <details class="rules"><summary>21点规则（国际通行规则）</summary>
+        <ul>
+          <li>6 副牌，剩余约 1/4 时重新洗牌。</li>
+          <li>点数：2–10 按面值，J/Q/K 为 10，A 为 1 或 11。目标是比庄家更接近 21 点且不超过。</li>
+          <li>前两张为 A + 10 点牌即 Blackjack，赔 3:2。</li>
+          <li>庄家明牌为 A 或 10 点牌时会查看底牌；庄家 Blackjack 时立即结算，玩家只输原始下注。</li>
+          <li>庄家明牌为 A 时可买保险（原注一半），庄家 Blackjack 则保险赔 2:1。</li>
+          <li>庄家 16 点及以下必须要牌，17 点（含软 17）停牌。</li>
+          <li>任意前两张可加倍（下注翻倍，只再拿一张）；分牌后也可加倍。</li>
+          <li>两张点数相同可分牌，最多分成 4 手；A 分牌后每手只发一张，且不可再分。分牌后的 21 点不算 Blackjack。</li>
+          <li>普通获胜 1:1，平局退回下注。</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <!-- Roulette -->
+  <section id="v-roulette" hidden>
+    <div class="stack">
+      <div class="game-head"><h2>轮盘</h2><span class="en">European · single zero</span></div>
+      <div class="felt">
+        <div class="rou-top">
+          <div class="wheel-box"><canvas id="wheel" width="480" height="480" aria-label="轮盘"></canvas><div class="pointer"></div></div>
+          <div class="rou-info">
+            <div class="result-big" id="rouResult"><span class="note" style="font-family:var(--body)">尚未开球</span></div>
+            <div><p class="note" style="margin-bottom:4px">最近结果</p><div class="hist" id="rouHist"></div></div>
+            <p class="msg" id="rouMsg">选择筹码，点击桌面下注，然后转动轮盘。</p>
+            <div class="actions">
+              <button class="btn" id="rouSpin" type="button">转动</button>
+              <button class="btn ghost" id="rouRebet" type="button">重复上局</button>
+              <button class="btn ghost" id="rouClear" type="button">清除下注</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-scroll"><div class="rtable" id="rtable"></div></div>
+        <p class="note">本桌总下注 <span id="rouTotal" style="font-family:var(--mono);color:var(--ivory)">0</span></p>
+      </div>
+      <details class="rules"><summary>轮盘规则（欧式单零国际规则）</summary>
+        <ul>
+          <li>轮盘共 37 格：0 与 1–36。0 为绿色，不属于红黑、单双、大小任何一方。</li>
+          <li>单号（Straight up）35:1。</li>
+          <li>打（1–12、13–24、25–36）与列（每一竖列 12 个号码）2:1。</li>
+          <li>红/黑、单/双、小（1–18）/大（19–36）1:1。</li>
+          <li>开出 0 时，所有外围注（打、列、红黑、单双、大小）均输。</li>
+          <li>每局可同时在多处下注，开球后统一结算。</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => Array.from(document.querySelectorAll(s));
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const DEAL_MS = reduced ? 60 : 380;
+  const fmt = (n) => Number(n).toLocaleString("zh-CN", { maximumFractionDigits: 2 });
+  const compact = (n) => (n >= 1000 ? (n / 1000).toFixed(n % 1000 ? 1 : 0) + "k" : String(n));
+
+  function rand(n) {
+    if (window.crypto && crypto.getRandomValues) {
+      const lim = Math.floor(0x100000000 / n) * n;
+      const a = new Uint32Array(1);
+      do { crypto.getRandomValues(a); } while (a[0] >= lim);
+      return a[0] % n;
+    }
+    return Math.floor(Math.random() * n);
+  }
+
+  /* ---------- Bank ---------- */
+  const START = 10000;
+  const S = { bank: START, chip: 100 };
+  try {
+    const saved = JSON.parse(localStorage.getItem("gbc-casino") || "null");
+    if (saved && typeof saved.bank === "number" && isFinite(saved.bank)) S.bank = saved.bank;
+  } catch (e) {}
+  function save() { try { localStorage.setItem("gbc-casino", JSON.stringify({ bank: S.bank })); } catch (e) {} }
+  function addBank(d) { S.bank = Math.round((S.bank + d) * 100) / 100; save(); $("#bank").textContent = fmt(S.bank); }
+  function take(a) { if (a > S.bank + 1e-9) return false; addBank(-a); return true; }
+  addBank(0);
+
+  /* ---------- Chip rack ---------- */
+  const CHIPS = [10, 50, 100, 500, 1000, 5000];
+  const rack = $("#rack");
+  CHIPS.forEach((v) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.dataset.v = v; b.textContent = compact(v);
+    b.setAttribute("aria-label", "筹码 " + v);
+    b.setAttribute("aria-pressed", v === S.chip ? "true" : "false");
+    b.addEventListener("click", () => {
+      S.chip = v;
+      $$(".chip").forEach((c) => c.setAttribute("aria-pressed", +c.dataset.v === v ? "true" : "false"));
+    });
+    rack.appendChild(b);
+  });
+
+  /* ---------- Cards & shoe ---------- */
+  const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+  const SUITS = ["♠", "♥", "♦", "♣"];
+  class Shoe {
+    constructor(decks) { this.decks = decks; this.fill(); }
+    fill() {
+      const c = [];
+      for (let d = 0; d < this.decks; d++) for (const s of SUITS) for (const r of RANKS) c.push({ r, s });
+      for (let i = c.length - 1; i > 0; i--) { const j = rand(i + 1); [c[i], c[j]] = [c[j], c[i]]; }
+      this.cards = c; this.cut = Math.floor(c.length * 0.25);
+    }
+    needsShuffle() { return this.cards.length < this.cut; }
+    draw() { return this.cards.pop(); }
+  }
+  function cardEl(c, hidden) {
+    const d = document.createElement("div");
+    d.className = "card" + (hidden ? " back" : "") + (!hidden && (c.s === "♥" || c.s === "♦") ? " red" : "");
+    if (!hidden) d.innerHTML = '<span class="r">' + c.r + '</span><span class="s">' + c.s + "</span>";
+    d.setAttribute("aria-label", hidden ? "暗牌" : c.s + c.r);
+    return d;
+  }
+  function msg(el, html) { el.innerHTML = html; }
+  const net = (n) => (n > 0 ? '<span class="w">赢 +' + fmt(n) + "</span>" : n < 0 ? '<span class="l">输 ' + fmt(n) + "</span>" : "持平");
+
+  /* ---------- Navigation ---------- */
+  const VIEWS = ["lobby", "baccarat", "blackjack", "roulette"];
+  function show(v) {
+    if (!VIEWS.includes(v)) v = "lobby";
+    VIEWS.forEach((x) => { $("#v-" + x).hidden = x !== v; });
+    rack.hidden = v === "lobby";
+    // keep rack right under the game title
+    if (v !== "lobby") { const sec = $("#v-" + v + " .stack"); sec.insertBefore(rack, sec.children[1]); }
+    $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === v ? "true" : "false"));
+    if (v === "roulette") drawWheel();
+  }
+  $$("[data-go]").forEach((b) => b.addEventListener("click", () => {
+    const v = b.dataset.go;
+    if (location.hash.slice(1) === v || (v === "lobby" && !location.hash)) show(v);
+    else location.hash = v === "lobby" ? "" : v;
+    window.scrollTo({ top: 0 });
+  }));
+  window.addEventListener("hashchange", () => show(location.hash.slice(1) || "lobby"));
+  $("#resetBank").addEventListener("click", () => { addBank(START - S.bank); });
+
+  /* ======================================================
+     BACCARAT (Punto Banco)
+     ====================================================== */
+  const bac = { shoe: new Shoe(8), bets: { player: 0, banker: 0, tie: 0, ppair: 0, bpair: 0 }, last: null, busy: false, road: [] };
+  const bv = (c) => (c.r === "A" ? 1 : ["10", "J", "Q", "K"].includes(c.r) ? 0 : +c.r);
+  const bt = (h) => h.reduce((a, c) => a + bv(c), 0) % 10;
+  const bacTotal = () => Object.values(bac.bets).reduce((a, b) => a + b, 0);
+  function bacRender() {
+    $$(".spot").forEach((s) => { s.querySelector(".stake").textContent = bac.bets[s.dataset.bac] ? fmt(bac.bets[s.dataset.bac]) : ""; s.disabled = bac.busy; });
+    $("#bacDeal").disabled = bac.busy;
+    $("#bacClear").disabled = bac.busy || !bacTotal();
+    $("#bacRebet").disabled = bac.busy || !bac.last;
+    $("#bacShoe").textContent = bac.shoe.cards.length;
+  }
+  $$(".spot").forEach((s) => s.addEventListener("click", () => {
+    if (bac.busy) return;
+    $$(".spot").forEach((x) => x.classList.remove("win"));
+    if (!take(S.chip)) { msg($("#bacMsg"), '<span class="l">筹码不足。</span>'); return; }
+    bac.bets[s.dataset.bac] += S.chip; bacRender();
+  }));
+  $("#bacClear").addEventListener("click", () => {
+    addBank(bacTotal()); for (const k in bac.bets) bac.bets[k] = 0; bacRender();
+  });
+  $("#bacRebet").addEventListener("click", () => {
+    if (!bac.last) return;
+    const need = Object.values(bac.last).reduce((a, b) => a + b, 0);
+    addBank(bacTotal()); for (const k in bac.bets) bac.bets[k] = 0;
+    if (!take(need)) { msg($("#bacMsg"), '<span class="l">筹码不足，无法重复上局下注。</span>'); bacRender(); return; }
+    Object.assign(bac.bets, bac.last); bacRender();
+  });
+  $("#bacDeal").addEventListener("click", bacDeal);
+
+  async function bacDeal() {
+    const total = bacTotal();
+    if (!total) { msg($("#bacMsg"), "请先下注。"); return; }
+    bac.busy = true; bacRender();
+    $$(".spot").forEach((x) => x.classList.remove("win"));
+    $("#bacPSide").classList.remove("won"); $("#bacBSide").classList.remove("won");
+    if (bac.shoe.needsShuffle()) { bac.shoe.fill(); msg($("#bacMsg"), "牌靴已重新洗牌。"); await sleep(500); }
+    const P = [], B = [], pe = $("#bacP"), be = $("#bacB");
+    pe.innerHTML = ""; be.innerHTML = ""; $("#bacPT").textContent = "–"; $("#bacBT").textContent = "–";
+    msg($("#bacMsg"), "发牌中…");
+    const give = async (h, el, tEl) => { const c = bac.shoe.draw(); h.push(c); el.appendChild(cardEl(c)); tEl.textContent = bt(h); await sleep(DEAL_MS); return c; };
+    await give(P, pe, $("#bacPT")); await give(B, be, $("#bacBT"));
+    await give(P, pe, $("#bacPT")); await give(B, be, $("#bacBT"));
+    let p = bt(P), b = bt(B);
+    if (p < 8 && b < 8) {
+      let p3 = null;
+      if (p <= 5) p3 = await give(P, pe, $("#bacPT"));
+      if (p3 === null) {
+        if (b <= 5) await give(B, be, $("#bacBT"));
+      } else {
+        const t = bv(p3);
+        const draw = b <= 2 || (b === 3 && t !== 8) || (b === 4 && t >= 2 && t <= 7) ||
+          (b === 5 && t >= 4 && t <= 7) || (b === 6 && (t === 6 || t === 7));
+        if (draw) await give(B, be, $("#bacBT"));
+      }
+    }
+    p = bt(P); b = bt(B);
+    const win = p > b ? "player" : b > p ? "banker" : "tie";
+    const pp = P[0].r === P[1].r, bp = B[0].r === B[1].r;
+    const k = bac.bets;
+    let pay = 0;
+    if (win === "player") pay += k.player * 2;
+    if (win === "banker") pay += k.banker * 1.95;
+    if (win === "tie") pay += k.tie * 9 + k.player + k.banker;
+    if (pp) pay += k.ppair * 12;
+    if (bp) pay += k.bpair * 12;
+    addBank(pay);
+    const name = { player: "闲赢", banker: "庄赢", tie: "和局" }[win];
+    $$(".spot").forEach((s) => {
+      const d = s.dataset.bac;
+      if (d === win || (d === "ppair" && pp) || (d === "bpair" && bp)) s.classList.add("win");
+    });
+    if (win === "player") $("#bacPSide").classList.add("won");
+    if (win === "banker") $("#bacBSide").classList.add("won");
+    if (win === "tie") { $("#bacPSide").classList.add("won"); $("#bacBSide").classList.add("won"); }
+    const extra = [pp ? "闲对" : "", bp ? "庄对" : ""].filter(Boolean).join("、");
+    msg($("#bacMsg"), "<b>" + name + "</b>（闲 " + p + " : 庄 " + b + "）" + (extra ? " · 出现" + extra : "") + " · 本局 " + net(pay - total));
+    bac.road.push(win === "player" ? "P" : win === "banker" ? "B" : "T");
+    if (bac.road.length > 72) bac.road.splice(0, 6);
+    const road = $("#bacRoad"); road.innerHTML = "";
+    bac.road.forEach((x) => { const d = document.createElement("span"); d.className = "bead " + x; d.textContent = { P: "闲", B: "庄", T: "和" }[x]; road.appendChild(d); });
+    road.scrollLeft = road.scrollWidth;
+    bac.last = { ...bac.bets };
+    for (const key in bac.bets) bac.bets[key] = 0;
+    bac.busy = false; bacRender();
+  }
+  bacRender();
+
+  /* ======================================================
+     BLACKJACK
+     ====================================================== */
+  const bj = { busy: false, shoe: new Shoe(6), bet: 0, lastBet: 0, hands: [], dealer: [], active: 0, phase: "bet", ins: 0, hole: true };
+  const cv = (c) => (c.r === "A" ? 1 : ["10", "J", "Q", "K"].includes(c.r) ? 10 : +c.r);
+  function hv(cards) {
+    let t = 0, a = 0;
+    for (const c of cards) { t += cv(c); if (c.r === "A") a++; }
+    let soft = false;
+    if (a && t + 10 <= 21) { t += 10; soft = true; }
+    return { t, soft };
+  }
+  const isBJ = (h) => h.cards.length === 2 && !h.split && hv(h.cards).t === 21;
+  const dealerBJ = () => bj.dealer.length === 2 && hv(bj.dealer).t === 21;
+  const label = (cards) => { const v = hv(cards); return v.soft && v.t < 21 ? v.t - 10 + "/" + v.t : String(v.t); };
+
+  function bjRender() {
+    const dEl = $("#bjD"); dEl.innerHTML = "";
+    bj.dealer.forEach((c, i) => dEl.appendChild(cardEl(c, i === 1 && bj.hole)));
+    $("#bjDT").textContent = !bj.dealer.length ? "–" : bj.hole ? String(hv([bj.dealer[0]]).t) : label(bj.dealer);
+    const hs = $("#bjHands"); hs.innerHTML = "";
+    bj.hands.forEach((h, i) => {
+      const w = document.createElement("div");
+      w.className = "bj-hand" + (bj.phase === "play" && i === bj.active ? " active" : "");
+      const hand = document.createElement("div"); hand.className = "hand";
+      h.cards.forEach((c) => hand.appendChild(cardEl(c)));
+      const meta = document.createElement("div"); meta.className = "meta";
+      const v = hv(h.cards).t;
+      meta.innerHTML = '<span class="total">' + (h.cards.length ? label(h.cards) : "–") + "</span>" +
+        '<span class="stake">' + fmt(h.bet) + "</span>" +
+        (h.doubled ? '<span class="tag">加倍</span>' : "") +
+        (isBJ(h) ? '<span class="tag w">Blackjack</span>' : "") +
+        (v > 21 ? '<span class="tag l">爆牌</span>' : "") +
+        (h.result ? '<span class="tag ' + (h.result.cls || "") + '">' + h.result.text + "</span>" : "");
+      w.appendChild(hand); w.appendChild(meta); hs.appendChild(w);
+    });
+    $("#bjStake").textContent = bj.bet ? fmt(bj.bet) : "";
+    const betting = bj.phase === "bet";
+    $("#bjBetBox").hidden = !betting;
+    $("#bjIns").hidden = bj.phase !== "insurance";
+    $("#bjPlay").hidden = bj.phase !== "play";
+    $("#bjClear").disabled = !bj.bet;
+    $("#bjRebet").disabled = !bj.lastBet;
+    $("#bjShoe").textContent = bj.shoe.cards.length;
+    $("#bjDeal").disabled = bj.busy;
+    $("#bjInsNo").disabled = bj.busy;
+    $("#bjInsYes").disabled = bj.busy || (bj.hands[0] && S.bank < bj.hands[0].bet / 2);
+    const h = bj.hands[bj.active];
+    const canAct = bj.phase === "play" && !bj.busy && h;
+    $("#bjHit").disabled = !canAct; $("#bjStand").disabled = !canAct;
+    const two = canAct && h.cards.length === 2;
+    $("#bjDouble").disabled = !two || S.bank < h.bet;
+    $("#bjSplit").disabled = !two || cv(h.cards[0]) !== cv(h.cards[1]) || bj.hands.length >= 4 || S.bank < h.bet || !!h.aces;
+  }
+  $("#bjCircle").addEventListener("click", () => {
+    if (bj.phase !== "bet" || bj.busy) return;
+    if (!take(S.chip)) { msg($("#bjMsg"), '<span class="l">筹码不足。</span>'); return; }
+    bj.bet += S.chip; bjRender();
+  });
+  $("#bjClear").addEventListener("click", () => { addBank(bj.bet); bj.bet = 0; bjRender(); });
+  $("#bjRebet").addEventListener("click", () => {
+    addBank(bj.bet); bj.bet = 0;
+    if (!take(bj.lastBet)) { msg($("#bjMsg"), '<span class="l">筹码不足，无法重复上局下注。</span>'); bjRender(); return; }
+    bj.bet = bj.lastBet; bjRender();
+  });
+  $("#bjDeal").addEventListener("click", bjDeal);
+  const lock = () => { bj.busy = true; bjRender(); };
+  const unlock = () => { bj.busy = false; bjRender(); };
+
+  async function bjDeal() {
+    if (bj.busy) return;
+    if (!bj.bet) { msg($("#bjMsg"), "请先下注。"); return; }
+    bj.busy = true;
+    if (bj.shoe.needsShuffle()) { bj.shoe.fill(); msg($("#bjMsg"), "牌靴已重新洗牌。"); }
+    else msg($("#bjMsg"), "发牌中…");
+    bj.lastBet = bj.bet;
+    bj.hands = [{ cards: [], bet: bj.bet }]; bj.bet = 0; bj.dealer = []; bj.hole = true; bj.ins = 0; bj.active = 0;
+    bj.phase = "dealing"; bjRender();
+    const h = bj.hands[0];
+    for (const who of ["p", "d", "p", "d"]) {
+      (who === "p" ? h.cards : bj.dealer).push(bj.shoe.draw());
+      bjRender(); await sleep(DEAL_MS);
+    }
+    if (bj.dealer[0].r === "A") {
+      bj.phase = "insurance"; unlock();
+      msg($("#bjMsg"), isBJ(h) ? "你拿到 Blackjack！庄家明牌是 A，可选择是否买保险。" : "庄家明牌是 A。");
+      return;
+    }
+    await bjPeek();
+  }
+  $("#bjInsYes").addEventListener("click", async () => {
+    if (bj.busy || bj.phase !== "insurance") return;
+    const amt = bj.hands[0].bet / 2;
+    if (!take(amt)) return;
+    bj.ins = amt; bj.phase = "dealing"; lock(); await bjPeek();
+  });
+  $("#bjInsNo").addEventListener("click", async () => {
+    if (bj.busy || bj.phase !== "insurance") return;
+    bj.phase = "dealing"; lock(); await bjPeek();
+  });
+
+  async function bjPeek() {
+    const h = bj.hands[0];
+    const up = cv(bj.dealer[0]);
+    const peeks = up === 1 || up === 10;
+    let note = "";
+    if (peeks && dealerBJ()) {
+      bj.hole = false;
+      let pay = 0;
+      if (bj.ins) { pay += bj.ins * 3; note += "保险赔付 +" + fmt(bj.ins * 2) + "。"; }
+      if (isBJ(h)) { pay += h.bet; h.result = { text: "平局" }; }
+      else h.result = { text: "输", cls: "l" };
+      addBank(pay);
+      const spent = h.bet + bj.ins;
+      bj.phase = "bet"; unlock();
+      msg($("#bjMsg"), "庄家 Blackjack。" + note + " 本局 " + net(pay - spent));
+      return;
+    }
+    if (bj.ins) note = "庄家不是 Blackjack，保险输掉。";
+    else if (peeks) note = "庄家查看底牌：不是 Blackjack。";
+    if (isBJ(h)) {
+      bj.hole = false;
+      const pay = h.bet * 2.5;
+      addBank(pay);
+      h.result = { text: "赢 3:2", cls: "w" };
+      bj.phase = "bet"; unlock();
+      msg($("#bjMsg"), note + " Blackjack！本局 " + net(pay - h.bet - bj.ins));
+      return;
+    }
+    bj.phase = "play"; unlock();
+    msg($("#bjMsg"), note + " 轮到你行动。");
+  }
+
+  async function bjNext() {
+    const h = bj.hands[bj.active];
+    if (h && !h.done) {
+      if (h.cards.length === 1) { h.cards.push(bj.shoe.draw()); bjRender(); await sleep(DEAL_MS); }
+      if (hv(h.cards).t >= 21) h.done = true;
+      else { bj.phase = "play"; unlock(); return; }
+    }
+    // advance to the next unfinished hand
+    while (bj.active < bj.hands.length && bj.hands[bj.active].done) bj.active++;
+    if (bj.active < bj.hands.length) { await bjNext(); return; }
+    await bjDealer();
+  }
+  const ready = () => bj.phase === "play" && !bj.busy;
+  $("#bjHit").addEventListener("click", async () => {
+    if (!ready()) return;
+    lock();
+    const h = bj.hands[bj.active];
+    h.cards.push(bj.shoe.draw());
+    if (hv(h.cards).t >= 21) h.done = true;
+    bjRender(); await sleep(DEAL_MS / 2);
+    await bjNext();
+  });
+  $("#bjStand").addEventListener("click", async () => { if (!ready()) return; lock(); bj.hands[bj.active].done = true; await bjNext(); });
+  $("#bjDouble").addEventListener("click", async () => {
+    if (!ready()) return;
+    const h = bj.hands[bj.active];
+    if (h.cards.length !== 2 || !take(h.bet)) return;
+    lock();
+    h.bet *= 2; h.doubled = true; h.cards.push(bj.shoe.draw()); h.done = true;
+    bjRender(); await sleep(DEAL_MS);
+    await bjNext();
+  });
+  $("#bjSplit").addEventListener("click", async () => {
+    if (!ready()) return;
+    const h = bj.hands[bj.active];
+    if (h.cards.length !== 2 || cv(h.cards[0]) !== cv(h.cards[1]) || bj.hands.length >= 4 || h.aces || !take(h.bet)) return;
+    lock();
+    const aces = h.cards[0].r === "A";
+    const nh = { cards: [h.cards.pop()], bet: h.bet, split: true, aces };
+    h.split = true; h.aces = aces;
+    bj.hands.splice(bj.active + 1, 0, nh);
+    if (aces) {
+      for (const x of [h, nh]) { x.cards.push(bj.shoe.draw()); x.done = true; bjRender(); await sleep(DEAL_MS); }
+    } else {
+      h.cards.push(bj.shoe.draw()); bjRender(); await sleep(DEAL_MS);
+      if (hv(h.cards).t >= 21) h.done = true;
+    }
+    await bjNext();
+  });
+
+  async function bjDealer() {
+    bj.phase = "dealer"; bj.hole = false; bjRender(); await sleep(DEAL_MS);
+    const live = bj.hands.some((h) => hv(h.cards).t <= 21);
+    if (live) {
+      while (hv(bj.dealer).t < 17) { bj.dealer.push(bj.shoe.draw()); bjRender(); await sleep(DEAL_MS); }
+    }
+    const d = hv(bj.dealer).t;
+    let pay = 0, spent = bj.ins;
+    for (const h of bj.hands) {
+      spent += h.bet;
+      const p = hv(h.cards).t;
+      if (p > 21) h.result = { text: "输", cls: "l" };
+      else if (d > 21 || p > d) { pay += h.bet * 2; h.result = { text: "赢", cls: "w" }; }
+      else if (p === d) { pay += h.bet; h.result = { text: "平局" }; }
+      else h.result = { text: "输", cls: "l" };
+    }
+    addBank(pay);
+    bj.phase = "bet"; unlock();
+    msg($("#bjMsg"), (d > 21 ? "庄家爆牌（" + d + "）。" : "庄家 " + d + " 点。") + " 本局 " + net(pay - spent));
+  }
+  bjRender();
+
+  /* ======================================================
+     ROULETTE (European, single zero)
+     ====================================================== */
+  const WHEEL = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+  const RED = new Set([1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]);
+  const colorOf = (n) => (n === 0 ? "g" : RED.has(n) ? "r" : "b");
+  const rou = { bets: {}, last: null, spinning: false, rot: 0, ball: -Math.PI / 2, hist: [], result: null };
+  const OUT = {
+    red: { t: '<span class="diamond r"></span>', x: 2, w: (n) => n > 0 && RED.has(n) },
+    black: { t: '<span class="diamond b"></span>', x: 2, w: (n) => n > 0 && !RED.has(n) },
+    odd: { t: "单", x: 2, w: (n) => n > 0 && n % 2 === 1 },
+    even: { t: "双", x: 2, w: (n) => n > 0 && n % 2 === 0 },
+    low: { t: "1–18", x: 2, w: (n) => n >= 1 && n <= 18 },
+    high: { t: "19–36", x: 2, w: (n) => n >= 19 },
+    d1: { t: "1–12", x: 3, w: (n) => n >= 1 && n <= 12 },
+    d2: { t: "13–24", x: 3, w: (n) => n >= 13 && n <= 24 },
+    d3: { t: "25–36", x: 3, w: (n) => n >= 25 },
+    c1: { t: "2:1", x: 3, w: (n) => n > 0 && n % 3 === 1 },
+    c2: { t: "2:1", x: 3, w: (n) => n > 0 && n % 3 === 2 },
+    c3: { t: "2:1", x: 3, w: (n) => n > 0 && n % 3 === 0 },
+  };
+  const NAMES = { red: "红", black: "黑", odd: "单", even: "双", low: "小 1–18", high: "大 19–36", d1: "第一打", d2: "第二打", d3: "第三打", c1: "第一列", c2: "第二列", c3: "第三列" };
+  function multiplier(key, n) {
+    if (key[0] === "n") return +key.slice(1) === n ? 36 : 0;
+    return OUT[key].w(n) ? OUT[key].x : 0;
+  }
+  // Build table
+  const tbl = $("#rtable");
+  function cell(key, html, cls, col, row) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "cell " + cls; b.dataset.k = key;
+    b.style.gridColumn = col; b.style.gridRow = row;
+    b.innerHTML = html + '<span class="stake"></span>';
+    b.setAttribute("aria-label", key[0] === "n" ? "号码 " + key.slice(1) : NAMES[key]);
+    b.addEventListener("click", () => rouBet(key));
+    tbl.appendChild(b);
+  }
+  cell("n0", "0", "n-g", "1", "1 / span 3");
+  for (let c = 0; c < 12; c++) for (let r = 0; r < 3; r++) {
+    const n = c * 3 + (3 - r);
+    cell("n" + n, String(n), "n-" + colorOf(n), String(c + 2), String(r + 1));
+  }
+  cell("c3", "2:1", "outside", "14", "1"); cell("c2", "2:1", "outside", "14", "2"); cell("c1", "2:1", "outside", "14", "3");
+  cell("d1", "1–12", "outside", "2 / span 4", "4"); cell("d2", "13–24", "outside", "6 / span 4", "4"); cell("d3", "25–36", "outside", "10 / span 4", "4");
+  ["low", "even", "red", "black", "odd", "high"].forEach((k, i) => cell(k, OUT[k].t, "outside", 2 + i * 2 + " / span 2", "5"));
+
+  const rouTotal = () => Object.values(rou.bets).reduce((a, b) => a + b, 0);
+  function rouRender() {
+    $$(".cell").forEach((c) => {
+      const v = rou.bets[c.dataset.k];
+      c.querySelector(".stake").textContent = v ? compact(v) : "";
+      c.disabled = rou.spinning;
+    });
+    $("#rouTotal").textContent = fmt(rouTotal());
+    $("#rouSpin").disabled = rou.spinning;
+    $("#rouClear").disabled = rou.spinning || !rouTotal();
+    $("#rouRebet").disabled = rou.spinning || !rou.last;
+  }
+  function rouBet(k) {
+    if (rou.spinning) return;
+    $$(".cell.hit").forEach((c) => c.classList.remove("hit"));
+    if (!take(S.chip)) { msg($("#rouMsg"), '<span class="l">筹码不足。</span>'); return; }
+    rou.bets[k] = (rou.bets[k] || 0) + S.chip; rouRender();
+  }
+  $("#rouClear").addEventListener("click", () => { addBank(rouTotal()); rou.bets = {}; rouRender(); });
+  $("#rouRebet").addEventListener("click", () => {
+    if (!rou.last) return;
+    addBank(rouTotal()); rou.bets = {};
+    const need = Object.values(rou.last).reduce((a, b) => a + b, 0);
+    if (!take(need)) { msg($("#rouMsg"), '<span class="l">筹码不足，无法重复上局下注。</span>'); rouRender(); return; }
+    rou.bets = { ...rou.last }; rouRender();
+  });
+
+  // Wheel drawing
+  const cv2 = $("#wheel"), ctx = cv2.getContext("2d");
+  const SEG = (Math.PI * 2) / 37;
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function drawWheel() {
+    const W = cv2.width, R = W / 2;
+    ctx.clearRect(0, 0, W, W);
+    ctx.save(); ctx.translate(R, R);
+    // rim
+    ctx.beginPath(); ctx.arc(0, 0, R - 2, 0, Math.PI * 2); ctx.fillStyle = css("--rail"); ctx.fill();
+    ctx.lineWidth = 6; ctx.strokeStyle = css("--brass-lo"); ctx.stroke();
+    ctx.save(); ctx.rotate(rou.rot);
+    const col = { r: css("--red"), b: css("--black"), g: css("--zero") };
+    WHEEL.forEach((n, i) => {
+      const a0 = -Math.PI / 2 + i * SEG;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, R * 0.9, a0, a0 + SEG); ctx.closePath();
+      ctx.fillStyle = col[colorOf(n)]; ctx.fill();
+      ctx.strokeStyle = css("--brass"); ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.save(); ctx.rotate(a0 + SEG / 2 + Math.PI / 2);
+      ctx.fillStyle = css("--ivory"); ctx.font = "700 " + Math.round(R * 0.085) + "px " + css("--mono");
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(String(n), 0, -R * 0.8); ctx.restore();
+    });
+    // pocket ring + hub
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.68, 0, Math.PI * 2); ctx.fillStyle = css("--felt-lo"); ctx.fill();
+    ctx.strokeStyle = css("--brass"); ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.42, 0, Math.PI * 2); ctx.fillStyle = css("--rail"); ctx.fill();
+    for (let i = 0; i < 4; i++) {
+      ctx.save(); ctx.rotate((i * Math.PI) / 2);
+      ctx.fillStyle = css("--brass"); ctx.fillRect(-4, -R * 0.4, 8, R * 0.8); ctx.restore();
+    }
+    ctx.beginPath(); ctx.arc(0, 0, R * 0.1, 0, Math.PI * 2); ctx.fillStyle = css("--brass"); ctx.fill();
+    ctx.restore();
+    // ball
+    if (rou.result !== null || rou.spinning) {
+      const br = rou.spinning ? R * 0.74 : R * 0.72;
+      ctx.beginPath(); ctx.arc(Math.cos(rou.ball) * br, Math.sin(rou.ball) * br, R * 0.04, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.strokeStyle = "rgba(0,0,0,.4)"; ctx.lineWidth = 1; ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  $("#rouSpin").addEventListener("click", () => {
+    const total = rouTotal();
+    if (!total) { msg($("#rouMsg"), "请先下注。"); return; }
+    rou.spinning = true; rouRender();
+    $$(".cell.hit").forEach((c) => c.classList.remove("hit"));
+    msg($("#rouMsg"), "不再下注……");
+    const n = rand(37), idx = WHEEL.indexOf(n);
+    const TAU = Math.PI * 2;
+    const desired = -(idx + 0.5) * SEG;
+    const start = rou.rot;
+    const delta = (((desired - start) % TAU) + TAU) % TAU;
+    const target = start + (reduced ? 0 : TAU * 4) + delta;
+    const bStart = -Math.PI / 2 + (reduced ? 0 : TAU * 7), bEnd = -Math.PI / 2;
+    const dur = reduced ? 400 : 4800, t0 = performance.now();
+    const ease = (t) => 1 - Math.pow(1 - t, 4);
+    function frame(now) {
+      const t = Math.min(1, (now - t0) / dur), e = ease(t);
+      rou.rot = start + (target - start) * e;
+      rou.ball = bStart + (bEnd - bStart) * ease(Math.min(1, t * 1.05));
+      drawWheel();
+      if (t < 1) requestAnimationFrame(frame); else finish();
+    }
+    function finish() {
+      rou.rot = ((target % TAU) + TAU) % TAU; rou.ball = bEnd; rou.result = n; rou.spinning = false;
+      drawWheel();
+      let pay = 0; const wins = [];
+      for (const k in rou.bets) { const m = multiplier(k, n); if (m) { pay += rou.bets[k] * m; wins.push(k[0] === "n" ? "单号 " + k.slice(1) : NAMES[k]); } }
+      addBank(pay);
+      const c = colorOf(n);
+      $("#rouResult").innerHTML = '<span class="pill ' + c + '">' + n + "</span><span style=\"font-size:20px;font-family:var(--body);font-weight:500\">" +
+        (n === 0 ? "零" : (c === "r" ? "红" : "黑") + " · " + (n % 2 ? "单" : "双") + " · " + (n <= 18 ? "小" : "大")) + "</span>";
+      rou.hist.unshift(n); rou.hist = rou.hist.slice(0, 16);
+      $("#rouHist").innerHTML = rou.hist.map((x) => '<span class="pill ' + colorOf(x) + '">' + x + "</span>").join("");
+      $$(".cell").forEach((el) => { if (multiplier(el.dataset.k, n)) el.classList.add("hit"); });
+      msg($("#rouMsg"), "开出 <b>" + n + "</b>。" + (wins.length ? "中奖：" + wins.join("、") + "。" : "") + " 本局 " + net(pay - total));
+      rou.last = { ...rou.bets }; rou.bets = {}; rouRender();
+    }
+    requestAnimationFrame(frame);
+  });
+  rouRender();
+
+  show(location.hash.slice(1) || "lobby");
+})();
+</script>
