@@ -1,6 +1,6 @@
 {
-  "name": "绿呢俱乐部",
-  "short_name": "绿呢俱乐部",
+  "name": "俱乐部",
+  "short_name": "俱乐部",
   "description": "用虚拟筹码玩百家乐、21点和欧式轮盘，规则按国际标准设置。",
   "lang": "zh-CN",
   "start_url": "./",

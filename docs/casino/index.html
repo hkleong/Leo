@@ -2,13 +2,13 @@
 <html lang="zh-CN">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>绿呢俱乐部</title>
+<title>俱乐部</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="绿呢俱乐部">
+<meta name="apple-mobile-web-app-title" content="俱乐部">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/favicon-32.png">
@@ -242,6 +242,18 @@ main > section > * { min-width: 0; }
   border-radius: 4px 10px 6px 4px; background: linear-gradient(160deg, #2c2c31, #0c0c0d); border: 1px solid var(--brass-lo);
   box-shadow: -3px 3px 8px rgba(0,0,0,.45); transform: rotate(-8deg); pointer-events: none;
 }
+.shoebox.lift { z-index: 8; }
+.btable.shuffling .cdring, .btable.shuffling .bresult { visibility: hidden; }
+.stage { position: absolute; inset: 0; z-index: 6; border-radius: 12px; background: rgba(0,0,0,.62); overflow: hidden; pointer-events: none; }
+.stage .st-msg { position: absolute; left: 0; right: 0; top: 10px; text-align: center; margin: 0; font: 600 15px/1.3 var(--body); color: var(--win); letter-spacing: .08em; }
+.stage .st-sub { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; margin: 0; font-size: 13px; color: var(--ivory); }
+.stage .sc {
+  position: absolute; left: 50%; top: 56%; width: calc(var(--cw) * .8); height: calc(var(--cw) * 1.12);
+  margin: calc(var(--cw) * -.56) 0 0 calc(var(--cw) * -.4); border-radius: 4px;
+  background: repeating-linear-gradient(45deg, #7a1f25 0 5px, #94303a 5px 10px); outline: 2px solid var(--ivory); outline-offset: -4px; box-shadow: 0 2px 4px rgba(0,0,0,.5);
+}
+.stage .burnface { position: absolute; left: 50%; top: 52%; margin: calc(var(--cw) * -.7) 0 0 calc(var(--cw) * -.5); }
+.stage .discard { left: 16%; top: 70%; }
 .shoebox::before { content: ""; position: absolute; left: 12%; top: 14%; width: 70%; height: 66%; border-radius: 3px; background: repeating-linear-gradient(45deg, #7a1f25 0 4px, #94303a 4px 8px); outline: 2px solid var(--ivory); outline-offset: -4px; }
 
 /* Rules and menu sheets */
@@ -457,7 +469,7 @@ main > section > * { min-width: 0; }
 
 <header class="top">
   <div class="top-in">
-    <button class="brand" data-go="lobby" type="button">绿呢俱乐部</button>
+    <button class="brand" data-go="lobby" type="button">俱乐部</button>
     <nav class="nav" aria-label="游戏">
       <button type="button" data-go="lobby">大厅</button>
       <button type="button" data-go="baccarat">百家乐</button>
@@ -566,7 +578,8 @@ main > section > * { min-width: 0; }
         <li>完美对子：任一方前两张为同花同点，25:1；两方都是，200:1。</li>
         <li>龙宝：所押一方以天牌赢 1:1，天牌和局退回；非天牌赢 9 点 30:1、8 点 10:1、7 点 6:1、6 点 4:1、5 点 2:1、4 点 1:1；赢 3 点及以下或输则输。</li>
         <li>共 4 张桌（A–D），各自有 8 副牌的牌靴、路单和倒计时，每 15 秒自动开一局；底部的 A B C D 可以换桌。</li>
-        <li>剩余约 1/4 时自动换靴，路单清空。你在某桌有下注时，那一桌会等你回来才开局。路单和牌靴保存在本机。</li>
+        <li>剩余约 1/4 时换新牌靴（约 10 秒）：洗牌、装入牌靴，然后烧牌——翻开第一张，按它的点数再烧掉相应张数（A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。换靴后路单清空。</li>
+        <li>你在某桌有下注时，那一桌会等你回来才开局。路单和牌靴保存在本机。</li>
       </ul>
       <h4>大路</h4>
       <ul>
@@ -972,6 +985,7 @@ main > section > * { min-width: 0; }
       if (old && validCards(old.cards)) { tables[0].shoe.cards = old.cards.map((c) => ({ r: c.r, s: c.s })); tables[0].road = cleanRoad(old.road); }
     }
   } catch (e) {}
+  tables.forEach((t) => { if (t.shoe.cards.length === 416) burn(t.shoe); });
   function bacSave() {
     try { localStorage.setItem("gbc-bac4", JSON.stringify({ cur: tables.indexOf(bac), tables: tables.map((t) => ({ road: t.road, cards: t.shoe.cards })) })); } catch (e) {}
   }
@@ -1055,12 +1069,7 @@ main > section > * { min-width: 0; }
     bacRender();
   });
   $("#bacDeal").addEventListener("click", () => bacDeal());
-  $("#bacShuffle").addEventListener("click", () => {
-    if (bac.busy) return;
-    bac.shoe.fill(); bac.road = []; bac.lastHand = null; bacSave();
-    showLastHand(); msg($("#bacMsg"), bac.name + " 桌已换新牌靴，路单清空");
-    renderRoad(); bacRender(); bac.autoLeft = AUTO; renderAuto();
-  });
+  $("#bacShuffle").addEventListener("click", () => { if (!bac.busy) changeShoe(bac, true); });
 
   // Dragon Bonus multiplier (stake included): natural win 1:1, natural tie push, non-natural win by 9..4 pays 30..1
   function dragonMult(x, y, xNat, yNat) {
@@ -1120,15 +1129,91 @@ main > section > * { min-width: 0; }
     bacSave();
     return { win, mult, pay, total, text };
   }
-  function freshShoe(tb) {
-    if (!tb.shoe.needsShuffle()) return false;
-    tb.shoe.fill(); tb.road = []; bacSave();
-    return true;
+  // Burn: the first card of a new shoe is shown face up and that many more cards are burned
+  // (A = 1, 2–9 = face value, 10 J Q K = 10).
+  function burnCount(c) { return c.r === "A" ? 1 : ["10", "J", "Q", "K"].includes(c.r) ? 10 : +c.r; }
+  function burn(shoe) {
+    const first = shoe.draw(), n = burnCount(first);
+    for (let i = 0; i < n; i++) shoe.draw();
+    return { first, n };
+  }
+  const SHUFFLE_SEC = 10;
+  // A new shoe: shuffle, load it into the shoe, burn. On screen this is a 10-second animation;
+  // a table nobody is watching just pauses for the same 10 seconds.
+  async function changeShoe(tb, animate) {
+    tb.shoe.fill(); tb.road = []; tb.lastHand = null;
+    const b = burn(tb.shoe);
+    tb.burnNote = "新牌靴 · 首张 " + b.first.s + b.first.r + " · 烧 " + b.n + " 张";
+    bacSave();
+    const onScreen = animate && tb === bac && S.view === "baccarat";
+    if (!onScreen) { tb.autoLeft = AUTO + SHUFFLE_SEC; if (tb === bac) { showLastHand(); renderRoad(); } if (S.view === "lobby") renderLobby(); return; }
+    tb.busy = true; tb.shuffling = true; bacRender();
+    showLastHand(); renderRoad();
+    msg($("#bacMsg"), "换牌靴");
+    await playShoeChange(b);
+    tb.shuffling = false; tb.busy = false; tb.autoLeft = AUTO;
+    msg($("#bacMsg"), tb.burnNote);
+    bacRender();
+  }
+  async function playShoeChange(b) {
+    const t0 = performance.now();
+    const table = $("#v-baccarat .btable"), shoe = $("#bacShoeBox");
+    const stage = document.createElement("div"); stage.className = "stage";
+    stage.innerHTML = '<p class="st-msg">洗牌中</p><p class="st-sub"></p>';
+    table.appendChild(stage); table.classList.add("shuffling");
+    const say = (t, sub) => { stage.querySelector(".st-msg").textContent = t; stage.querySelector(".st-sub").textContent = sub || ""; };
+    const anim = (el, kf, o) => (el.animate && !reduced ? el.animate(kf, o) : null);
+    const W = table.getBoundingClientRect().width;
+    const spread = Math.min(W * 0.22, 110);
+    // 1. riffle shuffle: two halves fly together, twice
+    const N = 16, cards = [];
+    for (let i = 0; i < N; i++) { const c = document.createElement("div"); c.className = "sc"; stage.appendChild(c); cards.push(c); }
+    for (let round = 0; round < 2; round++) {
+      cards.forEach((c, i) => {
+        const side = i % 2 ? 1 : -1;
+        anim(c, [{ transform: "translate(" + side * spread + "px," + (-i * 0.6) + "px) rotate(" + side * 8 + "deg)" }, { transform: "translate(0px," + (-i * 1.2) + "px)" }],
+          { duration: 260, delay: i * 80, fill: "both", easing: "ease-in" });
+      });
+      for (let i = 0; i < N; i += 2) setTimeout(() => SND.flip(), i * 80);
+      await sleep(N * 80 + 320);
+      if (round === 0) { say("洗牌中", "再洗一次"); }
+    }
+    // 2. the shoe comes to the middle and the cards go in
+    say("装入牌靴");
+    const sr = shoe.getBoundingClientRect(), tr = table.getBoundingClientRect();
+    const dx = tr.left + tr.width / 2 - (sr.left + sr.width / 2), dy = tr.top + tr.height * 0.56 - (sr.top + sr.height / 2);
+    shoe.classList.add("lift");
+    const toMid = anim(shoe, [{ transform: "rotate(-8deg)" }, { transform: "translate(" + dx + "px," + dy + "px) rotate(0deg) scale(1.7)" }], { duration: 750, fill: "forwards", easing: "ease-in-out" });
+    await sleep(800);
+    cards.forEach((c, i) => anim(c, [{ transform: "translate(0px," + (-i * 1.2) + "px)", opacity: 1 }, { transform: "translate(0px,-6px) scale(.45)", opacity: 0 }], { duration: 380, delay: i * 45, fill: "forwards", easing: "ease-in" }));
+    SND.deal();
+    await sleep(N * 45 + 420);
+    // 3. back to the top-right corner
+    say("牌靴归位");
+    const back = anim(shoe, [{ transform: "translate(" + dx + "px," + dy + "px) rotate(0deg) scale(1.7)" }, { transform: "rotate(-8deg)" }], { duration: 750, fill: "forwards", easing: "ease-in-out" });
+    await sleep(800);
+    if (toMid) toMid.cancel(); if (back) back.cancel();
+    cards.forEach((c) => c.remove());
+    // 4. burn: first card face up, then that many cards face down to the discard pile
+    say("烧牌 BURN");
+    const face = flipCard(b.first); face.classList.add("burnface"); stage.appendChild(face);
+    dealFromShoe(face, "#bacShoeBox", { sound: true });
+    await sleep(MOVE_MS + 300);
+    say("烧牌 BURN", "首张 " + b.first.s + b.first.r + " → 再烧 " + b.n + " 张");
+    for (let i = 0; i < b.n; i++) {
+      const c = document.createElement("div"); c.className = "sc discard"; c.style.transform = "translate(" + i * 2 + "px," + -i * 2 + "px)"; stage.appendChild(c);
+      SND.deal(); dealFromShoe(c, "#bacShoeBox", { faceDown: true });
+      await sleep(reduced ? 20 : 150);
+    }
+    // hold until ten seconds have passed, then clear the stage
+    await sleep(Math.max(500, SHUFFLE_SEC * 1000 - (performance.now() - t0)));
+    shoe.classList.remove("lift"); table.classList.remove("shuffling");
+    stage.remove();
   }
   // A table nobody is watching deals instantly
   function bgDeal(tb) {
-    freshShoe(tb);
     settleHand(tb, drawHand(tb.shoe));
+    if (tb.shoe.needsShuffle()) changeShoe(tb, false);
     if (S.view === "lobby") renderLobby();
   }
   // The table on screen deals card by card out of the shoe
@@ -1137,7 +1222,7 @@ main > section > * { min-width: 0; }
     if (tb.busy) return;
     tb.busy = true; bacRender();
     clearWins();
-    if (freshShoe(tb)) { renderRoad(); msg($("#bacMsg"), "牌靴用完，已换新牌靴"); await sleep(500); }
+    if (tb.shoe.needsShuffle()) { tb.busy = false; await changeShoe(tb, true); tb.busy = true; bacRender(); }
     const hand = drawHand(tb.shoe);
     const pe = $("#bacP"), be = $("#bacB");
     pe.innerHTML = ""; be.innerHTML = ""; $("#bacPT").textContent = "–"; $("#bacBT").textContent = "–";
@@ -1162,6 +1247,7 @@ main > section > * { min-width: 0; }
     if (r.total && r.pay > r.total && S.view === "baccarat") SND.win();
     renderRoad();
     tb.busy = false; bacRender();
+    if (tb.shoe.needsShuffle()) { tb.busy = true; bacRender(); await sleep(reduced ? 50 : 2500); tb.busy = false; await changeShoe(tb, true); }
   }
 
   // Auto-deal: every table deals every 15 s; a table where you have chips waits until you are looking at it
@@ -1171,12 +1257,12 @@ main > section > * { min-width: 0; }
     const cd = $("#bacCd");
     cd.classList.toggle("off", !autoOn);
     cd.classList.toggle("soon", autoOn && !bac.busy && bac.autoLeft <= 5);
-    cd.textContent = !autoOn ? "–" : bac.busy ? "…" : String(bac.autoLeft);
-    cd.style.setProperty("--p", !autoOn || bac.busy ? 0 : bac.autoLeft / AUTO);
+    cd.textContent = !autoOn ? "–" : bac.shuffling ? "洗" : bac.busy ? "…" : String(bac.autoLeft);
+    cd.style.setProperty("--p", !autoOn || bac.busy ? 0 : Math.min(1, bac.autoLeft / AUTO));
     tables.forEach((tb, i) => {
       const el = document.getElementById("lcd" + i);
       if (!el) return;
-      el.textContent = !autoOn ? "已暂停" : tb.busy ? "开牌中" : holding(tb) ? "有下注 · 等你" : tb.autoLeft + " 秒";
+      el.textContent = !autoOn ? "已暂停" : tb.shuffling || tb.autoLeft > AUTO ? "换牌靴中" : tb.busy ? "开牌中" : holding(tb) ? "有下注 · 等你" : tb.autoLeft + " 秒";
       el.classList.toggle("soon", autoOn && !tb.busy && !holding(tb) && tb.autoLeft <= 3);
     });
   }
