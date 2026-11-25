@@ -243,6 +243,12 @@ main > section > * { min-width: 0; }
   box-shadow: -3px 3px 8px rgba(0,0,0,.45); transform: rotate(-8deg); pointer-events: none;
 }
 .shoebox.lift { z-index: 8; }
+.toasts { position: fixed; left: 0; right: 0; top: calc(env(safe-area-inset-top, 0px) + 52px); z-index: 70; display: grid; justify-items: center; gap: 6px; pointer-events: none; padding: 0 var(--gy) 0 var(--gx); }
+html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
+@media (display-mode: standalone) { .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); } }
+.toast { max-width: 100%; background: rgba(11,11,12,.94); border: 1px solid var(--brass); border-radius: 999px; padding: 6px 14px; font-size: 13px; box-shadow: 0 8px 20px rgba(0,0,0,.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity .4s, transform .4s; }
+.toast.out { opacity: 0; transform: translateY(-8px); }
+.toast .w { color: var(--win); font-weight: 600; } .toast .l { color: #ff9a9a; }
 .btable.shuffling .cdring, .btable.shuffling .bresult { visibility: hidden; }
 .stage { position: absolute; inset: 0; z-index: 6; border-radius: 12px; background: rgba(0,0,0,.62); overflow: hidden; pointer-events: none; }
 .stage .st-msg { position: absolute; left: 0; right: 0; top: 10px; text-align: center; margin: 0; font: 600 15px/1.3 var(--body); color: var(--win); letter-spacing: .08em; }
@@ -485,6 +491,7 @@ main > section > * { min-width: 0; }
   </div>
 </header>
 
+<div class="toasts" id="toasts" aria-live="polite"></div>
 <main>
   <!-- Lobby -->
   <section id="v-lobby">
@@ -579,7 +586,7 @@ main > section > * { min-width: 0; }
         <li>龙宝：所押一方以天牌赢 1:1，天牌和局退回；非天牌赢 9 点 30:1、8 点 10:1、7 点 6:1、6 点 4:1、5 点 2:1、4 点 1:1；赢 3 点及以下或输则输。</li>
         <li>共 4 张桌（A–D），各自有 8 副牌的牌靴、路单和倒计时，每 15 秒自动开一局；底部的 A B C D 可以换桌。</li>
         <li>剩余约 1/4 时换新牌靴（约 10 秒）：洗牌、装入牌靴，然后烧牌——翻开第一张，按它的点数再烧掉相应张数（A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。换靴后路单清空。</li>
-        <li>你在某桌有下注时，那一桌会等你回来才开局。路单和牌靴保存在本机。</li>
+        <li>离开牌桌（去大厅、别的桌或别的游戏）时，即使有下注也照常倒数开局，结果自动结算并在屏幕上方提示。路单和牌靴保存在本机。</li>
       </ul>
       <h4>大路</h4>
       <ul>
@@ -762,6 +769,12 @@ main > section > * { min-width: 0; }
     return Math.floor(Math.random() * n);
   }
   function msg(el, html) { el.innerHTML = html; }
+  function toast(html) {
+    const t = document.createElement("div"); t.className = "toast"; t.innerHTML = html;
+    const box = document.getElementById("toasts"); box.appendChild(t);
+    while (box.children.length > 3) box.firstChild.remove();
+    setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 450); }, 4000);
+  }
   const net = (n) => (n > 0 ? '<span class="w">赢 +' + fmt(n) + "</span>" : n < 0 ? '<span class="l">输 ' + fmt(n) + "</span>" : "持平");
 
   /* ---------- Sound: small synthesized effects, no audio files ---------- */
@@ -939,7 +952,7 @@ main > section > * { min-width: 0; }
     $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === v ? "true" : "false"));
     closePops();
     if (v === "roulette") drawWheel();
-    if (v === "baccarat") { renderRoad(); bacRender(); }
+    if (v === "baccarat") { if (!bac.busy) showLastHand(); renderRoad(); bacRender(); }
     if (v === "lobby") renderLobby();
     renderAuto();
   }
@@ -1212,7 +1225,8 @@ main > section > * { min-width: 0; }
   }
   // A table nobody is watching deals instantly
   function bgDeal(tb) {
-    settleHand(tb, drawHand(tb.shoe));
+    const r = settleHand(tb, drawHand(tb.shoe));
+    if (r.total) { toast("百家乐 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
     if (tb.shoe.needsShuffle()) changeShoe(tb, false);
     if (S.view === "lobby") renderLobby();
   }
@@ -1252,7 +1266,8 @@ main > section > * { min-width: 0; }
 
   // Auto-deal: every table deals every 15 s; a table where you have chips waits until you are looking at it
   let autoOn = true;
-  const holding = (tb) => sumBets(tb.bets) > 0 && !(S.view === "baccarat" && tb === bac);
+  // tables keep their own time even when you have chips on them and are somewhere else
+  const hasBets = (tb) => sumBets(tb.bets) > 0;
   function renderAuto() {
     const cd = $("#bacCd");
     cd.classList.toggle("off", !autoOn);
@@ -1262,8 +1277,8 @@ main > section > * { min-width: 0; }
     tables.forEach((tb, i) => {
       const el = document.getElementById("lcd" + i);
       if (!el) return;
-      el.textContent = !autoOn ? "已暂停" : tb.shuffling || tb.autoLeft > AUTO ? "换牌靴中" : tb.busy ? "开牌中" : holding(tb) ? "有下注 · 等你" : tb.autoLeft + " 秒";
-      el.classList.toggle("soon", autoOn && !tb.busy && !holding(tb) && tb.autoLeft <= 3);
+      el.textContent = !autoOn ? "已暂停" : tb.shuffling || tb.autoLeft > AUTO ? "换牌靴中" : tb.busy ? "开牌中" : (hasBets(tb) ? "有下注 · " : "") + tb.autoLeft + " 秒";
+      el.classList.toggle("soon", autoOn && !tb.busy && tb.autoLeft <= 3);
     });
   }
   $("#bacAuto").addEventListener("click", () => {
@@ -1275,7 +1290,7 @@ main > section > * { min-width: 0; }
   setInterval(() => {
     if (!autoOn || document.hidden) return;
     for (const tb of tables) {
-      if (tb.busy || holding(tb)) continue;
+      if (tb.busy) continue;
       const here = S.view === "baccarat" && tb === bac;
       tb.autoLeft--;
       if (here && tb.autoLeft > 0 && tb.autoLeft <= 3) SND.tick();
