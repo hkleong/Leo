@@ -1,5 +1,5 @@
 const { makeEngine } = require('./engine.js'); const cfg = require('./cfg.js');
-let seed = 2024; const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
+let seed = 777; const rnd = () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
 const E = makeEngine(cfg, rnd); const N = +process.argv[2];
 const jp = { ...cfg.JP_BASE }; let paid = 0, base = 0, fs = 0, hs = 0, ft = 0, ht = 0, hits = 0, big = 0; const jc = {};
 const hold = (g) => { ht++; const h = E.holdSpin(g); let w = h.mult; for (const j of h.jps) { w += jp[j]; jc[j] = (jc[j] || 0) + 1; if (cfg.JP_GROW[j]) jp[j] = cfg.JP_BASE[j]; } hs += w; return w; };
