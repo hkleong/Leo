@@ -174,9 +174,17 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
 .spot-b { grid-column: span 2; border-color: var(--red); }
 .spot-t { grid-column: span 2; border-color: var(--zero); }
 .spot-pp, .spot-bp { grid-column: span 3; }
-.road { display: grid; grid-template-rows: repeat(6, 18px); grid-auto-flow: column; grid-auto-columns: 18px; gap: 3px; overflow-x: auto; padding: 8px; background: var(--ivory); border-radius: 6px; min-height: 140px; }
-.bead { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; color: #fff; font-weight: 700; }
-.bead.P { background: var(--p-blue); } .bead.B { background: var(--red); } .bead.T { background: var(--zero); }
+.road-scroll { overflow-x: auto; background: var(--ivory); border-radius: 6px; padding: 6px; }
+.road { display: grid; grid-template-rows: repeat(6, 22px); grid-auto-columns: 22px; width: max-content; border-top: 1px solid #c9bfa6; border-left: 1px solid #c9bfa6; }
+.rc { border-right: 1px solid #c9bfa6; border-bottom: 1px solid #c9bfa6; position: relative; display: grid; place-items: center; }
+.br { width: 16px; height: 16px; border-radius: 50%; border: 3px solid; position: relative; }
+.br.B { border-color: var(--red); } .br.P { border-color: var(--p-blue); }
+.br .tl { position: absolute; left: 50%; top: 50%; width: 20px; height: 2px; background: var(--zero); transform: translate(-50%, -50%) rotate(-45deg); }
+.br .tn { position: absolute; right: -6px; bottom: -6px; font-size: 9px; font-weight: 700; color: var(--zero); font-family: var(--mono); line-height: 1; }
+.br .pd { position: absolute; width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--ivory); }
+.br .pd.bp { background: var(--red); top: -5px; left: -5px; } .br .pd.pp { background: var(--p-blue); bottom: -5px; right: -5px; }
+.road-key { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; color: var(--muted); font-size: 12px; }
+.road-key .br { display: inline-block; width: 12px; height: 12px; border-width: 2px; vertical-align: -2px; margin-right: 4px; }
 
 /* Blackjack */
 .bj-dealer, .bj-player { display: grid; gap: 8px; }
@@ -307,7 +315,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
           <button class="spot spot-t" data-bac="tie" type="button"><b>和</b><small>8:1</small><span class="stake"></span></button>
           <button class="spot spot-b" data-bac="banker" type="button"><b>庄</b><small>0.95:1</small><span class="stake"></span></button>
         </div>
-        <p class="msg" id="bacMsg">选择筹码，点击下注区下注，然后发牌。</p>
+        <p class="msg" id="bacMsg">可以先下注再发牌，也可以不下注直接发牌看路。</p>
         <div class="actions">
           <button class="btn" id="bacDeal" type="button">发牌</button>
           <button class="btn ghost" id="bacRebet" type="button">重复上局</button>
@@ -315,8 +323,15 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
         </div>
       </div>
       <div>
-        <p class="note" style="margin-bottom:6px">珠盘路（蓝 = 闲，红 = 庄，绿 = 和）· 牌靴剩余 <span id="bacShoe">416</span> 张</p>
-        <div class="road" id="bacRoad"></div>
+        <div class="road-key" style="margin-bottom:6px">
+          <b style="color:var(--ivory)">大路</b>
+          <span><span class="br B"></span>庄</span>
+          <span><span class="br P"></span>闲</span>
+          <span><span style="color:var(--zero);font-weight:700">／</span> 和（数字为连续和局数）</span>
+          <span>红点 = 庄对 · 蓝点 = 闲对</span>
+          <span>牌靴剩余 <span id="bacShoe">416</span> 张，换靴时清空路单</span>
+        </div>
+        <div class="road-scroll" id="bacRoadScroll"><div class="road" id="bacRoad"></div></div>
       </div>
       <details class="rules"><summary>百家乐规则（Punto Banco 国际规则）</summary>
         <ul>
@@ -545,11 +560,10 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
 
   async function bacDeal() {
     const total = bacTotal();
-    if (!total) { msg($("#bacMsg"), "请先下注。"); return; }
     bac.busy = true; bacRender();
     $$(".spot").forEach((x) => x.classList.remove("win"));
     $("#bacPSide").classList.remove("won"); $("#bacBSide").classList.remove("won");
-    if (bac.shoe.needsShuffle()) { bac.shoe.fill(); msg($("#bacMsg"), "牌靴已重新洗牌。"); await sleep(500); }
+    if (bac.shoe.needsShuffle()) { bac.shoe.fill(); bac.road = []; renderRoad(); msg($("#bacMsg"), "牌靴已重新洗牌，路单清空。"); await sleep(500); }
     const P = [], B = [], pe = $("#bacP"), be = $("#bacB");
     pe.innerHTML = ""; be.innerHTML = ""; $("#bacPT").textContent = "–"; $("#bacBT").textContent = "–";
     msg($("#bacMsg"), "发牌中…");
@@ -589,16 +603,46 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
     if (win === "banker") $("#bacBSide").classList.add("won");
     if (win === "tie") { $("#bacPSide").classList.add("won"); $("#bacBSide").classList.add("won"); }
     const extra = [pp ? "闲对" : "", bp ? "庄对" : ""].filter(Boolean).join("、");
-    msg($("#bacMsg"), "<b>" + name + "</b>（闲 " + p + " : 庄 " + b + "）" + (extra ? " · 出现" + extra : "") + " · 本局 " + net(pay - total));
-    bac.road.push(win === "player" ? "P" : win === "banker" ? "B" : "T");
-    if (bac.road.length > 72) bac.road.splice(0, 6);
-    const road = $("#bacRoad"); road.innerHTML = "";
-    bac.road.forEach((x) => { const d = document.createElement("span"); d.className = "bead " + x; d.textContent = { P: "闲", B: "庄", T: "和" }[x]; road.appendChild(d); });
-    road.scrollLeft = road.scrollWidth;
-    bac.last = { ...bac.bets };
+    msg($("#bacMsg"), "<b>" + name + "</b>（闲 " + p + " : 庄 " + b + "）" + (extra ? " · 出现" + extra : "") + (total ? " · 本局 " + net(pay - total) : " · 本局未下注"));
+    bac.road.push({ w: win === "player" ? "P" : win === "banker" ? "B" : "T", pp, bp });
+    renderRoad();
+    if (total) bac.last = { ...bac.bets };
     for (const key in bac.bets) bac.bets[key] = 0;
     bac.busy = false; bacRender();
   }
+  // Big Road: same winner stacks down a column; a change of winner starts a new column;
+  // ties are marked as a green slash on the previous cell; past 6 rows the streak turns right (dragon tail).
+  function renderRoad() {
+    const cells = new Map();
+    let col = -1, row = 0, start = -1, lastW = null, last = null, pendingTies = 0, maxCol = 0;
+    for (const e of bac.road) {
+      if (e.w === "T") { if (last) last.ties++; else pendingTies++; continue; }
+      if (e.w !== lastW) { start++; col = start; row = 0; }
+      else if (row + 1 < 6 && !cells.has(col + "," + (row + 1))) row++;
+      else col++;
+      last = { w: e.w, ties: pendingTies, pp: e.pp, bp: e.bp };
+      pendingTies = 0; lastW = e.w;
+      cells.set(col + "," + row, last);
+      maxCol = Math.max(maxCol, col);
+    }
+    const cols = Math.max(30, maxCol + 4);
+    const road = $("#bacRoad"); road.innerHTML = "";
+    for (let c = 0; c < cols; c++) for (let r = 0; r < 6; r++) {
+      const d = document.createElement("div");
+      d.className = "rc"; d.style.gridColumn = c + 1; d.style.gridRow = r + 1;
+      const v = cells.get(c + "," + r);
+      if (v) {
+        d.innerHTML = '<span class="br ' + v.w + '">' +
+          (v.ties ? '<span class="tl"></span>' + (v.ties > 1 ? '<span class="tn">' + v.ties + "</span>" : "") : "") +
+          (v.bp ? '<span class="pd bp"></span>' : "") + (v.pp ? '<span class="pd pp"></span>' : "") + "</span>";
+        d.title = (v.w === "B" ? "庄" : "闲") + (v.ties ? " · 之后和 " + v.ties + " 局" : "");
+      }
+      road.appendChild(d);
+    }
+    const sc = $("#bacRoadScroll");
+    sc.scrollLeft = Math.max(0, (maxCol - 10) * 22);
+  }
+  renderRoad();
   bacRender();
 
   /* ======================================================
