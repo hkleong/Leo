@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>绿呢俱乐部</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="theme-color" content="#24160f">
+<meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,20 +17,21 @@
 /* Layout: one-screen app shell. Rail header; every game is the same stack:
    felt table area, betting layout, action buttons, chip bar (undo · chip · ×2 · menu), footer with stake and balance. */
 :root {
-  --felt: #0e3a2d;
-  --felt-hi: #155240;
-  --felt-lo: #0a2a21;
-  --rail: #24160f;
-  --brass: #c9a45c;
-  --brass-lo: #8a6d34;
-  --ivory: #f2ead8;
-  --ink: #17140f;
-  --muted: #9cb8aa;
+  /* black and gold */
+  --felt: #131315;
+  --felt-hi: #232328;
+  --felt-lo: #060607;
+  --rail: #0b0b0c;
+  --brass: #d4af37;
+  --brass-lo: #8a7128;
+  --ivory: #f4ecd6;
+  --ink: #121212;
+  --muted: #b3a77f;
   --red: #b52a31;
   --black: #1d1d1f;
   --zero: #1d7a4f;
   --p-blue: #2f6fd1;
-  --win: #e7c76f;
+  --win: #f2d27a;
   --display: "Bodoni Moda", "Songti SC", "STSong", "Noto Serif SC", serif;
   --body: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -218,7 +219,7 @@ main > section > * { min-width: 0; }
 .side.wide { grid-column: span 2; }
 .sp { background: linear-gradient(180deg, #2554b8, #183a84); }
 .sb { background: linear-gradient(180deg, #b52a31, #7e1a1f); }
-.sx { background: linear-gradient(180deg, #7a5634, #553a22); }
+.sx { background: linear-gradient(180deg, #6e5720, #3a2e0f); }
 
 /* Cards */
 .hand { display: flex; gap: 4px; flex-wrap: nowrap; min-height: calc(var(--cw) * 1.4); align-items: center; }
@@ -236,7 +237,7 @@ main > section > * { min-width: 0; }
 .total { font-family: var(--mono); font-size: 12px; background: rgba(0,0,0,.35); padding: 0 7px; border-radius: 999px; color: var(--ivory); }
 .shoebox {
   position: absolute; right: -10px; top: 6px; z-index: 1; width: calc(var(--cw) * .95); height: calc(var(--cw) * 1.15);
-  border-radius: 4px 10px 6px 4px; background: linear-gradient(160deg, #3a2a20, #1b120c); border: 1px solid var(--brass-lo);
+  border-radius: 4px 10px 6px 4px; background: linear-gradient(160deg, #2c2c31, #0c0c0d); border: 1px solid var(--brass-lo);
   box-shadow: -3px 3px 8px rgba(0,0,0,.45); transform: rotate(-8deg); pointer-events: none;
 }
 .shoebox::before { content: ""; position: absolute; left: 12%; top: 14%; width: 70%; height: 66%; border-radius: 3px; background: repeating-linear-gradient(45deg, #7a1f25 0 4px, #94303a 4px 8px); outline: 2px solid var(--ivory); outline-offset: -4px; }
@@ -294,11 +295,11 @@ main > section > * { min-width: 0; }
 .bb-side .btotal { right: -4px; border-radius: 12px 4px 4px 4px; }
 .bside.won .btotal { color: var(--win); border-color: var(--win); }
 .cdring {
-  --p: 1; --ring: #4fd37a;
+  --p: 1; --ring: var(--brass);
   position: absolute; left: 50%; top: 6px; transform: translateX(-50%); z-index: 2;
   width: clamp(34px, 6vh, 50px); aspect-ratio: 1; border-radius: 50%;
   display: grid; place-items: center; font: 700 clamp(14px, 2.6vh, 20px)/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--ivory);
-  background: radial-gradient(circle, rgba(10,30,24,.9) 64%, transparent 65%), conic-gradient(var(--ring) calc(var(--p) * 360deg), rgba(0,0,0,.45) 0);
+  background: radial-gradient(circle, rgba(8,8,9,.92) 64%, transparent 65%), conic-gradient(var(--ring) calc(var(--p) * 360deg), rgba(0,0,0,.45) 0);
 }
 .cdring.soon { --ring: #e0575f; color: #ffb3b3; }
 .cdring.off { --p: 0; color: var(--muted); }
@@ -418,7 +419,7 @@ main > section > * { min-width: 0; }
 .pk-main { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
 .pk-ante, .pk-play { border-radius: 8px; min-height: clamp(56px, 10vh, 96px); align-items: flex-end !important; padding-bottom: 8px !important; }
 .pk-ante { background: linear-gradient(160deg, #2a62d0, #173b8c); }
-.pk-play { background: linear-gradient(200deg, #2f9a4a, #18612d); }
+.pk-play { background: linear-gradient(200deg, #b08d2c, #5c4712); }
 .pk-ante .lab b, .pk-play .lab b { font-size: clamp(16px, 3vh, 24px); letter-spacing: .08em; }
 .pkbets .spot .lab small { font-size: 10px !important; }
 .game .pk-ante .stake, .game .pk-play .stake { top: 32%; }

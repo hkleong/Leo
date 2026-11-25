@@ -1,10 +1,10 @@
-"""Draw the app icons (a red casino chip on green felt) into casino/icons/."""
+"""Draw the app icons (a black and gold casino chip on black) into casino/icons/."""
 import math, os
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-FELT, FELT_HI, RAIL, BRASS = (14, 58, 45), (21, 82, 64), (36, 22, 15), (201, 164, 92)
-RED, IVORY, INK = (181, 42, 49), (242, 234, 216), (23, 20, 15)
+FELT, FELT_HI, RAIL, BRASS = (12, 12, 13), (44, 42, 38), (11, 11, 12), (212, 175, 55)
+RED, IVORY, INK = (22, 22, 24), (212, 175, 55), (18, 18, 18)
 
 def font(size):
     for f in ["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]:
@@ -40,7 +40,7 @@ def icon(size, chip_r=0.36, rounded=False):
     rd = R * 0.70
     d.ellipse([cx - rd, cy - rd, cx + rd, cy + rd], outline=BRASS, width=int(S * 0.012))
     rc = R * 0.56
-    d.ellipse([cx - rc, cy - rc, cx + rc, cy + rc], fill=IVORY)
+    d.ellipse([cx - rc, cy - rc, cx + rc, cy + rc], fill=(244, 236, 214))
     f = font(int(R * 0.9))
     d.text((cx, cy + R * 0.02), "♠", font=f, fill=INK, anchor="mm")
     im = im.resize((size, size), Image.LANCZOS)
