@@ -117,10 +117,23 @@ main > section > * { min-width: 0; }
 .bt-stats i { font-style: normal; }
 .bt-stats .P { color: #8fb4ff; } .bt-stats .B { color: #ff9a9a; } .bt-stats .T { color: #6fd39a; }
 .gtiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-.mtabs { display: flex; align-items: center; gap: 4px; }
-.mt-lab { font-size: 11px; letter-spacing: .12em; color: var(--muted); margin-right: auto; }
-.mtabs button { border: 1px solid var(--brass-lo); background: transparent; color: var(--muted); border-radius: 999px; padding: 3px 12px; font-size: 13px; }
-.mtabs button[aria-selected="true"] { background: var(--brass); color: var(--ink); border-color: var(--brass); font-weight: 600; }
+.mtabs { display: flex; align-items: center; }
+.mt-pick { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--brass); background: linear-gradient(180deg, #2a2418, #0f0d09); color: var(--ivory); border-radius: 999px; padding: 4px 14px 4px 6px; font-size: 13px; }
+.mt-pick svg.art { width: 26px; height: 26px; }
+.mt-pick span { color: var(--muted); letter-spacing: .08em; }
+.mt-pick .mt-cur { color: var(--win); font-size: 15px; }
+.mt-pick i { font-style: normal; color: var(--brass); }
+.mlist { display: grid; gap: 10px; }
+.mcard { display: flex; align-items: center; gap: 14px; text-align: left; border: 1px solid var(--brass-lo); border-radius: 14px; padding: 10px 12px; background: linear-gradient(135deg, #2a0c0e, #0e0e10 70%); color: var(--ivory); }
+.mcard:hover { border-color: var(--brass); }
+.mcard[aria-current="true"] { border-color: var(--win); box-shadow: 0 0 0 2px rgba(242,210,122,.35) inset; }
+.mc-art { flex: none; width: 72px; height: 72px; display: grid; place-items: center; border-radius: 12px; background: radial-gradient(circle, #5a1418, #1d0507); }
+.mc-art svg.art { width: 62px; height: 62px; }
+.mc-txt { display: grid; gap: 3px; min-width: 0; }
+.mc-txt b { font: 700 18px/1.2 var(--display); color: var(--brass); letter-spacing: .06em; }
+.mc-txt small { font-size: 12px; color: var(--muted); }
+.mc-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.mc-tags i { font-style: normal; font-size: 11px; padding: 1px 7px; border-radius: 999px; background: rgba(212,175,55,.15); color: var(--win); }
 @media (max-width: 640px) { .gtiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .gtile { padding: 8px 9px 7px; } .gtile .glyph { font-size: clamp(22px, 4vh, 36px); } .gtile small { display: none; } }
 .gtile { padding: 10px 10px 9px; display: grid; gap: 1px; justify-items: start; }
 .gtile .glyph { font-family: var(--display); font-size: clamp(26px, 5vh, 44px); line-height: 1; color: var(--brass); font-weight: 700; }
@@ -1068,9 +1081,17 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     </div></div>
   </section>
 
+  <div class="sheet" id="slotPicker" hidden><div class="sheet-in picker" role="dialog" aria-label="选择老虎机">
+    <div class="sheet-head"><h3>老虎机系列</h3><span class="note">选一台机子</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+    <div class="mlist">
+      <button class="mcard" type="button" data-m="dragon"><span class="mc-art"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg></span><span class="mc-txt"><b>龙腾财宝</b><small>5×3 · 243 路 · 金币锁定 · 四级头奖 GRAND</small><span class="mc-tags"><i>免费旋转</i><i>累积奖池</i></span></span></button>
+      <button class="mcard" type="button" data-m="slots"><span class="mc-art"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><span class="mc-txt"><b>幸运 7</b><small>3 卷轴 · 5 条线 · 经典玩法</small><span class="mc-tags"><i>7-7-7 ×200</i></span></span></button>
+    </div>
+    <p class="note" style="margin-top:10px">在机台上左右滑动也可以换机。</p>
+  </div></div>
   <!-- 龙腾财宝: 5x3 video slot, 243 ways, free spins, coin hold & spin with four jackpots -->
   <section id="v-dragon" class="game" hidden>
-    <div class="mtabs" role="tablist" aria-label="老虎机系列"><span class="mt-lab">老虎机系列</span><button type="button" data-m="slots">幸运 7</button><button type="button" data-m="dragon">龙腾财宝</button></div>
+    <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
     <div class="btable col mg">
       <div class="jps" id="mgJps">
         <div class="jp grand" data-jp="GRAND"><span>GRAND</span><b id="jpGRAND">–</b></div>
@@ -1129,10 +1150,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       </ul>
       <h4>赔率（× 下注，3 / 4 / 5 连）</h4>
       <table>
-        <tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg> 龙</td><td>2.5 / 8 / 25</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-F"/></svg> 锦鲤</td><td>1.5 / 5 / 15</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-H"/></svg> 红包</td><td>1.2 / 4 / 12</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-L"/></svg> 灯笼</td><td>1 / 2.5 / 10</td></tr>
-        <tr><td>A · K</td><td>0.5 / 1.2 / 5</td></tr><tr><td>Q · J · 10</td><td>0.25 / 0.75 / 4</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg> 龙</td><td>0.78 / 2.4 / 7.8</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-F"/></svg> 锦鲤</td><td>0.48 / 1.55 / 4.8</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-H"/></svg> 红包</td><td>0.38 / 1.25 / 3.85</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-L"/></svg> 灯笼</td><td>0.29 / 0.78 / 3.1</td></tr>
+        <tr><td>A · K</td><td>0.15 / 0.38 / 1.55</td></tr><tr><td>Q · J · 10</td><td>0.075 / 0.23 / 1.25</td></tr>
       </table>
-      <ul><li>「自动」旁边的 1× / 2× / 5× / 10× 调整旋转速度。一次赢得下注 20 倍以上（含免费旋转和金币锁定）会播放大奖动画，点任意处跳过。</li><li>理论回报率约 96%（用 600 万次旋转模拟验证）：免费旋转约每 156 次出现一次，金币锁定约每 100 次一次，GRAND 极为罕见。</li></ul>
+      <ul><li>「自动」旁边的 1× / 2× / 5× / 10× 调整旋转速度。一次赢得下注 20 倍以上（含免费旋转和金币锁定）会播放大奖动画，点任意处跳过。</li><li>理论回报率约 96%（用 1200 万次旋转模拟验证）：平均每 2.4 次就有奖，免费旋转约每 156 次出现一次，金币锁定约每 100 次一次，GRAND 极为罕见。</li></ul>
     </div></div>
   </section>
 
@@ -1192,7 +1213,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 
   <!-- Slot machine -->
   <section id="v-slots" class="game" hidden>
-    <div class="mtabs" role="tablist" aria-label="老虎机系列"><span class="mt-lab">老虎机系列</span><button type="button" data-m="slots">幸运 7</button><button type="button" data-m="dragon">龙腾财宝</button></div>
+    <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
     <div class="btable col slot">
       <div class="slot-top"><b>幸运 7</b><span class="note">3 卷轴 · 5 条线</span></div>
       <div class="slot-cab">
@@ -1588,7 +1609,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === navKey ? "true" : "false"));
     if (v === "slots" || v === "dragon") {
       slotLast = v; try { localStorage.setItem("gbc-slot", v); } catch (e) {}
-      $$(".mtabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.m === v)));
+      $$(".mt-cur").forEach((e) => { e.textContent = v === "dragon" ? "龙腾财宝" : "幸运 7"; });
+      $$("#slotPicker .mcard").forEach((b) => b.setAttribute("aria-current", String(b.dataset.m === v)));
     }
     const cur = $('.nav button[aria-current="true"]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "nearest" });
     closePops();
@@ -1605,7 +1627,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   let slotLast = "dragon";
   try { const v = localStorage.getItem("gbc-slot"); if (v === "slots" || v === "dragon") slotLast = v; } catch (e) {}
   $$("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go === "slotseries" ? slotLast : b.dataset.go)));
-  $$(".mtabs button").forEach((b) => b.addEventListener("click", () => switchMachine(b.dataset.m)));
+  $$(".mt-pick").forEach((b) => b.addEventListener("click", () => { $("#slotPicker").hidden = false; }));
+  $$("#slotPicker .mcard").forEach((b) => b.addEventListener("click", () => { $("#slotPicker").hidden = true; switchMachine(b.dataset.m); }));
   function switchMachine(m) {
     if (m === S.view) return;
     if ((S.view === "slots" && sl.spinning) || (S.view === "dragon" && mg.spinning)) { toast("正在旋转，转完再换机台"); return; }
@@ -3051,8 +3074,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
      coin Hold & Spin with MINI / MINOR / MAJOR / GRAND. Numbers tuned by simulation to about 96%.
      ====================================================== */
   const MGC = {
-    COUNTS: [0, 2, 2, 2, 0].map((w, r) => Object.assign(w ? { W: w } : {}, { D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 6, S: r === 0 || r === 4 ? 1 : 2, C: 8 })),
-    PAY: { D: [2.5, 8, 25], F: [1.5, 5, 15], H: [1.2, 4, 12], L: [1, 2.5, 10], A: [0.5, 1.2, 5], K: [0.5, 1.2, 5], Q: [0.25, 0.75, 4], J: [0.25, 0.75, 4], T: [0.25, 0.75, 4] },
+    // middle reels carry more 财 wilds (6) so small wins come more often
+    COUNTS: [0, 1, 1, 1, 0].map((m) => (m ? { W: 6, D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 2, S: 2, C: 8 } : { D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 6, S: 1, C: 8 })),
+    PAY: { D: [0.78, 2.4, 7.8], F: [0.48, 1.55, 4.8], H: [0.38, 1.25, 3.85], L: [0.29, 0.78, 3.1], A: [0.15, 0.38, 1.55], K: [0.15, 0.38, 1.55], Q: [0.075, 0.23, 1.25], J: [0.075, 0.23, 1.25], T: [0.075, 0.23, 1.25] },
     COIN: [{ x: 1, w: 30 }, { x: 2, w: 25 }, { x: 3, w: 15 }, { x: 5, w: 10 }, { x: 8, w: 6 }, { x: 10, w: 4 }, { jp: "MINI", w: 3 }, { jp: "MINOR", w: 1.5 }, { jp: "MAJOR", w: 0.5 }],
     P_COIN: 0.03, FS: { 3: 8, 4: 12, 5: 20 }, FS_MULT: 2,
     JP_BASE: { MINI: 10, MINOR: 25, MAJOR: 150, GRAND: 1000 }, JP_GROW: { MAJOR: 0.01, GRAND: 0.02 },
