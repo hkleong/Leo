@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.8.10">
+<meta name="version" content="0.9.0">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -130,6 +130,7 @@ main > section > * { min-width: 0; }
 .mcard[aria-current="true"] { border-color: var(--win); box-shadow: 0 0 0 2px rgba(242,210,122,.35) inset; }
 .mc-art { flex: none; width: 72px; height: 72px; display: grid; place-items: center; border-radius: 12px; background: radial-gradient(circle, #5a1418, #1d0507); }
 .mc-art svg.art { width: 62px; height: 62px; }
+.mc-art.gem { background: radial-gradient(circle, #1f3866, #070c1c); }
 .mc-txt { display: grid; gap: 3px; min-width: 0; }
 .mc-txt b { font: 700 18px/1.2 var(--display); color: var(--brass); letter-spacing: .06em; }
 .mc-txt small { font-size: 12px; color: var(--muted); }
@@ -559,6 +560,28 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 #v-dragon .btn.big { min-width: 0; flex: 1 1 auto; max-width: 50%; }
 
 .gtile .ico.emo { font-size: clamp(28px, 5vh, 44px); line-height: 1; }
+/* 宝石瀑布 cascade slot */
+#v-gems { --gc: clamp(40px, min(14.2vw, 8.2vh), 90px); }
+.btable.gm { justify-content: center; gap: 6px; padding: 8px; position: relative; overflow: hidden; background: radial-gradient(90% 80% at 50% 30%, #1b2a4a, #0a0f1f 70%); }
+.gm-head { display: flex; justify-content: center; align-items: baseline; gap: 8px; }
+.gm-head b { font-family: var(--display); color: #9fd0ff; font-size: clamp(16px, 2.8vh, 24px); letter-spacing: .14em; text-shadow: 0 0 12px rgba(120,190,255,.6); }
+.ladder { display: flex; justify-content: center; gap: 6px; }
+.ladder i { font: 700 13px/1 var(--mono); font-style: normal; padding: 4px 9px; border-radius: 999px; border: 1px solid rgba(159,208,255,.35); color: #7f9cc4; transition: all .2s; }
+.ladder i.on { background: linear-gradient(180deg, #ffe08a, #d4a017); color: var(--ink); border-color: #ffe08a; transform: scale(1.12); box-shadow: 0 0 12px rgba(255,215,0,.6); }
+.gboard { position: relative; width: calc(var(--gc) * 6); height: calc(var(--gc) * 5); margin: 0 auto; border-radius: 10px; overflow: hidden; border: 2px solid #5a7fb8; background: repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 calc(var(--gc) - 1px), rgba(255,255,255,.07) calc(var(--gc) - 1px) var(--gc)), linear-gradient(180deg, #13203c, #0b1226); box-shadow: inset 0 0 20px rgba(0,0,0,.8), 0 0 18px rgba(90,127,184,.35); }
+.gcell { position: absolute; top: 0; width: calc(100% / 6); height: 20%; display: grid; place-items: center; will-change: transform; }
+.gcell svg.art { width: 84%; height: 84%; overflow: visible; }
+.gcell.win svg.art { animation: gwin .32s ease-in-out infinite alternate; filter: drop-shadow(0 0 6px #fff6b0) drop-shadow(0 0 10px #ffd34d); }
+@keyframes gwin { to { transform: scale(1.12); } }
+.gcell.pop { animation: gpop .32s ease-in forwards; }
+@keyframes gpop { 40% { transform: var(--pos) scale(1.3); opacity: 1; } 100% { transform: var(--pos) scale(.1) rotate(40deg); opacity: 0; } }
+.gcell.star svg.art { animation: gstar 1.2s ease-in-out infinite alternate; }
+@keyframes gstar { to { filter: drop-shadow(0 0 8px #ffe08a); transform: scale(1.06); } }
+.gm-win { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); z-index: 4; pointer-events: none; font: 900 clamp(22px, 5vh, 40px)/1 var(--mono); color: #fff6c8; text-shadow: 0 0 12px rgba(255,200,0,.9), 0 3px 0 #8a5a00; opacity: 0; }
+.gm-win.show { animation: gmwin 1.1s ease-out forwards; }
+@keyframes gmwin { 0% { opacity: 0; transform: translate(-50%, -30%) scale(.6); } 25% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -80%) scale(1); } }
+#v-gems .btn.big { min-width: 0; flex: 1 1 auto; max-width: 50%; }
+#v-gems .tmsg { min-height: 1.4em; }
 /* Texas Hold'em */
 .th-main { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
 .th-ante, .th-blind, .th-play { border-radius: 8px; min-height: clamp(56px, 9.5vh, 92px); align-items: flex-end !important; padding-bottom: 7px !important; }
@@ -697,7 +720,68 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <linearGradient id="gAmber" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe0a3"/><stop offset=".5" stop-color="#f08a00"/><stop offset="1" stop-color="#7a3d00"/></linearGradient>
     <linearGradient id="gSeven" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a8a"/><stop offset=".35" stop-color="#ff2a22"/><stop offset=".7" stop-color="#b00d12"/><stop offset="1" stop-color="#ff5a4a"/></linearGradient>
     <filter id="fShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-color="#000" flood-opacity=".55"/></filter>
+    <linearGradient id="gDia" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#cfe9ff"/><stop offset="1" stop-color="#7d9ab8"/></linearGradient>
+    <radialGradient id="gPearl" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#f1e6f3"/><stop offset=".85" stop-color="#c9b8cf"/><stop offset="1" stop-color="#8e7f96"/></radialGradient>
+    <radialGradient id="gStarGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff3a0" stop-opacity=".95"/><stop offset="1" stop-color="#ffb000" stop-opacity="0"/></radialGradient>
   </defs>
+  <!-- 宝石瀑布 gems -->
+  <symbol id="g-D" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <polygon points="30,14 70,14 92,38 50,92 8,38" fill="url(#gDia)" stroke="#5b7a99" stroke-width="1.2"/>
+    <polygon points="30,14 70,14 62,38 38,38" fill="#ffffff" opacity=".9"/>
+    <polygon points="30,14 38,38 8,38" fill="#e3f2ff"/><polygon points="70,14 92,38 62,38" fill="#b9d6f0"/>
+    <polygon points="8,38 38,38 50,92" fill="#cfe4f7"/><polygon points="38,38 62,38 50,92" fill="#f4fbff"/><polygon points="62,38 92,38 50,92" fill="#9fbcd8"/>
+    <path d="M30 14 L50 38 L70 14" fill="none" stroke="#9fbcd8" stroke-width=".8"/>
+    <path d="M24 22 l4 -4" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+  </g></symbol>
+  <symbol id="g-R" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <polygon points="24,14 76,14 90,28 90,72 76,86 24,86 10,72 10,28" fill="url(#gRuby)" stroke="#5e0010" stroke-width="1.2"/>
+    <polygon points="30,26 70,26 78,34 78,66 70,74 30,74 22,66 22,34" fill="#e8243a"/>
+    <polygon points="36,36 64,36 64,64 36,64" fill="#ff5a6a"/>
+    <path d="M24 14 L36 36 M76 14 L64 36 M90 72 L64 64 M10 72 L36 64 M10 28 L36 36 M90 28 L64 36 M24 86 L36 64 M76 86 L64 64" stroke="#ffb3bc" stroke-width=".8" opacity=".7"/>
+    <path d="M30 22 h24" stroke="#fff" stroke-opacity=".8" stroke-width="3" stroke-linecap="round"/>
+  </g></symbol>
+  <symbol id="g-B" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <ellipse cx="50" cy="50" rx="34" ry="44" fill="url(#gSapph)" stroke="#0a1f5c" stroke-width="1.2"/>
+    <ellipse cx="50" cy="50" rx="20" ry="28" fill="#2f7ae8"/>
+    <path d="M50 6 L50 22 M50 78 L50 94 M16 50 L30 50 M70 50 L84 50 M26 18 L38 28 M74 18 L62 28 M26 82 L38 72 M74 82 L62 72" stroke="#b5d8ff" stroke-width=".9" opacity=".75"/>
+    <ellipse cx="40" cy="30" rx="8" ry="11" fill="#fff" opacity=".45"/>
+  </g></symbol>
+  <symbol id="g-E" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <polygon points="50,6 88,28 88,72 50,94 12,72 12,28" fill="url(#gEmer)" stroke="#05442a" stroke-width="1.2"/>
+    <polygon points="50,22 74,36 74,64 50,78 26,64 26,36" fill="#1fbf6c"/>
+    <path d="M50 6 L50 22 M88 28 L74 36 M88 72 L74 64 M50 94 L50 78 M12 72 L26 64 M12 28 L26 36" stroke="#b8f5d0" stroke-width=".9" opacity=".75"/>
+    <polygon points="50,22 74,36 50,50 26,36" fill="#7fe8aa" opacity=".55"/>
+    <path d="M22 30 l14 -8" stroke="#fff" stroke-opacity=".8" stroke-width="3" stroke-linecap="round"/>
+  </g></symbol>
+  <symbol id="g-P" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <path d="M50 8 Q56 8 92 80 Q94 88 86 88 H14 Q6 88 8 80 Q44 8 50 8 Z" fill="url(#gAmeth)" stroke="#3a0b60" stroke-width="1.2"/>
+    <polygon points="50,30 74,76 26,76" fill="#b05ae8"/>
+    <path d="M50 8 L50 30 M92 80 L74 76 M8 80 L26 76" stroke="#efd6ff" stroke-width=".9" opacity=".75"/>
+    <polygon points="50,30 62,53 38,53" fill="#e2b8ff" opacity=".6"/>
+    <path d="M40 26 l-8 14" stroke="#fff" stroke-opacity=".8" stroke-width="3" stroke-linecap="round"/>
+  </g></symbol>
+  <symbol id="g-Y" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <path d="M50 6 C66 26 84 46 84 62 C84 82 68 94 50 94 C32 94 16 82 16 62 C16 46 34 26 50 6 Z" fill="url(#gAmber)" stroke="#7a3d00" stroke-width="1.2"/>
+    <path d="M50 30 C60 44 70 54 70 64 C70 76 61 82 50 82 C39 82 30 76 30 64 C30 54 40 44 50 30 Z" fill="#ffb02e"/>
+    <path d="M50 6 L50 30 M16 62 L30 64 M84 62 L70 64 M50 94 L50 82" stroke="#ffe7b3" stroke-width=".9" opacity=".75"/>
+    <ellipse cx="40" cy="50" rx="6" ry="10" fill="#fff" opacity=".45"/>
+  </g></symbol>
+  <symbol id="g-O" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <circle cx="50" cy="50" r="42" fill="url(#gGold)"/>
+    <circle cx="50" cy="50" r="35" fill="url(#gOnyx)"/>
+    <ellipse cx="40" cy="36" rx="13" ry="8" fill="#fff" opacity=".35" transform="rotate(-25 40 36)"/>
+    <circle cx="50" cy="50" r="35" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="1"/>
+  </g></symbol>
+  <symbol id="g-G" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <circle cx="50" cy="52" r="36" fill="url(#gPearl)" stroke="#8e7f96" stroke-width="1"/>
+    <ellipse cx="38" cy="38" rx="10" ry="7" fill="#fff" opacity=".85" transform="rotate(-30 38 38)"/>
+    <path d="M24 68 Q50 86 76 68" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width="2"/>
+  </g></symbol>
+  <symbol id="g-S" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="48" fill="url(#gStarGlow)"/>
+    <use href="#s-star" x="8" y="8" width="84" height="84"/>
+    <circle cx="50" cy="52" r="9" fill="#fff8d0" opacity=".9"/>
+  </symbol>
 
   <!-- 龙 golden dragon head (profile) on a red medallion -->
   <symbol id="s-D" viewBox="0 0 100 100">
@@ -910,15 +994,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" data-go="roulette"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><circle cx="24" cy="24" r="3" fill="currentColor"/><path d="M24 6v7M24 35v7M6 24h7M35 24h7M11.3 11.3l5 5M31.7 31.7l5 5M36.7 11.3l-5 5M16.3 31.7l-5 5"/><circle cx="34" cy="15" r="2.4" fill="currentColor" stroke="none"/></svg></span><b>轮盘</b><small>欧式单零 · 35:1</small></button>
         <button class="gtile" type="button" data-go="poker"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="17" height="25" rx="3" transform="rotate(-16 14 26)"/><rect x="15.5" y="10" width="17" height="25" rx="3"/><rect x="25" y="13" width="17" height="25" rx="3" transform="rotate(16 34 26)" fill="currentColor" fill-opacity=".12"/><path d="M24 17l3 4h-6z" fill="currentColor" stroke="none"/></svg></span><b>三张牌</b><small>对子加注 40:1</small></button>
         <button class="gtile" type="button" data-go="holdem"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M36.7 11.3l-3.5 3.5M14.8 33.2l-3.5 3.5"/><path d="M24 17c3 3 6 5 6 8a3 3 0 0 1-5 2l1 4h-4l1-4a3 3 0 0 1-5-2c0-3 3-5 6-8z" fill="currentColor" stroke="none"/></svg></span><b>德州扑克</b><small>盲注最高 500:1</small></button>
-        <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><b>老虎机系列</b><small>幸运 7 · 龙腾财宝</small></button>
+        <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><b>老虎机系列</b><small>龙腾财宝 · 宝石瀑布 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.8.10</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.9.0</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
   </div></div>
 
   <!-- Baccarat -->
@@ -1108,6 +1192,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <div class="sheet-head"><h3>老虎机系列</h3><span class="note">选一台机子</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
     <div class="mlist">
       <button class="mcard" type="button" data-m="dragon"><span class="mc-art"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg></span><span class="mc-txt"><b>龙腾财宝</b><small>5×3 · 243 路 · 金币锁定 · 四级头奖 GRAND</small><span class="mc-tags"><i>免费旋转</i><i>累积奖池</i></span></span></button>
+      <button class="mcard" type="button" data-m="gems"><span class="mc-art gem"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#g-D"/></svg></span><span class="mc-txt"><b>宝石瀑布</b><small>6×5 · 任意位置 8 个即中 · 连环消除</small><span class="mc-tags"><i>倍数 ×10</i><i>免费旋转</i></span></span></button>
       <button class="mcard" type="button" data-m="slots"><span class="mc-art"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><span class="mc-txt"><b>幸运 7</b><small>3 卷轴 · 5 条线 · 经典玩法</small><span class="mc-tags"><i>7-7-7 ×200</i></span></span></button>
     </div>
     <p class="note" style="margin-top:10px">在机台上左右滑动也可以换机。</p>
@@ -1177,6 +1262,66 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <tr><td>A · K</td><td>0.17 / 0.42 / 1.73</td></tr><tr><td>Q · J · 10</td><td>0.085 / 0.26 / 1.4</td></tr>
       </table>
       <ul><li>「自动」旁边的 1× / 2× / 5× / 10× 调整旋转速度。一次赢得下注 20 倍以上（含免费旋转和金币锁定）会播放大奖动画，点任意处跳过。</li><li>理论回报率约 96%（用 1200 万次旋转模拟验证）：平均每 2.6 次就有奖，金币锁定约每 31 次一次，免费旋转约每 175 次出现一次，GRAND 极为罕见。</li></ul>
+    </div></div>
+  </section>
+
+  <!-- 宝石瀑布: 6x5 cascading pay-anywhere slot -->
+  <section id="v-gems" class="game" hidden>
+    <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
+    <div class="btable col gm">
+      <div class="gm-head"><b>宝石瀑布</b><span class="note" id="gmMode">任意位置 8 个相同即中奖</span></div>
+      <div class="ladder" id="gmLadder"><i>×1</i><i>×2</i><i>×3</i><i>×5</i><i>×10</i></div>
+      <div class="gboard" id="gmBoard"></div>
+      <div class="gm-win" id="gmWin"></div>
+      <p class="tmsg" id="gmMsg">宝石连环消除，每消除一轮倍数升级</p>
+    </div>
+    <div class="acts"><div class="actrow">
+      <button class="btn big" id="gmSpin" type="button">旋转</button>
+      <span class="autowrap">
+        <button class="btn ghost autobtn" id="gmAuto" type="button" aria-expanded="false">自动</button>
+        <span class="autopop" id="gmAutoPop" hidden>
+          <span class="note">自动旋转</span>
+          <button type="button" data-n="10">10 次</button><button type="button" data-n="25">25 次</button><button type="button" data-n="50">50 次</button><button type="button" data-n="100">100 次</button><button type="button" data-n="0">一直转</button>
+        </span>
+      </span>
+      <button class="btn ghost spdbtn" id="gmSpeed" type="button" title="旋转速度" aria-label="旋转速度">1×</button>
+    </div></div>
+    <div class="betbar" data-bb="gm">
+      <button class="bb-btn" type="button" data-step="-1" aria-label="每局金额减少">−</button>
+      <span class="bb-wrap"><button class="bb-amt" type="button" aria-expanded="false"><small>每局</small><b>100</b></button><span class="bb-pop" hidden></span></span>
+      <button class="bb-btn" type="button" data-step="1" aria-label="每局金额增加">+</button>
+      <button class="bb-btn bb-max" type="button" data-step="max" aria-label="最高">MAX</button>
+      <button class="bb-btn bb-menu" type="button" data-rules="menu-gm" aria-label="菜单">≡</button>
+    </div>
+    <div class="bfoot">
+      <div>每次旋转 <b id="gmBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+      <div class="r"><span>宝石瀑布 · 6×5 · 连环消除</span><span>理论回报约 96%</span></div>
+    </div>
+    <div class="sheet" id="menu-gm" hidden><div class="sheet-in" role="dialog" aria-label="宝石瀑布菜单">
+      <div class="sheet-head"><h3>宝石瀑布</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <div class="menu-grid"><button class="btn ghost" type="button" data-close data-rules="rules-gm">规则与赔率</button></div>
+    </div></div>
+    <div class="sheet" id="rules-gm" hidden><div class="sheet-in" role="dialog" aria-label="宝石瀑布规则">
+      <div class="sheet-head"><h3>宝石瀑布</h3><span class="note">6 × 5 · 任意位置中奖 · 连环消除</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <h4>怎么赢</h4>
+      <ul>
+        <li>没有连线：同一种宝石在 30 格里出现 8 个或以上（任意位置）就中奖，8–9 个、10–11 个、12 个以上赔率不同。</li>
+        <li>连环消除：中奖的宝石碎掉，上面的宝石往下掉，空位从上方补满新宝石，再看一次能不能中奖，一直到没有中奖为止。</li>
+        <li>倍数阶梯：同一次旋转里，第 1 轮消除 ×1，第 2 轮 ×2，第 3 轮 ×3，第 4 轮 ×5，之后都是 ×10。</li>
+        <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#g-S"/></svg> 星星不参与消除，最后画面上有 4 个或以上就送 10 次免费旋转；免费旋转里倍数阶梯不会归零，会一局接一局往上升；再出现 3 个星星多送 5 次。</li>
+      </ul>
+      <h4>赔率（× 每局下注，8–9 / 10–11 / 12+ 个）</h4>
+      <table>
+        <tr><td><svg class="art" viewBox="0 0 100 100"><use href="#g-D"/></svg> 钻石</td><td>10 / 24 / 48</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100"><use href="#g-R"/></svg> 红宝石</td><td>2.4 / 9.8 / 24</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100"><use href="#g-B"/></svg> 蓝宝石</td><td>2 / 4.9 / 14.5</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100"><use href="#g-E"/></svg> 祖母绿</td><td>1.5 / 2 / 12</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100"><use href="#g-P"/></svg> 紫水晶</td><td>1 / 1.5 / 9.8</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100"><use href="#g-Y"/></svg> 黄玉</td><td>0.75 / 1.2 / 7.8</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100"><use href="#g-O"/></svg> 黑玛瑙</td><td>0.5 / 1 / 4.9</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100"><use href="#g-G"/></svg> 珍珠</td><td>0.38 / 0.88 / 3.9</td></tr>
+      </table>
+      <ul><li>理论回报率约 96%（600 万次旋转模拟）：平均每 3.3 次中奖，免费旋转约每 175 次一回。</li></ul>
     </div></div>
   </section>
 
@@ -1623,16 +1768,17 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
 
   /* ---------- Navigation and sheets ---------- */
-  const VIEWS = ["lobby", "baccarat", "blackjack", "roulette", "poker", "holdem", "slots", "dragon"];
+  const VIEWS = ["lobby", "baccarat", "blackjack", "roulette", "poker", "holdem", "slots", "dragon", "gems"];
+  const MACHINES = ["dragon", "gems", "slots"], MACHINE_NAME = { dragon: "龙腾财宝", gems: "宝石瀑布", slots: "幸运 7" };
   function show(v) {
     if (!VIEWS.includes(v)) v = "lobby";
     S.view = v;
     VIEWS.forEach((x) => { $("#v-" + x).hidden = x !== v; });
-    const navKey = v === "slots" || v === "dragon" ? "slotseries" : v;
+    const navKey = MACHINES.includes(v) ? "slotseries" : v;
     $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === navKey ? "true" : "false"));
-    if (v === "slots" || v === "dragon") {
+    if (MACHINES.includes(v)) {
       slotLast = v; try { localStorage.setItem("gbc-slot", v); } catch (e) {}
-      $$(".mt-cur").forEach((e) => { e.textContent = v === "dragon" ? "龙腾财宝" : "幸运 7"; });
+      $$(".mt-cur").forEach((e) => { e.textContent = MACHINE_NAME[v]; });
       $$("#slotPicker .mcard").forEach((b) => b.setAttribute("aria-current", String(b.dataset.m === v)));
     }
     const cur = $('.nav button[aria-current="true"]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -1648,24 +1794,24 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   // the slot series (幸运 7 and 龙腾财宝) share one entry; it opens the machine you used last
   let slotLast = "dragon";
-  try { const v = localStorage.getItem("gbc-slot"); if (v === "slots" || v === "dragon") slotLast = v; } catch (e) {}
+  try { const v = localStorage.getItem("gbc-slot"); if (MACHINES.includes(v)) slotLast = v; } catch (e) {}
   $$("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go === "slotseries" ? slotLast : b.dataset.go)));
   $$(".mt-pick, #lobbySlots").forEach((b) => b.addEventListener("click", () => { $("#slotPicker").hidden = false; }));
   $$("#slotPicker .mcard").forEach((b) => b.addEventListener("click", () => { $("#slotPicker").hidden = true; switchMachine(b.dataset.m); }));
   function switchMachine(m) {
     if (m === S.view) return;
-    if ((S.view === "slots" && sl.spinning) || (S.view === "dragon" && mg.spinning)) { toast("正在旋转，转完再换机台"); return; }
-    sl.auto = 0; mg.auto = 0;
+    if ((S.view === "slots" && sl.spinning) || (S.view === "dragon" && mg.spinning) || (S.view === "gems" && gm.spinning)) { toast("正在旋转，转完再换机台"); return; }
+    sl.auto = 0; mg.auto = 0; gm.auto = 0;
     go(m);
   }
   // swipe left / right on a machine to switch to the other one
-  ["#v-slots", "#v-dragon"].forEach((sel) => {
+  ["#v-slots", "#v-dragon", "#v-gems"].forEach((sel) => {
     const el = $(sel); let sx = 0, sy = 0, st = 0, ok = false, at = 0;
     el.addEventListener("touchstart", (e) => { const t = e.touches[0]; ok = e.touches.length === 1 && !e.target.closest(".chipwrap, .autowrap, .sheet"); sx = t.clientX; sy = t.clientY; st = Date.now(); }, { passive: true });
     el.addEventListener("touchend", (e) => {
       if (!ok) return;
       const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
-      if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - st < 900) { at = Date.now(); switchMachine(sel === "#v-slots" ? "dragon" : "slots"); }
+      if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - st < 900) { at = Date.now(); const i = MACHINES.indexOf(sel.slice(3)); switchMachine(MACHINES[(i + (dx < 0 ? 1 : -1) + MACHINES.length) % MACHINES.length]); }
     }, { passive: true });
     el.addEventListener("click", (e) => { if (Date.now() - at < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
   });
@@ -3374,9 +3520,169 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   document.addEventListener("click", (e) => { if (!e.target.closest("#v-dragon .autowrap")) mgPop.hidden = true; });
   mgDrawGrid(mgNewGrid());
 
+  /* ======================================================
+     宝石瀑布 — 6×5 cascading "pay anywhere" slot.
+     8+ of a gem anywhere pays; winners shatter, gems fall, new gems drop in.
+     Each cascade in a spin raises the multiplier ×1 ×2 ×3 ×5 ×10; 4+ stars give 10 free spins
+     where the multiplier carries over. Tuned by simulation to about 96%.
+     ====================================================== */
+  const GMC = {
+    W: { D: 6, R: 8, B: 9, E: 10, P: 11, Y: 12, O: 13, G: 14, S: 1.8 },
+    PAY: { D: [10, 24, 48], R: [2.4, 9.8, 24], B: [2, 4.9, 14.5], E: [1.5, 2, 12], P: [1, 1.5, 9.8], Y: [0.75, 1.2, 7.8], O: [0.5, 1, 4.9], G: [0.38, 0.88, 3.9] },
+    LADDER: [1, 2, 3, 5, 10], FS: 10, FS_RE: 5,
+  };
+  const GM_NAME = { D: "钻石", R: "红宝石", B: "蓝宝石", E: "祖母绿", P: "紫水晶", Y: "黄玉", O: "黑玛瑙", G: "珍珠" };
+  const G_COLS = 6, G_ROWS = 5;
+  const gmSyms = Object.keys(GMC.W), gmTot = gmSyms.reduce((a, k) => a + GMC.W[k] * 10, 0);
+  function gmDraw() { let x = rand(gmTot); for (const k of gmSyms) { if ((x -= GMC.W[k] * 10) < 0) return k; } return gmSyms[0]; }
+  const gmPay = (k, n) => { const p = GMC.PAY[k]; if (!p || n < 8) return 0; return n >= 12 ? p[2] : n >= 10 ? p[1] : p[0]; };
+  const gm = { bet: 0, speed: 1, auto: 0, spinning: false, cols: null };
+  const gT = (ms) => (reduced ? Math.min(ms, 60) : ms / gm.speed);
+  const board = $("#gmBoard");
+  function gmCell(k, c, r) {
+    const el = document.createElement("div");
+    el.className = "gcell" + (k === "S" ? " star" : "");
+    el.innerHTML = '<svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#g-' + k + '"/></svg>';
+    el.setAttribute("aria-label", k === "S" ? "星星" : GM_NAME[k]);
+    gmPos(el, c, r); board.appendChild(el);
+    return { k, el };
+  }
+  function gmPos(el, c, r) { const v = "translate(" + c * 100 + "%," + r * 100 + "%)"; el.style.setProperty("--pos", v); el.style.transform = v; }
+  function gmMove(el, c, r, ms, delay) {
+    el.style.transition = "transform " + ms + "ms cubic-bezier(.35,1.35,.55,1) " + (delay || 0) + "ms";
+    gmPos(el, c, r);
+  }
+  function gmLadder(i) { $$("#gmLadder i").forEach((e, j) => e.classList.toggle("on", j === Math.min(i, GMC.LADDER.length - 1))); }
+  // a whole new board falls in, column by column
+  async function gmFill() {
+    if (gm.cols) gm.cols.flat().forEach(({ el }, i) => { el.style.transition = "transform " + gT(260) + "ms ease-in, opacity " + gT(260) + "ms"; el.style.transform = el.style.getPropertyValue("--pos") + " translateY(" + (G_ROWS + 1) * 100 + "%)"; el.style.opacity = "0"; setTimeout(() => el.remove(), gT(300)); });
+    await sleep(gT(gm.cols ? 180 : 0));
+    gm.cols = [];
+    for (let c = 0; c < G_COLS; c++) {
+      const col = [];
+      for (let r = 0; r < G_ROWS; r++) { const cell = gmCell(gmDraw(), c, r - G_ROWS - 1); col.push(cell); }
+      gm.cols.push(col);
+    }
+    void board.offsetWidth;
+    gm.cols.forEach((col, c) => col.forEach((cell, r) => gmMove(cell.el, c, r, gT(430), gT(c * 75 + (G_ROWS - r) * 18))));
+    SND.deal();
+    await sleep(gT(430 + G_COLS * 75 + 120));
+  }
+  function gmEval() {
+    const cnt = {}; gm.cols.forEach((col) => col.forEach(({ k }) => { cnt[k] = (cnt[k] || 0) + 1; }));
+    let win = 0; const syms = [];
+    for (const k in cnt) { const w = gmPay(k, cnt[k]); if (w) { win += w; syms.push([k, cnt[k], w]); } }
+    return { win, syms };
+  }
+  // winners shatter, the rest fall, new gems drop in from the top
+  async function gmTumble(win) {
+    const keys = win.map((x) => x[0]);
+    gm.cols.forEach((col) => col.forEach(({ k, el }) => { if (keys.includes(k)) el.classList.add("win"); }));
+    await sleep(gT(650));
+    gm.cols.forEach((col) => col.forEach(({ k, el }) => { if (keys.includes(k)) { el.classList.remove("win"); el.classList.add("pop"); } }));
+    SND.flip(); await sleep(gT(330));
+    gm.cols = gm.cols.map((col, c) => {
+      col.filter(({ k }) => keys.includes(k)).forEach(({ el }) => el.remove());
+      const keep = col.filter(({ k }) => !keys.includes(k)), n = G_ROWS - keep.length, fresh = [];
+      for (let i = 0; i < n; i++) fresh.push(gmCell(gmDraw(), c, i - n - 1));
+      return fresh.concat(keep);
+    });
+    void board.offsetWidth;
+    gm.cols.forEach((col, c) => col.forEach((cell, r) => gmMove(cell.el, c, r, gT(380), gT(c * 40))));
+    SND.deal(); await sleep(gT(380 + G_COLS * 40 + 80));
+  }
+  function gmShowWin(text) { const w = $("#gmWin"); w.textContent = text; w.classList.remove("show"); void w.offsetWidth; w.classList.add("show"); }
+  // one spin (or one free spin); returns the total won and the ladder step reached
+  async function gmOne(ladStart) {
+    let lad = ladStart, total = 0; const notes = [];
+    gmLadder(lad);
+    await gmFill();
+    for (;;) {
+      const e = gmEval();
+      if (!e.win) break;
+      const mult = GMC.LADDER[Math.min(lad, GMC.LADDER.length - 1)];
+      const amt = Math.round(e.win * mult * gm.bet * 100) / 100;
+      total += amt; addBank(amt); SND.chip();
+      gmShowWin("+" + fmt(amt) + (mult > 1 ? "  ×" + mult : ""));
+      notes.push(e.syms.map(([k, n]) => GM_NAME[k] + "×" + n).join(" ") + (mult > 1 ? "（×" + mult + "）" : ""));
+      msg($("#gmMsg"), notes[notes.length - 1] + " · +" + fmt(amt));
+      await gmTumble(e.syms);
+      lad++; gmLadder(lad);
+    }
+    const stars = gm.cols.reduce((a, col) => a + col.filter(({ k }) => k === "S").length, 0);
+    return { total, lad, stars, steps: notes.length };
+  }
+  async function gmFree(stars) {
+    let left = GMC.FS, done = 0, lad = 0, total = 0;
+    gmShowWin("免费旋转 " + left + " 次"); SND.win(); await sleep(gT(1600));
+    while (left > 0) {
+      left--; done++;
+      $("#gmMode").textContent = "免费旋转 " + done + " / " + (done + left) + " · 累计 +" + fmt(total);
+      const r = await gmOne(lad);
+      total += r.total; lad = r.lad;                       // the multiplier ladder carries over
+      if (r.stars >= 3) { left += GMC.FS_RE; gmShowWin("再得 " + GMC.FS_RE + " 次"); await sleep(gT(1200)); }
+      $("#gmMode").textContent = "免费旋转 " + done + " / " + (done + left) + " · 累计 +" + fmt(total);
+      await sleep(gT(450));
+    }
+    $("#gmMode").textContent = "任意位置 8 个相同即中奖";
+    return total;
+  }
+  function gmRender() {
+    betbarRender("gm", gm.bet, gm.spinning || gm.auto > 0);
+    $("#gmSpin").disabled = gm.spinning || !gm.bet || gm.auto > 0;
+    $("#gmSpin").textContent = gm.bet ? "旋转 · " + fmt(gm.bet) : "旋转";
+    const ab = $("#gmAuto");
+    ab.classList.toggle("on", gm.auto > 0);
+    ab.textContent = gm.auto > 0 ? "停止" + (gm.auto === Infinity ? "" : " · 剩 " + gm.auto) : "自动";
+    ab.disabled = !gm.auto && (!gm.bet || gm.spinning);
+    $("#gmBetTotal").textContent = fmt(gm.bet);
+  }
+  gm.bet = betLoad("gm");
+  betbarWire("gm", () => gm.bet, (v) => { gm.bet = v; gmRender(); }, () => gm.spinning || gm.auto > 0);
+  async function gmSpin() {
+    if (gm.spinning || !gm.bet) return false;
+    if (!take(gm.bet)) { msg($("#gmMsg"), '<span class="l">余额不足，点右上角 + 加余额</span>'); return false; }
+    gm.spinning = true; gmRender();
+    msg($("#gmMsg"), "旋转中…");
+    const r = await gmOne(0);
+    let total = r.total; const notes = [];
+    if (r.steps) notes.push(r.steps + " 轮消除 +" + fmt(r.total));
+    if (r.stars >= 4) { const f = await gmFree(r.stars); total += f; notes.push("免费旋转 +" + fmt(f)); }
+    gmLadder(-1);
+    msg($("#gmMsg"), (notes.length ? notes.join(" · ") + " · " : "没有中奖 · ") + net(total - gm.bet));
+    if (total > 0 && total < gm.bet * 20) SND.win();
+    if (total >= gm.bet * 20) await bigWin(total, gm.bet, gm.speed);
+    gm.spinning = false; gmRender();
+    return true;
+  }
+  $("#gmSpin").addEventListener("click", () => { if (!gm.auto) gmSpin(); });
+  async function gmAutoRun(n) {
+    gm.auto = n || Infinity; gmRender();
+    while (gm.auto > 0) {
+      if (S.view !== "gems" || !gm.bet) break;
+      if (S.bank < gm.bet) { msg($("#gmMsg"), '<span class="l">余额不足，自动旋转已停止</span>'); break; }
+      if (!(await gmSpin())) break;
+      if (gm.auto !== Infinity && gm.auto > 0) gm.auto--;
+      gmRender();
+      if (gm.auto > 0) await sleep(gT(450));
+    }
+    gm.auto = 0; gmRender();
+  }
+  const gmPop = $("#gmAutoPop");
+  $("#gmAuto").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (gm.auto > 0) { gm.auto = 0; gmRender(); msg($("#gmMsg"), "自动旋转已停止"); return; }
+    gmPop.hidden = !gmPop.hidden; $("#gmAuto").setAttribute("aria-expanded", String(!gmPop.hidden));
+  });
+  $$("#gmAutoPop button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); gmPop.hidden = true; gmAutoRun(+b.dataset.n); }));
+  document.addEventListener("click", (e) => { if (!e.target.closest("#v-gems .autowrap")) gmPop.hidden = true; });
+  // a resting board to look at before the first spin
+  gm.cols = []; for (let c = 0; c < G_COLS; c++) { const col = []; for (let r = 0; r < G_ROWS; r++) col.push(gmCell(gmDraw(), c, r)); gm.cols.push(col); }
+  gmLadder(-1);
+
   // Spin speed for the slot machines: 1× · 2× · 5× · 10×
   const SPEEDS = [1, 2, 5, 10];
-  [["#slSpeed", sl], ["#mgSpeed", mg]].forEach(([id, st]) => {
+  [["#slSpeed", sl], ["#mgSpeed", mg], ["#gmSpeed", gm]].forEach(([id, st]) => {
     const b = $(id);
     b.addEventListener("click", () => {
       st.speed = SPEEDS[(SPEEDS.indexOf(st.speed) + 1) % SPEEDS.length];
@@ -3390,6 +3696,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   thRender();
   slRender();
   mgRender();
+  gmRender();
   show(location.hash.slice(1) || "lobby");
 
   // Home-screen app: offline cache (only where service workers are allowed, e.g. GitHub Pages)
