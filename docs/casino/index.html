@@ -567,7 +567,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" data-go="slots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机</b><small>3 卷轴 · 5 线</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="linkbtn" id="resetBank" type="button">余额重置为 10,000</button></div>
   </section>
 
   <!-- Baccarat -->
@@ -1115,7 +1114,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (e.target === sh || e.target.closest("[data-close]")) sh.hidden = true;
   }));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") $$(".sheet").forEach((sh) => { sh.hidden = true; }); });
-  $("#resetBank").addEventListener("click", () => { addBank(START - S.bank); });
 
   /* ======================================================
      BACCARAT (Punto Banco) — four tables, each with its own shoe, road and countdown
