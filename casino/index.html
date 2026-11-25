@@ -489,10 +489,19 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .mg-banner span { font-size: 15px; color: var(--ivory); }
 .mg-banner.pop b { animation: banner .6s cubic-bezier(.2,1.6,.4,1); }
 @keyframes banner { from { transform: scale(.3); opacity: 0; } }
-.mg-bet { min-height: clamp(38px, 6vh, 54px); justify-content: flex-start !important; padding-left: 14px !important; }
-.mg-bet .lab { grid-auto-flow: column; gap: 8px; align-items: baseline; }
-.game .mg-bet .stake { left: 62%; }
-#mgRepeat { visibility: hidden; }
+.betbar { display: flex; align-items: center; gap: 8px; position: relative; }
+.bb-btn { width: 44px; height: 44px; flex: none; border-radius: 50%; border: 1px solid var(--brass-lo); background: rgba(0,0,0,.35); color: var(--brass); font: 700 22px/1 var(--mono); padding: 0; }
+.bb-max { width: auto; border-radius: 999px; padding: 0 12px; font-size: 13px; letter-spacing: .06em; }
+.bb-menu { margin-left: auto; color: var(--ivory); font-size: 18px; }
+.bb-wrap { flex: 1 1 auto; display: flex; }
+.bb-amt { flex: 1 1 auto; height: 48px; border-radius: 12px; border: 1px solid var(--brass); background: linear-gradient(180deg, #2a2418, #0f0d09); color: var(--ivory); display: flex; align-items: baseline; justify-content: center; gap: 8px; box-shadow: inset 0 0 12px rgba(212,175,55,.15); }
+.bb-amt small { font-size: 12px; color: var(--muted); }
+.bb-amt b { font: 700 clamp(18px, 3vh, 24px)/48px var(--mono); color: var(--win); font-variant-numeric: tabular-nums; }
+.bb-pop { position: absolute; bottom: calc(100% + 8px); left: 0; right: 0; margin: 0 auto; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 10px; max-width: 420px; border-radius: 14px; background: var(--rail); border: 1px solid var(--brass-lo); box-shadow: 0 8px 22px rgba(0,0,0,.55); }
+.bb-pop button { border: 1px solid var(--brass-lo); background: transparent; color: var(--ivory); border-radius: 8px; padding: 9px 4px; font: 600 14px/1 var(--mono); }
+.bb-pop button[aria-pressed="true"] { background: var(--brass); color: var(--ink); border-color: var(--brass); }
+.bb-pop button:disabled { opacity: .3; }
+.betbar button:disabled { opacity: .35; }
 .mc svg.art, .sym svg.art { width: 86%; height: 86%; overflow: visible; }
 .mc .wlab { position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%); font: 800 calc(var(--mc) * .14)/1 var(--body); color: #fff; background: #a30d12; border: 1px solid #ffd75a; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
 .mc .coin { position: relative; width: 92%; height: 92%; display: grid; place-items: center; }
@@ -549,10 +558,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .paytable span b { font-size: 15px; color: var(--ivory); font-family: var(--display); }
 .paytable span b.s7 { color: #ff5a5f; } .paytable span b.sred { color: #ff7a7f; } .paytable span b.sstar { color: var(--win); }
 .paytable span b.sbar { font: 800 10px/1.6 var(--body); }
-.sl-bet { min-height: clamp(40px, 6.5vh, 58px); justify-content: flex-start !important; padding-left: 14px !important; }
-.sl-bet .lab { grid-auto-flow: column; gap: 8px; align-items: baseline; }
-.game .sl-bet .stake { left: 62%; }
-#slRepeat { visibility: hidden; }
+
 #v-slots .btn.big { min-width: 0; flex: 1 1 auto; max-width: 50%; }
 .spdbtn { border-radius: 999px; padding: 8px 12px; font: 700 15px/1 var(--mono); min-width: 3.4em; }
 .spdbtn.fast { background: var(--brass); color: var(--ink); }
@@ -1065,7 +1071,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <p class="tmsg" id="mgMsg">下注后旋转 · 6 个金币触发金币锁定</p>
       <div class="mg-banner" id="mgBanner" hidden></div>
     </div>
-    <div class="pkbets"><button class="spot side sx mg-bet" data-mg="bet" type="button"><span class="lab"><b>每次下注</b><small>243 路</small></span><span class="stake"></span></button></div>
     <div class="acts"><div class="actrow">
       <button class="btn big" id="mgSpin" type="button">旋转</button>
       <span class="autowrap">
@@ -1077,7 +1082,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       </span>
       <button class="btn ghost spdbtn" id="mgSpeed" type="button" title="旋转速度" aria-label="旋转速度">1×</button>
     </div></div>
-    <div class="bctl" data-g="mg"></div>
+    <div class="betbar" data-bb="mg">
+      <button class="bb-btn" type="button" data-step="-1" aria-label="每局金额减少">−</button>
+      <span class="bb-wrap"><button class="bb-amt" type="button" aria-expanded="false"><small>每局</small><b>100</b></button><span class="bb-pop" hidden></span></span>
+      <button class="bb-btn" type="button" data-step="1" aria-label="每局金额增加">+</button>
+      <button class="bb-btn bb-max" type="button" data-step="max" aria-label="最高">MAX</button>
+      <button class="bb-btn bb-menu" type="button" data-rules="menu-mg" aria-label="菜单">≡</button>
+    </div>
     <div class="bfoot">
       <div>每次旋转 <b id="mgBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
       <div class="r"><span>龙腾财宝 · 5×3 · 243 路</span><span>理论回报约 96%</span></div>
@@ -1085,7 +1096,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <div class="sheet" id="menu-mg" hidden><div class="sheet-in" role="dialog" aria-label="龙腾财宝菜单">
       <div class="sheet-head"><h3>龙腾财宝</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
       <div class="menu-grid">
-        <button class="btn ghost" id="mgClear" type="button" data-close>清除下注</button>
         <button class="btn ghost" type="button" data-close data-rules="rules-mg">规则与赔率</button>
       </div>
     </div></div>
@@ -1180,7 +1190,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <p class="tmsg" id="slMsg">下每线注，然后旋转</p>
     </div>
     <div class="paytable" id="slPay"></div>
-    <div class="pkbets"><button class="spot side sx sl-bet" data-sl="line" type="button"><span class="lab"><b>每线下注</b><small>× 5 条线</small></span><span class="stake"></span></button></div>
     <div class="acts"><div class="actrow">
       <button class="btn big" id="slSpin" type="button">旋转</button>
       <span class="autowrap">
@@ -1192,7 +1201,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       </span>
       <button class="btn ghost spdbtn" id="slSpeed" type="button" title="旋转速度" aria-label="旋转速度">1×</button>
     </div></div>
-    <div class="bctl" data-g="sl"></div>
+    <div class="betbar" data-bb="sl">
+      <button class="bb-btn" type="button" data-step="-1" aria-label="每局金额减少">−</button>
+      <span class="bb-wrap"><button class="bb-amt" type="button" aria-expanded="false"><small>每局</small><b>100</b></button><span class="bb-pop" hidden></span></span>
+      <button class="bb-btn" type="button" data-step="1" aria-label="每局金额增加">+</button>
+      <button class="bb-btn bb-max" type="button" data-step="max" aria-label="最高">MAX</button>
+      <button class="bb-btn bb-menu" type="button" data-rules="menu-sl" aria-label="菜单">≡</button>
+    </div>
     <div class="bfoot">
       <div>每次旋转 <b id="slBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
       <div class="r"><span>老虎机 · 3 卷轴 5 线</span><span>理论回报约 96%</span></div>
@@ -1200,14 +1215,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <div class="sheet" id="menu-sl" hidden><div class="sheet-in" role="dialog" aria-label="老虎机菜单">
       <div class="sheet-head"><h3>老虎机</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
       <div class="menu-grid">
-        <button class="btn ghost" id="slClear" type="button" data-close>清除下注</button>
         <button class="btn ghost" type="button" data-close data-rules="rules-sl">规则</button>
       </div>
     </div></div>
     <div class="sheet" id="rules-sl" hidden><div class="sheet-in" role="dialog" aria-label="老虎机规则">
       <div class="sheet-head"><h3>老虎机规则</h3><span class="note">幸运 7 · 3 卷轴 5 线</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
       <ul>
-        <li>点「每线下注」放筹码，决定每条线的注额；每次旋转花费 每线注 × 5。注额会一直保留，可以连续旋转。</li>
+        <li>用下方的 − / + 或点中间的金额直接选择每局多少钱（10 至 100,000），平均分到 5 条线上。金额会一直保留，可以连续旋转。</li>
         <li>「自动」可以选择自动旋转 10、25、50、100 次或一直转，按「停止」结束；余额不够、注额清空或离开老虎机画面时会自动停止。旁边的 1× / 2× / 5× / 10× 调整旋转速度。</li>
         <li>一次赢得下注 20 倍以上会播放约 20 秒的大奖动画（20 倍大奖、50 倍巨奖、100 倍超级巨奖），点任意处可以跳过。</li>
         <li>5 条线：中间横线、上横线、下横线、两条对角线（两侧的数字标出每条线）。</li>
@@ -2876,6 +2890,34 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   /* ======================================================
      SLOT MACHINE — 3 reels, 5 lines
      ====================================================== */
+  /* ---------- Stake selector for the slot series (no chips: pick how much one spin costs) ---------- */
+  const STAKES = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000];
+  function betLoad(g) { try { const v = +localStorage.getItem("gbc-stake-" + g); if (STAKES.includes(v)) return v; } catch (e) {} return 100; }
+  function betbarRender(g, v, busy) {
+    const bb = $('.betbar[data-bb="' + g + '"]'), i = STAKES.indexOf(v);
+    bb.querySelector(".bb-amt b").textContent = fmt(v);
+    bb.querySelector('[data-step="-1"]').disabled = busy || i <= 0;
+    bb.querySelector('[data-step="1"]').disabled = busy || i >= STAKES.length - 1;
+    bb.querySelector('[data-step="max"]').disabled = busy || i >= STAKES.length - 1;
+    bb.querySelector(".bb-amt").disabled = busy;
+    bb.querySelectorAll(".bb-pop button").forEach((b) => b.setAttribute("aria-pressed", String(+b.dataset.v === v)));
+  }
+  function betbarWire(g, get, set, busy) {
+    const bb = $('.betbar[data-bb="' + g + '"]'), pop = bb.querySelector(".bb-pop"), amt = bb.querySelector(".bb-amt");
+    const pick = (v) => { if (busy()) return; set(v); SND.chip(); try { localStorage.setItem("gbc-stake-" + g, v); } catch (e) {} };
+    STAKES.forEach((v) => {
+      const b = document.createElement("button"); b.type = "button"; b.dataset.v = v; b.textContent = compact(v);
+      b.addEventListener("click", (e) => { e.stopPropagation(); pick(v); pop.hidden = true; amt.setAttribute("aria-expanded", "false"); });
+      pop.appendChild(b);
+    });
+    bb.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => {
+      const i = STAKES.indexOf(get());
+      const j = b.dataset.step === "max" ? STAKES.length - 1 : Math.max(0, Math.min(STAKES.length - 1, i + +b.dataset.step));
+      pick(STAKES[j]);
+    }));
+    amt.addEventListener("click", (e) => { e.stopPropagation(); if (busy()) return; pop.hidden = !pop.hidden; amt.setAttribute("aria-expanded", String(!pop.hidden)); });
+    document.addEventListener("click", (e) => { if (!e.target.closest(".bb-wrap")) pop.hidden = true; });
+  }
   const ART = (id) => '<svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#' + id + '"/></svg>';
   const SL_SYM = [
     { html: ART("s-7"), pay: 200, n: 1, name: "7" },
@@ -2907,25 +2949,19 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     });
   }
   function slRender() {
-    setStake($("#v-slots .sl-bet .stake"), sl.line);
-    $("#v-slots .sl-bet").disabled = sl.spinning || sl.auto > 0;
+    betbarRender("sl", sl.line * 5, sl.spinning || sl.auto > 0);
     $("#slSpin").disabled = sl.spinning || !sl.line || sl.auto > 0;
     const ab = $("#slAuto");
     ab.classList.toggle("on", sl.auto > 0);
     ab.textContent = sl.auto > 0 ? "停止" + (sl.auto === Infinity ? "" : " · 剩 " + sl.auto) : "自动";
     ab.disabled = !sl.auto && (!sl.line || sl.spinning);
     $("#slSpin").textContent = sl.line ? "旋转 · " + fmt(sl.line * 5) : "旋转";
-    $("#slUndo").disabled = sl.spinning || !sl.hist.length;
-    $("#slDouble").disabled = sl.spinning || !sl.line;
-    $("#slClear").disabled = sl.spinning || !sl.line;
-    $("#slRepeat").disabled = true;
     $("#slBetTotal").textContent = fmt(sl.line * 5);
   }
   // the line bet is kept between spins; chips are only taken when you spin
-  $("#v-slots .sl-bet").addEventListener("click", () => { if (sl.spinning) return; sl.line += S.chip; sl.hist.push(S.chip); SND.chip(); slRender(); });
-  $("#slUndo").addEventListener("click", () => { if (sl.spinning || !sl.hist.length) return; sl.line -= sl.hist.pop(); slRender(); });
-  $("#slDouble").addEventListener("click", () => { if (sl.spinning || !sl.line) return; sl.hist.push(sl.line); sl.line *= 2; SND.chip(); slRender(); });
-  $("#slClear").addEventListener("click", () => { sl.line = 0; sl.hist = []; slRender(); });
+  // stake per spin is chosen directly; 5 lines, so each line gets a fifth of it
+  sl.line = betLoad("sl") / 5;
+  betbarWire("sl", () => sl.line * 5, (v) => { sl.line = v / 5; slRender(); }, () => sl.spinning || sl.auto > 0);
   $("#slSpin").addEventListener("click", () => { if (!sl.auto) slSpin(); });
   async function slSpin() {
     if (sl.spinning || !sl.line) return false;
@@ -3060,25 +3096,18 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (flash) { const el = $('#mgJps [data-jp="' + flash + '"]'); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
   }
   function mgRender() {
-    setStake($("#v-dragon .mg-bet .stake"), mg.bet);
-    $("#v-dragon .mg-bet").disabled = mg.spinning || mg.auto > 0;
+    betbarRender("mg", mg.bet, mg.spinning || mg.auto > 0);
     $("#mgSpin").disabled = mg.spinning || !mg.bet || mg.auto > 0;
     $("#mgSpin").textContent = mg.bet ? "旋转 · " + fmt(mg.bet) : "旋转";
     const ab = $("#mgAuto");
     ab.classList.toggle("on", mg.auto > 0);
     ab.textContent = mg.auto > 0 ? "停止" + (mg.auto === Infinity ? "" : " · 剩 " + mg.auto) : "自动";
     ab.disabled = !mg.auto && (!mg.bet || mg.spinning);
-    $("#mgUndo").disabled = mg.spinning || mg.auto > 0 || !mg.hist.length;
-    $("#mgDouble").disabled = mg.spinning || mg.auto > 0 || !mg.bet;
-    $("#mgClear").disabled = mg.spinning || mg.auto > 0 || !mg.bet;
-    $("#mgRepeat").disabled = true;
     $("#mgBetTotal").textContent = fmt(mg.bet);
     jpRender();
   }
-  $("#v-dragon .mg-bet").addEventListener("click", () => { if (mg.spinning || mg.auto) return; mg.bet += S.chip; mg.hist.push(S.chip); SND.chip(); mgRender(); });
-  $("#mgUndo").addEventListener("click", () => { if (mg.spinning || !mg.hist.length) return; mg.bet -= mg.hist.pop(); mgRender(); });
-  $("#mgDouble").addEventListener("click", () => { if (mg.spinning || !mg.bet) return; mg.hist.push(mg.bet); mg.bet *= 2; SND.chip(); mgRender(); });
-  $("#mgClear").addEventListener("click", () => { mg.bet = 0; mg.hist = []; mgRender(); });
+  mg.bet = betLoad("mg");
+  betbarWire("mg", () => mg.bet, (v) => { mg.bet = v; mgRender(); }, () => mg.spinning || mg.auto > 0);
 
   const banner = (big, small) => { const b = $("#mgBanner"); b.innerHTML = "<b>" + big + "</b>" + (small ? "<span>" + small + "</span>" : ""); b.hidden = false; b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); };
   const hideBanner = () => { $("#mgBanner").hidden = true; };
