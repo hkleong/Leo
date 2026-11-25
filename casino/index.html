@@ -73,10 +73,10 @@ html.ios-app .top { padding-top: calc(env(safe-area-inset-top, 0px) + 34px); }
 .bank { margin-left: auto; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .bank-label { font-size: 11px; color: var(--muted); }
 #bank { font-family: var(--mono); font-size: 16px; color: var(--win); font-variant-numeric: tabular-nums; }
-#soundBtn { display: inline-grid; place-items: center; }
-#soundBtn .mute { display: none; }
-#soundBtn[aria-pressed="false"] .mute { display: inline; }
-#soundBtn[aria-pressed="false"] .wave { display: none; }
+.addbtn { color: var(--win); border-color: var(--brass); font-size: 17px; font-weight: 600; display: inline-grid; place-items: center; }
+.addbtn:active { transform: scale(.92); }
+#bank.bump { animation: bump .5s ease-out; }
+@keyframes bump { 30% { transform: scale(1.18); color: #fff3c4; } }
 .iconbtn { background: none; border: 1px solid var(--brass-lo); border-radius: 50%; width: 24px; height: 24px; padding: 0; font-size: 13px; line-height: 1; color: var(--muted); flex: none; }
 
 /* Main area takes the remaining height; if a screen is really short it scrolls inside, never the page */
@@ -157,6 +157,8 @@ main > section > * { min-width: 0; }
 [data-v="500"] { --c: #6b3fa0; color: #fff; }
 [data-v="1000"] { --c: #e0b647; }
 [data-v="5000"] { --c: #2a2a2a; color: #fff; }
+[data-v="10000"] { --c: #1d8a72; color: #fff; }
+[data-v="100000"] { --c: #d0661f; color: #fff; }
 .stake { display: inline-block; line-height: 0; --d: 26px; }
 .stake:empty { display: none; }
 .cstack { position: relative; display: inline-block; width: var(--d); height: calc(var(--d) + (var(--n) - 1) * 3px); }
@@ -185,6 +187,7 @@ main > section > * { min-width: 0; }
   display: flex; gap: 6px; padding: 7px 9px; border-radius: 999px; background: var(--rail); border: 1px solid var(--brass-lo); box-shadow: 0 8px 20px rgba(0,0,0,.5);
 }
 @media (max-width: 380px) { .clab { display: none; } }
+@media (max-width: 520px) { .chippop { display: grid; grid-template-columns: repeat(4, 38px); gap: 8px; border-radius: 16px; padding: 9px 10px; } }
 .bfoot { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; line-height: 1.35; color: var(--muted); }
 .bfoot b { font-family: var(--mono); color: var(--win); font-weight: 500; }
 .bfoot .r { text-align: right; display: grid; justify-items: end; }
@@ -461,7 +464,7 @@ main > section > * { min-width: 0; }
     <div class="bank">
       <span class="bank-label">余额</span>
       <span id="bank">10,000</span>
-      <button class="iconbtn" id="soundBtn" type="button" aria-pressed="true" title="声音：开" aria-label="声音开关"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="wave" d="M16 8.5a4.5 4.5 0 0 1 0 7M18.5 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path class="mute" d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button class="iconbtn addbtn" id="addBank" type="button" title="余额增加 100 万" aria-label="余额增加 100 万">+</button>
     </div>
   </div>
 </header>
@@ -747,7 +750,6 @@ main > section > * { min-width: 0; }
   /* ---------- Sound: small synthesized effects, no audio files ---------- */
   const SND = (() => {
     let on = true, ctx = null;
-    try { on = localStorage.getItem("gbc-sound") !== "off"; } catch (e) {}
     function ac() {
       if (!on) return null;
       try {
@@ -780,7 +782,6 @@ main > section > * { min-width: 0; }
     }
     return {
       get on() { return on; },
-      set(v) { on = v; try { localStorage.setItem("gbc-sound", v ? "on" : "off"); } catch (e) {} if (v) ac(); },
       chip() { noise(0.035, 4200, 2600, 6, 0.5, "bandpass"); tone(2600, 0.05, 0.08, "triangle", 0.012); noise(0.03, 3600, 2400, 6, 0.3, "bandpass", 0.045); },
       deal() { noise(0.2, 2400, 500, 1.2, 0.35, "bandpass"); },
       flip() { noise(0.045, 5000, 2500, 2, 0.45, "highpass"); },
@@ -789,9 +790,6 @@ main > section > * { min-width: 0; }
       win() { [660, 880, 1175, 1568].forEach((f, i) => tone(f, 0.28, 0.16, "triangle", i * 0.09)); },
     };
   })();
-  function syncSoundBtn() { const b = $("#soundBtn"); b.setAttribute("aria-pressed", String(SND.on)); b.title = "声音：" + (SND.on ? "开" : "关"); }
-  $("#soundBtn").addEventListener("click", () => { SND.set(!SND.on); syncSoundBtn(); if (SND.on) SND.chip(); });
-  syncSoundBtn();
   // iOS home-screen app: mark it so the header can sit below the status-bar fade.
   document.documentElement.classList.toggle("ios-app", navigator.standalone === true);
 
@@ -803,14 +801,20 @@ main > section > * { min-width: 0; }
     if (saved && typeof saved.bank === "number" && isFinite(saved.bank)) S.bank = saved.bank;
   } catch (e) {}
   function save() { try { localStorage.setItem("gbc-casino", JSON.stringify({ bank: S.bank })); } catch (e) {} }
-  function addBank(d) { S.bank = Math.round((S.bank + d) * 100) / 100; save(); $("#bank").textContent = fmt(S.bank); $$(".bal-mirror").forEach((e) => { e.textContent = fmt(S.bank); }); }
+  function bankText(v) { return innerWidth < 420 && Math.abs(v) >= 1e6 ? (Math.floor(v / 1e3) / 10).toLocaleString("zh-CN", { maximumFractionDigits: 1 }) + "万" : fmt(v); }
+  function addBank(d) { S.bank = Math.round((S.bank + d) * 100) / 100; save(); $("#bank").textContent = bankText(S.bank); $("#bank").title = fmt(S.bank); $$(".bal-mirror").forEach((e) => { e.textContent = fmt(S.bank); }); }
   function take(a) { if (a > S.bank + 1e-9) return false; addBank(-a); SND.chip(); return true; }
   addBank(0);
+  $("#addBank").addEventListener("click", () => {
+    addBank(1e6); SND.chip();
+    const b = $("#bank"); b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump");
+  });
+  addEventListener("resize", () => addBank(0));
 
   /* ---------- Chip stacks on bets ---------- */
   function chipBreak(a) {
     const out = []; let r = Math.round(a * 100) / 100;
-    for (const v of [5000, 1000, 500, 100, 50, 10]) while (r >= v && out.length < 60) { out.push(v); r = Math.round((r - v) * 100) / 100; }
+    for (const v of [100000, 10000, 5000, 1000, 500, 100, 50, 10]) while (r >= v && out.length < 60) { out.push(v); r = Math.round((r - v) * 100) / 100; }
     if (!out.length && a > 0) out.push(10);
     return out;
   }
@@ -824,7 +828,7 @@ main > section > * { min-width: 0; }
   function setStake(el, a) { if (el.dataset.a !== String(a || 0)) { el.innerHTML = stakeHTML(a); el.dataset.a = String(a || 0); } }
 
   /* ---------- Chip bar: the same control row in every game ---------- */
-  const CHIPS = [10, 50, 100, 500, 1000, 5000];
+  const CHIPS = [10, 50, 100, 500, 1000, 5000, 10000, 100000];
   $$(".bctl[data-g]").forEach((bar) => {
     const g = bar.dataset.g;
     bar.innerHTML =
