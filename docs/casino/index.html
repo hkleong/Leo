@@ -116,7 +116,11 @@ main > section > * { min-width: 0; }
 .bt-stats { font: 500 11px/1 var(--mono); color: var(--muted); display: flex; gap: 8px; }
 .bt-stats i { font-style: normal; }
 .bt-stats .P { color: #8fb4ff; } .bt-stats .B { color: #ff9a9a; } .bt-stats .T { color: #6fd39a; }
-.gtiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.gtiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.mtabs { display: flex; align-items: center; gap: 4px; }
+.mt-lab { font-size: 11px; letter-spacing: .12em; color: var(--muted); margin-right: auto; }
+.mtabs button { border: 1px solid var(--brass-lo); background: transparent; color: var(--muted); border-radius: 999px; padding: 3px 12px; font-size: 13px; }
+.mtabs button[aria-selected="true"] { background: var(--brass); color: var(--ink); border-color: var(--brass); font-weight: 600; }
 @media (max-width: 640px) { .gtiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .gtile { padding: 8px 9px 7px; } .gtile .glyph { font-size: clamp(22px, 4vh, 36px); } .gtile small { display: none; } }
 .gtile { padding: 10px 10px 9px; display: grid; gap: 1px; justify-items: start; }
 .gtile .glyph { font-family: var(--display); font-size: clamp(26px, 5vh, 44px); line-height: 1; color: var(--brass); font-weight: 700; }
@@ -264,7 +268,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .bw-skip { margin-top: 22px; font-size: 13px; color: rgba(255,255,255,.65); }
 @keyframes bwpulse { from { transform: scale(.96); } to { transform: scale(1.06); } }
 .bigwin.show .bw-in { animation: bwin .7s cubic-bezier(.2,1.5,.4,1); }
-@keyframes bwin { from { transform: scale(.4); opacity: 0; } } .toast .l { color: #ff9a9a; }
+@keyframes bwin { from { transform: scale(.4); opacity: 0; } }
+.bigwin.landed .bw-amt { animation: bwland .55s cubic-bezier(.2,1.8,.4,1), bwglow 1.4s ease-in-out .55s infinite alternate; color: #ffe08a; }
+@keyframes bwland { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1.12); } }
+@keyframes bwglow { from { transform: scale(1.12); text-shadow: 0 0 18px rgba(255,215,0,.9), 0 3px 0 #a37a00; } to { transform: scale(1.16); text-shadow: 0 0 36px rgba(255,215,0,1), 0 3px 0 #a37a00; } }
+.bigwin.landed .bw-skip { opacity: 0; transition: opacity .4s; } .toast .l { color: #ff9a9a; }
 .btable.shuffling .cdring, .btable.shuffling .bresult { visibility: hidden; }
 .stage { position: absolute; inset: 0; z-index: 6; border-radius: 12px; background: rgba(0,0,0,.62); overflow: hidden; pointer-events: none; }
 .stage .st-msg { position: absolute; left: 0; right: 0; top: 10px; text-align: center; margin: 0; font: 600 15px/1.3 var(--body); color: var(--win); letter-spacing: .08em; }
@@ -613,8 +621,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <button type="button" data-go="roulette">轮盘</button>
       <button type="button" data-go="poker">三张牌</button>
       <button type="button" data-go="holdem">德州</button>
-      <button type="button" data-go="slots">老虎机</button>
-      <button type="button" data-go="dragon">龙腾财宝</button>
+      <button type="button" data-go="slotseries">老虎机</button>
     </nav>
     <div class="bank">
       <span class="bank-label">余额</span>
@@ -857,8 +864,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" data-go="roulette"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><circle cx="24" cy="24" r="3" fill="currentColor"/><path d="M24 6v7M24 35v7M6 24h7M35 24h7M11.3 11.3l5 5M31.7 31.7l5 5M36.7 11.3l-5 5M16.3 31.7l-5 5"/><circle cx="34" cy="15" r="2.4" fill="currentColor" stroke="none"/></svg></span><b>轮盘</b><small>欧式单零 · 35:1</small></button>
         <button class="gtile" type="button" data-go="poker"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="17" height="25" rx="3" transform="rotate(-16 14 26)"/><rect x="15.5" y="10" width="17" height="25" rx="3"/><rect x="25" y="13" width="17" height="25" rx="3" transform="rotate(16 34 26)" fill="currentColor" fill-opacity=".12"/><path d="M24 17l3 4h-6z" fill="currentColor" stroke="none"/></svg></span><b>三张牌</b><small>对子加注 40:1</small></button>
         <button class="gtile" type="button" data-go="holdem"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M36.7 11.3l-3.5 3.5M14.8 33.2l-3.5 3.5"/><path d="M24 17c3 3 6 5 6 8a3 3 0 0 1-5 2l1 4h-4l1-4a3 3 0 0 1-5-2c0-3 3-5 6-8z" fill="currentColor" stroke="none"/></svg></span><b>德州扑克</b><small>盲注最高 500:1</small></button>
-        <button class="gtile" type="button" data-go="slots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机</b><small>3 卷轴 · 5 线</small></button>
-        <button class="gtile" type="button" data-go="dragon"><span class="ico"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg></span><b>龙腾财宝</b><small>四级头奖 GRAND</small></button>
+        <button class="gtile" type="button" data-go="slotseries"><span class="ico"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><b>老虎机系列</b><small>幸运 7 · 龙腾财宝</small></button>
       </div>
     </div>
   </section>
@@ -1048,6 +1054,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 
   <!-- 龙腾财宝: 5x3 video slot, 243 ways, free spins, coin hold & spin with four jackpots -->
   <section id="v-dragon" class="game" hidden>
+    <div class="mtabs" role="tablist" aria-label="老虎机系列"><span class="mt-lab">老虎机系列</span><button type="button" data-m="slots">幸运 7</button><button type="button" data-m="dragon">龙腾财宝</button></div>
     <div class="btable col mg">
       <div class="jps" id="mgJps">
         <div class="jp grand" data-jp="GRAND"><span>GRAND</span><b id="jpGRAND">–</b></div>
@@ -1164,6 +1171,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 
   <!-- Slot machine -->
   <section id="v-slots" class="game" hidden>
+    <div class="mtabs" role="tablist" aria-label="老虎机系列"><span class="mt-lab">老虎机系列</span><button type="button" data-m="slots">幸运 7</button><button type="button" data-m="dragon">龙腾财宝</button></div>
     <div class="btable col slot">
       <div class="slot-top"><b>幸运 7</b><span class="note">3 卷轴 · 5 条线</span></div>
       <div class="slot-cab">
@@ -1203,7 +1211,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <ul>
         <li>点「每线下注」放筹码，决定每条线的注额；每次旋转花费 每线注 × 5。注额会一直保留，可以连续旋转。</li>
         <li>「自动」可以选择自动旋转 10、25、50、100 次或一直转，按「停止」结束；余额不够、注额清空或离开老虎机画面时会自动停止。旁边的 1× / 2× / 5× / 10× 调整旋转速度。</li>
-        <li>一次赢得下注 20 倍以上会播放大奖动画（20 倍大奖、50 倍巨奖、100 倍超级巨奖），点任意处可以跳过。</li>
+        <li>一次赢得下注 20 倍以上会播放约 20 秒的大奖动画（20 倍大奖、50 倍巨奖、100 倍超级巨奖），点任意处可以跳过。</li>
         <li>5 条线：中间横线、上横线、下横线、两条对角线（两侧的数字标出每条线）。</li>
         <li>任一条线上三个相同符号即中奖，奖金 = 每线注 × 下表倍数；多条线可同时中奖。</li>
         <li>每个卷轴有 20 格：7 有 1 格、★ 2 格、BAR 3 格、♦ 4 格、♥ 4 格、♠ 6 格，三个卷轴独立随机停止，理论回报率约 96%。</li>
@@ -1284,6 +1292,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function msg(el, html) { el.innerHTML = html; }
   // Big win celebration: money bursts up from the bottom while the amount counts up from 0 (about 10 s, tap to skip)
+  // Big win celebration (about 20 s, tap to skip):
+  //  0–70 %  money bursts up from the bottom while the amount counts up from 0
+  //  70 %    the count lands: chime, the number pops and a ring of coins bursts out of it
+  //  70–88 % a gentle rain of coins falls from the top while the final amount glows
+  //  88–100% nothing new is thrown, the coins already in the air fall away and the screen fades out
   function bigWin(amount, bet, speed) {
     return new Promise((resolve) => {
       const ov = $("#bigwin"), cv = ov.querySelector("canvas"), g = cv.getContext("2d"), amtEl = ov.querySelector(".bw-amt");
@@ -1292,19 +1305,27 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       ov.querySelector(".bw-t").textContent = tier[0]; ov.querySelector(".bw-e").textContent = tier[1];
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       const W = (cv.width = innerWidth * dpr), H = (cv.height = innerHeight * dpr);
-      const dur = reduced ? 900 : Math.max(2000, 10000 / (speed || 1));
+      let dur = reduced ? 1500 : Math.max(3000, 20000 / (speed || 1));
+      const COUNT = 0.7, RAIN = 0.88;
       const parts = [];
-      let done = false, raf = 0, lastTick = 0;
-      const t0 = performance.now();
+      let raf = 0, lastTick = 0, landed = false, closing = false, last = performance.now();
+      let t0 = performance.now();
+      ov.style.opacity = "1"; ov.classList.remove("landed");
       ov.hidden = false; ov.classList.remove("show"); void ov.offsetWidth; ov.classList.add("show");
       amtEl.textContent = "0"; SND.win();
-      function spawn(n) {
-        for (let i = 0; i < n && parts.length < 260; i++) parts.push({
-          x: W * (0.05 + Math.random() * 0.9), y: H + 30 * dpr,
-          vx: (Math.random() - 0.5) * 7 * dpr, vy: -(H * (0.016 + Math.random() * 0.014)),
-          r: (9 + Math.random() * 10) * dpr, ph: Math.random() * 6.28, sp: 0.1 + Math.random() * 0.2,
-          bill: Math.random() < 0.22, rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.2,
-        });
+      const R = (a, b) => a + Math.random() * (b - a);
+      function coin(x, y, vx, vy, bill) {
+        if (parts.length < 320) parts.push({ x, y, vx, vy, r: R(9, 19) * dpr, ph: R(0, 6.28), sp: R(0.08, 0.28), bill, rot: R(0, 6.28), vr: R(-0.12, 0.12), drag: 1 });
+      }
+      const fountain = (n) => { for (let i = 0; i < n; i++) coin(W * R(0.05, 0.95), H + 30 * dpr, R(-3.5, 3.5) * dpr, -H * R(0.016, 0.03), Math.random() < 0.22); };
+      const rain = (n) => { for (let i = 0; i < n; i++) { const p = coin(W * R(0, 1), -30 * dpr, R(-1, 1) * dpr, H * R(0.002, 0.006), Math.random() < 0.3); } };
+      function burst() {
+        const r = amtEl.getBoundingClientRect(), cx = (r.left + r.width / 2) * dpr, cy = (r.top + r.height / 2) * dpr;
+        for (let i = 0; i < 70; i++) { const a = R(0, 6.28), v = R(0.006, 0.02) * H; coin(cx, cy, Math.cos(a) * v, Math.sin(a) * v - H * 0.006, Math.random() < 0.25); }
+      }
+      function land() {
+        if (landed) return; landed = true;
+        amtEl.textContent = fmt(amount); ov.classList.add("landed"); SND.win(); burst();
       }
       function draw(p) {
         g.save(); g.translate(p.x, p.y);
@@ -1314,8 +1335,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
           g.strokeStyle = "#bff0c8"; g.lineWidth = 1.5 * dpr; g.strokeRect(-p.r * 1.4, -p.r * 0.6, p.r * 2.8, p.r * 1.2);
           g.fillStyle = "#e9ffe9"; g.font = "700 " + Math.round(p.r) + "px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("¥", 0, 1);
         } else {
-          const w = Math.max(0.12, Math.abs(Math.cos(p.ph)));
-          g.scale(w, 1);
+          g.scale(Math.max(0.12, Math.abs(Math.cos(p.ph))), 1);
           const gr = g.createRadialGradient(-p.r * 0.3, -p.r * 0.3, p.r * 0.1, 0, 0, p.r);
           gr.addColorStop(0, "#fff6c8"); gr.addColorStop(0.5, "#f0c33a"); gr.addColorStop(1, "#9a6b06");
           g.fillStyle = gr; g.beginPath(); g.arc(0, 0, p.r, 0, Math.PI * 2); g.fill();
@@ -1324,27 +1344,38 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         g.restore();
       }
       function frame(now) {
+        const step = Math.min(3, (now - last) / 16.7); last = now;        // keep motion steady if a frame is late
         const t = (now - t0) / dur;
-        const k = Math.min(1, t / 0.85), e = 1 - Math.pow(1 - k, 3);
-        amtEl.textContent = fmt(Math.floor(amount * e));
-        if (k < 1 && now - lastTick > 90) { SND.ball(); lastTick = now; }
-        if (t < 0.92) spawn(reduced ? 1 : 5);
+        if (!landed) {
+          const k = Math.min(1, t / COUNT), e = 1 - Math.pow(1 - k, 3);
+          amtEl.textContent = fmt(Math.floor(amount * e));
+          if (now - lastTick > 90) { SND.ball(); lastTick = now; }
+          if (k >= 1) land();
+          if (Math.random() < 0.9 * step) fountain(reduced ? 1 : 4);
+        } else if (t < RAIN && !closing) {
+          if (Math.random() < 0.5 * step) rain(1);
+        }
+        // fade out over the last part
+        if (t > RAIN) ov.style.opacity = String(Math.max(0, 1 - (t - RAIN) / (1 - RAIN)));
         g.clearRect(0, 0, W, H);
         for (let i = parts.length - 1; i >= 0; i--) {
           const p = parts[i];
-          p.vy += H * 0.00045; p.x += p.vx; p.y += p.vy; p.ph += p.sp; p.rot += p.vr;
+          p.vy += H * 0.00042 * step; p.vx *= Math.pow(0.995, step);
+          p.x += p.vx * step; p.y += p.vy * step; p.ph += p.sp * step; p.rot += p.vr * step;
           if (p.y > H + 60 * dpr && p.vy > 0) { parts.splice(i, 1); continue; }
           draw(p);
         }
-        if (t >= 1) finish(false); else raf = requestAnimationFrame(frame);
+        if (t >= 1) { ov.hidden = true; ov.onclick = null; ov.style.opacity = "1"; ov.classList.remove("landed"); g.clearRect(0, 0, W, H); resolve(); return; }
+        raf = requestAnimationFrame(frame);
       }
-      function finish(skipped) {
-        if (done) return; done = true;
-        cancelAnimationFrame(raf);
-        amtEl.textContent = fmt(amount); SND.win();
-        setTimeout(() => { ov.hidden = true; ov.onclick = null; g.clearRect(0, 0, W, H); resolve(); }, skipped ? 350 : 700);
-      }
-      ov.onclick = () => finish(true);
+      // tap: land the amount at once, then a short fade instead of a hard cut
+      ov.onclick = () => {
+        if (closing) return; closing = true;
+        land();
+        const now = performance.now(), elapsed = (now - t0) / dur;
+        const fade = reduced ? 300 : 900;
+        if (elapsed < RAIN) { dur = fade / (1 - RAIN); t0 = now - RAIN * dur; }
+      };
       raf = requestAnimationFrame(frame);
     });
   }
@@ -1528,7 +1559,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (!VIEWS.includes(v)) v = "lobby";
     S.view = v;
     VIEWS.forEach((x) => { $("#v-" + x).hidden = x !== v; });
-    $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === v ? "true" : "false"));
+    const navKey = v === "slots" || v === "dragon" ? "slotseries" : v;
+    $$(".nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.go === navKey ? "true" : "false"));
+    if (v === "slots" || v === "dragon") {
+      slotLast = v; try { localStorage.setItem("gbc-slot", v); } catch (e) {}
+      $$(".mtabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.m === v)));
+    }
     const cur = $('.nav button[aria-current="true"]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "nearest" });
     closePops();
     if (v === "roulette") drawWheel();
@@ -1540,7 +1576,28 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (location.hash.slice(1) === v || (v === "lobby" && !location.hash)) show(v);
     else location.hash = v === "lobby" ? "" : v;
   }
-  $$("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
+  // the slot series (幸运 7 and 龙腾财宝) share one entry; it opens the machine you used last
+  let slotLast = "dragon";
+  try { const v = localStorage.getItem("gbc-slot"); if (v === "slots" || v === "dragon") slotLast = v; } catch (e) {}
+  $$("[data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go === "slotseries" ? slotLast : b.dataset.go)));
+  $$(".mtabs button").forEach((b) => b.addEventListener("click", () => switchMachine(b.dataset.m)));
+  function switchMachine(m) {
+    if (m === S.view) return;
+    if ((S.view === "slots" && sl.spinning) || (S.view === "dragon" && mg.spinning)) { toast("正在旋转，转完再换机台"); return; }
+    sl.auto = 0; mg.auto = 0;
+    go(m);
+  }
+  // swipe left / right on a machine to switch to the other one
+  ["#v-slots", "#v-dragon"].forEach((sel) => {
+    const el = $(sel); let sx = 0, sy = 0, st = 0, ok = false, at = 0;
+    el.addEventListener("touchstart", (e) => { const t = e.touches[0]; ok = e.touches.length === 1 && !e.target.closest(".chipwrap, .autowrap, .sheet"); sx = t.clientX; sy = t.clientY; st = Date.now(); }, { passive: true });
+    el.addEventListener("touchend", (e) => {
+      if (!ok) return;
+      const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.6 && Date.now() - st < 900) { at = Date.now(); switchMachine(sel === "#v-slots" ? "dragon" : "slots"); }
+    }, { passive: true });
+    el.addEventListener("click", (e) => { if (Date.now() - at < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
+  });
   window.addEventListener("hashchange", () => show(location.hash.slice(1) || "lobby"));
   $$("[data-rules]").forEach((b) => b.addEventListener("click", () => { closePops(); $("#" + b.dataset.rules).hidden = false; }));
   $$(".sheet").forEach((sh) => sh.addEventListener("click", (e) => {
