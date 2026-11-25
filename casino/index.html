@@ -470,11 +470,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .mc .wild::after { content: "百搭"; position: absolute; bottom: -2px; font: 700 calc(var(--mc) * .14)/1 var(--body); color: #fff; background: #a3080c; padding: 1px 4px; border-radius: 3px; }
 .mc .scat { width: 78%; aspect-ratio: 1; display: grid; place-items: center; transform: rotate(45deg); background: linear-gradient(135deg, #e0262c, #8a0a0e); border: 2px solid var(--win); border-radius: 6px; }
 .mc .scat i { transform: rotate(-45deg); font: 900 calc(var(--mc) * .38)/1 var(--display); color: #ffe08a; font-style: normal; }
-.mc .coin { width: 88%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #fff4c2, #e0b23a 50%, #8a6410); border: 2px solid #fff0b3; color: #5a3a00; font: 800 calc(var(--mc) * .2)/1 var(--mono); box-shadow: 0 0 8px rgba(255,200,0,.5); }
-.mc .coin.jp { font: 900 calc(var(--mc) * .16)/1 var(--body); color: #fff; }
-.mc .coin.jp.MINI { background: radial-gradient(circle at 35% 30%, #9ff0bf, #1e8a4a 55%, #0d4424); }
-.mc .coin.jp.MINOR { background: radial-gradient(circle at 35% 30%, #a9cbff, #1f5fc4 55%, #0e2f66); }
-.mc .coin.jp.MAJOR { background: radial-gradient(circle at 35% 30%, #e3b8ff, #7a2bb0 55%, #3a1258); }
 .mc.win { background: radial-gradient(circle, rgba(242,210,122,.55), rgba(242,210,122,0) 70%); }
 .mc.win > * { animation: symwin .45s ease-in-out 4 alternate; }
 .mgrid.hold .mc:not(.lock) > * { opacity: .18; }
@@ -490,6 +485,20 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .mg-bet .lab { grid-auto-flow: column; gap: 8px; align-items: baseline; }
 .game .mg-bet .stake { left: 62%; }
 #mgRepeat { visibility: hidden; }
+.mc svg.art, .sym svg.art { width: 86%; height: 86%; overflow: visible; }
+.mc .wlab { position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%); font: 800 calc(var(--mc) * .14)/1 var(--body); color: #fff; background: #a30d12; border: 1px solid #ffd75a; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+.mc .coin { position: relative; width: 92%; height: 92%; display: grid; place-items: center; }
+.mc .coin svg.art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mc .coin i { position: relative; font: 800 calc(var(--mc) * .2)/1 var(--mono); font-style: normal; color: #4a2c00; text-shadow: 0 1px 0 rgba(255,246,200,.9); }
+.mc .coin.jpc i { font: 900 calc(var(--mc) * .15)/1 var(--body); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); letter-spacing: .02em; }
+.mc .coin.MINI svg.art { filter: hue-rotate(75deg) saturate(1.3); }
+.mc .coin.MINOR svg.art { filter: hue-rotate(165deg) saturate(1.5) brightness(.95); }
+.mc .coin.MAJOR svg.art { filter: hue-rotate(235deg) saturate(1.4); }
+.paytable svg.art { width: 24px; height: 24px; }
+.paytable span { gap: 1px; }
+.sheet td svg.art { width: 22px; height: 22px; vertical-align: -6px; }
+.sheet li svg.art { width: 20px; height: 20px; vertical-align: -5px; }
+.gtile .ico svg.art { width: clamp(30px, 5.4vh, 48px); height: clamp(30px, 5.4vh, 48px); }
 #v-dragon .btn.big { min-width: 0; flex: 1 1 auto; max-width: 50%; }
 
 .gtile .ico.emo { font-size: clamp(28px, 5vh, 44px); line-height: 1; }
@@ -613,6 +622,219 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   </div>
 </header>
 
+<svg class="sprite" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7c7"/><stop offset=".28" stop-color="#ffd860"/><stop offset=".55" stop-color="#d9a21b"/><stop offset=".78" stop-color="#a9720a"/><stop offset="1" stop-color="#ffe489"/></linearGradient>
+    <linearGradient id="gGoldD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe9a0"/><stop offset=".5" stop-color="#c8900f"/><stop offset="1" stop-color="#6b4704"/></linearGradient>
+    <radialGradient id="gGoldR" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fffbe0"/><stop offset=".3" stop-color="#ffd54d"/><stop offset=".7" stop-color="#c58b0c"/><stop offset="1" stop-color="#7a5204"/></radialGradient>
+    <linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6b5e"/><stop offset=".45" stop-color="#d7191f"/><stop offset="1" stop-color="#6d070b"/></linearGradient>
+    <radialGradient id="gSilk" cx=".4" cy=".4" r=".7"><stop offset="0" stop-color="#ffb08a"/><stop offset=".35" stop-color="#f0302a"/><stop offset=".8" stop-color="#a50d12"/><stop offset="1" stop-color="#5c0508"/></radialGradient>
+    <radialGradient id="gGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd97a" stop-opacity=".9"/><stop offset="1" stop-color="#ff8a00" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gKoi" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fffaf2"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#e9e1d6"/></linearGradient>
+    <linearGradient id="gOrange" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb347"/><stop offset=".5" stop-color="#f05a12"/><stop offset="1" stop-color="#a8320a"/></linearGradient>
+    <linearGradient id="gFin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#ffcf9e" stop-opacity=".55"/></linearGradient>
+    <linearGradient id="gShine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="gRuby" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a96"/><stop offset=".5" stop-color="#d0102a"/><stop offset="1" stop-color="#5e0010"/></linearGradient>
+    <linearGradient id="gSapph" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9fd0ff"/><stop offset=".5" stop-color="#1f62d6"/><stop offset="1" stop-color="#0a1f5c"/></linearGradient>
+    <linearGradient id="gOnyx" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a8f99"/><stop offset=".45" stop-color="#22252b"/><stop offset="1" stop-color="#050506"/></linearGradient>
+    <linearGradient id="gEmer" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a6f5c4"/><stop offset=".5" stop-color="#14a35a"/><stop offset="1" stop-color="#05442a"/></linearGradient>
+    <linearGradient id="gAmeth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e7c2ff"/><stop offset=".5" stop-color="#8e2fd1"/><stop offset="1" stop-color="#3a0b60"/></linearGradient>
+    <linearGradient id="gAmber" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe0a3"/><stop offset=".5" stop-color="#f08a00"/><stop offset="1" stop-color="#7a3d00"/></linearGradient>
+    <linearGradient id="gSeven" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a8a"/><stop offset=".35" stop-color="#ff2a22"/><stop offset=".7" stop-color="#b00d12"/><stop offset="1" stop-color="#ff5a4a"/></linearGradient>
+    <filter id="fShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-color="#000" flood-opacity=".55"/></filter>
+  </defs>
+
+  <!-- 龙 golden dragon head (profile) on a red medallion -->
+  <symbol id="s-D" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="47" fill="url(#gRed)" stroke="url(#gGold)" stroke-width="4"/>
+    <circle cx="50" cy="50" r="41" fill="none" stroke="#ffcf5a" stroke-opacity=".45" stroke-width="1"/>
+    <g filter="url(#fShadow)" transform="translate(-6 -6) scale(1.12)">
+      <!-- mane flames -->
+      <path d="M33 30 C24 24 20 32 14 28 C19 36 13 40 9 40 C17 44 14 50 10 54 C19 54 20 60 17 66 C26 62 30 66 33 70 Z" fill="url(#gGoldD)" stroke="#6b4704" stroke-width="1"/>
+      <!-- horns -->
+      <path d="M44 29 C38 20 30 14 18 12 C28 18 34 24 37 32 Z" fill="url(#gGold)" stroke="#6b4704" stroke-width="1"/>
+      <path d="M52 28 C50 18 44 10 34 6 C42 14 45 22 45 30 Z" fill="url(#gGold)" stroke="#6b4704" stroke-width="1"/>
+      <!-- head, upper jaw and snout -->
+      <path d="M30 58 C28 42 38 30 54 29 C64 28 72 32 80 37 C86 40 92 42 93 47 C94 51 90 53 85 52 L76 51 C72 51 68 53 66 56 C62 58 50 58 44 62 C38 65 32 64 30 58 Z" fill="url(#gGold)" stroke="#6b4704" stroke-width="1.2"/>
+      <!-- lower jaw -->
+      <path d="M44 63 C52 60 62 59 70 58 C76 58 82 60 84 63 C82 67 74 70 64 71 C56 72 48 70 44 63 Z" fill="url(#gGoldD)" stroke="#6b4704" stroke-width="1.2"/>
+      <!-- mouth and teeth -->
+      <path d="M66 56 C70 56 76 57 83 60 C78 60 72 60 68 59 Z" fill="#7a0a0d"/>
+      <path d="M70 55 l1.5 3 1.5-3 M75 55.5 l1.5 3 1.5-3 M80 56.5 l1.2 2.6 1.2-2.6" fill="none" stroke="#fffbe6" stroke-width="1.2" stroke-linecap="round"/>
+      <!-- brow ridge, eye, nostril -->
+      <path d="M50 37 C56 33 63 33 68 37" fill="none" stroke="#6b4704" stroke-width="2.2" stroke-linecap="round"/>
+      <ellipse cx="60" cy="41.5" rx="5" ry="3.6" fill="#fff6d6" stroke="#6b4704" stroke-width="1"/>
+      <circle cx="61.2" cy="41.5" r="2.2" fill="#c4161c"/><circle cx="61.6" cy="41" r=".8" fill="#fff"/>
+      <ellipse cx="87" cy="45" rx="2" ry="1.3" fill="#6b4704"/>
+      <!-- scales on the cheek -->
+      <path d="M38 52 q3-4 6 0 q3-4 6 0 M34 47 q3-4 6 0 q3-4 6 0 M42 57 q3-4 6 0" fill="none" stroke="#8a5d06" stroke-width="1"/>
+      <!-- whiskers -->
+      <path d="M86 50 C94 58 92 70 98 78" fill="none" stroke="url(#gGold)" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M82 39 C88 30 94 30 98 22" fill="none" stroke="url(#gGold)" stroke-width="2" stroke-linecap="round"/>
+      <!-- beard -->
+      <path d="M56 70 C54 78 58 84 54 90 C62 86 64 78 66 71 Z" fill="url(#gGoldD)" stroke="#6b4704" stroke-width="1"/>
+    </g>
+    <path d="M22 16 A40 40 0 0 1 78 16" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- 锦鲤 koi -->
+  <symbol id="s-F" viewBox="0 0 100 100">
+    <ellipse cx="50" cy="52" rx="44" ry="40" fill="#0b4d6b"/>
+    <ellipse cx="50" cy="52" rx="44" ry="40" fill="none" stroke="url(#gGold)" stroke-width="3"/>
+    <path d="M14 70 C24 64 34 72 44 66 C54 60 64 70 74 64 C80 60 86 64 90 62" fill="none" stroke="#5fb6d8" stroke-opacity=".5" stroke-width="2"/>
+    <g filter="url(#fShadow)" transform="rotate(-18 50 50)">
+      <!-- tail -->
+      <path d="M22 50 C12 40 6 34 4 28 C12 34 16 40 24 46 Z M22 52 C12 60 6 68 4 74 C12 68 16 62 24 56 Z" fill="url(#gFin)" stroke="#e89a5a" stroke-width=".8"/>
+      <path d="M8 31 L22 47 M8 71 L22 55 M12 33 L23 47 M12 69 L23 55" stroke="#f0a060" stroke-width=".6" opacity=".7"/>
+      <!-- fins -->
+      <path d="M50 38 C46 26 52 18 60 16 C58 24 58 32 58 38 Z" fill="url(#gFin)" stroke="#e89a5a" stroke-width=".8"/>
+      <path d="M48 64 C44 74 48 82 56 86 C55 78 56 70 57 64 Z" fill="url(#gFin)" stroke="#e89a5a" stroke-width=".8"/>
+      <!-- body -->
+      <path d="M22 51 C30 36 52 30 70 36 C82 40 92 46 94 51 C92 56 82 62 70 66 C52 72 30 66 22 51 Z" fill="url(#gKoi)" stroke="#c8b8a4" stroke-width="1"/>
+      <!-- orange patches -->
+      <path d="M36 40 C44 34 56 34 62 40 C60 48 50 50 42 48 C38 46 36 44 36 40 Z" fill="url(#gOrange)"/>
+      <path d="M66 38 C76 40 86 44 90 49 C84 50 76 48 70 46 C66 44 64 41 66 38 Z" fill="url(#gOrange)"/>
+      <path d="M44 58 C52 56 60 58 64 63 C56 66 48 66 42 64 Z" fill="url(#gOrange)" opacity=".9"/>
+      <!-- scales -->
+      <g fill="none" stroke="#b9a58c" stroke-width=".6" opacity=".55">
+        <path d="M34 50 q3 3 6 0 q3 3 6 0 q3 3 6 0 q3 3 6 0 q3 3 6 0 q3 3 6 0"/>
+        <path d="M37 55 q3 3 6 0 q3 3 6 0 q3 3 6 0 q3 3 6 0 q3 3 6 0"/>
+        <path d="M37 45 q3 3 6 0 q3 3 6 0 q3 3 6 0 q3 3 6 0 q3 3 6 0"/>
+      </g>
+      <!-- head, eye, barbels -->
+      <circle cx="84" cy="48" r="2.4" fill="#111"/><circle cx="84.6" cy="47.4" r=".8" fill="#fff"/>
+      <path d="M92 53 C96 56 97 60 95 63" fill="none" stroke="#e8b48a" stroke-width="1"/>
+      <path d="M40 42 C52 37 66 37 80 42" fill="none" stroke="url(#gShine)" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+    </g>
+  </symbol>
+
+  <!-- 红包 red envelope -->
+  <symbol id="s-H" viewBox="0 0 100 100">
+    <g filter="url(#fShadow)">
+      <rect x="20" y="8" width="60" height="84" rx="6" fill="url(#gRed)" stroke="#5c0508" stroke-width="1"/>
+      <path d="M20 14 Q20 8 26 8 H74 Q80 8 80 14 V30 Q50 50 20 30 Z" fill="#a30d12" stroke="#5c0508" stroke-width="1"/>
+      <path d="M22 30 Q50 48 78 30" fill="none" stroke="#ffcf5a" stroke-width="1.6" opacity=".8"/>
+      <circle cx="50" cy="40" r="11" fill="url(#gGoldR)" stroke="#7a5204" stroke-width="1.2"/>
+      <text x="50" y="45" text-anchor="middle" font-size="13" font-weight="900" fill="#a30d12" font-family="'Songti SC','STSong','Noto Serif SC',serif">福</text>
+      <rect x="25" y="58" width="50" height="28" rx="3" fill="none" stroke="#ffcf5a" stroke-width="1" opacity=".7"/>
+      <path d="M30 66 h40 M30 72 h40 M30 78 h40" stroke="#ffcf5a" stroke-width=".8" opacity=".35"/>
+      <path d="M24 12 h22" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round"/>
+      <rect x="22" y="10" width="8" height="78" rx="4" fill="#fff" opacity=".12"/>
+    </g>
+  </symbol>
+
+  <!-- 灯笼 silk lantern -->
+  <symbol id="s-L" viewBox="0 0 100 100">
+    <circle cx="50" cy="48" r="40" fill="url(#gGlow)"/>
+    <g filter="url(#fShadow)">
+      <path d="M50 2 v8" stroke="#7a5204" stroke-width="2"/>
+      <rect x="36" y="10" width="28" height="8" rx="2" fill="url(#gGold)" stroke="#6b4704" stroke-width=".8"/>
+      <ellipse cx="50" cy="47" rx="34" ry="30" fill="url(#gSilk)" stroke="#5c0508" stroke-width="1"/>
+      <g fill="none" stroke="#5c0508" stroke-width="1" opacity=".55">
+        <path d="M50 17 V77"/><path d="M38 18 C28 34 28 60 38 76"/><path d="M62 18 C72 34 72 60 62 76"/>
+        <path d="M27 22 C14 38 14 58 27 72"/><path d="M73 22 C86 38 86 58 73 72"/>
+      </g>
+      <ellipse cx="40" cy="36" rx="10" ry="14" fill="#fff" opacity=".16"/>
+      <rect x="36" y="76" width="28" height="7" rx="2" fill="url(#gGold)" stroke="#6b4704" stroke-width=".8"/>
+      <path d="M44 83 v12 M47 83 v14 M50 83 v15 M53 83 v14 M56 83 v12" stroke="#e8382e" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="50" cy="85" r="2.5" fill="url(#gGold)"/>
+      <text x="50" y="54" text-anchor="middle" font-size="18" font-weight="900" fill="#ffd34d" stroke="#7a3d00" stroke-width=".5" font-family="'Songti SC','STSong','Noto Serif SC',serif">吉</text>
+    </g>
+  </symbol>
+
+  <!-- 财 wild: gold ingot (yuanbao) -->
+  <symbol id="s-W" viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="48" fill="url(#gGlow)"/>
+    <g filter="url(#fShadow)">
+      <path d="M6 48 C14 46 22 50 28 54 C40 58 60 58 72 54 C78 50 86 46 94 48 C92 64 78 80 50 82 C22 80 8 64 6 48 Z" fill="url(#gGold)" stroke="#6b4704" stroke-width="1.2"/>
+      <ellipse cx="50" cy="44" rx="22" ry="20" fill="url(#gGoldR)" stroke="#6b4704" stroke-width="1.2"/>
+      <path d="M10 49 C20 47 26 52 30 55" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="43" cy="35" rx="7" ry="5" fill="#fff" opacity=".45"/>
+      <text x="50" y="52" text-anchor="middle" font-size="22" font-weight="900" fill="#a30d12" font-family="'Songti SC','STSong','Noto Serif SC',serif">财</text>
+    </g>
+  </symbol>
+
+  <!-- 福 scatter plaque -->
+  <symbol id="s-S" viewBox="0 0 100 100">
+    <g filter="url(#fShadow)">
+      <rect x="18" y="18" width="64" height="64" rx="6" transform="rotate(45 50 50)" fill="url(#gGold)"/>
+      <rect x="23" y="23" width="54" height="54" rx="4" transform="rotate(45 50 50)" fill="url(#gRed)" stroke="#5c0508" stroke-width="1"/>
+      <rect x="27" y="27" width="46" height="46" rx="3" transform="rotate(45 50 50)" fill="none" stroke="#ffcf5a" stroke-width="1" opacity=".7"/>
+      <text x="50" y="62" text-anchor="middle" font-size="34" font-weight="900" fill="#ffd75a" stroke="#6b4704" stroke-width=".8" font-family="'Songti SC','STSong','Noto Serif SC',serif">福</text>
+      <path d="M30 30 L50 10" stroke="#fff" stroke-opacity=".5" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+  </symbol>
+
+  <!-- gold coin (value is overlaid in HTML) -->
+  <symbol id="s-C" viewBox="0 0 100 100">
+    <g filter="url(#fShadow)">
+      <circle cx="50" cy="50" r="46" fill="url(#gGoldD)"/>
+      <circle cx="50" cy="50" r="41" fill="url(#gGoldR)"/>
+      <circle cx="50" cy="50" r="33" fill="none" stroke="#9a6b06" stroke-width="2" opacity=".7"/>
+      <g stroke="#7a5204" stroke-width="1.2" opacity=".55">
+        <path d="M50 4 v5 M50 91 v5 M4 50 h5 M91 50 h5 M17 17 l4 4 M79 79 l4 4 M83 17 l-4 4 M21 79 l-4 4"/>
+      </g>
+      <path d="M22 34 A32 32 0 0 1 60 18" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round"/>
+    </g>
+  </symbol>
+
+  <!-- metallic card letters -->
+  <symbol id="s-A" viewBox="0 0 100 100"><text x="50" y="76" text-anchor="middle" font-size="76" font-weight="900" fill="url(#gRuby)" stroke="#fff" stroke-width="2.5" paint-order="stroke" filter="url(#fShadow)" font-family="'Bodoni Moda','Didot',serif">A</text></symbol>
+  <symbol id="s-K" viewBox="0 0 100 100"><text x="50" y="76" text-anchor="middle" font-size="76" font-weight="900" fill="url(#gSapph)" stroke="#fff" stroke-width="2.5" paint-order="stroke" filter="url(#fShadow)" font-family="'Bodoni Moda','Didot',serif">K</text></symbol>
+  <symbol id="s-Q" viewBox="0 0 100 100"><text x="50" y="76" text-anchor="middle" font-size="76" font-weight="900" fill="url(#gAmeth)" stroke="#fff" stroke-width="2.5" paint-order="stroke" filter="url(#fShadow)" font-family="'Bodoni Moda','Didot',serif">Q</text></symbol>
+  <symbol id="s-J" viewBox="0 0 100 100"><text x="50" y="76" text-anchor="middle" font-size="76" font-weight="900" fill="url(#gEmer)" stroke="#fff" stroke-width="2.5" paint-order="stroke" filter="url(#fShadow)" font-family="'Bodoni Moda','Didot',serif">J</text></symbol>
+  <symbol id="s-T" viewBox="0 0 100 100"><text x="50" y="74" text-anchor="middle" font-size="64" font-weight="900" letter-spacing="-4" fill="url(#gAmber)" stroke="#fff" stroke-width="2.5" paint-order="stroke" filter="url(#fShadow)" font-family="'Bodoni Moda','Didot',serif">10</text></symbol>
+
+  <!-- 幸运 7 symbols -->
+  <symbol id="s-7" viewBox="0 0 100 100">
+    <g filter="url(#fShadow)">
+      <path d="M18 14 H84 V28 C70 44 60 62 56 88 H34 C38 64 48 46 62 32 H18 Z" fill="#6d070b" transform="translate(2.5 3)"/>
+      <path d="M18 14 H84 V28 C70 44 60 62 56 88 H34 C38 64 48 46 62 32 H18 Z" fill="url(#gSeven)" stroke="url(#gGold)" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M22 18 H80" stroke="#fff" stroke-opacity=".7" stroke-width="3" stroke-linecap="round"/>
+      <path d="M66 30 C56 42 46 58 40 82" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+    </g>
+  </symbol>
+  <symbol id="s-star" viewBox="0 0 100 100">
+    <g filter="url(#fShadow)">
+      <polygon points="50,4 62,37 97,38 69,59 79,94 50,73 21,94 31,59 3,38 38,37" fill="#b8860b"/>
+      <polygon points="50,4 62,37 50,50" fill="#fff3b0"/><polygon points="50,4 38,37 50,50" fill="#ffd54d"/>
+      <polygon points="97,38 62,37 50,50" fill="#e0a514"/><polygon points="97,38 69,59 50,50" fill="#b07a06"/>
+      <polygon points="79,94 69,59 50,50" fill="#8a5d04"/><polygon points="79,94 50,73 50,50" fill="#a8740a"/>
+      <polygon points="21,94 50,73 50,50" fill="#c58f10"/><polygon points="21,94 31,59 50,50" fill="#e8b42a"/>
+      <polygon points="3,38 31,59 50,50" fill="#ffd968"/><polygon points="3,38 38,37 50,50" fill="#fff0a0"/>
+    </g>
+  </symbol>
+  <symbol id="s-bar" viewBox="0 0 100 100">
+    <g filter="url(#fShadow)">
+      <rect x="6" y="28" width="88" height="44" rx="8" fill="url(#gGold)"/>
+      <rect x="10" y="32" width="80" height="36" rx="5" fill="#111"/>
+      <rect x="10" y="32" width="80" height="14" rx="5" fill="#fff" opacity=".1"/>
+      <text x="50" y="61" text-anchor="middle" font-size="27" font-weight="900" fill="url(#gGold)" font-family="'Helvetica Neue',Arial,sans-serif" letter-spacing="2">BAR</text>
+    </g>
+  </symbol>
+  <symbol id="s-dia" viewBox="0 0 100 100">
+    <g filter="url(#fShadow)">
+      <polygon points="50,6 90,50 50,94 10,50" fill="#7a0010"/>
+      <polygon points="50,6 70,28 50,30" fill="#ffd0d6"/><polygon points="50,6 30,28 50,30" fill="#ff8a96"/>
+      <polygon points="90,50 70,28 50,30 62,50" fill="#e8243a"/><polygon points="10,50 30,28 50,30 38,50" fill="#ff5a6a"/>
+      <polygon points="38,50 50,30 62,50 50,70" fill="#ff3a4e"/>
+      <polygon points="10,50 38,50 50,70 50,94" fill="#b80c22"/><polygon points="90,50 62,50 50,70 50,94" fill="#8e0018"/>
+    </g>
+  </symbol>
+  <symbol id="s-heart" viewBox="0 0 100 100">
+    <g filter="url(#fShadow)">
+      <path d="M50 90 C30 74 6 58 6 34 C6 18 18 8 31 8 C40 8 46 13 50 20 C54 13 60 8 69 8 C82 8 94 18 94 34 C94 58 70 74 50 90 Z" fill="url(#gRuby)" stroke="#5e0010" stroke-width="1.2"/>
+      <path d="M50 20 L50 90 M50 46 L18 28 M50 46 L82 28 M50 46 L28 64 M50 46 L72 64" stroke="#ff9aa6" stroke-width="1" opacity=".55"/>
+      <path d="M16 30 C16 20 24 14 32 15" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+  </symbol>
+  <symbol id="s-spade" viewBox="0 0 100 100">
+    <g filter="url(#fShadow)">
+      <path d="M50 6 C66 26 92 40 92 60 C92 74 80 82 68 80 C60 79 55 75 53 70 C54 80 58 88 66 94 H34 C42 88 46 80 47 70 C45 75 40 79 32 80 C20 82 8 74 8 60 C8 40 34 26 50 6 Z" fill="url(#gOnyx)" stroke="url(#gGold)" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M24 48 C32 36 42 26 48 18" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="3.5" stroke-linecap="round"/>
+    </g>
+  </symbol>
+</svg>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div class="bigwin" id="bigwin" hidden role="dialog" aria-label="大奖"><canvas></canvas><div class="bw-in"><p class="bw-t">大奖</p><p class="bw-e">BIG WIN</p><b class="bw-amt">0</b><span class="bw-skip">点击任意处跳过</span></div></div>
 <main>
@@ -634,7 +856,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" data-go="poker"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="17" height="25" rx="3" transform="rotate(-16 14 26)"/><rect x="15.5" y="10" width="17" height="25" rx="3"/><rect x="25" y="13" width="17" height="25" rx="3" transform="rotate(16 34 26)" fill="currentColor" fill-opacity=".12"/><path d="M24 17l3 4h-6z" fill="currentColor" stroke="none"/></svg></span><b>三张牌</b><small>对子加注 40:1</small></button>
         <button class="gtile" type="button" data-go="holdem"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M36.7 11.3l-3.5 3.5M14.8 33.2l-3.5 3.5"/><path d="M24 17c3 3 6 5 6 8a3 3 0 0 1-5 2l1 4h-4l1-4a3 3 0 0 1-5-2c0-3 3-5 6-8z" fill="currentColor" stroke="none"/></svg></span><b>德州扑克</b><small>盲注最高 500:1</small></button>
         <button class="gtile" type="button" data-go="slots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机</b><small>3 卷轴 · 5 线</small></button>
-        <button class="gtile" type="button" data-go="dragon"><span class="ico emo">🐉</span><b>龙腾财宝</b><small>四级头奖 GRAND</small></button>
+        <button class="gtile" type="button" data-go="dragon"><span class="ico"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg></span><b>龙腾财宝</b><small>四级头奖 GRAND</small></button>
       </div>
     </div>
   </section>
@@ -865,9 +1087,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <h4>怎么赢</h4>
       <ul>
         <li>243 路：同一种符号从最左边一列开始，连续 3、4、5 列都有出现就中奖，不论在哪一行。奖金 = 赔率 × 下注 × 路数（每列出现的个数相乘）。</li>
-        <li><b>财</b>（财神）是百搭，只出现在第 2–4 列，可以代替所有普通符号。</li>
-        <li><b>福</b> 出现 3 / 4 / 5 个（任意位置）触发 8 / 12 / 20 次免费旋转，免费旋转里所有奖金 ×2，可以再次触发。</li>
-        <li>🪙 金币出现 6 个或以上（任意位置）触发「金币锁定」：金币锁住，其余格子重转 3 次；每出现新金币，次数重置为 3。结束时拿走所有金币上的奖金；15 格全部填满再加 GRAND 头奖。</li>
+        <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-W"/></svg> <b>财</b>（财神元宝）是百搭，只出现在第 2–4 列，可以代替所有普通符号。</li>
+        <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-S"/></svg> <b>福</b> 出现 3 / 4 / 5 个（任意位置）触发 8 / 12 / 20 次免费旋转，免费旋转里所有奖金 ×2，可以再次触发。</li>
+        <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-C"/></svg> 金币出现 6 个或以上（任意位置）触发「金币锁定」：金币锁住，其余格子重转 3 次；每出现新金币，次数重置为 3。结束时拿走所有金币上的奖金；15 格全部填满再加 GRAND 头奖。</li>
         <li>金币上是 1–10 倍下注的奖金，或者 MINI / MINOR / MAJOR 头奖。</li>
       </ul>
       <h4>四级头奖（按当前下注计算）</h4>
@@ -877,7 +1099,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       </ul>
       <h4>赔率（× 下注，3 / 4 / 5 连）</h4>
       <table>
-        <tr><td>🐉 龙</td><td>2.5 / 8 / 25</td></tr><tr><td>🐟 锦鲤</td><td>1.5 / 5 / 15</td></tr><tr><td>🧧 红包</td><td>1.2 / 4 / 12</td></tr><tr><td>🏮 灯笼</td><td>1 / 2.5 / 10</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg> 龙</td><td>2.5 / 8 / 25</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-F"/></svg> 锦鲤</td><td>1.5 / 5 / 15</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-H"/></svg> 红包</td><td>1.2 / 4 / 12</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-L"/></svg> 灯笼</td><td>1 / 2.5 / 10</td></tr>
         <tr><td>A · K</td><td>0.5 / 1.2 / 5</td></tr><tr><td>Q · J · 10</td><td>0.25 / 0.75 / 4</td></tr>
       </table>
       <ul><li>「自动」旁边的 1× / 2× / 5× / 10× 调整旋转速度。一次赢得下注 20 倍以上（含免费旋转和金币锁定）会播放大奖动画，点任意处跳过。</li><li>理论回报率约 96%（用 600 万次旋转模拟验证）：免费旋转约每 156 次出现一次，金币锁定约每 100 次一次，GRAND 极为罕见。</li></ul>
@@ -2597,13 +2819,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   /* ======================================================
      SLOT MACHINE — 3 reels, 5 lines
      ====================================================== */
+  const ART = (id) => '<svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#' + id + '"/></svg>';
   const SL_SYM = [
-    { html: '<b class="s7">7</b>', pay: 200, n: 1, name: "7" },
-    { html: '<span class="sstar">★</span>', pay: 100, n: 2, name: "★" },
-    { html: '<b class="sbar">BAR</b>', pay: 50, n: 3, name: "BAR" },
-    { html: '<span class="sred">♦</span>', pay: 30, n: 4, name: "♦" },
-    { html: '<span class="sred">♥</span>', pay: 20, n: 4, name: "♥" },
-    { html: "<span>♠</span>", pay: 10, n: 6, name: "♠" },
+    { html: ART("s-7"), pay: 200, n: 1, name: "7" },
+    { html: ART("s-star"), pay: 100, n: 2, name: "★" },
+    { html: ART("s-bar"), pay: 50, n: 3, name: "BAR" },
+    { html: ART("s-dia"), pay: 30, n: 4, name: "♦" },
+    { html: ART("s-heart"), pay: 20, n: 4, name: "♥" },
+    { html: ART("s-spade"), pay: 10, n: 6, name: "♠" },
   ];
   const SL_LINES = [[1, 1, 1], [0, 0, 0], [2, 2, 2], [0, 1, 2], [2, 1, 0]]; // row on each reel
   // three reel strips of 20 stops with the same symbol counts in different orders
@@ -2614,10 +2837,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   });
   const sl = { line: 0, hist: [], stops: [0, 5, 10], spinning: false, auto: 0, speed: 1 };
   const slT = (ms) => (reduced ? Math.min(ms, 60) : ms / sl.speed);
-  $("#slPay").innerHTML = SL_SYM.map((s) => '<span><b class="' + (s.name === "7" ? "s7" : s.name === "★" ? "sstar" : s.name === "BAR" ? "sbar" : s.name === "♠" ? "" : "sred") + '">' + s.name + "</b>×" + s.pay + "</span>").join("");
+  $("#slPay").innerHTML = SL_SYM.map((s) => "<span>" + s.html + "×" + s.pay + "</span>").join("");
   const reelsEl = $("#slReels");
   for (let r = 0; r < 3; r++) { const d = document.createElement("div"); d.className = "reel"; d.innerHTML = '<div class="col"></div>'; reelsEl.appendChild(d); }
-  const symHTML = (i) => '<div class="sym">' + SL_SYM[i].html + "</div>";
+  const symHTML = (i) => '<div class="sym" data-k="' + SL_SYM[i].name + '">' + SL_SYM[i].html + "</div>";
   const visible = (r, stop) => [0, 1, 2].map((k) => SL_STRIPS[r][(stop + k) % 20]);
   function slDrawStatic() {
     $$("#slReels .reel").forEach((reel, r) => {
@@ -2735,20 +2958,20 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   });
   const MG_COIN_W = MGC.COIN.reduce((s, c) => s + c.w, 0);
   function mgCoin() { let x = (rand(1000000) / 1000000) * MG_COIN_W; for (const c of MGC.COIN) { if ((x -= c.w) < 0) return c; } return MGC.COIN[0]; }
+  const art = (id) => '<svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#' + id + '"/></svg>';
   const MG_HTML = {
-    W: '<span class="wild">财</span>', D: "🐉", F: "🐟", H: "🧧", L: "🏮",
-    A: '<span class="lt A">A</span>', K: '<span class="lt K">K</span>', Q: '<span class="lt Q">Q</span>', J: '<span class="lt J">J</span>', T: '<span class="lt T">10</span>',
-    S: '<span class="scat"><i>福</i></span>',
+    W: art("s-W") + '<b class="wlab">百搭</b>', D: art("s-D"), F: art("s-F"), H: art("s-H"), L: art("s-L"),
+    A: art("s-A"), K: art("s-K"), Q: art("s-Q"), J: art("s-J"), T: art("s-T"), S: art("s-S"),
   };
-  const MG_NAME = { D: "🐉", F: "🐟", H: "🧧", L: "🏮", A: "A", K: "K", Q: "Q", J: "J", T: "10" };
+  const MG_NAME = { D: "龙", F: "锦鲤", H: "红包", L: "灯笼", A: "A", K: "K", Q: "Q", J: "J", T: "10" };
   const mgT = (ms) => (reduced ? Math.min(ms, 60) : ms / mg.speed);
   const mg = { speed: 1, bet: 0, hist: [], spinning: false, auto: 0, jp: { MAJOR: MGC.JP_BASE.MAJOR, GRAND: MGC.JP_BASE.GRAND } };
   try { const sv = JSON.parse(localStorage.getItem("gbc-mg") || "null"); if (sv && sv.MAJOR >= 150 && sv.GRAND >= 1000) mg.jp = { MAJOR: sv.MAJOR, GRAND: sv.GRAND }; } catch (e) {}
   const mgSave = () => { try { localStorage.setItem("gbc-mg", JSON.stringify(mg.jp)); } catch (e) {} };
   const jpMult = (k) => (k === "MAJOR" || k === "GRAND" ? mg.jp[k] : MGC.JP_BASE[k]);
   const mgBetShown = () => mg.bet || 100;
-  function coinHTML(v) { return v.jp ? '<span class="coin jp ' + v.jp + '">' + v.jp + "</span>" : '<span class="coin">' + compact(v.x * mgBetShown()) + "</span>"; }
-  const cellHTML = (c) => '<div class="mc">' + (c.s === "C" ? coinHTML(c.v) : MG_HTML[c.s]) + "</div>";
+  function coinHTML(v) { return '<span class="coin' + (v.jp ? " jpc " + v.jp : "") + '">' + art("s-C") + "<i>" + (v.jp || compact(v.x * mgBetShown())) + "</i></span>"; }
+  const cellHTML = (c) => '<div class="mc" data-k="' + c.s + '">' + (c.s === "C" ? coinHTML(c.v) : MG_HTML[c.s]) + "</div>";
   const randCell = () => { const st = MG_STRIPS[rand(5)]; const s = st[rand(st.length)]; return s === "C" ? { s, v: mgCoin() } : { s }; };
   const gridEl = $("#mgGrid");
   for (let r = 0; r < 5; r++) { const d = document.createElement("div"); d.className = "mreel"; d.innerHTML = '<div class="col"></div>'; gridEl.appendChild(d); }
