@@ -4,5 +4,5 @@
 
     node final.js 6000000
 
-Current settings (6 wilds on reels 2–4), two runs of 6,000,000 spins: RTP 97.3% / 96.6%;
-a win every 2.37 spins, free spins every ~156 spins, hold & spin every ~100 spins.
+Current settings (6 wilds on reels 2–4, 10 coins per reel, coins worth 0.3–3× the stake), two runs of 6,000,000 spins:
+RTP 96.2% / 95.5%; a win every 2.63 spins, hold & spin every ~31 spins, free spins every ~175 spins.

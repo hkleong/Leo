@@ -1145,7 +1145,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-W"/></svg> <b>财</b>（财神元宝）是百搭，只出现在第 2–4 列，可以代替所有普通符号。</li>
         <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-S"/></svg> <b>福</b> 出现 3 / 4 / 5 个（任意位置）触发 8 / 12 / 20 次免费旋转，免费旋转里所有奖金 ×2，可以再次触发。</li>
         <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-C"/></svg> 金币出现 6 个或以上（任意位置）触发「金币锁定」：金币锁住，其余格子重转 3 次（每次由你点「锁定旋转」；自动旋转时可在「自动」里勾选让它自动转）；每出现新金币，次数重置为 3。结束时拿走所有金币上的奖金；15 格全部填满再加 GRAND 头奖。</li>
-        <li>金币上是 1–10 倍下注的奖金，或者 MINI / MINOR / MAJOR 头奖。</li>
+        <li>金币上是 0.3–3 倍下注的奖金，或者 MINI / MINOR / MAJOR 头奖。</li>
       </ul>
       <h4>四级头奖（按当前下注计算）</h4>
       <ul>
@@ -1154,10 +1154,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       </ul>
       <h4>赔率（× 下注，3 / 4 / 5 连）</h4>
       <table>
-        <tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg> 龙</td><td>0.78 / 2.4 / 7.8</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-F"/></svg> 锦鲤</td><td>0.48 / 1.55 / 4.8</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-H"/></svg> 红包</td><td>0.38 / 1.25 / 3.85</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-L"/></svg> 灯笼</td><td>0.29 / 0.78 / 3.1</td></tr>
-        <tr><td>A · K</td><td>0.15 / 0.38 / 1.55</td></tr><tr><td>Q · J · 10</td><td>0.075 / 0.23 / 1.25</td></tr>
+        <tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg> 龙</td><td>0.86 / 2.7 / 8.7</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-F"/></svg> 锦鲤</td><td>0.54 / 1.73 / 5.4</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-H"/></svg> 红包</td><td>0.42 / 1.4 / 4.3</td></tr><tr><td><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-L"/></svg> 灯笼</td><td>0.33 / 0.87 / 3.45</td></tr>
+        <tr><td>A · K</td><td>0.17 / 0.42 / 1.73</td></tr><tr><td>Q · J · 10</td><td>0.085 / 0.26 / 1.4</td></tr>
       </table>
-      <ul><li>「自动」旁边的 1× / 2× / 5× / 10× 调整旋转速度。一次赢得下注 20 倍以上（含免费旋转和金币锁定）会播放大奖动画，点任意处跳过。</li><li>理论回报率约 96%（用 1200 万次旋转模拟验证）：平均每 2.4 次就有奖，免费旋转约每 156 次出现一次，金币锁定约每 100 次一次，GRAND 极为罕见。</li></ul>
+      <ul><li>「自动」旁边的 1× / 2× / 5× / 10× 调整旋转速度。一次赢得下注 20 倍以上（含免费旋转和金币锁定）会播放大奖动画，点任意处跳过。</li><li>理论回报率约 96%（用 1200 万次旋转模拟验证）：平均每 2.6 次就有奖，金币锁定约每 31 次一次，免费旋转约每 175 次出现一次，GRAND 极为罕见。</li></ul>
     </div></div>
   </section>
 
@@ -3079,9 +3079,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
      ====================================================== */
   const MGC = {
     // middle reels carry more 财 wilds (6) so small wins come more often
-    COUNTS: [0, 1, 1, 1, 0].map((m) => (m ? { W: 6, D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 2, S: 2, C: 8 } : { D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 6, S: 1, C: 8 })),
-    PAY: { D: [0.78, 2.4, 7.8], F: [0.48, 1.55, 4.8], H: [0.38, 1.25, 3.85], L: [0.29, 0.78, 3.1], A: [0.15, 0.38, 1.55], K: [0.15, 0.38, 1.55], Q: [0.075, 0.23, 1.25], J: [0.075, 0.23, 1.25], T: [0.075, 0.23, 1.25] },
-    COIN: [{ x: 1, w: 30 }, { x: 2, w: 25 }, { x: 3, w: 15 }, { x: 5, w: 10 }, { x: 8, w: 6 }, { x: 10, w: 4 }, { jp: "MINI", w: 3 }, { jp: "MINOR", w: 1.5 }, { jp: "MAJOR", w: 0.5 }],
+    COUNTS: [0, 1, 1, 1, 0].map((m) => (m ? { W: 6, D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 2, S: 2, C: 10 } : { D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 6, S: 1, C: 10 })),
+    PAY: { D: [0.86, 2.7, 8.7], F: [0.54, 1.73, 5.4], H: [0.42, 1.4, 4.3], L: [0.33, 0.87, 3.45], A: [0.17, 0.42, 1.73], K: [0.17, 0.42, 1.73], Q: [0.085, 0.26, 1.4], J: [0.085, 0.26, 1.4], T: [0.085, 0.26, 1.4] },
+    // more coins on the reels (hold & spin every ~31 spins), each coin worth less (0.3–3× the stake)
+    COIN: [{ x: 0.3, w: 30 }, { x: 0.5, w: 25 }, { x: 1, w: 15 }, { x: 1.5, w: 10 }, { x: 2, w: 6 }, { x: 3, w: 4 }, { jp: "MINI", w: 1.05 }, { jp: "MINOR", w: 0.525 }, { jp: "MAJOR", w: 0.175 }],
     P_COIN: 0.03, FS: { 3: 8, 4: 12, 5: 20 }, FS_MULT: 2,
     JP_BASE: { MINI: 10, MINOR: 25, MAJOR: 150, GRAND: 1000 }, JP_GROW: { MAJOR: 0.01, GRAND: 0.02 },
   };
@@ -3104,7 +3105,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   const mgSave = () => { try { localStorage.setItem("gbc-mg", JSON.stringify(mg.jp)); } catch (e) {} };
   const jpMult = (k) => (k === "MAJOR" || k === "GRAND" ? mg.jp[k] : MGC.JP_BASE[k]);
   const mgBetShown = () => mg.bet || 100;
-  function coinHTML(v) { return '<span class="coin' + (v.jp ? " jpc " + v.jp : "") + '">' + art("s-C") + "<i>" + (v.jp || compact(v.x * mgBetShown())) + "</i></span>"; }
+  function coinHTML(v) { return '<span class="coin' + (v.jp ? " jpc " + v.jp : "") + '">' + art("s-C") + "<i>" + (v.jp || compact(Math.round(v.x * mgBetShown() * 100) / 100)) + "</i></span>"; }
   const cellHTML = (c) => '<div class="mc" data-k="' + c.s + '">' + (c.s === "C" ? coinHTML(c.v) : MG_HTML[c.s]) + "</div>";
   const randCell = () => { const st = MG_STRIPS[rand(5)]; const s = st[rand(st.length)]; return s === "C" ? { s, v: mgCoin() } : { s }; };
   const gridEl = $("#mgGrid");
