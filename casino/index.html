@@ -2,6 +2,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>绿呢俱乐部</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#24160f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="绿呢俱乐部">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -32,6 +40,9 @@
   --gy: max(12px, env(safe-area-inset-right, 0px));
   color-scheme: dark;
   background: var(--rail);
+  /* keep clear of the notch and home bar, also when installed to the home screen */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -41,7 +52,8 @@ body {
   background-color: var(--felt);
   color: var(--ivory); font-family: var(--body); font-size: 14px; line-height: 1.45;
 }
-button { font: inherit; color: inherit; cursor: pointer; }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+body { overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
 button:disabled { cursor: not-allowed; opacity: .4; }
 :focus-visible { outline: 2px solid var(--win); outline-offset: 2px; }
 [hidden] { display: none !important; }
@@ -1220,5 +1232,10 @@ main > section > * { min-width: 0; }
   rouRender();
 
   show(location.hash.slice(1) || "lobby");
+
+  // Home-screen app: offline cache (only where service workers are allowed, e.g. GitHub Pages)
+  try {
+    if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+  } catch (e) {}
 })();
 </script>
