@@ -114,7 +114,7 @@ main > section > * { min-width: 0; }
 .bt-stats { font: 500 11px/1 var(--mono); color: var(--muted); display: flex; gap: 8px; }
 .bt-stats i { font-style: normal; }
 .bt-stats .P { color: #8fb4ff; } .bt-stats .B { color: #ff9a9a; } .bt-stats .T { color: #6fd39a; }
-.gtiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.gtiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
 @media (max-width: 640px) { .gtiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .gtile { padding: 8px 9px 7px; } .gtile .glyph { font-size: clamp(22px, 4vh, 36px); } .gtile small { display: none; } }
 .gtile { padding: 10px 10px 9px; display: grid; gap: 1px; justify-items: start; }
 .gtile .glyph { font-family: var(--display); font-size: clamp(26px, 5vh, 44px); line-height: 1; color: var(--brass); font-weight: 700; }
@@ -434,6 +434,55 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .diamond { width: 13px; height: 13px; transform: rotate(45deg); border-radius: 2px; }
 .diamond.r { background: var(--red); } .diamond.b { background: var(--black); border: 1px solid #777; }
 
+/* 龙腾财宝 video slot */
+#v-dragon { --mc: clamp(44px, min(16.5vw, 10.5vh), 104px); }
+.btable.mg { justify-content: center; gap: 6px; padding: 8px 8px; position: relative; overflow: hidden; }
+.jps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.jp { border-radius: 8px; padding: 3px 6px; display: grid; justify-items: center; line-height: 1.15; border: 1px solid rgba(255,255,255,.2); box-shadow: inset 0 -2px 0 rgba(0,0,0,.3); }
+.jp span { font: 800 10px/1.2 var(--body); letter-spacing: .14em; opacity: .9; }
+.jp b { font: 700 clamp(13px, 2.3vh, 18px)/1.2 var(--mono); font-variant-numeric: tabular-nums; }
+.jp.grand { grid-column: 1 / -1; background: linear-gradient(180deg, #b3151b, #5e0a0d); border-color: var(--win); }
+.jp.grand b { font-size: clamp(17px, 3vh, 24px); color: #ffe08a; }
+.jp.major { background: linear-gradient(180deg, #7a2bb0, #3a1258); }
+.jp.minor { background: linear-gradient(180deg, #1f5fc4, #0e2f66); }
+.jp.mini { background: linear-gradient(180deg, #1e8a4a, #0d4424); }
+.jp.flash { animation: jpflash .35s ease-in-out 6 alternate; }
+@keyframes jpflash { to { filter: brightness(1.8); transform: scale(1.04); } }
+.mg-title { display: flex; justify-content: center; align-items: baseline; gap: 8px; }
+.mg-title b { font-family: var(--display); color: var(--brass); font-size: clamp(16px, 2.8vh, 24px); letter-spacing: .12em; }
+.mgrid { display: grid; grid-template-columns: repeat(5, var(--mc)); gap: 3px; justify-content: center; padding: 5px; border-radius: 12px; border: 2px solid var(--brass); background: linear-gradient(180deg, #3a0d10, #160406); box-shadow: inset 0 0 16px rgba(0,0,0,.8); }
+.mreel { height: calc(var(--mc) * 3); overflow: hidden; border-radius: 6px; background: radial-gradient(120% 60% at 50% 50%, #5a1418, #2a0709); position: relative; }
+.mreel .col { will-change: transform; }
+.mc { height: var(--mc); display: grid; place-items: center; position: relative; font-size: calc(var(--mc) * .56); line-height: 1; border-bottom: 1px solid rgba(255,255,255,.05); }
+.mc .lt { font: 800 calc(var(--mc) * .44)/1 var(--display); }
+.mc .lt.A { color: #ff5a5f; } .mc .lt.K { color: #5ab0ff; } .mc .lt.Q { color: #c77dff; } .mc .lt.J { color: #4fd37a; } .mc .lt.T { color: #ffb347; }
+.mc .wild { width: 82%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #fff3b0, #d4af37 45%, #7a5a10); color: #a3080c; font: 900 calc(var(--mc) * .4)/1 var(--display); box-shadow: 0 0 10px rgba(255,215,0,.6); position: relative; }
+.mc .wild::after { content: "百搭"; position: absolute; bottom: -2px; font: 700 calc(var(--mc) * .14)/1 var(--body); color: #fff; background: #a3080c; padding: 1px 4px; border-radius: 3px; }
+.mc .scat { width: 78%; aspect-ratio: 1; display: grid; place-items: center; transform: rotate(45deg); background: linear-gradient(135deg, #e0262c, #8a0a0e); border: 2px solid var(--win); border-radius: 6px; }
+.mc .scat i { transform: rotate(-45deg); font: 900 calc(var(--mc) * .38)/1 var(--display); color: #ffe08a; font-style: normal; }
+.mc .coin { width: 88%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #fff4c2, #e0b23a 50%, #8a6410); border: 2px solid #fff0b3; color: #5a3a00; font: 800 calc(var(--mc) * .2)/1 var(--mono); box-shadow: 0 0 8px rgba(255,200,0,.5); }
+.mc .coin.jp { font: 900 calc(var(--mc) * .16)/1 var(--body); color: #fff; }
+.mc .coin.jp.MINI { background: radial-gradient(circle at 35% 30%, #9ff0bf, #1e8a4a 55%, #0d4424); }
+.mc .coin.jp.MINOR { background: radial-gradient(circle at 35% 30%, #a9cbff, #1f5fc4 55%, #0e2f66); }
+.mc .coin.jp.MAJOR { background: radial-gradient(circle at 35% 30%, #e3b8ff, #7a2bb0 55%, #3a1258); }
+.mc.win { background: radial-gradient(circle, rgba(242,210,122,.55), rgba(242,210,122,0) 70%); }
+.mc.win > * { animation: symwin .45s ease-in-out 4 alternate; }
+.mgrid.hold .mc:not(.lock) > * { opacity: .18; }
+.mc.lock { background: radial-gradient(circle, rgba(255,215,0,.35), transparent 70%); }
+.mc.spin > * { animation: mcspin .5s linear; }
+@keyframes mcspin { 0% { transform: translateY(-40%); opacity: .2; filter: blur(2px); } 100% { transform: none; opacity: 1; filter: none; } }
+.mg-banner { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; align-content: center; gap: 6px; background: rgba(0,0,0,.72); text-align: center; pointer-events: none; }
+.mg-banner b { font: 900 clamp(26px, 6vh, 48px)/1.1 var(--display); color: #ffe08a; text-shadow: 0 0 18px rgba(255,180,0,.7); letter-spacing: .06em; }
+.mg-banner span { font-size: 15px; color: var(--ivory); }
+.mg-banner.pop b { animation: banner .6s cubic-bezier(.2,1.6,.4,1); }
+@keyframes banner { from { transform: scale(.3); opacity: 0; } }
+.mg-bet { min-height: clamp(38px, 6vh, 54px); justify-content: flex-start !important; padding-left: 14px !important; }
+.mg-bet .lab { grid-auto-flow: column; gap: 8px; align-items: baseline; }
+.game .mg-bet .stake { left: 62%; }
+#mgRepeat { visibility: hidden; }
+#v-dragon .btn.big { min-width: 0; flex: 1 1 auto; max-width: 60%; }
+
+.gtile .ico.emo { font-size: clamp(28px, 5vh, 44px); line-height: 1; }
 /* Texas Hold'em */
 .th-main { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
 .th-ante, .th-blind, .th-play { border-radius: 8px; min-height: clamp(56px, 9.5vh, 92px); align-items: flex-end !important; padding-bottom: 7px !important; }
@@ -542,6 +591,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <button type="button" data-go="poker">三张牌</button>
       <button type="button" data-go="holdem">德州</button>
       <button type="button" data-go="slots">老虎机</button>
+      <button type="button" data-go="dragon">龙腾财宝</button>
     </nav>
     <div class="bank">
       <span class="bank-label">余额</span>
@@ -571,6 +621,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" data-go="poker"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="17" height="25" rx="3" transform="rotate(-16 14 26)"/><rect x="15.5" y="10" width="17" height="25" rx="3"/><rect x="25" y="13" width="17" height="25" rx="3" transform="rotate(16 34 26)" fill="currentColor" fill-opacity=".12"/><path d="M24 17l3 4h-6z" fill="currentColor" stroke="none"/></svg></span><b>三张牌</b><small>对子加注 40:1</small></button>
         <button class="gtile" type="button" data-go="holdem"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M36.7 11.3l-3.5 3.5M14.8 33.2l-3.5 3.5"/><path d="M24 17c3 3 6 5 6 8a3 3 0 0 1-5 2l1 4h-4l1-4a3 3 0 0 1-5-2c0-3 3-5 6-8z" fill="currentColor" stroke="none"/></svg></span><b>德州扑克</b><small>盲注最高 500:1</small></button>
         <button class="gtile" type="button" data-go="slots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机</b><small>3 卷轴 · 5 线</small></button>
+        <button class="gtile" type="button" data-go="dragon"><span class="ico emo">🐉</span><b>龙腾财宝</b><small>四级头奖 GRAND</small></button>
       </div>
     </div>
   </section>
@@ -755,6 +806,67 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>打（1–12、13–24、25–36）与列（右侧 2:1）2:1。红/黑、单/双、小（1–18）/大（19–36）1:1。</li>
         <li>开出 0 时，所有外围注均输。边线和交角上的淡金色圆点就是可以下注的位置。</li>
       </ul>
+    </div></div>
+  </section>
+
+  <!-- 龙腾财宝: 5x3 video slot, 243 ways, free spins, coin hold & spin with four jackpots -->
+  <section id="v-dragon" class="game" hidden>
+    <div class="btable col mg">
+      <div class="jps" id="mgJps">
+        <div class="jp grand" data-jp="GRAND"><span>GRAND</span><b id="jpGRAND">–</b></div>
+        <div class="jp major" data-jp="MAJOR"><span>MAJOR</span><b id="jpMAJOR">–</b></div>
+        <div class="jp minor" data-jp="MINOR"><span>MINOR</span><b id="jpMINOR">–</b></div>
+        <div class="jp mini" data-jp="MINI"><span>MINI</span><b id="jpMINI">–</b></div>
+      </div>
+      <div class="mg-title"><b>龙腾财宝</b><span class="note" id="mgMode">243 路 · 5 × 3</span></div>
+      <div class="mgrid" id="mgGrid"></div>
+      <p class="tmsg" id="mgMsg">下注后旋转 · 6 个金币触发金币锁定</p>
+      <div class="mg-banner" id="mgBanner" hidden></div>
+    </div>
+    <div class="pkbets"><button class="spot side sx mg-bet" data-mg="bet" type="button"><span class="lab"><b>每次下注</b><small>243 路</small></span><span class="stake"></span></button></div>
+    <div class="acts"><div class="actrow">
+      <button class="btn big" id="mgSpin" type="button">旋转</button>
+      <span class="autowrap">
+        <button class="btn ghost autobtn" id="mgAuto" type="button" aria-expanded="false">自动</button>
+        <span class="autopop" id="mgAutoPop" hidden>
+          <span class="note">自动旋转</span>
+          <button type="button" data-n="10">10 次</button><button type="button" data-n="25">25 次</button><button type="button" data-n="50">50 次</button><button type="button" data-n="100">100 次</button><button type="button" data-n="0">一直转</button>
+        </span>
+      </span>
+    </div></div>
+    <div class="bctl" data-g="mg"></div>
+    <div class="bfoot">
+      <div>每次旋转 <b id="mgBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+      <div class="r"><span>龙腾财宝 · 5×3 · 243 路</span><span>理论回报约 96%</span></div>
+    </div>
+    <div class="sheet" id="menu-mg" hidden><div class="sheet-in" role="dialog" aria-label="龙腾财宝菜单">
+      <div class="sheet-head"><h3>龙腾财宝</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <div class="menu-grid">
+        <button class="btn ghost" id="mgClear" type="button" data-close>清除下注</button>
+        <button class="btn ghost" type="button" data-close data-rules="rules-mg">规则与赔率</button>
+      </div>
+    </div></div>
+    <div class="sheet" id="rules-mg" hidden><div class="sheet-in" role="dialog" aria-label="龙腾财宝规则">
+      <div class="sheet-head"><h3>龙腾财宝</h3><span class="note">5 卷轴 × 3 行 · 243 路</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <h4>怎么赢</h4>
+      <ul>
+        <li>243 路：同一种符号从最左边一列开始，连续 3、4、5 列都有出现就中奖，不论在哪一行。奖金 = 赔率 × 下注 × 路数（每列出现的个数相乘）。</li>
+        <li><b>财</b>（财神）是百搭，只出现在第 2–4 列，可以代替所有普通符号。</li>
+        <li><b>福</b> 出现 3 / 4 / 5 个（任意位置）触发 8 / 12 / 20 次免费旋转，免费旋转里所有奖金 ×2，可以再次触发。</li>
+        <li>🪙 金币出现 6 个或以上（任意位置）触发「金币锁定」：金币锁住，其余格子重转 3 次；每出现新金币，次数重置为 3。结束时拿走所有金币上的奖金；15 格全部填满再加 GRAND 头奖。</li>
+        <li>金币上是 1–10 倍下注的奖金，或者 MINI / MINOR / MAJOR 头奖。</li>
+      </ul>
+      <h4>四级头奖（按当前下注计算）</h4>
+      <ul>
+        <li>MINI = 10 倍下注，MINOR = 25 倍下注（固定）。</li>
+        <li>MAJOR 从 150 倍、GRAND 从 1000 倍起，每转一次分别涨 0.01 倍、0.02 倍下注，被中之后回到起始值（累积奖池）。</li>
+      </ul>
+      <h4>赔率（× 下注，3 / 4 / 5 连）</h4>
+      <table>
+        <tr><td>🐉 龙</td><td>2.5 / 8 / 25</td></tr><tr><td>🐟 锦鲤</td><td>1.5 / 5 / 15</td></tr><tr><td>🧧 红包</td><td>1.2 / 4 / 12</td></tr><tr><td>🏮 灯笼</td><td>1 / 2.5 / 10</td></tr>
+        <tr><td>A · K</td><td>0.5 / 1.2 / 5</td></tr><tr><td>Q · J · 10</td><td>0.25 / 0.75 / 4</td></tr>
+      </table>
+      <ul><li>理论回报率约 96%（用 600 万次旋转模拟验证）：免费旋转约每 156 次出现一次，金币锁定约每 100 次一次，GRAND 极为罕见。</li></ul>
     </div></div>
   </section>
 
@@ -1106,7 +1218,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
 
   /* ---------- Navigation and sheets ---------- */
-  const VIEWS = ["lobby", "baccarat", "blackjack", "roulette", "poker", "holdem", "slots"];
+  const VIEWS = ["lobby", "baccarat", "blackjack", "roulette", "poker", "holdem", "slots", "dragon"];
   function show(v) {
     if (!VIEWS.includes(v)) v = "lobby";
     S.view = v;
@@ -2522,12 +2634,224 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   document.addEventListener("click", (e) => { if (!e.target.closest(".autowrap")) autoPop.hidden = true; });
   slDrawStatic();
 
+  /* ======================================================
+     龙腾财宝 — 5×3 video slot: 243 ways, wild on reels 2–4, scatter free spins,
+     coin Hold & Spin with MINI / MINOR / MAJOR / GRAND. Numbers tuned by simulation to about 96%.
+     ====================================================== */
+  const MGC = {
+    COUNTS: [0, 2, 2, 2, 0].map((w, r) => Object.assign(w ? { W: w } : {}, { D: 2, F: 3, H: 4, L: 4, A: 5, K: 5, Q: 6, J: 6, T: 6, S: r === 0 || r === 4 ? 1 : 2, C: 8 })),
+    PAY: { D: [2.5, 8, 25], F: [1.5, 5, 15], H: [1.2, 4, 12], L: [1, 2.5, 10], A: [0.5, 1.2, 5], K: [0.5, 1.2, 5], Q: [0.25, 0.75, 4], J: [0.25, 0.75, 4], T: [0.25, 0.75, 4] },
+    COIN: [{ x: 1, w: 30 }, { x: 2, w: 25 }, { x: 3, w: 15 }, { x: 5, w: 10 }, { x: 8, w: 6 }, { x: 10, w: 4 }, { jp: "MINI", w: 3 }, { jp: "MINOR", w: 1.5 }, { jp: "MAJOR", w: 0.5 }],
+    P_COIN: 0.03, FS: { 3: 8, 4: 12, 5: 20 }, FS_MULT: 2,
+    JP_BASE: { MINI: 10, MINOR: 25, MAJOR: 150, GRAND: 1000 }, JP_GROW: { MAJOR: 0.01, GRAND: 0.02 },
+  };
+  const MG_STRIPS = MGC.COUNTS.map((cnt, r) => {
+    const a = []; for (const k in cnt) for (let i = 0; i < cnt[k]; i++) a.push(k);
+    let x = 7 + r * 13; for (let i = a.length - 1; i > 0; i--) { x = (x * 1103515245 + 12345) % 2147483648; const j = x % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  });
+  const MG_COIN_W = MGC.COIN.reduce((s, c) => s + c.w, 0);
+  function mgCoin() { let x = (rand(1000000) / 1000000) * MG_COIN_W; for (const c of MGC.COIN) { if ((x -= c.w) < 0) return c; } return MGC.COIN[0]; }
+  const MG_HTML = {
+    W: '<span class="wild">财</span>', D: "🐉", F: "🐟", H: "🧧", L: "🏮",
+    A: '<span class="lt A">A</span>', K: '<span class="lt K">K</span>', Q: '<span class="lt Q">Q</span>', J: '<span class="lt J">J</span>', T: '<span class="lt T">10</span>',
+    S: '<span class="scat"><i>福</i></span>',
+  };
+  const MG_NAME = { D: "🐉", F: "🐟", H: "🧧", L: "🏮", A: "A", K: "K", Q: "Q", J: "J", T: "10" };
+  const mg = { bet: 0, hist: [], spinning: false, auto: 0, jp: { MAJOR: MGC.JP_BASE.MAJOR, GRAND: MGC.JP_BASE.GRAND } };
+  try { const sv = JSON.parse(localStorage.getItem("gbc-mg") || "null"); if (sv && sv.MAJOR >= 150 && sv.GRAND >= 1000) mg.jp = { MAJOR: sv.MAJOR, GRAND: sv.GRAND }; } catch (e) {}
+  const mgSave = () => { try { localStorage.setItem("gbc-mg", JSON.stringify(mg.jp)); } catch (e) {} };
+  const jpMult = (k) => (k === "MAJOR" || k === "GRAND" ? mg.jp[k] : MGC.JP_BASE[k]);
+  const mgBetShown = () => mg.bet || 100;
+  function coinHTML(v) { return v.jp ? '<span class="coin jp ' + v.jp + '">' + v.jp + "</span>" : '<span class="coin">' + compact(v.x * mgBetShown()) + "</span>"; }
+  const cellHTML = (c) => '<div class="mc">' + (c.s === "C" ? coinHTML(c.v) : MG_HTML[c.s]) + "</div>";
+  const randCell = () => { const st = MG_STRIPS[rand(5)]; const s = st[rand(st.length)]; return s === "C" ? { s, v: mgCoin() } : { s }; };
+  const gridEl = $("#mgGrid");
+  for (let r = 0; r < 5; r++) { const d = document.createElement("div"); d.className = "mreel"; d.innerHTML = '<div class="col"></div>'; gridEl.appendChild(d); }
+  const reelCols = () => $$("#mgGrid .mreel .col");
+  function mgDrawGrid(grid, lockSet) {
+    reelCols().forEach((col, r) => {
+      if (col.getAnimations) col.getAnimations().forEach((a) => a.cancel());
+      col.style.transform = "";
+      col.innerHTML = grid[r].map(cellHTML).join("");
+      if (lockSet) col.querySelectorAll(".mc").forEach((el, i) => el.classList.toggle("lock", lockSet.has(r * 3 + i)));
+    });
+  }
+  function mgNewGrid() { return MG_STRIPS.map((st) => { const s = rand(st.length); return [0, 1, 2].map((k) => { const sym = st[(s + k) % st.length]; return sym === "C" ? { s: sym, v: mgCoin() } : { s: sym }; }); }); }
+  function mgWays(grid) {
+    let win = 0; const cells = [], lines = [];
+    for (const sym in MGC.PAY) {
+      let ways = 1, n = 0; const cs = [];
+      for (let r = 0; r < 5; r++) {
+        const rows = []; grid[r].forEach((g, i) => { if (g.s === sym || (g.s === "W" && r > 0)) rows.push(i); });
+        if (!rows.length) break; ways *= rows.length; n++; rows.forEach((i) => cs.push([r, i]));
+      }
+      if (n >= 3) { win += MGC.PAY[sym][n - 3] * ways; cells.push(...cs); lines.push(MG_NAME[sym] + "×" + n + (ways > 1 ? "（" + ways + " 路）" : "")); }
+    }
+    return { win, cells, lines };
+  }
+  const mgCount = (grid, s) => grid.reduce((t, col) => t + col.filter((g) => g.s === s).length, 0);
+  function jpRender(flash) {
+    for (const k of ["GRAND", "MAJOR", "MINOR", "MINI"]) $("#jp" + k).textContent = fmt(Math.round(jpMult(k) * mgBetShown()));
+    if (flash) { const el = $('#mgJps [data-jp="' + flash + '"]'); el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+  }
+  function mgRender() {
+    setStake($("#v-dragon .mg-bet .stake"), mg.bet);
+    $("#v-dragon .mg-bet").disabled = mg.spinning || mg.auto > 0;
+    $("#mgSpin").disabled = mg.spinning || !mg.bet || mg.auto > 0;
+    $("#mgSpin").textContent = mg.bet ? "旋转 · " + fmt(mg.bet) : "旋转";
+    const ab = $("#mgAuto");
+    ab.classList.toggle("on", mg.auto > 0);
+    ab.textContent = mg.auto > 0 ? "停止" + (mg.auto === Infinity ? "" : " · 剩 " + mg.auto) : "自动";
+    ab.disabled = !mg.auto && (!mg.bet || mg.spinning);
+    $("#mgUndo").disabled = mg.spinning || mg.auto > 0 || !mg.hist.length;
+    $("#mgDouble").disabled = mg.spinning || mg.auto > 0 || !mg.bet;
+    $("#mgClear").disabled = mg.spinning || mg.auto > 0 || !mg.bet;
+    $("#mgRepeat").disabled = true;
+    $("#mgBetTotal").textContent = fmt(mg.bet);
+    jpRender();
+  }
+  $("#v-dragon .mg-bet").addEventListener("click", () => { if (mg.spinning || mg.auto) return; mg.bet += S.chip; mg.hist.push(S.chip); SND.chip(); mgRender(); });
+  $("#mgUndo").addEventListener("click", () => { if (mg.spinning || !mg.hist.length) return; mg.bet -= mg.hist.pop(); mgRender(); });
+  $("#mgDouble").addEventListener("click", () => { if (mg.spinning || !mg.bet) return; mg.hist.push(mg.bet); mg.bet *= 2; SND.chip(); mgRender(); });
+  $("#mgClear").addEventListener("click", () => { mg.bet = 0; mg.hist = []; mgRender(); });
+
+  const banner = (big, small) => { const b = $("#mgBanner"); b.innerHTML = "<b>" + big + "</b>" + (small ? "<span>" + small + "</span>" : ""); b.hidden = false; b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); };
+  const hideBanner = () => { $("#mgBanner").hidden = true; };
+  // spin the five reels to a new grid
+  async function mgAnimate(grid) {
+    const cell = $("#mgGrid .mreel").getBoundingClientRect().height / 3;
+    const cur = reelCols().map((col) => [...col.querySelectorAll(".mc")].map((el) => el.outerHTML));
+    const runs = [];
+    reelCols().forEach((col, r) => {
+      const n = 10 + r * 4;
+      const parts = cur[r].slice(0, 3);
+      for (let k = 0; k < n; k++) parts.push(cellHTML(randCell()));
+      grid[r].forEach((c) => parts.push(cellHTML(c)));
+      col.innerHTML = parts.join("");
+      const dist = (parts.length - 3) * cell, dur = reduced ? 60 : 800 + r * 220;
+      if (col.animate) col.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.2,.65,.25,1)", fill: "forwards" });
+      else col.style.transform = "translateY(-" + dist + "px)";
+      runs.push(new Promise((res) => setTimeout(() => { SND.flip(); res(); }, dur)));
+    });
+    const tick = setInterval(() => SND.ball(), 70);
+    await Promise.all(runs); clearInterval(tick);
+    mgDrawGrid(grid);
+  }
+  async function mgOne(free) {
+    const grid = mgNewGrid();
+    await mgAnimate(grid);
+    const w = mgWays(grid);
+    const pay = Math.round(w.win * mg.bet * (free ? MGC.FS_MULT : 1) * 100) / 100;
+    const cols = reelCols();
+    w.cells.forEach(([r, i]) => cols[r].querySelectorAll(".mc")[i].classList.add("win"));
+    if (pay) addBank(pay);
+    return { pay, grid, lines: w.lines, coins: mgCount(grid, "C"), scat: mgCount(grid, "S") };
+  }
+  // Hold & Spin: coins lock, the rest respin 3 times, a new coin resets the count; fill all 15 for GRAND
+  async function mgHold(grid) {
+    banner("金币锁定", "金币锁住 · 其余重转 3 次"); SND.win(); await sleep(reduced ? 200 : 1700); hideBanner();
+    const locked = new Map();
+    grid.forEach((col, r) => col.forEach((c, i) => { if (c.s === "C") locked.set(r * 3 + i, c.v); }));
+    const view = () => [0, 1, 2, 3, 4].map((r) => [0, 1, 2].map((i) => (locked.has(r * 3 + i) ? { s: "C", v: locked.get(r * 3 + i) } : { s: "B" })));
+    MG_HTML.B = "";
+    gridEl.classList.add("hold");
+    mgDrawGrid(view(), new Set(locked.keys()));
+    let respins = 3;
+    $("#mgMode").textContent = "金币锁定 · 剩余 " + respins + " 次";
+    while (respins > 0 && locked.size < 15) {
+      await sleep(reduced ? 50 : 450);
+      reelCols().forEach((col, r) => col.querySelectorAll(".mc").forEach((el, i) => { if (!locked.has(r * 3 + i)) el.classList.add("spin"); }));
+      SND.deal(); await sleep(reduced ? 50 : 520);
+      const fresh = [];
+      for (let p = 0; p < 15; p++) if (!locked.has(p) && rand(10000) < MGC.P_COIN * 10000) { locked.set(p, mgCoin()); fresh.push(p); }
+      mgDrawGrid(view(), new Set(locked.keys()));
+      if (fresh.length) { SND.chip(); respins = 3; } else respins--;
+      $("#mgMode").textContent = "金币锁定 · 已锁 " + locked.size + " 个 · 剩余 " + respins + " 次";
+    }
+    let mult = 0; const jps = [];
+    for (const v of locked.values()) { if (v.jp) jps.push(v.jp); else mult += v.x; }
+    if (locked.size === 15) jps.push("GRAND");
+    let pay = mult * mg.bet;
+    for (const k of jps) {
+      const amt = Math.round(jpMult(k) * mg.bet);
+      pay += amt; jpRender(k);
+      if (k === "MAJOR" || k === "GRAND") { mg.jp[k] = MGC.JP_BASE[k]; mgSave(); }
+      banner(k + " 头奖", "+" + fmt(amt)); SND.win(); await sleep(reduced ? 200 : 2200);
+    }
+    pay = Math.round(pay * 100) / 100;
+    if (pay) addBank(pay);
+    banner("金币锁定 +" + fmt(pay), locked.size + " 个金币" + (jps.length ? " · " + jps.join(" · ") : "")); SND.win();
+    await sleep(reduced ? 200 : 2200); hideBanner();
+    gridEl.classList.remove("hold");
+    mgDrawGrid(grid);
+    $("#mgMode").textContent = "243 路 · 5 × 3";
+    return pay;
+  }
+  async function mgFree(sc) {
+    let left = MGC.FS[Math.min(sc, 5)], done = 0, total = 0;
+    banner("免费旋转 " + left + " 次", "所有奖金 ×2"); SND.win(); await sleep(reduced ? 200 : 1800); hideBanner();
+    while (left > 0) {
+      left--; done++;
+      $("#mgMode").textContent = "免费旋转 " + done + " / " + (done + left) + " · 累计 +" + fmt(total);
+      const r = await mgOne(true);
+      total += r.pay;
+      if (r.coins >= 6) total += await mgHold(r.grid);
+      if (r.scat >= 3) { const more = MGC.FS[Math.min(r.scat, 5)]; left += more; banner("再得 " + more + " 次", "免费旋转"); await sleep(reduced ? 100 : 1300); hideBanner(); }
+      $("#mgMode").textContent = "免费旋转 " + done + " / " + (done + left) + " · 累计 +" + fmt(total);
+      await sleep(reduced ? 50 : 600);
+    }
+    banner("免费旋转结束", "共赢 +" + fmt(total)); await sleep(reduced ? 200 : 2000); hideBanner();
+    $("#mgMode").textContent = "243 路 · 5 × 3";
+    return total;
+  }
+  async function mgSpin() {
+    if (mg.spinning || !mg.bet) return false;
+    if (!take(mg.bet)) { msg($("#mgMsg"), '<span class="l">余额不足，点右上角 + 加余额</span>'); return false; }
+    mg.spinning = true;
+    mg.jp.MAJOR += MGC.JP_GROW.MAJOR; mg.jp.GRAND += MGC.JP_GROW.GRAND; mgSave();
+    mgRender();
+    msg($("#mgMsg"), "旋转中…");
+    const r = await mgOne(false);
+    let total = r.pay; const notes = [];
+    if (r.lines.length) notes.push(r.lines.join(" "));
+    if (r.coins >= 6) { const h = await mgHold(r.grid); total += h; notes.push("金币锁定 +" + fmt(h)); }
+    if (r.scat >= 3) { const f = await mgFree(r.scat); total += f; notes.push("免费旋转 +" + fmt(f)); }
+    if (total > 0 && r.pay > 0 && r.pay === total) SND.win();
+    msg($("#mgMsg"), (notes.length ? notes.join(" · ") + " · " : "没有中奖 · ") + net(total - mg.bet));
+    mg.spinning = false; mgRender();
+    return true;
+  }
+  $("#mgSpin").addEventListener("click", () => { if (!mg.auto) mgSpin(); });
+  async function mgAutoRun(n) {
+    mg.auto = n || Infinity; mgRender();
+    while (mg.auto > 0) {
+      if (S.view !== "dragon" || !mg.bet) break;
+      if (S.bank < mg.bet) { msg($("#mgMsg"), '<span class="l">余额不足，自动旋转已停止</span>'); break; }
+      if (!(await mgSpin())) break;
+      if (mg.auto !== Infinity && mg.auto > 0) mg.auto--;
+      mgRender();
+      if (mg.auto > 0) await sleep(reduced ? 60 : 500);
+    }
+    mg.auto = 0; mgRender();
+  }
+  const mgPop = $("#mgAutoPop");
+  $("#mgAuto").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (mg.auto > 0) { mg.auto = 0; mgRender(); msg($("#mgMsg"), "自动旋转已停止"); return; }
+    mgPop.hidden = !mgPop.hidden; $("#mgAuto").setAttribute("aria-expanded", String(!mgPop.hidden));
+  });
+  $$("#mgAutoPop button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); mgPop.hidden = true; mgAutoRun(+b.dataset.n); }));
+  document.addEventListener("click", (e) => { if (!e.target.closest("#v-dragon .autowrap")) mgPop.hidden = true; });
+  mgDrawGrid(mgNewGrid());
+
   /* ---------- Start ---------- */
   bjRender();
   rouRender();
   pkRender();
   thRender();
   slRender();
+  mgRender();
   show(location.hash.slice(1) || "lobby");
 
   // Home-screen app: offline cache (only where service workers are allowed, e.g. GitHub Pages)
