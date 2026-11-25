@@ -1571,6 +1571,67 @@ sea.rotation.x=-Math.PI/2;sea.position.y=-.6;scene.add(sea);
 // 路边 6 米内有没有比这里低很多的路面（返回最低那段路的高度）
 function lowRoadNear(x,z){const S=HG,ci=Math.round((x-S.x0)/S.st),cj=Math.round((z-S.z0)/S.st),R=3,g=GH(x,z);let hr=null;
   for(let a=-R;a<=R;a++)for(let b=-R;b<=R;b++){const i=ci+a,j=cj+b;if(i<0||j<0||i>=S.nx||j>=S.nz)continue;const k=j*S.nx+i;if(S.rm[k]!==1)continue;const h=S.a[k];if(h<g-1&&(hr===null||h<hr))hr=h}return hr}
+// —— 全部地形做成“平面 + 竖直连接面”：每一处地面高度取精确值（平地就是平面），有高差的格子挖掉，
+//    在格子里按精确边界分成高处平面和低处平面，交界处补竖直面（台地、海岸线、桥头路基、路边都一样）
+function terraceAll(g,nx,nz,st,x0,z0,SAND,GRASS,HIGH,ROCK,SHAL,DEEP){const S=HG,A=S.a,P=g.attributes.position,NV=P.count;
+  // 精确地面高度：陆地 = 精确高度 - .18；路面底下比路面低 .3；水下统一深度
+  const TH=(x,z)=>{const sd=sdfAt(x,z);if(sd<=0)return{h:-.95,r:false,w:true};_gRoad=0;const ge=Gexact(x,z),road=_gRoad===1&&!inZone(x,z,-14);
+    return{h:road?Math.min(ge,GH(x,z))-.3:ge-.18,r:road,w:false}};
+  const c=new THREE.Color();
+  const paint=(x,z,wall,arrC,arrM)=>{const sd=sdfAt(x,z),lp=sd>0?LP(x,z):0,beach=x>WU(.94)?48:14;let m=[0,0,0];
+    if(wall){c.copy(ROCK);m=[0,0,1]}else if(sd<=0)c.copy(sd>-14?SHAL:DEEP);else if(sd<beach&&lp===0){c.copy(SAND);m=[0,1,0]}else{c.copy(lp>0?HIGH:GRASS);m=[1,0,0]}
+    const sh=.92+.08*Math.sin(x*.13+z*.07)*Math.cos(z*.11);arrC.push(c.r*sh,c.g*sh,c.b*sh);arrM.push(...m)};
+  // 1) 网格顶点：精确高度
+  const Hv=new Float32Array(NV),col=[],mix=[];for(let k=0;k<NV;k++){const x=P.getX(k),z=P.getZ(k);Hv[k]=TH(x,z).h;P.setY(k,Hv[k]);paint(x,z,false,col,mix)}
+  g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));if(REAL)g.setAttribute('surfaceMix',new THREE.Float32BufferAttribute(mix,3));P.needsUpdate=true;
+  // 2) 有高差的格子：高度图里相邻两点跳变、或四个角高度不一样
+  const cut=new Uint8Array((nx-1)*(nz-1));let nc=0;
+  for(let j=0;j<nz-1;j++)for(let i=0;i<nx-1;i++){const k0=j*nx+i,hs=[Hv[k0],Hv[k0+1],Hv[k0+nx],Hv[k0+nx+1]];let hit=Math.max(...hs)-Math.min(...hs)>.25;
+    if(!hit){const X=x0+i*st,Z=z0+j*st,ia=Math.max(0,Math.floor((X-2.5-S.x0)/S.st)),ib=Math.min(S.nx-1,Math.ceil((X+st+2.5-S.x0)/S.st)),ja=Math.max(0,Math.floor((Z-2.5-S.z0)/S.st)),jb=Math.min(S.nz-1,Math.ceil((Z+st+2.5-S.z0)/S.st));
+      for(let b=ja;b<=jb&&!hit;b++)for(let a=ia;a<=ib;a++){const v=A[b*S.nx+a];if(a<ib&&Math.abs(A[b*S.nx+a+1]-v)>.8||b<jb&&Math.abs(A[(b+1)*S.nx+a]-v)>.8){hit=true;break}}}
+    if(hit){cut[j*(nx-1)+i]=1;nc++}}
+  const I=g.index.array,ni=[];for(let q=0;q<(nx-1)*(nz-1);q++)if(!cut[q])for(let t=0;t<6;t++)ni.push(I[q*6+t]);g.setIndex(ni);g.computeVertexNormals();
+  // 3) 重建有高差的格子（共享顶点）
+  const pos=[],cl=[],mx=[],idx=[],wpos=[],wuv=[];const V=(x,h,z)=>{pos.push(x,h,z);paint(x,z,false,cl,mx);return pos.length/3-1};
+  const polyI=L=>{for(let k=1;k<L.length-1;k++)idx.push(L[0],L[k],L[k+1])};
+  const wall=(a,b,d,e)=>{for(const v of[a,b,d,a,d,e]){wpos.push(v[0],v[1],v[2]);wuv.push((v[0]+v[2])/8,v[1]/5)}};
+  const n=3,sub=st/n;
+  for(let j=0;j<nz-1;j++)for(let i=0;i<nx-1;i++){if(!cut[j*(nx-1)+i])continue;const X=x0+i*st,Z=z0+j*st,H=[];
+    for(let b=0;b<=n;b++)for(let a=0;a<=n;a++)H.push(a%n===0&&b%n===0?{h:Hv[(j+b/n)*nx+i+a/n],r:false}:TH(X+a*sub,Z+b*sub));
+    {const cutAt=(ii,jj)=>ii<0||jj<0||ii>=nx-1||jj>=nz-1||cut[jj*(nx-1)+ii],at=(p,q)=>H[q*(n+1)+p],lin=(p0,q0,p1,q1,t)=>at(p0,q0).h+(at(p1,q1).h-at(p0,q0).h)*t;
+      for(let k=1;k<n;k++){const t=k/n;if(!cutAt(i-1,j))H[k*(n+1)]={h:lin(0,0,0,n,t),r:false};if(!cutAt(i+1,j))H[k*(n+1)+n]={h:lin(n,0,n,n,t),r:false};
+        if(!cutAt(i,j-1))H[k]={h:lin(0,0,n,0,t),r:false};if(!cutAt(i,j+1))H[n*(n+1)+k]={h:lin(0,n,n,n,t),r:false}}}
+    const GI=H.map((v,q)=>V(X+(q%(n+1))*sub,v.h,Z+((q/(n+1))|0)*sub));
+    for(let b=0;b<n;b++)for(let a=0;a<n;a++){const qs=[[a,b],[a+1,b],[a+1,b+1],[a,b+1]].map(([p,q])=>q*(n+1)+p),C=qs.map(q=>({x:X+(q%(n+1))*sub,z:Z+((q/(n+1))|0)*sub,...H[q],gi:GI[q]}));
+      let lo=1e9,hi=-1e9;for(const v of C){lo=Math.min(lo,v.h);hi=Math.max(hi,v.h)}
+      if(hi-lo<.25){polyI(C.map(v=>v.gi));continue}
+      const t=(lo+hi)/2,up=C.map(v=>v.h>t),X2=[];
+      { // 三层高度挤在一个小格里（路、地、台地交汇的角）：立一根石柱把交汇处整个包住
+        const u=C.filter(v=>v.h>(lo+hi)/2).map(v=>v.h),d=C.filter(v=>v.h<=(lo+hi)/2).map(v=>v.h);
+        if(Math.max(...u)-Math.min(...u)>.5||Math.max(...d)-Math.min(...d)>.5){const cx=(C[0].x+C[2].x)/2,cz=(C[0].z+C[2].z)/2,r=sub*.62,y0=lo-.3,y1=hi+.25;
+          const P4=[[cx-r,cz-r],[cx+r,cz-r],[cx+r,cz+r],[cx-r,cz+r]];for(let k=0;k<4;k++){const p=P4[k],q=P4[(k+1)%4];wall([p[0],y0,p[1]],[q[0],y0,q[1]],[q[0],y1,q[1]],[p[0],y1,p[1]])}
+          wall([cx-r,y1,cx-r],[cx+r,y1,cx-r],[cx+r,y1,cx+r],[cx-r,y1,cx+r])}}
+      for(let e=0;e<4;e++){const f=(e+1)%4;if(up[e]===up[f])continue;let ax=C[e].x,az=C[e].z,bx=C[f].x,bz=C[f].z;const ua=up[e];
+        for(let k=0;k<12;k++){const mxx=(ax+bx)/2,mzz=(az+bz)/2;if((TH(mxx,mzz).h>t)===ua){ax=mxx;az=mzz}else{bx=mxx;bz=mzz}}
+        const cx=(ax+bx)/2,cz=(az+bz)/2,dx=C[f].x-C[e].x,dz=C[f].z-C[e].z,l=Math.hypot(dx,dz)||1,ox=dx/l*.04,oz=dz/l*.04,hA=TH(cx-ox,cz-oz),hB2=TH(cx+ox,cz+oz),hiH=ua?hA:hB2,loH=ua?hB2:hA;
+        X2.push({e,x:cx,z:cz,hh:hiH.h,lh:loH.h,road:hiH.r||loH.r,hi:V(cx,hiH.h,cz),li:V(cx,loH.h,cz)})}
+      const build=want=>{const L=[];for(let e=0;e<4;e++){if(up[e]===want)L.push(C[e].gi);const x=X2.find(q=>q.e===e);if(x)L.push(want?x.hi:x.li)}return L};
+      let pairs=[];
+      if(X2.length===4){ // 鞍形格子：两个对角高、两个对角低。看中心点归哪边，另一边的两个角各成一个三角，连接面围着这两个角
+        const cen=TH((C[0].x+C[2].x)/2,(C[0].z+C[2].z)/2).h>t,byE=e=>X2.find(q=>q.e===e);
+        const L=[];for(let e=0;e<4;e++){if(up[e]===cen)L.push(C[e].gi);const x=byE(e);L.push(cen?x.hi:x.li)}polyI(L);
+        for(let k=0;k<4;k++){if(up[k]===cen)continue;const pe=byE((k+3)%4),ne=byE(k);polyI([C[k].gi,cen?ne.li:ne.hi,cen?pe.li:pe.hi]);pairs.push([pe,ne])}}
+      else{const Lh=build(true),Ll=build(false);if(Lh.length>=3)polyI(Lh);if(Ll.length>=3)polyI(Ll);for(let k=0;k+1<X2.length;k+=2)pairs.push([X2[k],X2[k+1]])}
+      for(const[p,q]of pairs){let ox=0,oz=0;
+        if(p.road||q.road){let sx=0,sz=0,cn=0;for(const v of C)if(v.h>t){sx+=v.x;sz+=v.z;cn++}sx/=cn;sz/=cn;const mx2=(p.x+q.x)/2,mz2=(p.z+q.z)/2,l2=Math.hypot(sx-mx2,sz-mz2)||1;ox=(sx-mx2)/l2*.12;oz=(sz-mz2)/l2*.12}
+        wall([p.x+ox,p.lh,p.z+oz],[q.x+ox,q.lh,q.z+oz],[q.x+ox,q.hh,q.z+oz],[p.x+ox,p.hh,p.z+oz])}}}
+  const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));G.setAttribute('color',new THREE.Float32BufferAttribute(cl,3));if(REAL)G.setAttribute('surfaceMix',new THREE.Float32BufferAttribute(mx,3));G.setIndex(idx);G.computeVertexNormals();
+  const mt=REAL?pixelTerrainMaterial():new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad});mt.defines=Object.assign({},mt.defines||{},{NOWARPH:''});mt.side=THREE.DoubleSide;
+  const M=new THREE.Mesh(G,mt);M.receiveShadow=true;M.userData.noLift=1;scene.add(M);
+  if(wpos.length){const WG=new THREE.BufferGeometry();WG.setAttribute('position',new THREE.Float32BufferAttribute(wpos,3));WG.setAttribute('uv',new THREE.Float32BufferAttribute(wuv,2));WG.computeVertexNormals();
+    const wm=new THREE.MeshToonMaterial({color:REAL?0xd8cfc0:0x9a9086,map:REAL?pixelTexture('rock'):null,gradientMap:toonGrad,side:THREE.DoubleSide});wm.defines=Object.assign({},wm.defines||{},{NOWARPH:''});
+    const WM=new THREE.Mesh(WG,wm);WM.castShadow=true;WM.receiveShadow=true;WM.userData.noLift=1;scene.add(WM)}
+  window.TERRACE={cells:nc,verts:pos.length/3,wall:wpos.length/3,grid:NV}}
 // —— 地形网格：沙滩、草地、台地、悬崖岩壁、近岸浅水（顶点色）
 {const st=5,x0=WU(-.16),z0=WV(-.16),nx=Math.ceil((WU(1.16)-x0)/st)+1,nz=Math.ceil((WV(1.16)-z0)/st)+1;
  const g=new THREE.PlaneGeometry((nx-1)*st,(nz-1)*st,nx-1,nz-1);g.rotateX(-Math.PI/2);g.translate(x0+(nx-1)*st/2,0,z0+(nz-1)*st/2);
@@ -1581,9 +1642,7 @@ function lowRoadNear(x,z){const S=HG,ci=Math.round((x-S.x0)/S.st),cj=Math.round(
    if(sd>0&&sd<3&&LP(x,z)===0)y=Math.min(y,-.1+sd*.03);
    if(sd>0&&roadMask(x,z))y+=Math.min(0,Gexact(x,z)-GH(x,z)); // 悬崖边的路：高度图在边上被抹平，按精确高度往下压，免得地面盖住路面
    if(sd>0&&!roadMask(x,z)){
-     const hr=lowRoadNear(x,z);
-     if(hr!==null)y=hr-.4-GH(x,z);
-     else if(REAL&&sd>3)y+=Math.round(Math.sin(x*.30)*Math.cos(z*.27)*3)*.035;
+     if(REAL&&sd>3)y+=Math.round(Math.sin(x*.30)*Math.cos(z*.27)*3)*.035;
    }
    Y[k]=y;P.setY(k,y)}
  for(let k=0;k<P.count;k++){const x=P.getX(k),z=P.getZ(k),sd=sdfAt(x,z),i=k%nx,j=(k/nx)|0;
@@ -1600,8 +1659,8 @@ function lowRoadNear(x,z){const S=HG,ci=Math.round((x-S.x0)/S.st),cj=Math.round(
    col[k*3]=c.r*shade;col[k*3+1]=c.g*shade;col[k*3+2]=c.b*shade}
  g.setAttribute('color',new THREE.BufferAttribute(col,3));
  if(REAL)g.setAttribute('surfaceMix',new THREE.BufferAttribute(mix,3));
- g.computeVertexNormals();
- const TER=new THREE.Mesh(g,REAL?pixelTerrainMaterial():new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad}));TER.receiveShadow=true;TER.userData.noLift=1;scene.add(TER)}
+ g.computeVertexNormals();terraceAll(g,nx,nz,st,x0,z0,SAND,GRASS,HIGH,ROCK,SHAL,DEEP);
+ const TER=new THREE.Mesh(g,(m=>{m.defines=Object.assign({},m.defines||{},{NOWARPH:''});return m})(REAL?pixelTerrainMaterial():new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad})));TER.receiveShadow=true;TER.userData.noLift=1;scene.add(TER)}
 // —— 挡土墙：街区和旁边路面不一样高的地方，砌一道石墙（悬崖、台地边）
 const wallMat=new THREE.MeshToonMaterial({color:REAL?0xe0d6c6:0x9a9086,map:REAL?pixelTexture('rock'):null,gradientMap:toonGrad,side:THREE.DoubleSide});wallMat.defines={NOWARPH:''};
 for(const[i,j]of VALID){const h=hB(i,j),x0=rx(i)+BAND,x1=rx(i+1)-BAND,z0=rz(j)+BAND,z1=rz(j+1)-BAND;
@@ -1676,10 +1735,12 @@ function plen(P){let s=0;for(let k=1;k<P.length;k++)s+=Math.hypot(P[k][0]-P[k-1]
 function bridgeEdge(e,i,j){let P=e?e.pts:[[rx(i),rz(j)],[rx(i+1),rz(j)]];{const Q=[];for(let k=1;k<P.length;k++){const a=P[k-1],b2=P[k],n=Math.max(1,Math.ceil(Math.hypot(b2[0]-a[0],b2[1]-a[1])/4));for(let q=0;q<n;q++)Q.push([a[0]+(b2[0]-a[0])*q/n,a[1]+(b2[1]-a[1])*q/n])}Q.push(P[P.length-1]);P=Q}const L=plen(P);
   // 只在水面上方、或者路面明显高出地面的地方才有桥身和护栏；两头接陆地路口的一段不画（不挡路口）
   const A=P[0],B=P[P.length-1],ea=e?[e.i,e.j]:[i,j],eb=e?[e.i2,e.j2]:[i+1,j],landA=nodeLand(...ea),landB=nodeLand(...eb);
-  const need=(x,z)=>(sdfAt(x,z)<6||GH(x,z)-LP(x,z)>1.2)&&!(landA&&Math.hypot(x-A[0],z-A[1])<BAND+1)&&!(landB&&Math.hypot(x-B[0],z-B[1])<BAND+1);
+  const need=(x,z)=>!(landA&&Math.abs(x-A[0])<RD/2+2&&Math.abs(z-A[1])<RD/2+2)&&!(landB&&Math.abs(x-B[0])<RD/2+2&&Math.abs(z-B[1])<RD/2+2);const _bArr=CAP||scene.children,_bS0=_bArr.length;
   alongPts(P,0,RD+3.4,1.6,-.86,REAL?pixelSurface('panel'):0x8c8a90,1,need);for(const s of[-1,1]){alongPts(P,s*(RD/2+1.3),.7,.7,.35,0x6e6c74,1,need);alongPts(P,s*(RD/2+1.3),.26,.22,1.35,0xe8e4dc,1,need)}
   for(let t=2;t<L;t+=3.5)for(const s of[-1,1]){const q=ptAt(P,t);if(!need(q.x,q.z))continue;const p=box(.16,.7,.16,0xe8e4dc);p.position.set(q.x+q.nx*s*(RD/2+1.3),1,q.z+q.nz*s*(RD/2+1.3));scene.add(p)}
   for(let t=18;t<L-4;t+=38)for(const s of[-1,1]){const q=ptAt(P,t);if(!need(q.x,q.z))continue;const lp=box(.3,7.5,.3,0x3a3448);lp.position.set(q.x+q.nx*s*(RD/2+1.8),3.75,q.z+q.nz*s*(RD/2+1.8));scene.add(lp);const l=new THREE.Mesh(new THREE.BoxGeometry(.9,.3,.9),lampMat);l.position.set(q.x+q.nx*s*(RD/2+.9),7.3,q.z+q.nz*s*(RD/2+.9));scene.add(l)}
+  for(let k=_bS0;k<_bArr.length;k++){const m=_bArr[k];if(!m||!m.isMesh)continue;if(!m.geometry.boundingBox)m.geometry.computeBoundingBox();{const b=m.geometry.boundingBox;if(b.max.z-b.min.z>RD||b.max.x-b.min.x>RD)continue} // 路面底下的桥身照旧逐顶点贴地，只有栏杆、立柱、路灯用精确高度
+    m.position.y+=Gexact(m.position.x,m.position.z);m.material=nwMat(m.material);m.castShadow=false}
   for(let t=12;t<L-6;t+=34){const q=ptAt(P,t);if(sdfAt(q.x,q.z)>-3)continue;const py=REAL?rbox(3.2,34,RD-2,pixelSurface('panel'),.23):box(3.2,34,RD-2,0xa09ea4);py.position.set(q.x,-18.6,q.z);py.rotation.y=Math.atan2(q.nx,q.nz);scene.add(py);const cap=box(4,1.2,RD+1,REAL?pixelSurface('stone'):0x7a787e);cap.position.set(q.x,-2.2,q.z);cap.rotation.y=Math.atan2(q.nx,q.nz);scene.add(cap)}}
 // —— 弯道路面（开局一次性画好）：柏油带、两侧白线、中间黄虚线
 function ribbon(P,o0,o1,mat,y,uw,d0=0,d1=1e9){const pos=[],uv=[];let acc=0;const n=P.length;
@@ -4382,7 +4443,7 @@ function releaseAfterUpload(G){G.computeBoundingSphere();G.computeBoundingBox();
 const _mN=new THREE.Matrix3();const vcPlainMat=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:toonGrad,map:REAL?pixelTexture('object'):null});
 function mergeInto(list,grp){const groups=new Map(),PLAIN='plain';
   for(const o of list){if(!o.isMesh||Array.isArray(o.material)||(o.material&&(o.material.transparent||o.material.vertexColors))){grp.add(o);continue}
-    const m=o.material,key=((m.isMeshToonMaterial||m.userData.toonish)&&(!m.map||(REAL&&m.map===pixelTexture('object')))&&!m.emissiveMap)?PLAIN:m;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o)}
+    const m=o.material,key=(!(m.defines&&'NOWARPH' in m.defines)&&(m.isMeshToonMaterial||m.userData.toonish)&&(!m.map||(REAL&&m.map===pixelTexture('object')))&&!m.emissiveMap)?PLAIN:m;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(o)}
   // 直接写进预分配的类型数组（不复制几何体），比逐个 clone + push 快很多，开车时新街区加载不再卡顿
   for(const[key,lst]of groups){if(lst.length<2&&key!==PLAIN){grp.add(lst[0]);continue}
     let n=0,hasT=false,cast=false;for(const o of lst){const g=o.geometry;n+=g.index?g.index.count:g.attributes.position.count;if(g.attributes.tileR)hasT=true}
@@ -4892,7 +4953,7 @@ function updMarkers(){const t=performance.now()/1000;
 // =====================================================================
 // 画面升级 v0.1.2：泛光 / 体积光 / 调色 / 海面 / 接触阴影 / 车灯 / 刹车痕 / 车漆反光 / 爆炸 / 海鸥 / 沙尘 / 路灯光柱 / 湿地倒影 / 云影
 // =====================================================================
-const VERSION='v0.27.2';
+const VERSION='v0.27.3';
 // ---------- 后期处理（自己写的，不依赖额外库）----------
 const POST={on:QK!=='low',w:0,h:0};
 try{const st=JSON.parse(localStorage.getItem('nby-set')||'{}');if(st.post===false)POST.on=false;else if(st.post===true)POST.on=true}catch(e){}
@@ -5062,7 +5123,7 @@ function updGfx(dt){updGrade();updSea(dt);updBlobs();updCarLights();updSkid();up
 
 // ---------- 更新内容（游戏主页）----------
 const CHANGELOG=[
- ['v0.27','像素材质',[['0.27.2','去掉卡通画风，固定为写实像素画风；人物换成新模型：男女主角（女主角左臂修订版）、巡警、女巡警、特警、便衣探员、游客、滑板少年、外卖骑手；新模型套用原来的骨骼，走、跑、跳、出拳、举枪、坐、开车等动作照常。注：主角暂时不显示衣柜里换的衣服'],['0.27.1','巴士：进站时平滑靠到路边停车道停靠，不再挡住车道，停完再并回车道；站前路面画了黄框 BUS 专用区，不再刷路边停车；NPC 会在站台等车、上车，车上乘客到站下车后变成路人走开；站台挪到人行道上，不再被挡土墙、院子或楼挡住；站台后面的街区往后退出一块站前空地，高台上沿空地砌挡土墙，商业街店铺往后挪'],['0.27.0','写实像素融合版：全城换成像素风材质——柏油路、路面标线、排水口、人行道、石砖、草地、沙滩、水面和岩壁；建筑四面、屋顶和夜间窗光；水泥墙、铁艺栏杆和石基围栏；车漆、车辆标识和出租车顶灯；人物衣料和脸部；医院、警察局门牌，商店和路牌招牌']]],
+ ['v0.27','像素材质',[['0.27.3','地形改成真正的高低差：台地、海岸、桥头和路边不再拉成斜坡，高处和低处各是平面，交界处是竖直的石墙面；人物和车辆在高差处、桥边不再被拉弯变形；三座跨海大桥的栏杆、立柱和路灯完整'],['0.27.2','去掉卡通画风，固定为写实像素画风；人物换成新模型：男女主角（女主角左臂修订版）、巡警、女巡警、特警、便衣探员、游客、滑板少年、外卖骑手；新模型套用原来的骨骼，走、跑、跳、出拳、举枪、坐、开车等动作照常。注：主角暂时不显示衣柜里换的衣服'],['0.27.1','巴士：进站时平滑靠到路边停车道停靠，不再挡住车道，停完再并回车道；站前路面画了黄框 BUS 专用区，不再刷路边停车；NPC 会在站台等车、上车，车上乘客到站下车后变成路人走开；站台挪到人行道上，不再被挡土墙、院子或楼挡住；站台后面的街区往后退出一块站前空地，高台上沿空地砌挡土墙，商业街店铺往后挪'],['0.27.0','写实像素融合版：全城换成像素风材质——柏油路、路面标线、排水口、人行道、石砖、草地、沙滩、水面和岩壁；建筑四面、屋顶和夜间窗光；水泥墙、铁艺栏杆和石基围栏；车漆、车辆标识和出租车顶灯；人物衣料和脸部；医院、警察局门牌，商店和路牌招牌']]],
  ['v0.26','新地图',[['0.26.2','道路和地形修复（用全路网试驾录像逐段检查）：环岛弯道不再切进街区、人行道不再盖住弯道；墙、长物体切成短段，不再和弯曲的道路错位（机场围墙不再压到路上）；斜路抬高并裁在自己街区内；路段和路口路面不再重叠闪烁；分岔口的标线不再横穿另一条路；弯道反光桩和路灯不放在别的路上；高台路边改成竖直挡土墙，不再有绿色斜坡盖到人行道，高台街区的院子和人行道不再被拉斜'],['0.26.1','NPC 车辆驾驶优化（用自动试驾程序把全部道路双向各跑一遍找出的问题）：弯道上不再原地打转（按弧线算行驶进度）；急转弯开过头会走大弧线回到车道，不再瞬移；不走调头式急弯；前面有慢车或停着的车会按车速提前刹车，不再追尾；被站在路上的行人挡住会按喇叭，行人让开；弯道切进街区的地方不再盖楼，车不会撞上路中间的楼'],['0.26.0','全新地图：西岛、东岛两座南北拉长的椭圆大岛，海峡里加了崖岛、望海岛两座悬崖小岛，三座跨海大桥相连；有高低差、台地和悬崖，环岛路沿着海岸弯曲，市区道路不再是方格；东岛有商业街。东岛南部新增机场（跑道、航站楼、塔台、机库、飞机），西岛南部新增监狱（高墙、岗楼、牢房楼），被抓后从监狱门口出来。两座小岛沿悬崖边是一排带泳池的高级别墅，围墙一间连一间。新增巴士环线：8 个站贯穿四座岛，每站停一会儿，在站台走到巴士旁按 E 上车（$5），到站按 E 下车，大地图上有线路和站点']]],
  ['v0.25','推门进店',[['0.25.1','泛光减弱一半多（晚上不再糊成一片）；招牌字改成高清、带细描边，远近都看得清'],['0.25.0','不用再按 E 进门：走到门前门会被推开，走进门洞就进去，出门也是走过去推门；枪店、便利店、酒吧、夜店、服装店、理发店、银行的店里面直接建在楼里，推开门就能看到店内，走进去不切画面，在店里外面的车和行人照常动；店门两边有小窗，里外都能看见，从街上看店里像开着灯，晚上尤其明显；进出门时色调随走进的深度平滑过渡；室内墙面和天花板换成写实贴图；家、别墅、阿杰车库小门也改成推门进入（推开后淡入切到室内）；卷帘门车或人靠近会自动升起；别墅没买时、被通缉时门是锁着的']]],
  ['v0.24','帮派',[['0.24.2','写实画风的人物也用卡通画风的脸：圆一点的头型、大眼睛，去掉了单独凸出来的鼻子和下巴；身体、衣服和光影不变'],['0.24.1','所有能进的地方都有了自己的楼：枪店、喷漆店、便利店、阿杰车库、酒吧、夜店、服装店、理发店、银行，门口有发光脚垫，走到门口按 E 进去；枪店现在是能走进去的店，在柜台买东西；喷漆店和阿杰车库是车间，开着车从卷帘门开进去才弹出菜单，关掉菜单车就自己开出门外；原来门口的立杆招牌改成挂在门头上'],['0.24.0','新增两个帮派：青蛇帮（绿）和赤狼帮（红），各占一片街区，地图上标出地盘；帮派成员三五成群站在街边，惹了他们（打人、开枪、拿枪指着、撞人）会围上来打你，有枪的会开枪，还会开车追杀你、车上的人朝你开火；在帮派据点（帮派颜色的感叹号）可以发起地盘战，连打三波就把地盘抢过来，奖励 $2,500，之后每天自动收保护费 $400；地盘战里只要没有警察看见，开枪不加通缉；开车时新街区加载快了约 3 倍，高速行驶不再一顿一顿']]],
@@ -5605,8 +5666,15 @@ function drawGangZones(g2,F=(x,z)=>[x,z]){for(const g of GANGS){if(!g.set)contin
   for(const[i,j]of g.blocks){const x0=rx(i)+RD/2,z0=rz(j)+RD/2;wPoly(g2,F,1,[[x0,z0],[x0+bW(i),z0],[x0+bW(i),z0+bD(j)],[x0,z0+bD(j)]])}}}
 // —— 每次画画面前：车、人、钱、标记、镜头按地面高度抬起（画完再放回去，游戏逻辑仍然在平面上算）
 const _lift=[];let _camLift=0;
+// 不做逐顶点贴地的材质（按原材质缓存），以及对应的阴影深度材质
+const _nw=new Map();var _nwD=null,_nwDS=null;
+function nwMat(mt){if(!mt||mt.defines&&'NOWARPH' in mt.defines)return mt;let c=_nw.get(mt);if(!c){c=mt.clone();c.defines=Object.assign({},mt.defines||{},{NOWARPH:''});
+  if(Object.prototype.hasOwnProperty.call(mt,'onBeforeCompile'))c.onBeforeCompile=mt.onBeforeCompile;if(Object.prototype.hasOwnProperty.call(mt,'customProgramCacheKey'))c.customProgramCacheKey=mt.customProgramCacheKey;c.userData=Object.assign({},mt.userData);_nw.set(mt,c)}return c}
+function meshNW(m){if(m.userData.nw)return;m.userData.nw=1;if(!_nwD){_nwD=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking});_nwD.defines={NOWARPH:''};_nwDS=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,skinning:true});_nwDS.defines={NOWARPH:''}}
+  m.traverse(o=>{if(!o.material)return;o.material=Array.isArray(o.material)?o.material.map(nwMat):nwMat(o.material);if(o.isMesh)o.customDepthMaterial=o.isSkinnedMesh?_nwDS:_nwD})}
 function liftDyn(on){if(on){_lift.length=0;
-    for(const c of cars){const m=c.mesh;if(!m||m.parent!==scene||c.air||c.dead)continue;const fx=Math.sin(c.h)*2.2,fz=Math.cos(c.h)*2.2,p=-Math.atan2(GH(c.x+fx,c.z+fz)-GH(c.x-fx,c.z-fz),4.4);if(!p)continue;m.rotation.x+=p;_lift.push([m,0,p,0,0])}
+    for(const c of cars){const m=c.mesh;if(!m||m.parent!==scene)continue;meshNW(m);const dy=GH(c.x,c.z);let p=0;if(!c.air&&!c.dead){const fx=Math.sin(c.h)*2.2,fz=Math.cos(c.h)*2.2;p=-Math.atan2(GH(c.x+fx,c.z+fz)-GH(c.x-fx,c.z-fz),4.4)}m.rotation.x+=p;m.position.y+=dy;_lift.push([m,dy,p,0,0])}
+    {const ppl=peds.map(p=>[p.mesh,p.x,p.z]);if(player.mesh)ppl.push([player.mesh,player.x,player.z]);for(const[m,x,z]of ppl){if(!m||m.parent!==scene)continue;meshNW(m);const dy=GH(x,z);m.position.y+=dy;_lift.push([m,dy,0,0,0])}}
     const spr=o=>{if(!o||o.parent!==scene||!o.visible)return;const x=o.position.x,z=o.position.z,q=warpXZ(x,z),dy=GH(x,z);o.position.set(q[0],o.position.y+dy,q[1]);_lift.push([o,dy,0,q[0]-x,q[1]-z])};
     for(const k in MK)spr(MK[k].sp);if(typeof GANGS!=='undefined')for(const gg of GANGS)if(gg.mk)spr(gg.mk.sp);
     _camLift=GH(player.x,player.z);cam.position.y+=_camLift}
