@@ -32,7 +32,6 @@ html, body { min-height: 100%; }
 body {
   background: radial-gradient(120% 80% at 50% 0%, var(--felt-hi), var(--felt) 55%, var(--felt-lo));
   background-color: var(--felt);
-  background-attachment: fixed;
   color: var(--ivory);
   font-family: var(--body);
   font-size: 15px;
@@ -66,6 +65,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
 .wrap { padding-block: 24px 48px; display: grid; gap: 20px; }
 .stack { display: grid; gap: 20px; min-width: 0; }
+.wrap > *, .stack > *, .felt > * { min-width: 0; }
 [hidden] { display: none !important; }
 .note { color: var(--muted); font-size: 13px; margin: 0; }
 
@@ -229,6 +229,22 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
 .cell:hover:not(:disabled) { filter: brightness(1.2); }
 .cell .stake { position: absolute; bottom: -6px; right: -4px; z-index: 2; font-size: 10px; padding: 0 5px; }
 .cell.hit { box-shadow: 0 0 0 3px var(--win); z-index: 1; }
+.zone { position: relative; pointer-events: none; z-index: 3; }
+.hot { position: absolute; pointer-events: auto; border: 0; padding: 0; background: transparent; border-radius: 50%; width: 18px; height: 18px; }
+.hot::after { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--win); opacity: 0; transition: opacity .1s; }
+.hot:hover::after, .hot:focus-visible::after { opacity: .9; }
+@media (hover: none) { .hot::after { opacity: .35; } }
+.hot.e { right: -10.5px; top: calc(50% - 9px); }
+.hot.w { left: -10.5px; top: calc(50% - 9px); }
+.hot.n { top: -10.5px; left: calc(50% - 9px); }
+.hot.s { bottom: -10.5px; left: calc(50% - 9px); }
+.hot.ne { top: -10.5px; right: -10.5px; }
+.hot.nw { top: -10.5px; left: -10.5px; }
+.hot.se { bottom: -10.5px; right: -10.5px; }
+.hot.sw { bottom: -10.5px; left: -10.5px; }
+.hot .stake { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 10px; padding: 0 4px; z-index: 2; }
+.hot .stake:not(:empty) { outline: 2px solid var(--brass); }
+.hot.hit .stake:not(:empty) { outline-color: var(--win); box-shadow: 0 0 0 4px rgba(231,199,111,.5); }
 .diamond { width: 16px; height: 16px; transform: rotate(45deg); border-radius: 2px; }
 .diamond.r { background: var(--red); } .diamond.b { background: var(--black); border: 1px solid #777; }
 
@@ -288,7 +304,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
         <span class="glyph">0</span>
         <span class="en">European Roulette</span>
         <h3>轮盘</h3>
-        <ul><li>欧式单零，37 个格子</li><li>单号 35:1 · 打/列 2:1</li><li>红黑 / 单双 / 大小 1:1</li></ul>
+        <ul><li>欧式单零，37 个格子</li><li>单号 35:1 · 分注 17:1 · 街注 11:1 · 角注 8:1</li><li>线注 5:1 · 打/列 2:1</li><li>红黑 / 单双 / 大小 1:1</li></ul>
         <span class="go">入座</span>
       </button>
     </div>
@@ -423,7 +439,13 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
       <details class="rules"><summary>轮盘规则（欧式单零国际规则）</summary>
         <ul>
           <li>轮盘共 37 格：0 与 1–36。0 为绿色，不属于红黑、单双、大小任何一方。</li>
-          <li>单号（Straight up）35:1。</li>
+          <li>单号（Straight up）35:1：点数字本身。</li>
+          <li>分注（Split，相邻两个号码）17:1：点两个号码之间的边线，包括 0 与 1/2/3 之间。</li>
+          <li>街注（Street，一横排三个号码）11:1：点第一打下方、该列号码底边的中点。</li>
+          <li>角注（Corner，四个号码）8:1：点四个号码交汇的角。</li>
+          <li>线注（Six line，相邻两排共六个号码）5:1：点两排之间底边的角。</li>
+          <li>三数（0/1/2 或 0/2/3）11:1、首四（0/1/2/3）8:1：点 0 与号码交界的角。</li>
+          <li>鼠标悬停或点按边线、交角时会出现金色圆点，表示可在该处下注。</li>
           <li>打（1–12、13–24、25–36）与列（每一竖列 12 个号码）2:1。</li>
           <li>红/黑、单/双、小（1–18）/大（19–36）1:1。</li>
           <li>开出 0 时，所有外围注（打、列、红黑、单双、大小）均输。</li>
@@ -872,8 +894,21 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
     c3: { t: "2:1", x: 3, w: (n) => n > 0 && n % 3 === 0 },
   };
   const NAMES = { red: "红", black: "黑", odd: "单", even: "双", low: "小 1–18", high: "大 19–36", d1: "第一打", d2: "第二打", d3: "第三打", c1: "第一列", c2: "第二列", c3: "第三列" };
+  const GROUP = { 2: "分注", 3: "街注", 4: "角注", 6: "线注" };
+  function betName(k) {
+    if (k[0] === "n") return "单号 " + k.slice(1);
+    if (k.startsWith("g:")) {
+      const ns = k.slice(2).split("-");
+      let t = GROUP[ns.length];
+      if (ns.length === 3 && ns[0] === "0") t = "三数";
+      if (ns.length === 4 && ns[0] === "0") t = "首四";
+      return t + " " + ns.join("/");
+    }
+    return NAMES[k];
+  }
   function multiplier(key, n) {
     if (key[0] === "n") return +key.slice(1) === n ? 36 : 0;
+    if (key.startsWith("g:")) { const ns = key.slice(2).split("-").map(Number); return ns.includes(n) ? 36 / ns.length : 0; }
     return OUT[key].w(n) ? OUT[key].x : 0;
   }
   // Build table
@@ -895,10 +930,36 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   cell("c3", "2:1", "outside", "14", "1"); cell("c2", "2:1", "outside", "14", "2"); cell("c1", "2:1", "outside", "14", "3");
   cell("d1", "1–12", "outside", "2 / span 4", "4"); cell("d2", "13–24", "outside", "6 / span 4", "4"); cell("d3", "25–36", "outside", "10 / span 4", "4");
   ["low", "even", "red", "black", "odd", "high"].forEach((k, i) => cell(k, OUT[k].t, "outside", 2 + i * 2 + " / span 2", "5"));
+  // Inside-bet hotspots on the lines and corners between numbers
+  for (let n = 1; n <= 36; n++) {
+    const c = Math.floor((n - 1) / 3), r = 2 - ((n - 1) % 3);
+    const z = document.createElement("div");
+    z.className = "zone"; z.style.gridColumn = c + 2; z.style.gridRow = r + 1;
+    const spots = [];
+    if (c < 11) spots.push(["e", [n, n + 3]]);
+    if (r > 0) spots.push(["n", [n, n + 1]]);
+    if (c < 11 && r > 0) spots.push(["ne", [n, n + 1, n + 3, n + 4]]);
+    if (r === 2) spots.push(["s", [n, n + 1, n + 2]]);
+    if (r === 2 && c < 11) spots.push(["se", [n, n + 1, n + 2, n + 3, n + 4, n + 5]]);
+    if (c === 0) spots.push(["w", [0, n]]);
+    if (c === 0 && r > 0) spots.push(["nw", [0, n, n + 1]]);
+    if (n === 1) spots.push(["sw", [0, 1, 2, 3]]);
+    for (const [pos, ns] of spots) {
+      const key = "g:" + ns.join("-");
+      const h = document.createElement("button");
+      h.type = "button"; h.className = "hot " + pos; h.dataset.k = key;
+      h.innerHTML = '<span class="stake"></span>';
+      h.setAttribute("aria-label", betName(key));
+      h.title = betName(key) + " · " + (36 / ns.length - 1) + ":1";
+      h.addEventListener("click", () => rouBet(key));
+      z.appendChild(h);
+    }
+    tbl.appendChild(z);
+  }
 
   const rouTotal = () => Object.values(rou.bets).reduce((a, b) => a + b, 0);
   function rouRender() {
-    $$(".cell").forEach((c) => {
+    $$("#rtable [data-k]").forEach((c) => {
       const v = rou.bets[c.dataset.k];
       c.querySelector(".stake").textContent = v ? compact(v) : "";
       c.disabled = rou.spinning;
@@ -910,7 +971,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
   }
   function rouBet(k) {
     if (rou.spinning) return;
-    $$(".cell.hit").forEach((c) => c.classList.remove("hit"));
+    $$("#rtable .hit").forEach((c) => c.classList.remove("hit"));
     if (!take(S.chip)) { msg($("#rouMsg"), '<span class="l">筹码不足。</span>'); return; }
     rou.bets[k] = (rou.bets[k] || 0) + S.chip; rouRender();
   }
@@ -969,7 +1030,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
     const total = rouTotal();
     if (!total) { msg($("#rouMsg"), "请先下注。"); return; }
     rou.spinning = true; rouRender();
-    $$(".cell.hit").forEach((c) => c.classList.remove("hit"));
+    $$("#rtable .hit").forEach((c) => c.classList.remove("hit"));
     msg($("#rouMsg"), "不再下注……");
     const n = rand(37), idx = WHEEL.indexOf(n);
     const TAU = Math.PI * 2;
@@ -991,7 +1052,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
       rou.rot = ((target % TAU) + TAU) % TAU; rou.ball = bEnd; rou.result = n; rou.spinning = false;
       drawWheel();
       let pay = 0; const wins = [];
-      for (const k in rou.bets) { const m = multiplier(k, n); if (m) { pay += rou.bets[k] * m; wins.push(k[0] === "n" ? "单号 " + k.slice(1) : NAMES[k]); } }
+      for (const k in rou.bets) { const m = multiplier(k, n); if (m) { pay += rou.bets[k] * m; wins.push(betName(k)); } }
       addBank(pay);
       const c = colorOf(n);
       $("#rouResult").innerHTML = '<span class="pill ' + c + '">' + n + "</span><span style=\"font-size:20px;font-family:var(--body);font-weight:500\">" +
@@ -999,6 +1060,7 @@ details.rules ul { margin: 8px 0 4px; padding-left: 18px; color: var(--muted); f
       rou.hist.unshift(n); rou.hist = rou.hist.slice(0, 16);
       $("#rouHist").innerHTML = rou.hist.map((x) => '<span class="pill ' + colorOf(x) + '">' + x + "</span>").join("");
       $$(".cell").forEach((el) => { if (multiplier(el.dataset.k, n)) el.classList.add("hit"); });
+      $$(".hot").forEach((el) => { if (rou.bets[el.dataset.k] && multiplier(el.dataset.k, n)) el.classList.add("hit"); });
       msg($("#rouMsg"), "开出 <b>" + n + "</b>。" + (wins.length ? "中奖：" + wins.join("、") + "。" : "") + " 本局 " + net(pay - total));
       rou.last = { ...rou.bets }; rou.bets = {}; rouRender();
     }
