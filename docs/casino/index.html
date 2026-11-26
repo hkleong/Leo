@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.18.1">
+<meta name="version" content="0.18.2">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1005,13 +1005,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   .mchip { animation: none; }
   .btile, .gtile, .chip { transition: none; }
 }
-/* Illustrated dragon and thunder cabinets */
+/* Dragon and thunder cabinets */
 .btable.col.cabinet {
   --cab-metal: #ae6c36;
   --cab-light: #ffd98d;
   --cab-dark: #32100e;
   --cab-glow: #ff9d5148;
   --cab-edge: #763b27;
+  flex: 1 0 auto !important;
   justify-content: center;
   gap: 7px;
   padding: 12px clamp(9px, 2vw, 17px);
@@ -1044,101 +1045,105 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   border-block: 1px solid var(--cab-edge);
   background: linear-gradient(90deg, transparent, var(--cab-glow) 50%, transparent);
 }
-.cabinet .mg-title b { color: var(--cab-light); font-size: clamp(18px, 3vh, 26px); text-shadow: 0 0 12px var(--cab-glow); }
-.cabinet .mg-title .note { color: var(--ivory); text-align: center; }
+.cabinet .mg-title b { color: var(--cab-light); font-size: clamp(18px, min(3vh, 6.4vw), 26px); text-shadow: 0 0 12px var(--cab-glow); }
+.cabinet .mg-title .note { color: var(--ivory); text-align: center; text-wrap: balance; }
 .cabinet .tmsg { color: var(--ivory); text-shadow: 0 1px 4px #000; }
 
-.cabinet-stage {
-  container-type: inline-size;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: stretch;
-  gap: clamp(2px, .9vw, 9px);
-  padding-block: 6px;
-  border-radius: 15px;
-  background: linear-gradient(180deg, #0004, var(--cab-glow) 65%, #0003);
+.cabinet-crown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(4px, 1.5vw, 16px);
+  min-height: clamp(68px, 13vh, 126px);
+  padding: 0 4px;
+  background: radial-gradient(ellipse at 50% 64%, var(--cab-glow), transparent 70%);
 }
-.cabinet-stage .mgrid, .cabinet-stage .tboard {
-  position: relative;
-  z-index: 1;
+.cabinet-crown .mg-title {
+  flex: 0 0 clamp(116px, 34%, 178px);
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.cabinet-crown .mg-title b { white-space: nowrap; }
+/* The reel tracks keep their original dimensions and use the full cabinet width. */
+.cabinet .mgrid, .cabinet .tboard {
+  align-self: center;
   border-color: var(--cab-light);
   border-radius: 8px;
   box-shadow: inset 0 0 13px #000b, 0 0 0 2px var(--cab-edge), 0 0 14px var(--cab-glow);
 }
-.cabinet-stage .mgrid { --mc: min(clamp(44px, 10.5vh, 104px), calc((78cqw - 26px) / 5)); background: #21080a; }
-.cabinet-stage .mreel { background: radial-gradient(ellipse at 50% 20%, #6b2020, #310a12 72%); }
-.cabinet-stage .tboard { --tc: min(clamp(38px, 7.6vh, 88px), 13cqw); margin: 0; }
-.cabinet-side {
-  position: relative;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-  overflow: hidden;
-  border-radius: 9px;
-  background: radial-gradient(ellipse at 50% 55%, var(--cab-glow), transparent 73%);
+.cabinet .mgrid {
+  width: min(100%, calc(var(--mc) * 5 + 26px));
+  grid-template-columns: repeat(5, minmax(0, var(--mc)));
+  background: #21080a;
 }
-.cabinet-side img {
-  position: absolute;
-  inset: 5% 0;
-  width: 100%;
-  height: 90%;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 4px #000c) drop-shadow(0 0 7px var(--cab-glow));
-}
-.cabinet-dragon .cabinet-side img { animation: cabinet-dragon-drift 6s ease-in-out infinite; }
-.cabinet-thor .cabinet-side img { animation: cabinet-thor-breathe 5s ease-in-out infinite; transform-origin: center 85%; }
-@keyframes cabinet-dragon-drift {
-  0%, 100% { transform: translate(-4%, 4%) rotate(-5deg); }
-  50% { transform: translate(4%, -5%) rotate(4deg); }
-}
-@keyframes cabinet-thor-breathe {
-  0%, 100% { transform: translateY(1%) scale(.98); }
-  50% { transform: translateY(-2%) scale(1.02); }
-}
-.cabinet-rail {
-  margin: 5px auto;
-  width: min(100%, 64px);
-  display: grid;
-  place-items: center;
-  color: var(--cab-light);
-  background: linear-gradient(90deg, transparent calc(50% - .5px), var(--cab-edge) 50%, transparent calc(50% + .5px));
-}
-.cabinet-rail .art {
+.cabinet .mreel { background: radial-gradient(ellipse at 50% 20%, #6b2020, #310a12 72%); }
+.cabinet .tboard { max-width: 100%; margin: 0; flex: none; }
+.cabinet-character { position: relative; min-width: 0; pointer-events: none; }
+.cabinet-character > img, .cabinet-character > canvas, .cabinet-character > svg {
   display: block;
-  width: min(76%, 44px);
-  aspect-ratio: 1;
-  border: 1px solid var(--cab-metal);
-  border-radius: 50%;
-  background: var(--cab-dark);
-  box-shadow: 0 0 12px var(--cab-glow);
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 4px #000a);
 }
-.cabinet-side::after {
-  content: "";
+.cabinet-dragon-art {
+  flex: 0 1 350px;
+  height: clamp(64px, 12vh, 119px);
+}
+.cabinet-dragon-art > img { transform: scale(.89); }
+.cabinet-dragon-art > canvas { position: absolute; inset: 0; }
+.cabinet-dragon-art.animated > img { visibility: hidden; }
+.cabinet-flame {
   position: absolute;
-  inset: 0;
+  top: 47%;
+  right: 2%;
+  width: 16%;
+  height: 22%;
+  transform-origin: left center;
+  border-radius: 65% 90% 65% 65%;
+  background: radial-gradient(ellipse at 24% 50%, #fff8cf 4%, #ffc758 29%, #f96313 57%, transparent 75%);
+  filter: drop-shadow(0 0 6px #ff922c);
   opacity: 0;
-  background: radial-gradient(ellipse at 52% 36%, var(--cab-glow), transparent 68%);
+  animation: cabinet-fire 5.1s ease-out infinite;
 }
-.cabinet-thor .cabinet-side::after {
-  background: #dff5ff;
-  clip-path: polygon(73% 4%, 61% 32%, 80% 32%, 30% 69%, 47% 44%, 30% 44%);
+.cabinet.spinning .cabinet-flame, .cabinet.winfx .cabinet-flame {
+  animation-duration: 1.45s;
 }
-.cabinet.spinning .cabinet-side::after { animation: cabinet-energy 1.8s ease-out infinite; }
-.cabinet.winfx .cabinet-side::after { animation: cabinet-energy .9s ease-out 3; }
-@keyframes cabinet-energy {
-  0%, 100% { opacity: 0; }
-  23% { opacity: .7; }
-  62% { opacity: .22; }
+@keyframes cabinet-fire {
+  0%, 52%, 100% { opacity: 0; transform: scale(.25, .6); }
+  63% { opacity: .95; transform: scaleX(1.05); }
+  83% { opacity: .55; transform: translateX(20%) scaleX(1.25); }
 }
-@media (max-width: 540px) {
-  .cabinet-stage { grid-template-columns: minmax(0, 1fr) auto 11px; }
-  .cabinet-thor .cabinet-stage { grid-template-columns: 11px auto minmax(0, 1fr); }
-  .cabinet-rail .art { display: none; }
+.cabinet-thor-art { flex: 0 1 230px; height: clamp(68px, 13vh, 126px); }
+.cabinet-thor-art > svg { overflow: visible; }
+.thor-arm { transform-origin: 329px 179px; animation: thor-hammer 5.3s ease-in-out infinite; }
+.thor-strike { opacity: 0; animation: thor-strike 5.3s ease-out infinite; }
+.cabinet.spinning .thor-arm, .cabinet.spinning .thor-strike,
+.cabinet.winfx .thor-arm, .cabinet.winfx .thor-strike { animation-duration: 1.15s; }
+@keyframes thor-hammer {
+  0%, 18%, 100% { transform: rotate(0deg); }
+  45%, 51% { transform: rotate(-28deg); }
+  63% { transform: rotate(41deg); }
+  75% { transform: rotate(18deg); }
+}
+@keyframes thor-strike {
+  0%, 60%, 100% { opacity: 0; }
+  65% { opacity: 1; }
+  81% { opacity: .32; }
+}
+@media (max-width: 480px) {
+  .btable.col.cabinet { padding-inline: 8px; }
+  .cabinet .mgrid { padding-inline: 3px; gap: 2px; }
+  .cabinet-crown .mg-title { padding-inline: 4px; }
+  .cabinet-crown .mg-title .note { font-size: 11px; }
+}
+@media (max-width: 360px) {
+  .cabinet .mgrid { padding-inline: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cabinet-dragon .cabinet-side img, .cabinet-thor .cabinet-side img,
-  .cabinet.spinning .cabinet-side::after,
-  .cabinet.winfx .cabinet-side::after, .btable.cabinet.winfx, .cabinet .tn-sky { animation: none; }
+  .cabinet-flame, .thor-arm, .thor-strike, .btable.cabinet.winfx, .cabinet .tn-sky { animation-name: none; }
 }
 </style>
 
@@ -1664,12 +1669,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 雷神之锤 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.18.1</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.18.2</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
     <p class="note" style="margin-top:10px">音乐与音效的作者和授权：点右上角 ♪ 查看。</p>
   </div></div>
 
@@ -2121,12 +2126,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <div class="jp minor" data-jp="MINOR"><span>MINOR</span><b id="jpMINOR">–</b></div>
         <div class="jp mini" data-jp="MINI"><span>MINI</span><b id="jpMINI">–</b></div>
       </div>
-      <div class="mg-title"><b>龙腾财宝</b><span class="note" id="mgMode">243 路 · 5 × 3</span></div>
-      <div class="cabinet-stage">
-        <div class="cabinet-side" aria-hidden="true"><img src="art/dragon-guardian.webp" alt="" decoding="async"></div>
-        <div class="mgrid" id="mgGrid"></div>
-        <div class="cabinet-rail" aria-hidden="true"><svg class="art" viewBox="0 0 100 100"><use href="#s-D"/></svg></div>
+      <div class="cabinet-crown">
+        <div class="cabinet-character cabinet-dragon-art" aria-hidden="true">
+          <img src="art/dragon-marquee.webp" alt="" decoding="async">
+          <canvas width="720" height="310" hidden></canvas>
+          <span class="cabinet-flame"></span>
+        </div>
+        <div class="mg-title"><b>龙腾财宝</b><span class="note" id="mgMode">243 路 · 5 × 3</span></div>
       </div>
+      <div class="mgrid" id="mgGrid"></div>
       <p class="tmsg" id="mgMsg">下注后旋转 · 6 个金币触发金币锁定</p>
       <div class="mg-banner" id="mgBanner" hidden></div>
     </div>
@@ -2350,13 +2358,35 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#t-I"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
     <div class="btable col tn cabinet cabinet-thor">
       <div class="tn-sky" aria-hidden="true"></div>
-      <div class="gm-head tn-head"><b>雷神之锤</b><span class="note" id="tnMode">任意位置 8 个相同即中奖</span></div>
-      <div class="tn-bar"><span class="tn-mult" id="tnMult" hidden>×<b>0</b></span><span class="tn-win" id="tnWinNow"></span></div>
-      <div class="cabinet-stage">
-        <div class="cabinet-rail" aria-hidden="true"><svg class="art" viewBox="0 0 100 100"><use href="#t-I"/></svg></div>
-        <div class="tboard" id="tnBoard"></div>
-        <div class="cabinet-side" aria-hidden="true"><img src="art/thor-guardian.webp" alt="" decoding="async"></div>
+      <div class="cabinet-crown">
+        <div class="mg-title tn-head"><b>雷神之锤</b><span class="note" id="tnMode">任意位置 8 个相同即中奖</span></div>
+        <div class="cabinet-character cabinet-thor-art" aria-hidden="true">
+          <svg viewBox="25 -58 495 340">
+            <defs>
+              <image id="thor-portrait" href="art/thor-guardian.webp" width="440" height="660"/>
+              <clipPath id="thor-torso"><path d="M0 0H287V62L280 103L275 128L294 155L314 174L341 197L378 187L414 171V660H0Z"/></clipPath>
+              <clipPath id="thor-forearm"><path d="M284 0H440V177L377 191L341 201L310 177L291 157L273 129L277 103L282 62Z"/></clipPath>
+              <linearGradient id="thor-crop-fade" x2="0" y2="1">
+                <stop offset=".79" stop-color="white"/>
+                <stop offset="1" stop-color="black"/>
+              </linearGradient>
+              <mask id="thor-crop" maskUnits="userSpaceOnUse" x="0" y="-65" width="520" height="345">
+                <rect y="-65" width="520" height="345" fill="url(#thor-crop-fade)"/>
+              </mask>
+            </defs>
+            <g mask="url(#thor-crop)">
+              <use href="#thor-portrait" clip-path="url(#thor-torso)"/>
+              <g class="thor-arm"><use href="#thor-portrait" clip-path="url(#thor-forearm)"/></g>
+            </g>
+            <g class="thor-strike" fill="none" stroke="#b6e8ff" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="#508eff" stroke-width="16" opacity=".4" d="M405 127l32 4-12 21 45-7-16 31 43 9"/>
+              <path stroke-width="5" d="M405 127l32 4-12 21 45-7-16 31 43 9m-27-40 21-11 13 4m-50 38-18 15 4 17"/>
+            </g>
+          </svg>
+        </div>
       </div>
+      <div class="tn-bar"><span class="tn-mult" id="tnMult" hidden>×<b>0</b></span><span class="tn-win" id="tnWinNow"></span></div>
+      <div class="tboard" id="tnBoard"></div>
       <div class="gm-win" id="tnWin"></div>
       <canvas class="tn-fx" id="tnFx" aria-hidden="true"></canvas>
       <p class="tmsg" id="tnMsg">雷球倍数在一轮消除结束时相加，乘以这一轮的奖金</p>
@@ -6699,7 +6729,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   /* ---------- lightning ---------- */
   const fx = $("#tnFx"), fxg = fx.getContext("2d");
   let fxBolts = [], fxRaf = 0;
-  function fxSize() { const r = fx.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); if (fx.width !== Math.round(r.width * d)) { fx.width = Math.round(r.width * d); fx.height = Math.round(r.height * d); } return d; }
+  function fxSize() { const r = fx.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); if (fx.width !== Math.round(r.width * d) || fx.height !== Math.round(r.height * d)) { fx.width = Math.round(r.width * d); fx.height = Math.round(r.height * d); } return d; }
   // a jagged bolt by midpoint displacement, with forks
   function boltPath(x1, y1, x2, y2, rough) {
     let pts = [[x1, y1], [x2, y2]];
@@ -6933,6 +6963,54 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     amb.innerHTML = Array.from({ length: 12 }, () => '<i style="--x:' + rand(96) + "%;--y:" + (4 + rand(88)) + "%;--d:" + (5 + rand(70) / 10) + "s;--l:-" + rand(90) / 10 + "s;--s:" + (0.6 + rand(90) / 100) + ";--h:" + rand(360) + '"></i>').join("");
     t.prepend(bulbs); t.prepend(amb);
   }
+  // Bend the dragon from head to tail by offsetting narrow strips of its artwork.
+  function animateDragon() {
+    const art = $(".cabinet-dragon-art"), canvas = art.querySelector("canvas");
+    const image = art.querySelector("img"), ctx = canvas.getContext("2d");
+    if (!ctx || !window.IntersectionObserver) return;
+    const cabinet = art.closest(".cabinet");
+    const motion = matchMedia("(prefers-reduced-motion: reduce)");
+    const width = 634, step = 3;
+    let visible = false, frame = 0, last = 0, phase = 0;
+    function draw(now) {
+      frame = requestAnimationFrame(draw);
+      const elapsed = now - last;
+      if (elapsed < 30) return;
+      last = now;
+      const active = cabinet.classList.contains("spinning") || cabinet.classList.contains("winfx");
+      phase += Math.min(elapsed, 50) * (active ? .006 : .0028);
+      const height = width * image.naturalHeight / image.naturalWidth;
+      const sourceScale = image.naturalWidth / width;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let x = 0; x < width; x += step) {
+        const length = Math.min(step, width - x);
+        const t = x / width;
+        const wave = Math.sin(t * Math.PI * 2.1 + phase) * (active ? 24 : 18);
+        const dip = Math.sin(phase * .55) * 7 * t;
+        ctx.drawImage(image, x * sourceScale, 0, length * sourceScale, image.naturalHeight,
+          x + 6, Math.round(46 + wave + dip), length, height);
+      }
+    }
+    function update() {
+      const playing = visible && !motion.matches && !document.hidden && image.naturalWidth > 0;
+      if (playing && !frame) {
+        draw(performance.now());
+        canvas.hidden = false;
+        art.classList.add("animated");
+      } else if (!playing && frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+        canvas.hidden = true;
+        art.classList.remove("animated");
+      }
+    }
+    new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; update(); }).observe(art);
+    image.addEventListener("load", update);
+    motion.addEventListener("change", update);
+    document.addEventListener("visibilitychange", update);
+  }
+  animateDragon();
+
   // after a paying spin: the bulbs race and the cabinet glows; bigger wins also throw coins out of the reels
   function machineFx(view, won, bet) {
     if (!(won > 0)) return;
