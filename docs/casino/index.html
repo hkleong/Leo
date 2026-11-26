@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.17.0">
+<meta name="version" content="0.17.1">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -587,6 +587,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .mus-list button[aria-current="true"] { border-color: var(--win); box-shadow: inset 0 0 0 1px var(--win); }
 .mus-list button[aria-current="true"] b::before { content: "♪ "; color: var(--win); }
 .mus-now { margin: 8px 0 0; }
+.mus-mine { display: flex; gap: 6px; } .mus-mine > button:first-child { flex: 1; min-width: 0; } .mus-mine b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mus-add { margin-top: 8px; width: 100%; }
 .mus-credits { font-size: 11px !important; }
 .mus-credits a { color: var(--win); }
 /* 开始 / 暂停 */
@@ -1425,12 +1427,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.17.0</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.17.1</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
     <p class="note" style="margin-top:10px">音乐与音效的作者和授权：点右上角 ♪ 查看。</p>
   </div></div>
 
@@ -1524,7 +1526,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   <div class="sheet" id="musicSheet" hidden><div class="sheet-in" role="dialog" aria-label="背景音乐">
     <div class="sheet-head"><h3>背景音乐</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
     <div class="mus-row"><button class="toggle" id="musOn" type="button" aria-pressed="true">音乐：开</button><label class="mus-vol">音量 <input type="range" id="musVol" min="0" max="100" step="1"></label></div>
+    <h4>爵士乐</h4>
     <div class="mus-list" id="musList"></div>
+    <h4>我的音乐 <span class="note">（从手机加入，只存在这部手机，不会上传）</span></h4>
+    <div class="mus-list" id="musMine"></div>
+    <button class="btn ghost mus-add" id="musAdd" type="button">＋ 从手机加入歌曲</button><input type="file" id="musFile" accept="audio/*,.mp3,.m4a,.aac,.wav" multiple hidden>
     <p class="note mus-now" id="musNow"></p>
     <h4>音乐与音效出处</h4>
     <ul class="mus-credits" id="musCredits"></ul>
@@ -6335,25 +6341,51 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     });
   });
 
-  /* ---------- Background music: casino-lounge jazz, one track at a time, streamed only when played ---------- */
+  /* ---------- Background music ----------
+     Built in: lounge jazz by Kevin MacLeod (incompetech.com, CC BY 4.0), streamed only when played.
+     我的音乐: songs the player adds from their own phone; kept in this browser (IndexedDB), never uploaded. */
+  const KM = (t) => ({ by: "Kevin MacLeod（incompetech.com）", lic: "CC BY 4.0", url: "https://incompetech.com/music/royalty-free/index.html?isrc=&keywords=" + encodeURIComponent(t), d: t });
   const MUSIC = [
-    { f: "music/smooth-jazz.mp3", n: "流畅爵士", d: "Jazzy Vibes #36 · 循环", by: "Tri-Tachyon", lic: "CC-BY 4.0", url: "https://opengameart.org/content/jazzy-vibes-36-loop-smooth-jazz" },
-    { f: "music/bar-piano.mp3", n: "酒吧钢琴", d: "Bar jazz piano song (Fingersnap)", by: "vviard", lic: "CC-BY 4.0", url: "https://opengameart.org/content/bar-jazz-piano-song-fingersnap" },
-    { f: "music/piano-medley.mp3", n: "爵士钢琴组曲", d: "Jazzy Vibes #81 · Jazz Piano Medley", by: "Tri-Tachyon", lic: "CC-BY 4.0", url: "https://opengameart.org/content/jazzy-vibes-81-jazz-piano-medley" },
-    { f: "music/casino-man.mp3", n: "Casino Man", d: "Casino Man", by: "spring-spring", lic: "CC-BY 3.0", url: "https://opengameart.org/content/casino-man" },
-    { f: "music/coffee-house.mp3", n: "咖啡馆爵士", d: "Coffee House Bump", by: "oatcog", lic: "CC0", url: "https://opengameart.org/content/coffee-house-bump" },
+    { f: "music/bossa-antigua.mp3", n: "波萨诺瓦", ...KM("Bossa Antigua") },
+    { f: "music/backbay-lounge.mp3", n: "酒廊钢琴", ...KM("Backbay Lounge") },
+    { f: "music/deuces.mp3", n: "俱乐部风琴", ...KM("Deuces") },
+    { f: "music/apero-hour.mp3", n: "酷派爵士", ...KM("Apero Hour") },
+    { f: "music/smooth-lovin.mp3", n: "流畅爵士", ...KM("Smooth Lovin") },
+    { f: "music/night-in-venice.mp3", n: "萨克斯之夜", ...KM("Night in Venice") },
+    { f: "music/airport-lounge.mp3", n: "颤音琴酒廊", ...KM("Airport Lounge") },
+    { f: "music/deadly-roulette.mp3", n: "致命轮盘", ...KM("Deadly Roulette") },
   ];
-  const mus = { on: true, i: 0, vol: 0.35, el: new Audio(), started: false };
-  try { const m = JSON.parse(localStorage.getItem("gbc-music") || "null"); if (m) { mus.on = m.on !== false; mus.i = MUSIC[m.i] ? m.i : 0; mus.vol = typeof m.vol === "number" ? m.vol : 0.35; } } catch (e) {}
+  const mus = { on: true, cur: { k: "b", i: 0 }, vol: 0.35, el: new Audio(), started: false, mine: [], url: "" };
+  try {
+    const m = JSON.parse(localStorage.getItem("gbc-music") || "null");
+    if (m) { mus.on = m.on !== false; mus.vol = typeof m.vol === "number" ? m.vol : 0.35; if (m.cur && (m.cur.k === "m" || MUSIC[m.cur.i])) mus.cur = m.cur; }
+  } catch (e) {}
   mus.el.preload = "none";
-  const musSave = () => { try { localStorage.setItem("gbc-music", JSON.stringify({ on: mus.on, i: mus.i, vol: mus.vol })); } catch (e) {} };
+  const musSave = () => { try { localStorage.setItem("gbc-music", JSON.stringify({ on: mus.on, cur: mus.cur, vol: mus.vol })); } catch (e) {} };
+  // 我的音乐 lives in IndexedDB as blobs
+  const musDB = () => new Promise((res, rej) => { try { const r = indexedDB.open("gbc-music", 1); r.onupgradeneeded = () => r.result.createObjectStore("songs", { keyPath: "id", autoIncrement: true }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } });
+  const musTx = (mode, fn) => musDB().then((db) => new Promise((res, rej) => { const tx = db.transaction("songs", mode), st = tx.objectStore("songs"); const out = fn(st); tx.oncomplete = () => res(out && out.result); tx.onerror = () => rej(tx.error); }));
+  function musLoadMine() { return musTx("readonly", (st) => st.getAll()).then((list) => { mus.mine = (list || []).map((x) => ({ id: x.id, name: x.name, blob: x.blob })); musRender(); }).catch(() => {}); }
+  function musTrack() {
+    if (mus.cur.k === "m") { const t = mus.mine.find((x) => x.id === mus.cur.id); if (t) return { src: t, name: t.name }; mus.cur = { k: "b", i: 0 }; }
+    return { src: MUSIC[mus.cur.i].f, name: MUSIC[mus.cur.i].n };
+  }
   function musPlay() {
     if (!mus.on) return;
-    const want = new URL(MUSIC[mus.i].f, location.href).href;
+    const t = musTrack();
+    let want;
+    if (typeof t.src === "string") want = new URL(t.src, location.href).href;
+    else { if (mus.urlFor !== t.src.id) { if (mus.url) URL.revokeObjectURL(mus.url); mus.url = URL.createObjectURL(t.src.blob); mus.urlFor = t.src.id; } want = mus.url; }
     if (mus.el.src !== want) mus.el.src = want;
     musGain();
     const p = mus.el.play(); if (p && p.catch) p.catch(() => {});
     mus.started = true; musRender();
+  }
+  // next song in the same list (built in, or 我的音乐)
+  function musNext() {
+    if (mus.cur.k === "m" && mus.mine.length) { const i = mus.mine.findIndex((x) => x.id === mus.cur.id); mus.cur = { k: "m", id: mus.mine[(i + 1) % mus.mine.length].id }; }
+    else mus.cur = { k: "b", i: ((mus.cur.i || 0) + 1) % MUSIC.length };
+    musSave(); musPlay();
   }
   // iPhone / iPad ignore audio.volume, so the music goes through a gain node of the app's audio context instead
   function musGain() {
@@ -6368,21 +6400,36 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const b = $("#musicBtn"); b.classList.toggle("on", mus.on); b.classList.toggle("playing", mus.on && !mus.el.paused);
     $("#musOn").setAttribute("aria-pressed", String(mus.on)); $("#musOn").textContent = "音乐：" + (mus.on ? "开" : "关");
     $("#musVol").value = Math.round(mus.vol * 100);
-    $$("#musList button").forEach((x) => x.setAttribute("aria-current", String(+x.dataset.i === mus.i)));
-    $("#musNow").textContent = mus.on ? (mus.el.paused ? "点一下屏幕任何地方就会开始播放" : "正在播放：" + MUSIC[mus.i].n + "（播完自动换下一首）") : "音乐已关闭";
+    $$("#musList button").forEach((x) => x.setAttribute("aria-current", String(mus.cur.k === "b" && +x.dataset.i === mus.cur.i)));
+    $("#musMine").innerHTML = mus.mine.length ? mus.mine.map((t) => '<div class="mus-mine"><button type="button" data-id="' + t.id + '" aria-current="' + (mus.cur.k === "m" && mus.cur.id === t.id) + '"><b>' + esc(t.name) + '</b><small>我的音乐</small></button><button class="iconbtn" type="button" data-del="' + t.id + '" aria-label="删除">×</button></div>').join("") : '<p class="note">还没有加入歌曲。</p>';
+    $$("#musMine [data-id]").forEach((x) => x.addEventListener("click", () => { mus.cur = { k: "m", id: +x.dataset.id }; mus.on = true; musSave(); musPlay(); }));
+    $$("#musMine [data-del]").forEach((x) => x.addEventListener("click", () => {
+      const id = +x.dataset.del;
+      musTx("readwrite", (st) => st.delete(id)).then(() => { if (mus.cur.k === "m" && mus.cur.id === id) { mus.el.pause(); mus.cur = { k: "b", i: 0 }; musSave(); } return musLoadMine(); });
+    }));
+    $("#musNow").textContent = mus.on ? (mus.el.paused ? "点一下屏幕任何地方就会开始播放" : "正在播放：" + musTrack().name + "（播完自动换下一首）") : "音乐已关闭";
   }
   $("#musList").innerHTML = MUSIC.map((m, i) => '<button type="button" data-i="' + i + '"><b>' + m.n + "</b><small>" + m.d + "</small></button>").join("");
-  $("#musCredits").innerHTML = MUSIC.map((m) => "<li>" + m.d + " — " + m.by + "（" + m.lic + '）<a href="' + m.url + '" target="_blank" rel="noopener">来源</a></li>').join("") +
+  $("#musCredits").innerHTML = MUSIC.map((m) => "<li>“" + m.d + "” — " + m.by + '，<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a></li>').join("") +
     '<li>筹码、纸牌、洗牌、轮盘小球、转轮、金币等真实音效 — Kenney（kenney.nl，CC0）；Coin Drop — vinrax（opengameart.org，CC0）</li>';
-  $$("#musList button").forEach((b) => b.addEventListener("click", () => { mus.i = +b.dataset.i; mus.on = true; musSave(); musPlay(); }));
+  $$("#musList button").forEach((b) => b.addEventListener("click", () => { mus.cur = { k: "b", i: +b.dataset.i }; mus.on = true; musSave(); musPlay(); }));
+  $("#musAdd").addEventListener("click", () => $("#musFile").click());
+  $("#musFile").addEventListener("change", (e) => {
+    const files = [...e.target.files].filter((f) => /^audio\//.test(f.type) || /\.(mp3|m4a|aac|wav|ogg|flac)$/i.test(f.name));
+    e.target.value = "";
+    if (!files.length) return;
+    musTx("readwrite", (st) => { files.forEach((f) => st.add({ name: f.name.replace(/\.[^.]+$/, ""), blob: f })); })
+      .then(() => musLoadMine()).then(() => { toast("已加入 " + files.length + " 首歌"); const last = mus.mine[mus.mine.length - 1]; if (last) { mus.cur = { k: "m", id: last.id }; mus.on = true; musSave(); musPlay(); } })
+      .catch(() => toast("加入失败：这个浏览器不能保存歌曲"));
+  });
   $("#musOn").addEventListener("click", () => { mus.on = !mus.on; musSave(); if (mus.on) musPlay(); else mus.el.pause(); musRender(); });
   $("#musVol").addEventListener("input", (e) => { mus.vol = +e.target.value / 100; musGain(); musSave(); });
-  mus.el.addEventListener("ended", () => { mus.i = (mus.i + 1) % MUSIC.length; musSave(); musPlay(); });
+  mus.el.addEventListener("ended", musNext);
   mus.el.addEventListener("play", musRender); mus.el.addEventListener("pause", musRender);
   // browsers only allow sound after a tap, so the music starts with the first touch; it pauses while the app is in the background
   document.addEventListener("pointerdown", () => { if (mus.on && mus.el.paused && document.visibilityState === "visible") musPlay(); }, { passive: true });
   document.addEventListener("visibilitychange", () => { if (document.hidden) mus.el.pause(); else if (mus.on && mus.started) musPlay(); });
-  musRender();
+  musRender(); musLoadMine();
   /* ---------- Start ---------- */
   bjRender();
   rouRender();
