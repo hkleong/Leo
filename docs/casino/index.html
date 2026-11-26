@@ -2577,7 +2577,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const cur = $('.nav button[aria-current="true"]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "nearest" });
     closePops();
     if (v === "roulette") drawWheel();
-    if (v === "baccarat") { if (!bac.busy) showLastHand(); renderRoad(); bacRender(); }
+    if (v === "baccarat") { if (bac.inDeal) drawInDeal(bac); else if (!bac.busy) showLastHand(); renderRoad(); bacRender(); }
     if (v === "dt") { if (!dt.busy) dtShowLast(); dtRoad(); dtRender(); }
     if (v === "lobby") renderLobby();
     if (v === "room") rmRender();
@@ -2749,7 +2749,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   function useTable(i) {
     if (bac.shuffling || tables[i] === bac) return;
     bac = tables[i]; bacSave();
-    showLastHand(); renderRoad(); bacRender();
+    if (bac.inDeal) drawInDeal(bac); else showLastHand();
+    renderRoad(); bacRender();
   }
 
   $$("#v-baccarat .spot").forEach((s) => s.addEventListener("click", () => {
@@ -2925,11 +2926,39 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     stage.remove();
   }
   // A table nobody is watching deals instantly
-  // A table nobody is watching still takes as long as a dealt hand, so its result is not known early
+  // Deal a hand card by card at the table's pace. Whoever is looking at this table sees the cards
+  // (also if they arrive half way through); nobody learns the result before the last card.
+  async function runDeal(tb, hand) {
+    tb.inDeal = { order: hand.order, n: 0 };
+    if (bac === tb && S.view === "baccarat") drawInDeal(tb);
+    for (const [s, c] of hand.order) {
+      tb.inDeal.n++;
+      if (bac === tb && S.view === "baccarat") {
+        const el = flipCard(c); (s === "P" ? $("#bacP") : $("#bacB")).appendChild(el);
+        SND.deal(); dealFromShoe(el, "#bacShoeBox");
+        await sleep(MOVE_MS * 0.62);
+        if (bac === tb && S.view === "baccarat") { SND.flip(); inDealTotals(tb); }
+        await sleep(MOVE_MS * 0.38 + (reduced ? 40 : 260));
+      } else await sleep(reduced ? 20 : MOVE_MS + 260);
+    }
+    tb.inDeal = null;
+  }
+  function inDealTotals(tb) {
+    const got = tb.inDeal.order.slice(0, tb.inDeal.n);
+    for (const side of ["P", "B"]) { const cs = got.filter((x) => x[0] === side).map((x) => x[1]); $("#bac" + side + "T").textContent = cs.length ? bt(cs) : "–"; }
+  }
+  function drawInDeal(tb) {
+    clearWins();
+    $("#bacP").innerHTML = ""; $("#bacB").innerHTML = "";
+    tb.inDeal.order.slice(0, tb.inDeal.n).forEach(([s, c]) => (s === "P" ? $("#bacP") : $("#bacB")).appendChild(flipCard(c)));
+    inDealTotals(tb);
+    msg($("#bacMsg"), "停止下注 · 发牌中");
+  }
+  // A table nobody is watching still deals at the same pace, so its result is not known early
   async function bgDeal(tb) {
     tb.busy = true; renderAuto();
     const hand = drawHand(tb.shoe);
-    await sleep(reduced ? 50 : hand.order.length * (MOVE_MS + 260) + 300);
+    await runDeal(tb, hand);
     tb.busy = false;
     const r = settleHand(tb, hand);
     if (r.total) { toast("百家乐 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
@@ -2945,20 +2974,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     clearWins();
     if (tb.shoe.needsShuffle()) { tb.busy = false; await changeShoe(tb, true); tb.busy = true; bacRender(); }
     const hand = drawHand(tb.shoe);
-    const pe = $("#bacP"), be = $("#bacB");
-    pe.innerHTML = ""; be.innerHTML = ""; $("#bacPT").textContent = "–"; $("#bacBT").textContent = "–";
-    msg($("#bacMsg"), "停止下注 · 发牌中");
-    const shown = { P: [], B: [] };
     const here = () => bac === tb && S.view === "baccarat";   // you may switch tables while it deals
-    for (const [s, c] of hand.order) {
-      if (!here()) { await sleep(reduced ? 20 : MOVE_MS + 260); continue; }     // left the table: keep the same pace, show nothing
-      const el = flipCard(c);
-      (s === "P" ? pe : be).appendChild(el); shown[s].push(c);
-      SND.deal(); dealFromShoe(el, "#bacShoeBox");
-      await sleep(MOVE_MS * 0.62); if (!here()) { await sleep(MOVE_MS * 0.38 + 260); continue; } SND.flip();
-      (s === "P" ? $("#bacPT") : $("#bacBT")).textContent = bt(shown[s]);
-      await sleep(MOVE_MS * 0.38 + (reduced ? 40 : 260));
-    }
+    await runDeal(tb, hand);
     const r = settleHand(tb, hand);
     if (!here()) {
       tb.busy = false;
