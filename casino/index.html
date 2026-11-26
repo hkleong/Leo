@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.14.0">
+<meta name="version" content="0.14.1">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -544,6 +544,20 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .on-back { display: grid; gap: 6px; }
 .on-backlink { justify-self: start; }
 #v-online .rm-join { margin: 0 auto; }
+/* 联机聊天 */
+.rm-emo .chatbtn { position: relative; border-color: var(--brass); color: var(--win); font-size: 14px; }
+.chatbtn .unread { position: absolute; right: -4px; top: -6px; min-width: 17px; height: 17px; border-radius: 999px; background: #e0262c; color: #fff; font: 700 10px/17px var(--mono); font-style: normal; text-align: center; padding: 0 4px; }
+.chat-in { display: flex; flex-direction: column; max-height: min(78vh, 560px); }
+.chat-log { flex: 1 1 auto; min-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 6px 2px; }
+.chat-log .cm { max-width: 82%; align-self: flex-start; display: grid; gap: 1px; }
+.chat-log .cm.me { align-self: flex-end; text-align: right; }
+.chat-log .cm b { font-size: 11px; color: var(--muted); font-weight: 500; }
+.chat-log .cm span { background: rgba(255,255,255,.08); border: 1px solid var(--brass-lo); border-radius: 12px; padding: 6px 10px; font-size: 14px; line-height: 1.35; word-break: break-word; text-align: left; }
+.chat-log .cm.me span { background: rgba(231,199,111,.18); border-color: var(--brass); }
+.chat-log .sys { align-self: center; font-size: 11px; color: var(--muted); }
+.chat-log .empty { align-self: center; margin: auto; font-size: 13px; color: var(--muted); }
+.chat-form { display: flex; gap: 8px; padding-top: 8px; border-top: 1px solid var(--brass-lo); }
+.chat-form input { flex: 1; min-width: 0; font: 15px/1.2 var(--body); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--brass-lo); background: rgba(0,0,0,.4); color: var(--ivory); }
 /* 德州扑克联机房 */
 .rtiles { display: grid; gap: 8px; }
 @media (min-width: 700px) { .rtiles { grid-template-columns: 1fr 1fr; } }
@@ -1373,12 +1387,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.14.0</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.14.1</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
   </div></div>
 
   <!-- Baccarat -->
@@ -1468,6 +1482,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     </div></div>
   </section>
 
+  <div class="sheet" id="chatSheet" hidden><div class="sheet-in chat-in" role="dialog" aria-label="聊天">
+    <div class="sheet-head"><h3>聊天</h3><span class="note" id="chatRoom"></span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+    <div class="chat-log" id="chatLog" aria-live="polite"></div>
+    <form class="chat-form" id="chatForm"><input id="chatInput" maxlength="80" placeholder="说点什么…" autocomplete="off" enterkeyhint="send"><button class="btn" type="submit">发送</button></form>
+  </div></div>
   <!-- 联机: one place to open or join a room, or practise against AI -->
   <section id="v-online" class="game" hidden>
     <div class="rm-join on-hub">
@@ -1530,7 +1549,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
           <button class="spot side sb" data-rm="bpair" type="button"><span class="lab"><b>庄对</b><small>11:1</small></span><span class="stake"></span><span class="who"></span></button>
         </div>
       </div>
-      <div class="rm-emo" id="rmEmo"><button type="button">👍</button><button type="button">😂</button><button type="button">🔥</button><button type="button">😭</button><button type="button">🙏</button><button type="button" data-say="冲！">冲！</button><button type="button" data-say="稳住">稳住</button></div>
+      <div class="rm-emo" id="rmEmo"><button class="chatbtn" type="button" data-chat="rm">💬 聊天<i class="unread" hidden></i></button><button type="button">👍</button><button type="button">😂</button><button type="button">🔥</button><button type="button">😭</button><button type="button">🙏</button><button type="button" data-say="冲！">冲！</button><button type="button" data-say="稳住">稳住</button></div>
       <div class="bctl" data-g="rm"></div>
       <div class="bfoot">
         <div>总投注额 <b id="rmBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
@@ -1593,7 +1612,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
           <div class="actrow"><button class="btn ghost" id="prRaiseNo" type="button">取消</button><button class="btn" id="prRaiseGo" type="button">确定加注</button></div>
         </div>
       </div>
-      <div class="rm-emo" id="prEmo"><button type="button">👍</button><button type="button">😂</button><button type="button">😎</button><button type="button">😭</button><button type="button">🙏</button><button type="button" data-say="Nice hand">Nice hand</button><button type="button" data-say="all in!">all in!</button></div>
+      <div class="rm-emo" id="prEmo"><button class="chatbtn" type="button" data-chat="pr">💬 聊天<i class="unread" hidden></i></button><button type="button">👍</button><button type="button">😂</button><button type="button">😎</button><button type="button">😭</button><button type="button">🙏</button><button type="button" data-say="Nice hand">Nice hand</button><button type="button" data-say="all in!">all in!</button></div>
       <div class="bfoot">
         <div>桌上筹码 <b id="prStack">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
         <div class="r"><span>德州扑克 · <span id="prRole">玩家</span> · 第 <span id="prHandNo">0</span> 手</span><button class="toggle" id="prRebuy" type="button" hidden>补码</button></div>
@@ -3375,6 +3394,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (m.t === "bet" && rm.phase === "bet") { p.bets = Object.fromEntries(RM_KEYS.map((k) => [k, Math.max(0, +m.bets[k] || 0)])); rmBroadcastRoom(); }
     if (m.t === "net") { p.net = +m.net || 0; rmBroadcastRoom(); }
     if (m.t === "say") { const t = { t: "say", id, text: String(m.text || "").slice(0, 12) }; rmSendAll(t); rmGot(t); }
+    if (m.t === "chat") { const text = String(m.text || "").trim().slice(0, 80); if (text) { const t = { t: "chat", id, name: p.name, text }; rmSendAll(t); rmGot(t); } }
   }
   function rmHostTick() {
     if (rm.phase !== "bet") return;
@@ -3455,7 +3475,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (m.t === "room") { rm.players = m.players || []; rm.road = m.road || []; rm.left = m.left; const was = rm.phase; rm.phase = m.phase; if (rm.code !== m.code && m.code) rm.code = m.code; if (was !== "bet" && rm.phase === "bet") rmNewRound(); rmRender(); }
     else if (m.t === "tick") { rm.left = m.left; if (S.view === "room" && rm.left <= 3 && rm.left > 0) SND.tick(); rmRender(); }
     else if (m.t === "hand") { rm.phase = "deal"; rm.road = m.road || rm.road; rmPlayHand(m.hand, m.note); }
-    else if (m.t === "say") rmSay(m.id, m.text);
+    else if (m.t === "say") { rmSay(m.id, m.text); if (!m.id) chatAdd("rm", null, m.text); }
+    else if (m.t === "chat") { chatAdd("rm", m, m.text); rmSay(m.id, m.text.length > 14 ? m.text.slice(0, 13) + "…" : m.text); }
     else if (m.t === "full") { rmReset(); rmStatus('<span class="l">房间已满（最多 ' + RM_MAX + ' 人）</span>'); }
   }
   function rmNewRound() {
@@ -3508,7 +3529,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (back) addBank(back);
     try { if (peer) peer.destroy(); } catch (e) {}
     Object.assign(rm, { peer: null, host: false, code: "", hostConn: null, players: [], road: [], phase: "bet", left: RM_BET, bets: rmEmpty(), hist: [], busy: false });
-    rm.conns = new Map(); rm.ph = "";
+    rm.conns = new Map(); rm.ph = ""; chatClear("rm");
     rmRender();
   }
   // ---- betting ----
@@ -3533,7 +3554,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     Object.assign(rm.bets, rm.last); for (const k of RM_KEYS) if (rm.bets[k]) rm.hist.push([k, rm.bets[k]]);
     rmRender(); rmPushBets();
   });
-  $$("#rmEmo button").forEach((b) => b.addEventListener("click", () => rmToHost({ t: "say", text: b.dataset.say || b.textContent })));
+  $$("#rmEmo button:not(.chatbtn)").forEach((b) => b.addEventListener("click", () => rmToHost({ t: "say", text: b.dataset.say || b.textContent })));
   $("#rmCreate").addEventListener("click", rmCreate);
   $("#rmJoinBtn").addEventListener("click", () => rmJoin($("#rmCode").value));
   $("#rmCode").addEventListener("keydown", (e) => { if (e.key === "Enter") rmJoin($("#rmCode").value); });
@@ -4517,6 +4538,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (m.t === "act") { if (gAct(g, id, m.a, m.amt)) prPush(); }
     else if (m.t === "rebuy") { const a = Math.max(0, Math.floor(+m.amt) || 0); if (p.inHand && !p.folded) p.pend = (p.pend || 0) + a; else p.stack += a; prSayAll("", p.name + " 补码 " + fmt(a)); prPush(); }
     else if (m.t === "say") prSayAll(id, String(m.text || "").slice(0, 12));
+    else if (m.t === "chat") { const text = String(m.text || "").trim().slice(0, 80); if (text) { const t = { t: "chat", id, name: p.name, text }; for (const c of pr.conns.values()) { try { if (c.open) c.send(t); } catch (e) {} } prGot(t); } }
   }
   function prSayAll(id, text) { const m = { t: "say", id, text }; for (const c of pr.conns.values()) { try { if (c.open) c.send(m); } catch (e) {} } prGot(m); }
   function prGuestGone(id) {
@@ -4593,7 +4615,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   /* ---------- everyone: draw the table ---------- */
   function prGot(m) {
     if (m.t === "ps") { pr.st = m; pr.stAt = Date.now(); prRender(); }
-    else if (m.t === "say") prSay(m.id, m.text);
+    else if (m.t === "say") { prSay(m.id, m.text); if (!m.id) chatAdd("pr", null, m.text); }
+    else if (m.t === "chat") { chatAdd("pr", m, m.text); prSay(m.id, m.text.length > 14 ? m.text.slice(0, 13) + "…" : m.text); }
     else if (m.t === "full") { addBank(m.buy || 0); prReset(false); prStatus('<span class="l">房间已满（9 人）</span>'); }
   }
   const prMe = () => pr.st && pr.st.players.find((p) => p.id === pr.me);
@@ -4606,7 +4629,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const me = prMe();
     prSaveStack();
     $("#prCodeShow").textContent = pr.practice ? "练习桌" : pr.code;
-    $("#prCopy").hidden = pr.practice; $("#prCodeLab").hidden = pr.practice;
+    $("#prCopy").hidden = pr.practice; $("#prCodeLab").hidden = pr.practice; $('#prEmo .chatbtn').hidden = pr.practice;
     $("#prBl").textContent = "盲注 " + compact(st.blinds[0]) + "/" + compact(st.blinds[1]);
     $("#prCount").textContent = st.players.length + " 人";
     $("#prRole").textContent = pr.practice ? "练习桌 · 对 AI · 不抽水" : pr.host ? "你是房主" : "玩家";
@@ -4697,6 +4720,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     try { localStorage.removeItem("gbc-pk-stack"); } catch (e) {}
     clearInterval(pr.timer);
     try { if (peer) peer.destroy(); } catch (e) {}
+    chatClear("pr");
     Object.assign(pr, { practice: false, peer: null, host: false, code: "", conns: new Map(), hostConn: null, st: null, g: null, ph: "", bh: "" });
     prRender();
   }
@@ -4722,7 +4746,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     try { if (navigator.share) { await navigator.share({ title: "俱乐部德州房间", text, url }); return; } } catch (e) { return; }
     try { await navigator.clipboard.writeText(text + " " + url); toast("房间号和链接已复制"); } catch (e) { toast("房间号 " + pr.code); }
   });
-  $$("#prEmo button").forEach((b) => b.addEventListener("click", () => prSend({ t: "say", text: b.dataset.say || b.textContent })));
+  $$("#prEmo button:not(.chatbtn)").forEach((b) => b.addEventListener("click", () => prSend({ t: "say", text: b.dataset.say || b.textContent })));
   /* ---------- 德州练习桌: you against AI players on this phone only ---------- */
   const BOT_NAMES = ["AI 阿龙", "AI 小虎", "AI 阿福", "AI 美美", "AI 老K", "AI 阿杰", "AI 小七", "AI 大卫"];
   // Monte Carlo: how often my hand wins against `opp` random hands on a random rest of the board
@@ -4804,6 +4828,40 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   $("#onJoin").addEventListener("click", onJoin);
   $("#onCode").addEventListener("keydown", (e) => { if (e.key === "Enter") onJoin(); });
   $("#onPractice").addEventListener("click", prPractice);
+  /* ---------- 联机聊天: typed messages, relayed by the host to everyone in the room ---------- */
+  const chat = { rm: { log: [], unread: 0 }, pr: { log: [], unread: 0 }, open: "" };
+  function chatAdd(room, from, text) {
+    const c = chat[room];
+    c.log.push(from ? { id: from.id, name: from.name, text } : { sys: true, text });
+    if (c.log.length > 80) c.log.shift();
+    const mine = from && from.id === (room === "rm" ? rm.me : pr.me);
+    if (chat.open === room && !$("#chatSheet").hidden) chatRender();
+    else if (from && !mine) { c.unread++; if ((room === "rm" ? S.view !== "room" : S.view !== "proom")) toast("💬 " + esc(from.name) + "：" + esc(text)); }
+    chatBadges();
+  }
+  function chatClear(room) { chat[room] = { log: [], unread: 0 }; chatBadges(); if (chat.open === room) $("#chatSheet").hidden = true; }
+  function chatBadges() {
+    $$(".chatbtn").forEach((b) => { const c = chat[b.dataset.chat], u = b.querySelector(".unread"); u.hidden = !c.unread; u.textContent = c.unread > 9 ? "9+" : c.unread; });
+  }
+  function chatRender() {
+    const room = chat.open, c = chat[room], me = room === "rm" ? rm.me : pr.me, box = $("#chatLog");
+    $("#chatRoom").textContent = room === "rm" ? "百家乐房间 " + rm.code : "德州房间 " + pr.code;
+    box.innerHTML = c.log.length ? c.log.map((m) => m.sys ? '<p class="sys">' + esc(m.text) + "</p>" : '<p class="cm' + (m.id === me ? " me" : "") + '"><b>' + esc(m.id === me ? "我" : m.name) + "</b><span>" + esc(m.text) + "</span></p>").join("") : '<p class="empty">还没有人说话，打个招呼吧</p>';
+    box.scrollTop = box.scrollHeight;
+  }
+  $$(".chatbtn").forEach((b) => b.addEventListener("click", (e) => {
+    e.stopPropagation();
+    chat.open = b.dataset.chat; chat[chat.open].unread = 0; chatBadges();
+    $("#chatSheet").hidden = false; chatRender();
+    setTimeout(() => $("#chatInput").focus(), 50);
+  }));
+  $("#chatForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = $("#chatInput").value.trim().slice(0, 80);
+    if (!text || !chat.open) return;
+    if (chat.open === "rm") rmToHost({ t: "chat", text }); else prSend({ t: "chat", text });
+    $("#chatInput").value = "";
+  });
   function prFromHash() { const m = /^#proom=(\d{6})$/.exec(location.hash); if (m) { $("#prCode").value = m[1]; if (!pr.peer) prStatus("输入名字、选好带入筹码，点「加入」进入房间 " + m[1]); } }
   prRender();
   /* ======================================================
