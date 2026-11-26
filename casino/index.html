@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.17.1">
+<meta name="version" content="0.17.2">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -127,6 +127,8 @@ main > section > * { min-width: 0; }
 .gtile .ico svg { width: clamp(30px, 5.4vh, 48px); height: clamp(30px, 5.4vh, 48px); }
 .bt-cd { font: 500 11px/1 var(--mono); color: var(--muted); white-space: nowrap; }
 .bt-cd.soon { color: #ff9a9a; }
+.bt-cd.last { color: #fff; background: #b3141b; border-radius: 999px; padding: 2px 6px; animation: lastpulse2 .9s ease-in-out infinite alternate; }
+@keyframes lastpulse2 { to { box-shadow: 0 0 8px rgba(255,90,90,.9); } }
 .road-scroll.mini { overflow: hidden; padding: 2px; border-radius: 4px; }
 .btile .road { --rc: clamp(8px, 1.35vh, 11px); }
 .btile .br { border-width: 1.5px; }
@@ -597,6 +599,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .pausebtn:disabled.run { background: rgba(231,199,111,.18); color: var(--win); border-color: var(--brass-lo); }
 .pausebtn:disabled.stop { background: rgba(47,191,106,.15); color: #7fe0a8; border-color: rgba(47,191,106,.5); }
 .pr-paused { z-index: 4; font: 800 14px/1 var(--body); color: #fff; background: rgba(0,0,0,.7); border: 1px solid var(--win); border-radius: 999px; padding: 6px 14px; white-space: nowrap; }
+/* 最后一局: the black cut card comes out of the shoe and lies in the middle of the table */
+.cutcard { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); z-index: 1; width: calc(var(--cw) * 1.15); height: calc(var(--cw) * 1.6); border-radius: 7px; background: linear-gradient(150deg, #2b2b30, #050506 55%, #18181c); border: 2px solid #e7c76f; box-shadow: 0 4px 14px rgba(0,0,0,.6), inset 0 0 0 3px rgba(0,0,0,.6), inset 0 0 0 4px rgba(231,199,111,.35); display: grid; place-content: center; justify-items: center; gap: 3px; pointer-events: none; animation: cutglow 1.2s ease-in-out infinite alternate; }
+.cutcard span { font: 900 calc(var(--cw) * .26)/1.2 var(--display); color: #ffe08a; text-align: center; letter-spacing: .06em; text-shadow: 0 0 6px rgba(255,200,80,.6); }
+.cutcard i { position: absolute; bottom: 5px; left: 0; right: 0; text-align: center; font: 700 calc(var(--cw) * .11)/1 var(--mono); font-style: normal; color: rgba(231,199,111,.7); letter-spacing: .05em; }
+@keyframes cutglow { to { box-shadow: 0 4px 18px rgba(255,190,60,.55), inset 0 0 0 3px rgba(0,0,0,.6), inset 0 0 0 4px rgba(231,199,111,.6); } }
+.cutcap { position: absolute; left: 50%; top: 56%; transform: translate(-50%, calc(-50% - var(--cw) * 1.1)); z-index: 6; white-space: nowrap; font: 800 14px/1 var(--display); letter-spacing: .25em; color: #fff; background: rgba(140,10,14,.92); border: 1px solid #ffd860; border-radius: 999px; padding: 5px 12px; pointer-events: none; animation: cutcap 3.4s ease forwards; }
+@keyframes cutcap { 0% { opacity: 0; } 25%, 85% { opacity: 1; } 100% { opacity: 0; } }
 /* 联机聊天 */
 .rm-emo .chatbtn { position: relative; border-color: var(--brass); color: var(--win); font-size: 14px; }
 .chatbtn .unread { position: absolute; right: -4px; top: -6px; min-width: 17px; height: 17px; border-radius: 999px; background: #e0262c; color: #fff; font: 700 10px/17px var(--mono); font-style: normal; text-align: center; padding: 0 4px; }
@@ -1425,12 +1434,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.17.1</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.17.2</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
     <p class="note" style="margin-top:10px">音乐与音效的作者和授权：点右上角 ♪ 查看。</p>
   </div></div>
 
@@ -1439,6 +1448,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <div class="btable bac">
       <div class="tname" id="bacTName" aria-hidden="true">A</div>
       <div class="cdring" id="bacCd" aria-live="off" title="距离自动开局的秒数">15</div>
+      <div class="cutcard" id="bacLast" hidden><span>LAST<br>HAND</span></div>
       <div class="shoebox" id="bacShoeBox" aria-hidden="true"></div>
       <div class="bside bp-side" id="bacPSide"><div class="blabel">PLAYER</div><div class="hand" id="bacP"></div><div class="btotal" id="bacPT">–</div></div>
       <div class="bside bb-side" id="bacBSide"><div class="blabel">BANKER</div><div class="hand" id="bacB"></div><div class="btotal" id="bacBT">–</div></div>
@@ -1506,7 +1516,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>完美对子：任一方前两张为同花同点，25:1；两方都是，200:1。</li>
         <li>龙宝：所押一方以天牌赢 1:1，天牌和局退回；非天牌赢 9 点 30:1、8 点 10:1、7 点 6:1、6 点 4:1、5 点 2:1、4 点 1:1；赢 3 点及以下或输则输。</li>
         <li>共 4 张桌（A–D），各自有 8 副牌的牌靴、路单和倒计时，每 15 秒自动开一局。在牌桌上左右滑动，或点底部的 A B C D，可以换桌。</li>
-        <li>剩余约 1/4 时换新牌靴（约 20 秒）：洗牌、装入牌靴，然后烧牌——翻开第一张，按它的点数再烧掉相应张数（A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。换靴后路单清空。</li>
+        <li>剩余约 1/4 时（切牌卡出现）宣布「最后一局」，那一局结束后换新牌靴（约 20 秒）：洗牌、装入牌靴，然后烧牌——翻开第一张，按它的点数再烧掉相应张数（A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。换靴后路单清空。</li>
         <li>离开牌桌（去大厅、别的桌或别的游戏）时，即使有下注也照常倒数开局，结果自动结算并在屏幕上方提示。路单和牌靴保存在本机。</li>
       </ul>
       <h4>大路</h4>
@@ -1582,6 +1592,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <div class="rm-top"><span class="rm-id">房间号 <b id="rmCodeShow">––––––</b></span><button class="toggle" id="rmCopy" type="button">分享</button><button class="toggle pausebtn" id="rmPause" type="button">开始</button><span class="rm-n" id="rmCount">1 人</span><button class="toggle" id="rmLeave" type="button">离开</button></div>
       <div class="btable bac rm">
         <div class="cdring" id="rmCd" aria-live="off">20</div>
+        <div class="cutcard" id="rmLast" hidden><span>LAST<br>HAND</span></div>
         <div class="shoebox" id="rmShoeBox" aria-hidden="true"></div>
         <div class="bside bp-side" id="rmPSide"><div class="blabel">PLAYER</div><div class="hand" id="rmP"></div><div class="btotal" id="rmPT">–</div></div>
         <div class="bside bb-side" id="rmBSide"><div class="blabel">BANKER</div><div class="hand" id="rmB"></div><div class="btotal" id="rmBT">–</div></div>
@@ -1690,6 +1701,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <div class="btable bac dt">
       <div class="tname" id="dtTName" aria-hidden="true">A</div>
       <div class="cdring" id="dtCd" aria-live="off" title="距离自动开局的秒数">15</div>
+      <div class="cutcard" id="dtLast" hidden><span>LAST<br>HAND</span></div>
       <div class="shoebox" id="dtShoeBox" aria-hidden="true"></div>
       <div class="bside bp-side dt-d" id="dtDSide"><div class="blabel">龙 DRAGON</div><div class="hand" id="dtD"></div><div class="btotal" id="dtDT">–</div></div>
       <div class="bside bb-side dt-t" id="dtTSide"><div class="blabel">虎 TIGER</div><div class="hand" id="dtT"></div><div class="btotal" id="dtTT">–</div></div>
@@ -1754,7 +1766,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>和 8:1。同花和：龙虎同点而且同花色，50:1。</li>
         <li>单双只看所押一方的牌：A、3、5、9、J、K 为单，2、4、6、8、10、Q 为双，1:1；开出 7 时单双都输。</li>
         <li>共 2 张桌（A、B），各自有牌靴、路单和倒计时，每 15 秒自动开一局。左右滑动或点底部 A B 换桌。</li>
-        <li>剩余约 1/4 时换新牌靴（约 20 秒）：洗牌、装入牌靴、烧牌（翻开第一张，A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。</li>
+        <li>剩余约 1/4 时宣布「最后一局」，那一局结束后换新牌靴（约 20 秒）：洗牌、装入牌靴、烧牌（翻开第一张，A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。</li>
         <li>路单：红圈为龙赢，金圈为虎赢，绿色斜线为和；下三路的推算方法与百家乐相同。右边的「龙 / 虎」问路按钮（下三路：红 = 有规律、金 = 无规律）显示如果下一局开龙或开虎，三条下路会出什么颜色，点一下会在路单上闪烁预览。</li>
       </ul>
     </div></div>
@@ -2981,6 +2993,39 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     bacSave();
     return { win, mult, pay, total, text };
   }
+  // Cut card: when a shoe runs low the next hand is announced as the last one, and the shoe is changed after it.
+  // Returns true when the hand just played was that last hand.
+  function shoeAfterHand(tb, game) {
+    if (tb.finalHand) { tb.finalHand = false; return true; }
+    if (tb.shoe.needsShuffle()) { tb.finalHand = true; announceLast(tb, game); }
+    return false;
+  }
+  function announceLast(tb, game) {
+    const here = game === "bac" ? tb === bac && S.view === "baccarat" : tb === dt && S.view === "dt";
+    if (here) lastBanner(game === "bac" ? "#v-baccarat .btable" : "#v-dt .btable");
+    else if (hasBets(tb)) toast((game === "bac" ? "百家乐 " : "龙虎 ") + tb.name + " 桌 · 下一局是最后一局");
+    renderAuto();
+  }
+  // the dealer draws the black cut card out of the shoe and lays it in the middle of the table
+  function lastBanner(sel) {
+    const t = $(sel); if (!t) return;
+    const card = t.querySelector(".cutcard"), shoe = t.querySelector(".shoebox");
+    if (!card) return;
+    card.hidden = false;
+    t.querySelectorAll(".cutcap").forEach((x) => x.remove());
+    if (card.animate && shoe && !reduced) {
+      const sr = shoe.getBoundingClientRect(), cr = card.getBoundingClientRect();
+      const dx = sr.left + sr.width / 2 - (cr.left + cr.width / 2), dy = sr.top + sr.height / 2 - (cr.top + cr.height / 2);
+      card.animate([
+        { transform: "translate(calc(-50% + " + dx + "px), calc(-50% + " + dy + "px)) rotate(-12deg) scale(.55)", opacity: 0.4 },
+        { transform: "translate(calc(-50% + " + dx * 0.4 + "px), calc(-50% + " + dy * 0.4 + "px)) rotate(-4deg) rotateY(90deg) scale(1.1)", offset: 0.45 },
+        { transform: "translate(-50%, -50%) rotate(0deg) scale(1.5)", offset: 0.75 },
+        { transform: "translate(-50%, -50%) scale(1)" },
+      ], { duration: 1300, easing: "cubic-bezier(.25,.7,.3,1)" });
+    }
+    SND.deal(); setTimeout(() => SND.flip(), 600); setTimeout(() => SND.win(), 900);
+    setTimeout(() => { const c = document.createElement("div"); c.className = "cutcap"; c.textContent = "LAST HAND"; t.appendChild(c); setTimeout(() => c.remove(), 3500); }, 900);
+  }
   // Burn: the first card of a new shoe is shown face up and that many more cards are burned
   // (A = 1, 2–9 = face value, 10 J Q K = 10).
   function burnCount(c) { return c.r === "A" ? 1 : ["10", "J", "Q", "K"].includes(c.r) ? 10 : +c.r; }
@@ -3101,7 +3146,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const r = settleHand(tb, hand);
     if (r.total) { toast("百家乐 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
     if (tb === bac && S.view === "baccarat") { showLastHand(); renderRoad(); bacRender(); }
-    if (tb.shoe.needsShuffle()) changeShoe(tb, false);
+    if (shoeAfterHand(tb, "bac")) changeShoe(tb, false);
     if (S.view === "lobby") renderLobby(); else renderAuto();
   }
   // The table on screen deals card by card out of the shoe
@@ -3110,7 +3155,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (tb.busy) return;
     tb.busy = true; bacRender();
     clearWins();
-    if (tb.shoe.needsShuffle()) { tb.busy = false; await changeShoe(tb, true); tb.busy = true; bacRender(); }
+    if (tb.shoe.cards.length < 12) { tb.busy = false; await changeShoe(tb, true); tb.busy = true; bacRender(); }
     const hand = drawHand(tb.shoe);
     const here = () => bac === tb && S.view === "baccarat";   // you may switch tables while it deals
     await runDeal(tb, hand);
@@ -3120,7 +3165,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       if (r.total) { toast("百家乐 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
       if (bac === tb) { showLastHand(); renderRoad(); }
       bacRender(); if (S.view === "lobby") renderLobby();
-      if (tb.shoe.needsShuffle()) changeShoe(tb, false);
+      if (shoeAfterHand(tb, "bac")) changeShoe(tb, false);
       return;
     }
     $$("#v-baccarat .spot").forEach((s) => {
@@ -3133,7 +3178,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (r.total && r.pay > r.total && S.view === "baccarat") SND.win();
     renderRoad();
     tb.busy = false; bacRender();
-    if (tb.shoe.needsShuffle()) { tb.busy = true; bacRender(); await sleep(reduced ? 50 : 2500); tb.busy = false; await changeShoe(tb, bac === tb && S.view === "baccarat"); }
+    if (shoeAfterHand(tb, "bac")) { tb.busy = true; bacRender(); await sleep(reduced ? 50 : 2500); tb.busy = false; await changeShoe(tb, bac === tb && S.view === "baccarat"); }
   }
 
   // Auto-deal: every table deals every 15 s; a table where you have chips waits until you are looking at it
@@ -3146,6 +3191,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     cd.classList.toggle("soon", autoOn && !bac.busy && bac.autoLeft <= 5);
     cd.textContent = !autoOn ? "–" : bac.shuffling ? "洗" : bac.busy ? "…" : String(bac.autoLeft);
     cd.style.setProperty("--p", !autoOn || bac.busy ? 0 : Math.min(1, bac.autoLeft / AUTO));
+    $("#bacLast").hidden = !bac.finalHand;
     tables.forEach((tb, i) => lobbyLive(tb, "lcd" + i, "lsh" + i));
     if (dt) {
       const dc = $("#dtCd");
@@ -3153,6 +3199,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       dc.classList.toggle("soon", autoOn && !dt.busy && dt.autoLeft <= 5);
       dc.textContent = !autoOn ? "–" : dt.shuffling ? "洗" : dt.busy ? "…" : String(dt.autoLeft);
       dc.style.setProperty("--p", !autoOn || dt.busy ? 0 : Math.min(1, dt.autoLeft / AUTO));
+      $("#dtLast").hidden = !dt.finalHand;
       dtTables.forEach((tb, i) => lobbyLive(tb, "ldcd" + i, "ldsh" + i));
     }
   }
@@ -3161,7 +3208,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const el = document.getElementById(cdId);
     if (!el) return;
     const changing = tb.shuffling || tb.autoLeft > AUTO;
-    el.textContent = !autoOn ? "已暂停" : changing ? "换牌靴中" : tb.busy ? "开牌中" : (hasBets(tb) ? "有下注 · " : "") + tb.autoLeft + " 秒";
+    el.textContent = !autoOn ? "已暂停" : changing ? "换牌靴中" : (tb.finalHand ? "最后一局 · " : "") + (tb.busy ? "开牌中" : (hasBets(tb) ? "有下注 · " : "") + tb.autoLeft + " 秒");
+    el.classList.toggle("last", !!tb.finalHand && !changing);
     el.classList.toggle("soon", autoOn && !tb.busy && tb.autoLeft <= 3);
     const sh = document.getElementById(shId);
     if (!sh) return;
@@ -3480,14 +3528,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const r = dtSettle(tb, hand);
     if (r.total) { toast("龙虎 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
     if (tb === dt && S.view === "dt") { dtShowLast(); dtRoad(); dtRender(); }
-    if (tb.shoe.needsShuffle()) dtChangeShoe(tb, false);
+    if (shoeAfterHand(tb, "dt")) dtChangeShoe(tb, false);
     if (S.view === "lobby") renderLobby(); else renderAuto();
   }
   async function dtDeal() {
     const tb = dt;
     if (tb.busy) return;
     tb.busy = true; dtRender(); dtClearWins();
-    if (tb.shoe.needsShuffle()) { tb.busy = false; await dtChangeShoe(tb, true); tb.busy = true; dtRender(); }
+    if (tb.shoe.cards.length < 6) { tb.busy = false; await dtChangeShoe(tb, true); tb.busy = true; dtRender(); }
     const hand = { D: tb.shoe.draw(), T: tb.shoe.draw() };
     $("#dtD").innerHTML = ""; $("#dtT").innerHTML = ""; $("#dtDT").textContent = "–"; $("#dtTT").textContent = "–";
     msg($("#dtMsg"), "停止下注 · 发牌中");
@@ -3507,7 +3555,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       if (r.total) { toast("龙虎 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
       if (dt === tb) { dtShowLast(); dtRoad(); }
       dtRender(); if (S.view === "lobby") renderLobby();
-      if (tb.shoe.needsShuffle()) dtChangeShoe(tb, false);
+      if (shoeAfterHand(tb, "dt")) dtChangeShoe(tb, false);
       return;
     }
     $$("#v-dt .spot").forEach((s) => { const k = s.dataset.dt; if (k === "dragon" || k === "tiger" ? r.win === k : r.mult[k] > 1) s.classList.add("win"); });
@@ -3517,7 +3565,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (r.total && r.pay > r.total) SND.win();
     dtRoad();
     tb.busy = false; dtRender();
-    if (tb.shoe.needsShuffle()) { tb.busy = true; dtRender(); await sleep(reduced ? 50 : 2500); tb.busy = false; await dtChangeShoe(tb, dt === tb && S.view === "dt"); }
+    if (shoeAfterHand(tb, "dt")) { tb.busy = true; dtRender(); await sleep(reduced ? 50 : 2500); tb.busy = false; await dtChangeShoe(tb, dt === tb && S.view === "dt"); }
   }
   // lobby tiles
   dtTables.forEach((tb, i) => {
@@ -3573,6 +3621,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#rmCount").textContent = rm.players.length + " 人";
     const cd = $("#rmCd");
     cd.textContent = rm.phase === "bet" ? (rm.paused ? "停" : String(rm.left)) : "…";
+    $("#rmLast").hidden = !rm.final;
     const pb = $("#rmPause"); pb.disabled = !rm.host; pb.textContent = rm.paused ? (rm.host ? "▶ 开始" : "已暂停") : (rm.host ? "⏸ 暂停" : "进行中");
     pb.classList.toggle("stop", rm.paused); pb.classList.toggle("run", !rm.paused);
     if (rm.paused && rm.phase === "bet" && !rm.busy) msg($("#rmMsg"), rm.host ? "已暂停 · 人到齐后按「开始」" : "已暂停 · 等房主按开始（可以先下注）");
@@ -3596,7 +3645,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   function rmToHost(m) { if (rm.host) rmHostGot(rm.me, m); else if (rm.hostConn && rm.hostConn.open) { try { rm.hostConn.send(m); } catch (e) {} } }
   // the host's own screen gets a copy of every message, exactly like a guest; the game itself lives in rm.h
   const rmLocal = (m) => rmGot(JSON.parse(JSON.stringify(m)));
-  function rmBroadcastRoom() { const h = rm.h, m = { t: "room", players: h.players, road: h.road, left: h.left, phase: h.phase, paused: !!h.paused, code: rm.code }; rmSendAll(m); rmLocal(m); }
+  function rmBroadcastRoom() { const h = rm.h, m = { t: "room", players: h.players, road: h.road, left: h.left, phase: h.phase, paused: !!h.paused, final: !!h.final, code: rm.code }; rmSendAll(m); rmLocal(m); }
   // ---- host side ----
   function rmHostGot(id, m) {
     const h = rm.h, p = h.players.find((x) => x.id === id);
@@ -3619,8 +3668,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     // deal one hand for everyone
     h.phase = "deal";
     let note = "";
-    if (h.shoe.needsShuffle()) { h.shoe.fill(); h.road = []; const b = burn(h.shoe); note = "新牌靴 · 首张 " + b.first.s + b.first.r + " · 烧 " + b.n + " 张"; }
+    if (h.changeNext || h.shoe.cards.length < 12) { h.shoe.fill(); h.road = []; const b = burn(h.shoe); note = "新牌靴 · 首张 " + b.first.s + b.first.r + " · 烧 " + b.n + " 张"; h.changeNext = false; }
     const hand = drawHand(h.shoe);
+    // cut card: the hand after the shoe runs low is announced as the last one; the shoe is changed after it
+    if (h.final) { h.final = false; h.changeNext = true; } else if (h.shoe.needsShuffle()) h.final = true;
     const P = bt(hand.P), B = bt(hand.B);
     h.road.push({ w: P > B ? "P" : B > P ? "B" : "T", pp: hand.P[0].r === hand.P[1].r, bp: hand.B[0].r === hand.B[1].r });
     h.players.forEach((x) => { x.bets = rmEmpty(); });
@@ -3690,7 +3741,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   // ---- everyone: messages from the host ----
   function rmGot(m) {
     if (m.t === "room" && rm.busy) { rm.pendRoom = m; return; }        // while the cards are being dealt, hold back table updates
-    if (m.t === "room") { const wasPaused = rm.paused; rm.paused = !!m.paused; if (wasPaused && !rm.paused && m.phase === "bet") msg($("#rmMsg"), "开始 · 请下注"); rm.players = m.players || []; rm.road = m.road || []; rm.left = m.left; const was = rm.phase; rm.phase = m.phase; if (rm.code !== m.code && m.code) rm.code = m.code; if (was !== "bet" && rm.phase === "bet") rmNewRound(); rmRender(); }
+    if (m.t === "room") { const wasFinal = rm.final; rm.final = !!m.final; if (rm.final && !wasFinal && m.phase === "bet") { if (S.view === "room") lastBanner("#v-room .btable"); else toast("联机百家乐 · 下一局是最后一局"); } const wasPaused = rm.paused; rm.paused = !!m.paused; if (wasPaused && !rm.paused && m.phase === "bet") msg($("#rmMsg"), "开始 · 请下注"); rm.players = m.players || []; rm.road = m.road || []; rm.left = m.left; const was = rm.phase; rm.phase = m.phase; if (rm.code !== m.code && m.code) rm.code = m.code; if (was !== "bet" && rm.phase === "bet") rmNewRound(); rmRender(); }
     else if (m.t === "tick") { rm.left = m.left; if (S.view === "room" && rm.left <= 3 && rm.left > 0) SND.tick(); rmRender(); }
     else if (m.t === "hand") { rm.phase = "deal"; rmPlayHand(m.hand, m.note, m.road); }
     else if (m.t === "say") { rmSay(m.id, m.text); if (!m.id) chatAdd("rm", null, m.text); }
@@ -3748,7 +3799,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     rm.peer = null; rm.hostConn = null; rm.bets = rmEmpty();      // clear first: closing the connection must not refund a second time
     if (back) addBank(back);
     try { if (peer) peer.destroy(); } catch (e) {}
-    Object.assign(rm, { paused: false, h: null, peer: null, host: false, code: "", hostConn: null, players: [], road: [], phase: "bet", left: RM_BET, bets: rmEmpty(), hist: [], busy: false });
+    Object.assign(rm, { final: false, paused: false, h: null, peer: null, host: false, code: "", hostConn: null, players: [], road: [], phase: "bet", left: RM_BET, bets: rmEmpty(), hist: [], busy: false });
     rm.conns = new Map(); rm.ph = ""; chatClear("rm");
     rmRender();
   }
