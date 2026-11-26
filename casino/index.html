@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.14.5">
+<meta name="version" content="0.14.6">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -156,9 +156,8 @@ main > section > * { min-width: 0; }
 .mc-txt small { font-size: 12px; color: var(--muted); }
 .mc-tags { display: flex; gap: 5px; flex-wrap: wrap; }
 .mc-tags i { font-style: normal; font-size: 11px; padding: 1px 7px; border-radius: 999px; background: rgba(212,175,55,.15); color: var(--win); }
-@media (max-width: 640px) { .gtiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .gtile { padding: 8px 9px 7px; } .gtile .glyph { font-size: clamp(22px, 4vh, 36px); } .gtile small { display: none; } }
+@media (max-width: 640px) { .gtiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } .gtile { padding: 8px 9px 7px; } .gtile small { display: none; } }
 .gtile { padding: 10px 10px 9px; display: grid; gap: 1px; justify-items: start; }
-.gtile .glyph { font-family: var(--display); font-size: clamp(26px, 5vh, 44px); line-height: 1; color: var(--brass); font-weight: 700; }
 .gtile b { font-size: 15px; }
 .gtile small { font-size: 11px; color: var(--muted); }
 .lfoot { display: flex; justify-content: center; margin-top: auto; }
@@ -170,7 +169,6 @@ main > section > * { min-width: 0; }
 .vlist li:first-child b { color: var(--win); }
 .vlist li span { grid-column: 3; }
 .vlist .vmaj { font-style: normal; font-size: 10px; padding: 1px 6px; border-radius: 999px; background: var(--brass); color: var(--ink); }
-.linkbtn { background: none; border: 1px solid var(--brass-lo); border-radius: 999px; padding: 3px 12px; font-size: 12px; color: var(--muted); }
 
 /* Shared game stack */
 .game { --cw: clamp(28px, 5vh, 50px); gap: 5px !important; padding-top: 6px !important; padding-bottom: 4px !important; }
@@ -588,8 +586,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .chat-form { display: flex; gap: 8px; padding-top: 8px; border-top: 1px solid var(--brass-lo); }
 .chat-form input { flex: 1; min-width: 0; font: 15px/1.2 var(--body); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--brass-lo); background: rgba(0,0,0,.4); color: var(--ivory); }
 /* 德州扑克联机房 */
-.rtiles { display: grid; gap: 8px; }
-@media (min-width: 700px) { .rtiles { grid-template-columns: 1fr 1fr; } }
 .pr-sel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .rm-join select { font: 600 15px/1.2 var(--body); padding: 9px 8px; border-radius: 10px; border: 1px solid var(--brass-lo); background: #15120c; color: var(--ivory); width: 100%; }
 .pr-play { display: contents; } .pr-play[hidden] { display: none; }
@@ -765,12 +761,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .mreel { height: calc(var(--mc) * 3); overflow: hidden; border-radius: 6px; background: radial-gradient(120% 60% at 50% 50%, #5a1418, #2a0709); position: relative; }
 .mreel .col { will-change: transform; }
 .mc { height: var(--mc); display: grid; place-items: center; position: relative; font-size: calc(var(--mc) * .56); line-height: 1; border-bottom: 1px solid rgba(255,255,255,.05); }
-.mc .lt { font: 800 calc(var(--mc) * .44)/1 var(--display); }
-.mc .lt.A { color: #ff5a5f; } .mc .lt.K { color: #5ab0ff; } .mc .lt.Q { color: #c77dff; } .mc .lt.J { color: #4fd37a; } .mc .lt.T { color: #ffb347; }
-.mc .wild { width: 82%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #fff3b0, #d4af37 45%, #7a5a10); color: #a3080c; font: 900 calc(var(--mc) * .4)/1 var(--display); box-shadow: 0 0 10px rgba(255,215,0,.6); position: relative; }
-.mc .wild::after { content: "百搭"; position: absolute; bottom: -2px; font: 700 calc(var(--mc) * .14)/1 var(--body); color: #fff; background: #a3080c; padding: 1px 4px; border-radius: 3px; }
-.mc .scat { width: 78%; aspect-ratio: 1; display: grid; place-items: center; transform: rotate(45deg); background: linear-gradient(135deg, #e0262c, #8a0a0e); border: 2px solid var(--win); border-radius: 6px; }
-.mc .scat i { transform: rotate(-45deg); font: 900 calc(var(--mc) * .38)/1 var(--display); color: #ffe08a; font-style: normal; }
 .mc.win { background: radial-gradient(circle, rgba(242,210,122,.55), rgba(242,210,122,0) 70%); }
 .mc.win > * { animation: symwin .45s ease-in-out 4 alternate; }
 .mgrid.hold .mc:not(.lock) > * { opacity: .18; }
@@ -821,7 +811,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .gtile .ico svg.art { width: clamp(30px, 5.4vh, 48px); height: clamp(30px, 5.4vh, 48px); }
 #v-dragon .btn.big { min-width: 0; flex: 1 1 auto; max-width: 50%; }
 
-.gtile .ico.emo { font-size: clamp(28px, 5vh, 44px); line-height: 1; }
 /* 宝石瀑布 cascade slot */
 #v-gems { --gc: clamp(40px, min(14.2vw, 8.2vh), 90px); }
 .btable.gm { justify-content: center; gap: 6px; padding: 8px; position: relative; overflow: hidden; background: radial-gradient(90% 80% at 50% 30%, #1b2a4a, #0a0f1f 70%); }
@@ -874,15 +863,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .sym { height: var(--cell); display: grid; place-items: center; font-size: calc(var(--cell) * .52); line-height: 1; color: var(--black); border-bottom: 1px solid rgba(0,0,0,.08); }
 .sym.win { background: radial-gradient(circle, rgba(242,210,122,.85), rgba(242,210,122,0) 70%); animation: symwin .5s ease-in-out 3 alternate; }
 @keyframes symwin { to { transform: scale(1.08); } }
-.sym .s7 { font-family: var(--display); font-weight: 700; color: #c4161c; font-size: calc(var(--cell) * .66); text-shadow: 0 2px 0 #7a0d10; }
-.sym .sbar { font: 800 calc(var(--cell) * .2)/1 var(--body); color: #fff; background: #1d1d1f; border: 2px solid var(--brass); padding: 4px 6px; border-radius: 4px; letter-spacing: .06em; }
-.sym .sstar { color: #d4a017; text-shadow: 0 1px 0 #7a5a00; }
-.sym .sred { color: var(--red); }
 .paytable { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; background: rgba(0,0,0,.35); border: 1px solid var(--brass-lo); border-radius: 8px; padding: 4px; }
 .paytable span { display: grid; justify-items: center; font: 500 11px/1.2 var(--mono); color: var(--muted); }
-.paytable span b { font-size: 15px; color: var(--ivory); font-family: var(--display); }
-.paytable span b.s7 { color: #ff5a5f; } .paytable span b.sred { color: #ff7a7f; } .paytable span b.sstar { color: var(--win); }
-.paytable span b.sbar { font: 800 10px/1.6 var(--body); }
 
 #v-slots .btn.big { min-width: 0; flex: 1 1 auto; max-width: 50%; }
 .spdbtn { border-radius: 999px; padding: 8px 12px; font: 700 15px/1 var(--mono); min-width: 3.4em; }
@@ -1416,12 +1398,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.14.5</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.14.6</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
   </div></div>
 
   <!-- Baccarat -->
@@ -2298,7 +2280,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     return Math.floor(Math.random() * n);
   }
   function msg(el, html) { el.innerHTML = html; }
-  // Big win celebration: money bursts up from the bottom while the amount counts up from 0 (about 10 s, tap to skip)
   // Big win celebration (about 20 s, tap to skip):
   //  0–70 %  money bursts up from the bottom while the amount counts up from 0
   //  70 %    the count lands: chime, the number pops and a ring of coins bursts out of it
@@ -2676,7 +2657,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   let bac = tables[0];
   const validCards = (cs) => Array.isArray(cs) && cs.length >= tables[0].shoe.cut && cs.every((c) => c && RANKS.includes(c.r) && SUITS.includes(c.s));
   const cleanRoad = (r) => (Array.isArray(r) ? r : []).filter((e) => e && ["P", "B", "T"].includes(e.w)).map((e) => ({ w: e.w, pp: !!e.pp, bp: !!e.bp }));
-  // Roads and shoes survive leaving the page (and the old single-table save becomes table A)
+  // Roads and shoes survive leaving the page
   try {
     const sv = JSON.parse(localStorage.getItem("gbc-bac4") || "null");
     if (sv && Array.isArray(sv.tables)) {
@@ -2685,9 +2666,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         if (validCards(t.cards)) { tables[i].shoe.cards = t.cards.map((c) => ({ r: c.r, s: c.s })); tables[i].road = cleanRoad(t.road); }
       });
       if (tables[sv.cur]) bac = tables[sv.cur];
-    } else {
-      const old = JSON.parse(localStorage.getItem("gbc-bac") || "null");
-      if (old && validCards(old.cards)) { tables[0].shoe.cards = old.cards.map((c) => ({ r: c.r, s: c.s })); tables[0].road = cleanRoad(old.road); }
     }
   } catch (e) {}
   tables.forEach((t) => { if (t.shoe.cards.length === 416) burn(t.shoe); });
