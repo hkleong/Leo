@@ -22,4 +22,7 @@ open(os.path.join(out, "sw.js"), "w", encoding="utf-8").write(sw)
 shutil.copy(os.path.join(HERE, "manifest.webmanifest"), out)
 for f in os.listdir(os.path.join(HERE, "icons")):
     shutil.copy(os.path.join(HERE, "icons", f), os.path.join(out, "icons", f))
+os.makedirs(os.path.join(out, "music"), exist_ok=True)
+for f in os.listdir(os.path.join(HERE, "music")):
+    shutil.copy(os.path.join(HERE, "music", f), os.path.join(out, "music", f))
 print("built", out, "cache", ver)

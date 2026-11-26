@@ -13,6 +13,8 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  // music streams straight from the network (it is large and uses range requests)
+  if (url.pathname.includes("/music/")) return;
   // Pages: network first so updates arrive, cached copy when offline
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).then((r) => { const cp = r.clone(); caches.open(VERSION).then((c) => c.put("index.html", cp)); return r; })
