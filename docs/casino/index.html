@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.12.0">
+<meta name="version" content="0.13.0">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -180,6 +180,8 @@ main > section > * { min-width: 0; }
   background: radial-gradient(90% 90% at 50% 20%, var(--felt-hi), var(--felt) 60%, var(--felt-lo));
   box-shadow: inset 0 0 30px rgba(0,0,0,.35);
 }
+.tname { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; font: 700 clamp(56px, 13vh, 120px)/1 var(--display); color: rgba(231,199,111,.16); text-shadow: 0 0 1px rgba(231,199,111,.25); letter-spacing: 0; }
+.btable.bac > .bside { z-index: 1; }
 .btable.bac { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px 10px 6px; }
 .btable.col { display: flex; flex-direction: column; justify-content: space-evenly; gap: 4px; padding: 8px 12px; min-height: 0; }
 .tmsg { margin: 0; text-align: center; font-size: 13px; min-height: 1.4em; }
@@ -529,6 +531,60 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .rm-emo button:first-child { margin-left: auto; } .rm-emo button:last-child { margin-right: auto; }
 .rm-emo button { flex: none; border: 1px solid var(--brass-lo); background: rgba(0,0,0,.35); color: var(--ivory); border-radius: 999px; padding: 3px 9px; font-size: 15px; line-height: 1.2; }
 #rmRoadScroll .road { --rc: clamp(9px, 1.5vh, 14px); }
+
+/* 德州扑克联机房 */
+.rtiles { display: grid; gap: 8px; }
+@media (min-width: 700px) { .rtiles { grid-template-columns: 1fr 1fr; } }
+.pr-sel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.rm-join select { font: 600 15px/1.2 var(--body); padding: 9px 8px; border-radius: 10px; border: 1px solid var(--brass-lo); background: #15120c; color: var(--ivory); width: 100%; }
+.pr-play { display: contents; } .pr-play[hidden] { display: none; }
+.pr-bl { font: 600 12px/1 var(--mono); color: var(--muted); white-space: nowrap; }
+.rm-top > * { white-space: nowrap; }
+@media (max-width: 400px) { .rm-top { gap: 5px; font-size: 12px; } .rm-id b { font-size: 15px; letter-spacing: .06em; } .rm-top .toggle { padding: 3px 8px; } }
+.ptable { position: relative; flex: 1 1 auto; min-height: 280px; margin: 4px 4px 0; }
+.pfelt { position: absolute; inset: 9% 7% 8%; border-radius: 50% / 46%; background: radial-gradient(80% 70% at 50% 40%, #1f6a43, #0e3d25 70%, #0a2a1a); border: 7px solid #3a2a12; box-shadow: inset 0 0 0 2px rgba(231,199,111,.45), inset 0 0 40px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.6); }
+.pdealerbot { position: absolute; left: 50%; top: 4%; transform: translateX(-50%); z-index: 2; display: grid; justify-items: center; gap: 0; pointer-events: none; }
+.pd-ava { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #3a3a44, #121216); border: 1.5px solid var(--win); color: var(--win); box-shadow: 0 0 10px rgba(231,199,111,.4); }
+.pd-ava svg { width: 24px; height: 24px; }
+.pdealerbot b { font-size: 10px; color: var(--win); letter-spacing: .08em; background: rgba(0,0,0,.6); border-radius: 999px; padding: 0 6px; margin-top: -3px; }
+.pdealerbot.talk .pd-ava { animation: jpflash .35s ease-in-out 2 alternate; }
+.pcenter { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 5px; width: 70%; }
+.pboard { display: flex; gap: 3px; --cw: clamp(26px, min(8.4vw, 5.4vh), 46px); min-height: calc(var(--cw) * 1.4); }
+.pboard .slot { width: var(--cw); height: calc(var(--cw) * 1.4); border-radius: 5px; border: 1px dashed rgba(231,199,111,.25); }
+.pboard .card { animation: pin .35s ease-out; }
+@keyframes pin { from { transform: translateY(-8px) rotateY(90deg); opacity: 0; } }
+.ppot { font: 700 13px/1 var(--mono); color: var(--win); background: rgba(0,0,0,.45); border-radius: 999px; padding: 3px 10px; min-height: 19px; }
+.ppot:empty { display: none; }
+.pmsg { font-size: 12px; color: var(--ivory); text-align: center; text-shadow: 0 1px 2px #000; min-height: 1.2em; max-width: 100%; }
+.pmsg .w { color: var(--win); font-weight: 700; }
+.pseat { position: absolute; transform: translate(-50%, -50%); width: clamp(62px, 19vw, 96px); display: grid; justify-items: center; gap: 1px; z-index: 2; }
+.ps-cards { display: flex; gap: 1px; height: calc(var(--cw) * 1.4); --cw: clamp(18px, 5.4vw, 28px); margin-bottom: -6px; }
+.ps-cards .card .r { font-size: calc(var(--cw) * .42); left: 2px; top: 1px; }
+.ps-cards .card .s { font-size: calc(var(--cw) * .55); padding-top: calc(var(--cw) * .3); }
+.ps-box { width: 100%; border-radius: 9px; background: rgba(8,8,9,.9); border: 1px solid var(--brass-lo); padding: 3px 4px; text-align: center; position: relative; line-height: 1.15; }
+.ps-box b { display: block; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ps-box small { display: block; font: 600 11px/1.2 var(--mono); color: var(--win); }
+.ps-act { position: absolute; left: 50%; top: -9px; transform: translateX(-50%); font-size: 10px; white-space: nowrap; background: var(--brass); color: var(--ink); border-radius: 999px; padding: 0 6px; font-weight: 700; }
+.ps-act:empty { display: none; }
+.pseat.fold { opacity: .45; }
+.pseat.turn .ps-box { border-color: var(--win); box-shadow: 0 0 0 2px var(--win), 0 0 14px rgba(231,199,111,.6); }
+.ps-timer { position: absolute; left: 4px; right: 4px; bottom: 1px; height: 2px; background: var(--win); transform-origin: left; border-radius: 2px; }
+.pseat.win .ps-box { border-color: #ffe08a; box-shadow: 0 0 16px rgba(255,220,120,.9); animation: jpflash .5s ease-in-out 4 alternate; }
+.pseat.out .ps-box { border-style: dashed; }
+.pseat.me { width: clamp(84px, 26vw, 120px); }
+.pseat.me .ps-cards { --cw: clamp(28px, 8.6vw, 42px); }
+.ps-rank { font-size: 10px; color: var(--ivory); white-space: nowrap; }
+.pdealer { position: absolute; transform: translate(-50%, -50%); width: 18px; height: 18px; border-radius: 50%; background: #fff; color: #111; font: 800 10px/18px var(--body); text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.6); z-index: 3; }
+.pbet { position: absolute; transform: translate(-50%, -50%); z-index: 3; display: flex; align-items: center; gap: 3px; font: 700 11px/1 var(--mono); color: #fff; text-shadow: 0 1px 2px #000; }
+.pbet i { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle, #d0473f 45%, #fff 46% 55%, #d0473f 56%); box-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.pr-acts { display: grid; gap: 6px; }
+.pr-acts .btn { min-width: 26%; padding: 10px 12px; font-size: 15px; border-radius: 10px; }
+.pr-acts .btn.fold { background: #5a1a1e; border-color: #a33; color: #fff; }
+.pr-raise { display: grid; gap: 6px; padding: 8px; border-radius: 12px; border: 1px solid var(--brass-lo); background: rgba(0,0,0,.4); }
+.pr-amt { display: flex; align-items: center; justify-content: center; gap: 12px; } .pr-amt b { font: 800 20px/1 var(--mono); color: var(--win); min-width: 6em; text-align: center; }
+.pr-raise input[type=range] { width: 100%; accent-color: var(--brass); }
+.pr-quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.pr-quick button { border: 1px solid var(--brass-lo); background: transparent; color: var(--ivory); border-radius: 8px; padding: 7px 4px; font-size: 13px; }
 
 /* Slot machine dressing: marquee bulbs, ambient effects, win flash and coins */
 .btable.deco { isolation: isolate; }
@@ -1288,7 +1344,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     </div>
     <div class="lsec">
       <h3>联机 <span class="note">和朋友同桌</span></h3>
+      <div class="rtiles">
       <button class="rtile" type="button" data-go="room"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="6"/><circle cx="33" cy="16" r="6"/><path d="M5 38c0-7 5-12 11-12s11 5 11 12M24 30c2-3 5-4 9-4 6 0 10 5 10 12"/></svg></span><span class="rt-txt"><b>联机房间 · 百家乐</b><small id="rmLobbyNote">开一个房间，把 6 位房间号发给朋友，大家看同一副牌、同一条路</small></span><i aria-hidden="true">›</i></button>
+      <button class="rtile" type="button" data-go="proom"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="24" cy="26" rx="20" ry="13"/><rect x="15" y="17" width="8" height="11" rx="1.5" fill="currentColor" fill-opacity=".2"/><rect x="25" y="17" width="8" height="11" rx="1.5" fill="currentColor" fill-opacity=".2"/><circle cx="9" cy="9" r="3"/><circle cx="39" cy="9" r="3"/><circle cx="24" cy="5" r="3"/></svg></span><span class="rt-txt"><b>联机房间 · 德州扑克</b><small>玩家对玩家 · 无限注 · 最多 9 人 · 每个底池抽 5%</small></span><i aria-hidden="true">›</i></button>
+      </div>
     </div>
     <div class="lsec">
       <h3>龙虎 <span class="note">2 桌 · 每 15 秒自动开局</span></h3>
@@ -1305,17 +1364,18 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.12.0</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.13.0</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
   </div></div>
 
   <!-- Baccarat -->
   <section id="v-baccarat" class="game" hidden>
     <div class="btable bac">
+      <div class="tname" id="bacTName" aria-hidden="true">A</div>
       <div class="cdring" id="bacCd" aria-live="off" title="距离自动开局的秒数">15</div>
       <div class="shoebox" id="bacShoeBox" aria-hidden="true"></div>
       <div class="bside bp-side" id="bacPSide"><div class="blabel">PLAYER</div><div class="hand" id="bacP"></div><div class="btotal" id="bacPT">–</div></div>
@@ -1403,12 +1463,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   <section id="v-room" class="game" hidden>
     <div class="rm-join" id="rmJoin">
       <h2>联机房间</h2>
-      <p class="note">和朋友坐同一张百家乐桌：开房间的人当荷官，大家看到同一副牌、同一条路，各自用自己的余额下注，桌上能看到每个人押了什么。</p>
+      <p class="note">和朋友坐同一张百家乐桌：AI 荷官自动发牌，开房间的人和大家一样下注；大家看到同一副牌、同一条路，各自用自己的余额下注，桌上能看到每个人押了什么。</p>
       <label class="rm-field"><span>你的名字</span><input id="rmName" maxlength="10" autocomplete="nickname" placeholder="例如 阿明"></label>
       <button class="btn big" id="rmCreate" type="button">开一个房间</button>
       <p class="rm-or">或者输入朋友给你的房间号</p>
       <div class="rm-code"><input id="rmCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位数字"><button class="btn" id="rmJoinBtn" type="button">加入</button></div>
       <p class="tmsg" id="rmStatus"></p>
+      <button class="toggle" type="button" data-go="proom">想和朋友玩德州扑克？去德州联机房 ›</button>
       <ul class="note rm-tips">
         <li>开房间的人要一直开着这个页面（可以去别的游戏，但不要关掉 App）。</li>
         <li>需要网络。少数公司 Wi-Fi 或网络会挡住直连，连不上时换成手机流量试试。</li>
@@ -1455,16 +1516,72 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <div class="sheet-head"><h3>联机房间</h3><span class="note">百家乐 · Punto Banco</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
       <ul>
         <li>开房间的人得到一个 6 位房间号，把它（或分享链接）发给朋友，朋友在「联机」里输入就能加入，最多 8 人。</li>
-        <li>房主的手机负责洗牌和发牌：8 副牌，每 20 秒开一局，所有人看到同一手牌和同一条大路。</li>
+        <li>AI 荷官自动洗牌发牌（8 副牌，每 20 秒开一局），房主也是普通玩家；牌局在房主的手机上运行，所以房主要一直开着 App。所有人看到同一手牌和同一条大路。</li>
         <li>每个人用自己的余额下注、自己结算，赔率和百家乐一样：闲 1:1、庄 0.95:1、和 8:1、闲对 / 庄对 11:1。</li>
         <li>桌上会显示每个人押在哪里和本房间的输赢；可以发表情和短句。</li>
         <li>连接方式是手机之间直连（WebRTC），只在找人时用到公共的配对服务器，不经过我们的服务器，也不保存任何资料。房主离开，房间就结束。</li>
       </ul>
     </div></div>
   </section>
+  <!-- 德州扑克联机房: No-Limit Texas Hold'em, player vs player, 2–9 seats, 5% rake per pot -->
+  <section id="v-proom" class="game" hidden>
+    <div class="rm-join" id="prJoin">
+      <h2>德州扑克联机房</h2>
+      <p class="note">无限注德州扑克，玩家对玩家，按国际规则：大小盲、弃牌 / 让牌 / 跟注 / 加注 / 全下、边池。每个底池抽 5%（没发翻牌不抽）。</p>
+      <label class="rm-field"><span>你的名字</span><input id="prName" maxlength="10" autocomplete="nickname" placeholder="例如 阿明"></label>
+      <div class="pr-sel">
+        <label class="rm-field"><span>盲注（开房间时选）</span><select id="prBlinds"><option value="0">10 / 20</option><option value="1" selected>50 / 100</option><option value="2">100 / 200</option><option value="3">500 / 1,000</option><option value="4">1,000 / 2,000</option><option value="5">5,000 / 10,000</option></select></label>
+        <label class="rm-field"><span>带入筹码</span><select id="prBuy"><option value="50">50 个大盲</option><option value="100" selected>100 个大盲</option><option value="200">200 个大盲</option></select></label>
+      </div>
+      <button class="btn big" id="prCreate" type="button">开一个德州房间</button>
+      <p class="rm-or">或者输入朋友的房间号（盲注跟着房主）</p>
+      <div class="rm-code"><input id="prCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位数字"><button class="btn" id="prJoinBtn" type="button">加入</button></div>
+      <p class="tmsg" id="prStatus"></p>
+      <ul class="note rm-tips">
+        <li>带入的筹码从你的余额扣，离开房间时桌上剩下的筹码会退回余额。</li>
+        <li>发牌由 AI 荷官自动进行，房主和大家一样是普通玩家。房主要一直开着 App（牌局在房主的手机上运行）；至少 2 人就自动开始。每次行动有 25 秒，超时自动让牌或弃牌。</li>
+      </ul>
+    </div>
+    <div class="pr-play" id="prPlay" hidden>
+      <div class="rm-top"><span class="rm-id">房间号 <b id="prCodeShow">––––––</b></span><button class="toggle" id="prCopy" type="button">分享</button><span class="pr-bl" id="prBl">盲注 50/100</span><span class="rm-n" id="prCount">1 人</span><button class="toggle" id="prLeave" type="button">离开</button></div>
+      <div class="ptable" id="prTable">
+        <div class="pfelt"></div>
+        <div class="pdealerbot" aria-hidden="true"><span class="pd-ava"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="11" y="13" width="26" height="22" rx="7"/><circle cx="19" cy="23" r="2.6" fill="currentColor"/><circle cx="29" cy="23" r="2.6" fill="currentColor"/><path d="M19 30h10M24 13V7"/><circle cx="24" cy="6" r="2"/><path d="M17 35l-4 8h22l-4-8"/></svg></span><b>AI 荷官</b></div>
+        <div class="pcenter"><div class="pboard" id="prBoard"></div><div class="ppot" id="prPot"></div><div class="pmsg" id="prMsg">等待玩家</div></div>
+        <div id="prSeats"></div>
+      </div>
+      <div class="pr-acts" id="prActs">
+        <div class="actrow" id="prMain"><span class="q" id="prWait">等待开局</span></div>
+        <div class="pr-raise" id="prRaise" hidden>
+          <div class="pr-amt"><button class="rbtn" id="prMinus" type="button" aria-label="减少">−</button><b id="prRaiseAmt">0</b><button class="rbtn" id="prPlus" type="button" aria-label="增加">+</button></div>
+          <input type="range" id="prSlider" min="0" max="100" step="1" aria-label="加注金额">
+          <div class="pr-quick"><button type="button" data-q="min">最小</button><button type="button" data-q="half">½ 池</button><button type="button" data-q="pot">1 池</button><button type="button" data-q="all">全下</button></div>
+          <div class="actrow"><button class="btn ghost" id="prRaiseNo" type="button">取消</button><button class="btn" id="prRaiseGo" type="button">确定加注</button></div>
+        </div>
+      </div>
+      <div class="rm-emo" id="prEmo"><button type="button">👍</button><button type="button">😂</button><button type="button">😎</button><button type="button">😭</button><button type="button">🙏</button><button type="button" data-say="Nice hand">Nice hand</button><button type="button" data-say="all in!">all in!</button></div>
+      <div class="bfoot">
+        <div>桌上筹码 <b id="prStack">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+        <div class="r"><span>德州扑克 · <span id="prRole">玩家</span> · 第 <span id="prHandNo">0</span> 手</span><button class="toggle" id="prRebuy" type="button" hidden>补码</button></div>
+      </div>
+    </div>
+    <div class="sheet" id="rules-pr" hidden><div class="sheet-in" role="dialog" aria-label="德州扑克规则">
+      <div class="sheet-head"><h3>德州扑克联机房</h3><span class="note">无限注 No-Limit Hold'em</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <ul>
+        <li>2–9 人，每手用一副新洗的 52 张牌。庄家按钮（D）每手顺时针移一位；按钮左边是小盲，再左边是大盲。只剩两人时，按钮就是小盲，翻牌前先行动、翻牌后后行动。</li>
+        <li>每人 2 张底牌，桌面依次发翻牌 3 张、转牌 1 张、河牌 1 张，共四轮下注。翻牌前从大盲左边的玩家开始，之后从按钮左边第一位还在牌局里的玩家开始。</li>
+        <li>可选：弃牌、让牌（没人下注时）、跟注、下注 / 加注、全下。最小下注 = 大盲；加注至少要加到「目前最高注 + 上一次加注的幅度」。不足一次完整加注的全下，不会让已经行动过的玩家重新获得加注权。</li>
+        <li>全下的玩家只能赢他投入部分对应的底池，多出来的组成边池。</li>
+        <li>摊牌时用 2 张底牌加 5 张公共牌里最好的 5 张比大小：皇家同花顺 ＞ 同花顺 ＞ 四条 ＞ 葫芦 ＞ 同花 ＞ 顺子 ＞ 三条 ＞ 两对 ＞ 一对 ＞ 高牌。花色不分大小，完全相同就平分底池，多出的一个筹码给按钮左边最近的赢家。</li>
+        <li>抽水：每个底池抽 5%（向下取整）；没发翻牌就结束的牌局不抽，没人跟的退回筹码也不抽。</li>
+        <li>每次行动 25 秒，超时自动让牌，不能让牌就弃牌。筹码输光后可以点「补码」再带入。</li>
+      </ul>
+    </div></div>
+  </section>
   <!-- Dragon Tiger -->
   <section id="v-dt" class="game" hidden>
     <div class="btable bac dt">
+      <div class="tname" id="dtTName" aria-hidden="true">A</div>
       <div class="cdring" id="dtCd" aria-live="off" title="距离自动开局的秒数">15</div>
       <div class="shoebox" id="dtShoeBox" aria-hidden="true"></div>
       <div class="bside bp-side dt-d" id="dtDSide"><div class="blabel">龙 DRAGON</div><div class="hand" id="dtD"></div><div class="btotal" id="dtDT">–</div></div>
@@ -2356,7 +2473,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
 
   /* ---------- Navigation and sheets ---------- */
-  const VIEWS = ["lobby", "room", "baccarat", "dt", "blackjack", "roulette", "poker", "holdem", "niu", "slots", "dragon", "gems", "fruit", "diver"];
+  const VIEWS = ["lobby", "room", "proom", "baccarat", "dt", "blackjack", "roulette", "poker", "holdem", "niu", "slots", "dragon", "gems", "fruit", "diver"];
   const MACHINES = ["dragon", "gems", "fruit", "diver", "slots"], MACHINE_NAME = { dragon: "龙腾财宝", gems: "宝石瀑布", fruit: "水果转轮", diver: "深海寻宝", slots: "幸运 7" };
   function show(v) {
     if (!VIEWS.includes(v)) v = "lobby";
@@ -2376,6 +2493,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (v === "dt") { if (!dt.busy) dtShowLast(); dtRoad(); dtRender(); }
     if (v === "lobby") renderLobby();
     if (v === "room") rmRender();
+    if (v === "proom") prRender();
     renderAuto();
   }
   function go(v) {
@@ -2444,8 +2562,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       return [$("#v-" + m + " .btable")];
     });
   });
-  const hashView = () => { const h = location.hash.slice(1); return h.startsWith("room=") ? "room" : h || "lobby"; };
-  window.addEventListener("hashchange", () => { show(hashView()); if (hashView() === "room") rmFromHash(); });
+  const hashView = () => { const h = location.hash.slice(1); return h.startsWith("room=") ? "room" : h.startsWith("proom=") ? "proom" : h || "lobby"; };
+  window.addEventListener("hashchange", () => { show(hashView()); if (hashView() === "room") rmFromHash(); if (hashView() === "proom") prFromHash(); });
   $$("[data-rules]").forEach((b) => b.addEventListener("click", () => { closePops(); $("#" + b.dataset.rules).hidden = false; }));
   $$(".sheet").forEach((sh) => sh.addEventListener("click", (e) => {
     if (e.target === sh || e.target.closest("[data-close]")) sh.hidden = true;
@@ -2510,7 +2628,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#bacDouble").disabled = bac.busy || !has;
     $("#bacShoe").textContent = bac.shoe.cards.length;
     $("#bacBetTotal").textContent = fmt(bacTotal());
-    $("#bacName").textContent = bac.name;
+    $("#bacName").textContent = bac.name; $("#bacTName").textContent = bac.name;
     $$("#bacTables button").forEach((b) => { b.setAttribute("aria-pressed", String(tables[+b.dataset.t] === bac)); b.disabled = !!bac.shuffling && tables[+b.dataset.t] !== bac; });
     renderAuto();
   }
@@ -2536,7 +2654,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const can = () => !bac.shuffling; can.reason = () => "换牌靴中，稍后再换桌";
     dragSwitch($("#v-baccarat"), top, can, (d) => {
       useTable((tables.indexOf(bac) + d + tables.length) % tables.length);
-      toast("百家乐 " + bac.name + " 桌");
       return top();
     });
   }
@@ -2991,7 +3108,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#dtDouble").disabled = dt.busy || !has;
     $("#dtShoe").textContent = dt.shoe.cards.length;
     $("#dtBetTotal").textContent = fmt(dtTotal());
-    $("#dtName").textContent = dt.name;
+    $("#dtName").textContent = dt.name; $("#dtTName").textContent = dt.name;
     $$("#dtTables button").forEach((b) => { b.setAttribute("aria-pressed", String(dtTables[+b.dataset.t] === dt)); b.disabled = !!dt.shuffling && dtTables[+b.dataset.t] !== dt; });
     renderAuto();
   }
@@ -3025,7 +3142,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   {
     const top = () => ["#v-dt .btable", "#v-dt .roads", "#v-dt .bstats"].map((q) => $(q));
     const can = () => !dt.shuffling; can.reason = () => "换牌靴中，稍后再换桌";
-    dragSwitch($("#v-dt"), top, can, (d) => { dtUse((dtTables.indexOf(dt) + d + dtTables.length) % dtTables.length); toast("龙虎 " + dt.name + " 桌"); return top(); });
+    dragSwitch($("#v-dt"), top, can, (d) => { dtUse((dtTables.indexOf(dt) + d + dtTables.length) % dtTables.length); return top(); });
   }
   $$("#v-dt .spot").forEach((s) => s.addEventListener("click", () => {
     if (dt.busy) return;
@@ -3186,7 +3303,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#rmRebet").disabled = lock || !rm.last; $("#rmRepeat").disabled = $("#rmRebet").disabled;
     $("#rmBetTotal").textContent = fmt(rmTotal());
     $("#rmCodeShow").textContent = rm.code;
-    $("#rmRole").textContent = rm.host ? "你是房主（发牌）" : "玩家";
+    $("#rmRole").textContent = rm.host ? "你是房主" : "玩家";
     $("#rmNet").innerHTML = rm.net > 0 ? '<span class="w">+' + fmt(rm.net) + "</span>" : rm.net < 0 ? '<span class="l">' + fmt(rm.net) + "</span>" : "0";
     $("#rmCount").textContent = rm.players.length + " 人";
     const cd = $("#rmCd");
@@ -3350,8 +3467,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function rmReset() {
     clearInterval(rm.timer);
-    try { if (rm.peer) rm.peer.destroy(); } catch (e) {}
-    if (rmTotal() && rm.phase === "bet") addBank(rmTotal());
+    const peer = rm.peer, back = rm.phase === "bet" ? rmTotal() : 0;
+    rm.peer = null; rm.hostConn = null; rm.bets = rmEmpty();      // clear first: closing the connection must not refund a second time
+    if (back) addBank(back);
+    try { if (peer) peer.destroy(); } catch (e) {}
     Object.assign(rm, { peer: null, host: false, code: "", hostConn: null, players: [], road: [], phase: "bet", left: RM_BET, bets: rmEmpty(), hist: [], busy: false });
     rm.conns = new Map(); rm.ph = "";
     rmRender();
@@ -4193,6 +4312,378 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     th.phase = "bet"; th.busy = false; thRender();
   }
 
+
+  /* ======================================================
+     德州扑克联机房 — No-Limit Texas Hold'em, player vs player, 2–9 seats, 5% rake per pot (no flop, no drop).
+     The host's phone runs the game (gStart / gAct / gEndStreet / gShowdown) and sends each player the
+     table with only their own hole cards; everyone else just draws it and sends their actions back.
+       guest → host  hello {name, buy} · act {a, amt} · rebuy {amt} · say {text}
+       host → guest  ps {table as seen by that player} · say {id, text} · full
+     ====================================================== */
+  const PR_PREFIX = "gbcpoker-", PR_SEATS = 9, PR_TURN = 25, PR_RAKE = 0.05;
+  const PR_BLINDS = [[10, 20], [50, 100], [100, 200], [500, 1000], [1000, 2000], [5000, 10000]];
+  const pr = { peer: null, host: false, code: "", conns: new Map(), hostConn: null, me: "host", st: null, stAt: 0, g: null, timer: 0, raiseTo: 0, ph: "", said: {} };
+  try { $("#prName").value = localStorage.getItem("gbc-name") || ""; } catch (e) {}
+  // chips that were on the table when the app closed go back to the balance
+  try { const k = JSON.parse(localStorage.getItem("gbc-pk-stack") || "null"); if (k && k.stack > 0) { addBank(k.stack); setTimeout(() => toast("德州联机房的 " + fmt(k.stack) + " 筹码已退回余额"), 800); } localStorage.removeItem("gbc-pk-stack"); } catch (e) {}
+  const prStatus = (h) => msg($("#prStatus"), h);
+  const prName = () => { const n = ($("#prName").value || "").trim().slice(0, 10) || "玩家" + (1 + rand(99)); try { localStorage.setItem("gbc-name", n); } catch (e) {} $("#rmName").value = n; return n; };
+  /* ---------- host: the game ---------- */
+  const pLive = (p) => p.inHand && !p.folded;
+  const pMove = (p) => pLive(p) && !p.allin;
+  const gNext = (g, seat, pred) => { for (let k = 1; k <= PR_SEATS; k++) { const s = (seat + k) % PR_SEATS, p = g.players.find((x) => x.seat === s); if (p && pred(p)) return p; } return null; };
+  const gNeeds = (g, p) => pMove(p) && (!p.acted || p.bet < g.curBet);
+  const gRaiseOk = (g, p) => p.stack > g.curBet - p.bet && (!p.acted || p.actedAt < g.raiseSeq) && g.players.some((x) => x !== p && pMove(x));
+  function gPost(p, amt) { const a = Math.min(amt, p.stack); p.stack -= a; p.bet += a; p.total += a; if (!p.stack) p.allin = true; }
+  function gStart(g) {
+    g.result = null; g.board = []; g.flop = false;
+    g.players = g.players.filter((p) => !p.gone);
+    g.players.forEach((p) => { Object.assign(p, { inHand: false, folded: false, allin: false, bet: 0, total: 0, acted: false, actedAt: 0, lastAct: "", cards: null, shown: false, rank: null, won: 0 }); if (p.pend) { p.stack += p.pend; p.pend = 0; } });
+    const el = g.players.filter((p) => p.stack > 0);
+    if (el.length < 2) { g.street = "wait"; g.toAct = null; return false; }
+    el.forEach((p) => { p.inHand = true; });
+    g.handNo++;
+    const btn = gNext(g, g.button < 0 ? PR_SEATS - 1 : g.button, (p) => p.inHand); g.button = btn.seat;
+    const sb = el.length === 2 ? btn : gNext(g, btn.seat, (p) => p.inHand), bb = gNext(g, sb.seat, (p) => p.inHand);
+    g.deck = new Shoe(1);
+    let p = btn; do { p = gNext(g, p.seat, (x) => x.inHand); p.cards = [g.deck.draw()]; } while (p !== btn);
+    p = btn; do { p = gNext(g, p.seat, (x) => x.inHand); p.cards.push(g.deck.draw()); } while (p !== btn);
+    gPost(sb, g.blinds[0]); sb.lastAct = "小盲"; gPost(bb, g.blinds[1]); bb.lastAct = "大盲";
+    g.curBet = g.blinds[1]; g.minRaise = g.blinds[1]; g.raiseSeq = 1; g.street = "preflop";
+    g.msg = "第 " + g.handNo + " 手 · " + sb.name + " 小盲 " + fmt(g.blinds[0]) + " · " + bb.name + " 大盲 " + fmt(g.blinds[1]);
+    const first = gNext(g, bb.seat, (x) => gNeeds(g, x));
+    if (first) { g.toAct = first.id; g.deadline = Date.now() + PR_TURN * 1000; } else { g.toAct = null; gEndStreet(g); }
+    return true;
+  }
+  function gAct(g, id, a, amt) {
+    const p = g.players.find((x) => x.id === id);
+    if (!p || g.toAct !== id || !pMove(p)) return false;
+    const toCall = g.curBet - p.bet;
+    if (a === "fold") { p.folded = true; p.lastAct = "弃牌"; }
+    else if (a === "check") { if (toCall > 0) return false; p.lastAct = "让牌"; }
+    else if (a === "call") { const c = Math.min(toCall, p.stack); if (c <= 0) p.lastAct = "让牌"; else { gPost(p, c); p.lastAct = p.allin ? "全下" : "跟注"; } }
+    else if (a === "raise") {
+      if (!gRaiseOk(g, p)) return false;
+      const maxTo = p.bet + p.stack, minTo = g.curBet + g.minRaise;
+      let to = Math.floor(+amt) || 0;
+      if (to >= maxTo) to = maxTo; else if (to < minTo) return false;
+      if (to <= g.curBet) return false;
+      const wasBet = g.curBet === 0;
+      gPost(p, to - p.bet);
+      if (to - g.curBet >= g.minRaise) { g.minRaise = to - g.curBet; g.raiseSeq++; }   // a short all-in does not reopen the betting
+      g.curBet = to;
+      p.lastAct = p.allin ? "全下" : wasBet ? "下注" : "加注";
+    } else return false;
+    p.acted = true; p.actedAt = g.raiseSeq;
+    gAdvance(g, p.seat);
+    return true;
+  }
+  function gAdvance(g, seat) {
+    const alive = g.players.filter(pLive);
+    if (alive.length === 1) return gFoldWin(g, alive[0]);
+    const nx = gNext(g, seat, (x) => gNeeds(g, x));
+    if (nx) { g.toAct = nx.id; g.deadline = Date.now() + PR_TURN * 1000; return; }
+    gEndStreet(g);
+  }
+  function gEndStreet(g) {
+    g.toAct = null;
+    g.players.forEach((p) => { p.bet = 0; p.acted = false; p.actedAt = 0; if (pMove(p)) p.lastAct = ""; });
+    g.curBet = 0; g.minRaise = g.blinds[1]; g.raiseSeq++;
+    if (g.street === "river") return gShowdown(g);
+    if (g.street === "preflop") { g.board.push(g.deck.draw(), g.deck.draw(), g.deck.draw()); g.street = "flop"; g.flop = true; g.msg = "翻牌"; }
+    else if (g.street === "flop") { g.board.push(g.deck.draw()); g.street = "turn"; g.msg = "转牌"; }
+    else { g.board.push(g.deck.draw()); g.street = "river"; g.msg = "河牌"; }
+    g.msg += " · 底池 " + fmt(g.players.reduce((a, p) => a + p.total, 0));
+    if (g.players.filter(pMove).length <= 1) {            // everyone left is all-in: show the hands and run the board out
+      g.players.filter(pLive).forEach((p) => { p.shown = true; });
+      g.runAt = Date.now() + 1600; return;
+    }
+    const first = gNext(g, g.button, pMove);
+    g.toAct = first.id; g.deadline = Date.now() + PR_TURN * 1000;
+  }
+  // main pot and side pots by contribution level; each goes to the best hand that is eligible for it
+  function gShowdown(g) {
+    g.street = "show"; g.toAct = null; g.runAt = 0;
+    const alive = g.players.filter(pLive);
+    alive.forEach((p) => { p.shown = true; p.rank = best7(p.cards.concat(g.board)); });
+    const levels = [...new Set(alive.map((p) => p.total))].sort((a, b) => a - b);
+    let prev = 0, rake = 0; const lines = [];
+    levels.forEach((L, li) => {
+      const amount = g.players.reduce((a, p) => a + Math.min(p.total, L) - Math.min(p.total, prev), 0);
+      const elig = alive.filter((p) => p.total >= L);
+      prev = L;
+      if (!amount) return;
+      const r = g.flop && elig.length > 1 ? Math.floor(amount * PR_RAKE) : 0; rake += r;
+      let best = null; elig.forEach((p) => { if (!best || cmpRank(p.rank, best) > 0) best = p.rank; });
+      const ws = elig.filter((p) => cmpRank(p.rank, best) === 0);
+      const net = amount - r, share = Math.floor(net / ws.length); let odd = net - share * ws.length;
+      ws.forEach((w) => { w.stack += share; w.won += share; });
+      for (let p = gNext(g, g.button, (x) => ws.includes(x)); odd > 0; p = gNext(g, p.seat, (x) => ws.includes(x))) { p.stack++; p.won++; odd--; }
+      if (elig.length > 1) lines.push((li ? "边池 " : "主池 ") + fmt(amount) + "：" + ws.map((w) => w.name).join("、") + "（" + rankName(best) + "）");
+    });
+    g.result = { rake, lines };
+    g.msg = lines.join(" · ") + (rake ? " · 抽水 " + fmt(rake) : "");
+    g.next = Date.now() + 6500;
+  }
+  function gFoldWin(g, w) {
+    g.street = "show"; g.toAct = null;
+    const pot = g.players.reduce((a, p) => a + p.total, 0);
+    const second = Math.max(0, ...g.players.filter((p) => p !== w).map((p) => p.total));
+    const uncalled = Math.max(0, w.total - second);
+    const contested = pot - uncalled, rake = g.flop ? Math.floor(contested * PR_RAKE) : 0;
+    w.stack += pot - rake; w.won = contested - rake;            // the uncalled part simply goes back
+    g.result = { rake, lines: [] };
+    g.msg = w.name + " 赢得底池 " + fmt(contested - rake) + "（其他人弃牌）" + (rake ? " · 抽水 " + fmt(rake) : "");
+    g.next = Date.now() + 4000;
+  }
+  function gView(g, forId) {
+    return {
+      t: "ps", code: pr.code, blinds: g.blinds, street: g.street, board: g.board, button: g.button, toAct: g.toAct, curBet: g.curBet, minRaise: g.minRaise,
+      handNo: g.handNo, left: g.toAct ? Math.max(0, g.deadline - Date.now()) : 0, msg: g.msg || "", pot: g.players.reduce((a, p) => a + p.total, 0),
+      players: g.players.filter((p) => !p.gone).map((p) => ({
+        id: p.id, name: p.name, seat: p.seat, stack: p.stack, bet: p.bet, total: p.total, folded: p.folded, allin: p.allin, inHand: p.inHand, lastAct: p.lastAct, won: p.won || 0, host: p.id === "host",
+        cards: p.cards && (p.shown || p.id === forId) ? p.cards : null, hasCards: !!p.cards && pLive(p),
+        raiseOk: p.id === g.toAct ? gRaiseOk(g, p) : false,
+      })),
+    };
+  }
+  function prPush() {
+    const g = pr.g; if (!g) return;
+    for (const [id, c] of pr.conns) { try { if (c.open) c.send(gView(g, id)); } catch (e) {} }
+    prGot(gView(g, "host"));
+  }
+  function prHostLoop() {
+    const g = pr.g; if (!g) return;
+    const now = Date.now();
+    if (g.street === "wait" || g.street === "show") { if (now >= (g.next || 0) && g.players.filter((p) => !p.gone && (p.stack + (p.pend || 0)) > 0).length >= 2) { gStart(g); prPush(); } return; }
+    if (g.runAt && now >= g.runAt) { g.runAt = 0; gEndStreet(g); prPush(); return; }
+    if (g.toAct && now >= g.deadline) {
+      const p = g.players.find((x) => x.id === g.toAct);
+      gAct(g, p.id, g.curBet > p.bet ? "fold" : "check"); p.lastAct += "（超时）"; prPush();
+    }
+  }
+  function prHostGot(id, m) {
+    const g = pr.g, p = g.players.find((x) => x.id === id && !x.gone);
+    if (m.t === "hello") {
+      if (p) return;
+      const seats = new Set(g.players.filter((x) => !x.gone).map((x) => x.seat));
+      let seat = -1; for (const s of [4, 7, 2, 6, 1, 5, 3, 8]) if (!seats.has(s)) { seat = s; break; }   // spread people around the table
+      const buy = Math.max(0, Math.floor(+m.buy) || 0);
+      if (seat < 0) { const c = pr.conns.get(id); if (c) { c.send({ t: "full", buy }); setTimeout(() => c.close(), 400); } return; }
+      g.players.push({ id, name: String(m.name || "玩家").slice(0, 10), seat, stack: buy, bet: 0, total: 0, inHand: false, folded: false, allin: false, lastAct: "", pend: 0 });
+      prSayAll("", String(m.name || "玩家").slice(0, 10) + " 坐下了（带入 " + fmt(buy) + "）");
+      prPush(); return;
+    }
+    if (m.t === "hi") { const c = pr.conns.get(id); if (c) c.send(gView(g, id)); return; }
+    if (!p) return;
+    if (m.t === "act") { if (gAct(g, id, m.a, m.amt)) prPush(); }
+    else if (m.t === "rebuy") { const a = Math.max(0, Math.floor(+m.amt) || 0); if (p.inHand && !p.folded) p.pend = (p.pend || 0) + a; else p.stack += a; prSayAll("", p.name + " 补码 " + fmt(a)); prPush(); }
+    else if (m.t === "say") prSayAll(id, String(m.text || "").slice(0, 12));
+  }
+  function prSayAll(id, text) { const m = { t: "say", id, text }; for (const c of pr.conns.values()) { try { if (c.open) c.send(m); } catch (e) {} } prGot(m); }
+  function prGuestGone(id) {
+    const g = pr.g, p = g && g.players.find((x) => x.id === id);
+    pr.conns.delete(id);
+    if (!p) return;
+    p.gone = true;
+    if (pLive(p)) {
+      if (g.toAct === id) gAct(g, id, "fold");
+      else { p.folded = true; p.lastAct = "离开"; if (g.players.filter(pLive).length === 1 && g.street !== "show") gFoldWin(g, g.players.find(pLive)); }
+    }
+    if (!p.inHand) g.players = g.players.filter((x) => x !== p);
+    prSayAll("", p.name + " 离开了"); prPush();
+  }
+  /* ---------- connecting ---------- */
+  const prBuyAmt = (bl) => PR_BLINDS[bl][1] * (+$("#prBuy").value || 100);
+  async function prCreate() {
+    const name = prName(), bl = +$("#prBlinds").value, buy = prBuyAmt(bl);
+    if (S.bank < buy) { prStatus('<span class="l">余额不够带入 ' + fmt(buy) + '，点右上角 + 加余额</span>'); return; }
+    $("#prCreate").disabled = true; prStatus("正在开房间…");
+    try { await loadPeer(); } catch (e) { prStatus('<span class="l">连不上网络，无法开房间</span>'); $("#prCreate").disabled = false; return; }
+    const open = (n) => {
+      const code = String(100000 + rand(900000)), peer = new Peer(PR_PREFIX + code);
+      peer.on("open", () => {
+        if (!take(buy)) { peer.destroy(); $("#prCreate").disabled = false; prStatus('<span class="l">余额不足</span>'); return; }
+        pr.peer = peer; pr.host = true; pr.code = code; pr.me = "host";
+        pr.g = { blinds: PR_BLINDS[bl], players: [{ id: "host", name, seat: 0, stack: buy, bet: 0, total: 0, inHand: false, folded: false, allin: false, lastAct: "", pend: 0 }], button: -1, board: [], street: "wait", toAct: null, curBet: 0, minRaise: PR_BLINDS[bl][1], raiseSeq: 0, handNo: 0, next: 0, msg: "等朋友加入，至少 2 人就开始" };
+        clearInterval(pr.timer); pr.timer = setInterval(prHostLoop, 400);
+        $("#prCreate").disabled = false; prStatus("");
+        prPush(); toast("德州房间 " + code + " 已开好，把房间号发给朋友");
+      });
+      peer.on("connection", (c) => {
+        c.on("open", () => { pr.conns.set(c.peer, c); });
+        c.on("data", (d) => prHostGot(c.peer, d || {}));
+        c.on("close", () => prGuestGone(c.peer));
+      });
+      peer.on("disconnected", () => { try { peer.reconnect(); } catch (e) {} });
+      peer.on("error", (e) => {
+        if (e.type === "unavailable-id" && n < 4) { peer.destroy(); open(n + 1); return; }
+        if (!pr.peer) { prStatus('<span class="l">开房间失败（' + e.type + '），稍后再试</span>'); $("#prCreate").disabled = false; peer.destroy(); }
+      });
+    };
+    open(0);
+  }
+  async function prJoin(code) {
+    code = String(code || "").replace(/\D/g, "");
+    if (code.length !== 6) { prStatus('<span class="l">房间号是 6 位数字</span>'); return; }
+    const name = prName();
+    $("#prJoinBtn").disabled = true; prStatus("正在连接房间 " + code + "…");
+    try { await loadPeer(); } catch (e) { prStatus('<span class="l">连不上网络</span>'); $("#prJoinBtn").disabled = false; return; }
+    const peer = new Peer();
+    let done = false;
+    const fail = (t) => { if (done) return; done = true; prStatus('<span class="l">' + t + "</span>"); $("#prJoinBtn").disabled = false; try { peer.destroy(); } catch (e) {} };
+    const to = setTimeout(() => fail("连接超时：房间号不对，或网络挡住了直连（试试换成手机流量）"), 15000);
+    peer.on("error", (e) => fail(e.type === "peer-unavailable" ? "找不到德州房间 " + code + "（房主可能已经离开）" : "连接失败（" + e.type + "）"));
+    peer.on("open", (myId) => {
+      const c = peer.connect(PR_PREFIX + code, { reliable: true });
+      let asked = false;
+      c.on("open", () => { clearTimeout(to); done = true; pr.peer = peer; pr.host = false; pr.code = code; pr.me = myId; pr.hostConn = c; $("#prJoinBtn").disabled = false; prStatus("正在入座…"); c.send({ t: "hi" }); });
+      c.on("data", (d) => {
+        d = d || {};
+        // the first table tells us the blinds, so the buy-in can be taken before sitting down
+        if (d.t === "ps" && !asked) {
+          asked = true;
+          const buy = d.blinds[1] * (+$("#prBuy").value || 100);
+          if (!take(buy)) { prStatus('<span class="l">余额不够带入 ' + fmt(buy) + "（盲注 " + fmt(d.blinds[0]) + "/" + fmt(d.blinds[1]) + "）</span>"); prReset(false); return; }
+          c.send({ t: "hello", name, buy }); prStatus(""); toast("已加入德州房间 " + code + "，带入 " + fmt(buy));
+        }
+        prGot(d);
+      });
+      c.on("close", () => { if (pr.hostConn === c) { prReset(true); prStatus('<span class="l">房主已离开，房间结束，桌上筹码已退回余额</span>'); toast("德州房间已结束"); } });
+    });
+  }
+  /* ---------- everyone: draw the table ---------- */
+  function prGot(m) {
+    if (m.t === "ps") { pr.st = m; pr.stAt = Date.now(); prRender(); }
+    else if (m.t === "say") prSay(m.id, m.text);
+    else if (m.t === "full") { addBank(m.buy || 0); prReset(false); prStatus('<span class="l">房间已满（9 人）</span>'); }
+  }
+  const prMe = () => pr.st && pr.st.players.find((p) => p.id === pr.me);
+  function prSaveStack() { const me = prMe(); try { if (me) localStorage.setItem("gbc-pk-stack", JSON.stringify({ stack: me.stack + (me.pend || 0) })); } catch (e) {} }
+  function prCardHTML(c, down) { const d = flipCard(c || { r: "A", s: "♠" }, down); return d.outerHTML; }
+  function prRender() {
+    const st = pr.st, open = !!pr.peer && !!st;
+    $("#prJoin").hidden = open; $("#prPlay").hidden = !open;
+    if (!open) return;
+    const me = prMe();
+    prSaveStack();
+    $("#prCodeShow").textContent = pr.code;
+    $("#prBl").textContent = "盲注 " + compact(st.blinds[0]) + "/" + compact(st.blinds[1]);
+    $("#prCount").textContent = st.players.length + " 人";
+    $("#prRole").textContent = pr.host ? "你是房主" : "玩家";
+    $("#prHandNo").textContent = st.handNo;
+    $("#prStack").textContent = me ? fmt(me.stack) : "–";
+    $("#prRebuy").hidden = !me || me.stack > 0;
+    // board and pot
+    const b = st.board.map((c) => prCardHTML(c)).join("") + '<span class="slot"></span>'.repeat(5 - st.board.length);
+    if (b !== pr.bh) { pr.bh = b; $("#prBoard").innerHTML = b; }
+    $("#prPot").textContent = st.pot ? "底池 " + fmt(st.pot) : "";
+    if (st.msg !== pr.lastMsg) { pr.lastMsg = st.msg; const d = $("#prTable .pdealerbot"); d.classList.remove("talk"); void d.offsetWidth; d.classList.add("talk"); }
+    msg($("#prMsg"), st.msg ? "荷官：" + esc(st.msg) : "");
+    // seats, turned so that you sit at the bottom
+    const mySeat = me ? me.seat : 0, pos = (seat, r) => { const k = (seat - mySeat + PR_SEATS) % PR_SEATS, a = (k < 5 ? k : k + 1) / 10 * Math.PI * 2; return [50 - 43 * r * Math.sin(a), 50 + 41 * r * Math.cos(a)]; };   // ten spots round the table: you at the bottom, the AI dealer at the top
+    let h = "";
+    st.players.forEach((p) => {
+      const [x, y] = pos(p.seat, 1), isMe = p.id === pr.me;
+      const cls = "pseat" + (isMe ? " me" : "") + (p.folded ? " fold" : "") + (st.toAct === p.id ? " turn" : "") + (st.street === "show" && p.won > 0 ? " win" : "") + (!p.inHand ? " out" : "");
+      let cards = "";
+      if (p.cards) cards = p.cards.map((c) => prCardHTML(c)).join("");
+      else if (p.hasCards) cards = prCardHTML(null, true) + prCardHTML(null, true);
+      const rank = p.cards && st.board.length >= 3 && !p.folded ? rankName(best7(p.cards.concat(st.board))) : "";
+      const act = st.street === "show" && p.won > 0 ? "赢 +" + compact(p.won) : p.allin && p.inHand && !p.folded ? "全下" : p.lastAct;
+      h += '<div class="' + cls + '" style="left:' + x.toFixed(1) + "%;top:" + y.toFixed(1) + '%" data-id="' + esc(p.id) + '"><div class="ps-cards">' + cards + '</div><div class="ps-box"><span class="ps-act">' + esc(act || "") + "</span><b>" + esc(p.name) + (p.host ? " 👑" : "") + "</b><small>" + fmt(p.stack) + "</small>" +
+        (st.toAct === p.id ? '<i class="ps-timer" style="transform:scaleX(' + Math.max(0, (st.left - (Date.now() - pr.stAt)) / (PR_TURN * 1000)).toFixed(3) + ')"></i>' : "") + "</div>" + (rank ? '<span class="ps-rank">' + rank + "</span>" : "") + "</div>";
+      if (p.bet > 0) { const [bx, by] = pos(p.seat, 0.58); h += '<span class="pbet" style="left:' + bx.toFixed(1) + "%;top:" + by.toFixed(1) + '%"><i></i>' + compact(p.bet) + "</span>"; }
+      if (p.seat === st.button && st.street !== "wait") { const [dx, dy] = pos(p.seat, 0.6); h += '<span class="pdealer" style="left:' + (dx + (dx < 50 ? 7 : -7)).toFixed(1) + "%;top:" + dy.toFixed(1) + '%">D</span>'; }
+    });
+    $("#prSeats").innerHTML = h;
+    // what you can do
+    const mine = me && st.toAct === me.id;
+    const toCall = mine ? Math.min(st.curBet - me.bet, me.stack) : 0;
+    $("#prRaise").hidden = !mine || $("#prRaise").hidden;
+    if (!mine) {
+      const who = st.players.find((p) => p.id === st.toAct);
+      $("#prMain").innerHTML = '<span class="q">' + (st.street === "wait" ? "等待玩家（至少 2 人）" : st.street === "show" ? "下一手马上开始…" : who ? "等 " + esc(who.name) + " 行动…" : "发牌中…") + "</span>";
+      pr.ph = "";
+    } else {
+      const key = st.handNo + "|" + st.street + "|" + st.curBet + "|" + me.bet;
+      if (key !== pr.ph) {
+        pr.ph = key;
+        const canRaise = me.raiseOk, minTo = Math.min(me.bet + me.stack, st.curBet + st.minRaise), maxTo = me.bet + me.stack;
+        $("#prMain").innerHTML = '<button class="btn fold" type="button" data-a="fold">弃牌</button>' +
+          (toCall > 0 ? '<button class="btn" type="button" data-a="call">' + (toCall >= me.stack ? "全下 " : "跟注 ") + fmt(toCall) + "</button>" : '<button class="btn" type="button" data-a="check">让牌</button>') +
+          (canRaise ? '<button class="btn ghost" type="button" data-a="raise">' + (st.curBet ? "加注" : "下注") + "</button>" : "");
+        const sl = $("#prSlider"); sl.min = minTo; sl.max = maxTo; sl.step = Math.max(1, st.blinds[0]); pr.raiseTo = minTo; sl.value = minTo; $("#prRaiseAmt").textContent = fmt(minTo);
+        $("#prRaiseGo").textContent = (st.curBet ? "加注到 " : "下注 ") + fmt(minTo);
+        $("#prRaise").hidden = true;
+        $$("#prMain [data-a]").forEach((bn) => bn.addEventListener("click", () => {
+          const a = bn.dataset.a;
+          if (a === "raise") { $("#prRaise").hidden = false; return; }
+          prSend({ t: "act", a });
+        }));
+      }
+    }
+  }
+  setInterval(() => { if (pr.st && pr.st.toAct && S.view === "proom") { const t = $("#prSeats .ps-timer"); if (t) t.style.transform = "scaleX(" + Math.max(0, (pr.st.left - (Date.now() - pr.stAt)) / (PR_TURN * 1000)).toFixed(3) + ")"; } }, 250);
+  function prSend(m) { if (pr.host) prHostGot("host", m); else if (pr.hostConn && pr.hostConn.open) { try { pr.hostConn.send(m); } catch (e) {} } }
+  function prSetRaise(v) {
+    const sl = $("#prSlider"), lo = +sl.min, hi = +sl.max;
+    v = Math.max(lo, Math.min(hi, Math.round(v))); pr.raiseTo = v; sl.value = v;
+    $("#prRaiseAmt").textContent = fmt(v);
+    $("#prRaiseGo").textContent = (v >= hi ? "全下 " : pr.st && pr.st.curBet ? "加注到 " : "下注 ") + fmt(v);
+  }
+  $("#prSlider").addEventListener("input", (e) => prSetRaise(+e.target.value));
+  $("#prMinus").addEventListener("click", () => prSetRaise(pr.raiseTo - (pr.st ? pr.st.blinds[1] : 1)));
+  $("#prPlus").addEventListener("click", () => prSetRaise(pr.raiseTo + (pr.st ? pr.st.blinds[1] : 1)));
+  $$(".pr-quick button").forEach((b) => b.addEventListener("click", () => {
+    const st = pr.st, me = prMe(); if (!st || !me) return;
+    const call = st.curBet - me.bet, potAfter = st.pot + call;    // pot-size raise: call first, then raise by the whole pot
+    const v = { min: 0, half: st.curBet + Math.floor(potAfter / 2), pot: st.curBet + potAfter, all: Infinity }[b.dataset.q];
+    prSetRaise(b.dataset.q === "min" ? +$("#prSlider").min : v);
+  }));
+  $("#prRaiseNo").addEventListener("click", () => { $("#prRaise").hidden = true; });
+  $("#prRaiseGo").addEventListener("click", () => { $("#prRaise").hidden = true; prSend({ t: "act", a: "raise", amt: pr.raiseTo }); });
+  function prSay(id, text) {
+    const p = pr.st && pr.st.players.find((x) => x.id === id);
+    if (!id || !p) { if (S.view === "proom") toast(esc(text)); return; }
+    const seat = $('#prSeats .pseat[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"] .ps-box');
+    if (seat) { const b = document.createElement("span"); b.className = "say"; b.textContent = text; b.style.cssText = "position:absolute;left:50%;top:-22px;transform:translateX(-50%);background:var(--ivory);color:var(--ink);border-radius:10px;padding:1px 7px;font-size:14px;white-space:nowrap;z-index:6"; seat.appendChild(b); setTimeout(() => b.remove(), 3000); }
+    if (S.view !== "proom") toast(esc(p.name) + "：" + esc(text));
+  }
+  // leave: whatever is still in front of you goes back to your balance
+  function prReset(refund) {
+    const me = prMe(), peer = pr.peer;
+    pr.st = null; pr.hostConn = null; pr.peer = null;          // clear first: closing the connection must not refund a second time
+    if (refund && me) addBank(me.stack + (me.pend || 0));
+    try { localStorage.removeItem("gbc-pk-stack"); } catch (e) {}
+    clearInterval(pr.timer);
+    try { if (peer) peer.destroy(); } catch (e) {}
+    Object.assign(pr, { peer: null, host: false, code: "", conns: new Map(), hostConn: null, st: null, g: null, ph: "", bh: "" });
+    prRender();
+  }
+  $("#prCreate").addEventListener("click", prCreate);
+  $("#prJoinBtn").addEventListener("click", () => prJoin($("#prCode").value));
+  $("#prCode").addEventListener("keydown", (e) => { if (e.key === "Enter") prJoin($("#prCode").value); });
+  $("#prLeave").addEventListener("click", () => {
+    const me = prMe(), inHand = me && me.inHand && !me.folded && pr.st.street !== "show" && pr.st.street !== "wait";
+    if (!confirm((pr.host ? "你是房主，离开后房间会结束。" : "") + (inHand ? "你还在这一手里，离开等于弃牌。" : "") + "桌上筹码会退回余额。确定离开？")) return;
+    if (inHand && pr.host) gAct(pr.g, "host", "fold");
+    prReset(true); prStatus("已离开房间，筹码已退回余额");
+  });
+  $("#prRebuy").addEventListener("click", () => {
+    const st = pr.st; if (!st) return;
+    const amt = st.blinds[1] * (+$("#prBuy").value || 100);
+    if (!take(amt)) { toast("余额不够补码 " + fmt(amt)); return; }
+    prSend({ t: "rebuy", amt });
+  });
+  $("#prCopy").addEventListener("click", async () => {
+    const url = location.origin + location.pathname + "#proom=" + pr.code, text = "来俱乐部和我打德州！房间号 " + pr.code;
+    try { if (navigator.share) { await navigator.share({ title: "俱乐部德州房间", text, url }); return; } } catch (e) { return; }
+    try { await navigator.clipboard.writeText(text + " " + url); toast("房间号和链接已复制"); } catch (e) { toast("房间号 " + pr.code); }
+  });
+  $$("#prEmo button").forEach((b) => b.addEventListener("click", () => prSend({ t: "say", text: b.dataset.say || b.textContent })));
+  function prFromHash() { const m = /^#proom=(\d{6})$/.exec(location.hash); if (m) { $("#prCode").value = m[1]; if (!pr.peer) prStatus("输入名字、选好带入筹码，点「加入」进入房间 " + m[1]); } }
+  prRender();
   /* ======================================================
      NIU NIU (牛牛) — player vs banker, 5 cards each from a fresh 52-card deck
      ====================================================== */
@@ -5346,7 +5837,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   gmRender();
   frRender();
   dvRender();
-  show(hashView()); rmFromHash();
+  show(hashView()); rmFromHash(); prFromHash();
 
   // Home-screen app: offline cache (only where service workers are allowed, e.g. GitHub Pages)
   try {
