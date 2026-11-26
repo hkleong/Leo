@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.9.3">
+<meta name="version" content="0.10.0">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -425,6 +425,50 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .spot-t .lab small { color: var(--win); opacity: 1 !important; font-size: clamp(13px, 2.4vh, 20px) !important; }
 .game .spot-t .stake { top: 42%; }
 .bsides { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.side.full { grid-column: 1 / -1; min-height: clamp(28px, 4.6vh, 44px); }
+
+/* Dragon Tiger */
+.btable.dt { --cw: clamp(30px, 5.7vh, 74px); }
+.dt-d .blabel { color: #ffb0b0; } .dt-t .blabel { color: #a9c4ff; }
+.dt-d.won .blabel, .dt-t.won .blabel { color: var(--win); }
+.game .dt-spot-d { background: linear-gradient(160deg, #d0353d, #8c1a20); }
+.game .dt-spot-t { background: linear-gradient(200deg, #2a62d0, #173b8c); }
+
+/* Niu Niu */
+.nnbets { display: grid; grid-template-columns: 1.35fr 1fr; gap: 5px; }
+.nn-fan, .nn-ping { border-radius: 8px; min-height: clamp(56px, 10vh, 96px); align-items: flex-end !important; padding-bottom: 8px !important; }
+.game .nn-fan { background: linear-gradient(160deg, #b08d2c, #5c4712); }
+.game .nn-ping { background: linear-gradient(200deg, #2a62d0, #173b8c); }
+.nn-fan .lab b, .nn-ping .lab b { font-size: clamp(16px, 3vh, 24px); letter-spacing: .08em; }
+.game .nn-fan .stake, .game .nn-ping .stake { top: 34%; }
+.nnhand .card.nn-gap { margin-left: calc(var(--cw) * .35); }
+.nnhand .card.nn3 .front { box-shadow: 0 0 0 2px var(--win), 0 2px 6px rgba(0,0,0,.5); }
+.pk-row .total.niu { color: var(--ink); background: var(--win); font-weight: 600; }
+
+/* 水果转轮 */
+#v-fruit { --mc: clamp(44px, min(16.5vw, 10.5vh), 104px); }
+.btable.fr { justify-content: center; gap: 6px; padding: 8px; position: relative; overflow: hidden; background: radial-gradient(90% 80% at 50% 30%, #1d4a3a, #08140f 72%); }
+.frbox { position: relative; align-self: center; }
+.mgrid.frgrid { border-color: #ffcf3a; background: linear-gradient(180deg, #0f3a2c, #051a12); }
+.frgrid .mreel { background: radial-gradient(120% 60% at 50% 50%, #1f5a46, #0a2219); }
+.frgrid .mc svg.art { width: 86%; height: 86%; }
+.frgrid .mreel.wildx { background: radial-gradient(120% 60% at 50% 50%, #8a3fd0, #2a0c4a); box-shadow: inset 0 0 0 3px #ffe08a, 0 0 16px rgba(255,220,120,.75); }
+.frgrid .mreel.wildx .mc svg.art { animation: wpulse .7s ease-in-out infinite alternate; }
+.frgrid .mreel.wildgo { animation: wgo .6s cubic-bezier(.2,1.6,.4,1); }
+@keyframes wpulse { to { transform: scale(1.08); filter: drop-shadow(0 0 6px #fff6b0); } }
+@keyframes wgo { 0% { transform: scaleY(.35); } 100% { transform: none; } }
+.frlines { position: absolute; left: 7px; top: 7px; width: calc(100% - 14px); height: calc(100% - 14px); pointer-events: none; overflow: visible; }
+.frlines polyline { fill: none; stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: .9; animation: frline .45s ease-in-out infinite alternate; }
+@keyframes frline { to { opacity: .35; } }
+.frwheel { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; background: rgba(0,0,0,.8); }
+.fw-in { display: grid; justify-items: center; gap: 20px; }
+.fw-t { margin: 0; font: 900 clamp(22px, 4.5vh, 36px)/1 var(--display); color: #ffe08a; letter-spacing: .1em; text-shadow: 0 0 14px rgba(255,180,0,.7); }
+.fw-box { position: relative; width: min(72vw, 34vh, 300px); aspect-ratio: 1; }
+.fw-disc { width: 100%; height: 100%; filter: drop-shadow(0 6px 16px rgba(0,0,0,.7)); }
+.fw-disc text { font: 800 11px/1 var(--mono); fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.55); stroke-width: 2px; }
+.fw-ptr { position: absolute; left: 50%; top: -8px; transform: translateX(-50%); width: 0; height: 0; border-left: 13px solid transparent; border-right: 13px solid transparent; border-top: 26px solid #fff; filter: drop-shadow(0 2px 3px rgba(0,0,0,.6)); }
+.fw-r { margin: 0; font: 800 clamp(20px, 4vh, 32px)/1.2 var(--mono); color: #fff; min-height: 1.2em; text-shadow: 0 0 12px rgba(255,200,0,.8); }
+.mc-art.fruit { background: radial-gradient(circle, #1f5a46, #051a12); }
 
 /* Blackjack */
 .bj-label { font-size: 11px; letter-spacing: .14em; color: var(--muted); display: flex; gap: 8px; align-items: center; }
@@ -682,12 +726,23 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   .btn { padding: 6px 10px; font-size: 13px; }
   .gtile small { display: none; }
 }
+@media (min-width: 641px) { .gtiles { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (max-width: 640px) and (max-height: 700px) { #v-lobby { gap: 6px; } .btile .road { --rc: 6.4px; } .btile { gap: 4px; padding: 6px 7px 7px; } }
+/* phones: the lobby holds 6 live tables and 6 games, so the game tiles turn into compact icon + name rows */
+@media (max-width: 640px) {
+  .lobby-head h2 { display: none; }
+  .lh-x { display: none; }
+  .btile .road { --rc: clamp(7px, 1.12vh, 10px); }
+  .gtile { grid-template-columns: auto 1fr; align-items: center; column-gap: 6px; padding: 6px 8px; }
+  .gtile .ico svg { width: clamp(24px, 3.6vh, 34px); height: clamp(24px, 3.6vh, 34px); }
+  .gtile b { font-size: 14px; line-height: 1.15; }
+}
 @media (max-height: 640px) {
   .lobby-head .note { display: none; }
   .verbtn { padding: 2px 8px; }
   .lobby-head h2 { font-size: 20px; }
-  .btile .road { --rc: 7px; }
-  #v-lobby { gap: 7px; }
+  .btile .road { --rc: 6px; }
+  #v-lobby { gap: 6px; }
   .paysline { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -702,10 +757,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <nav class="nav" aria-label="游戏">
       <button type="button" data-go="lobby">大厅</button>
       <button type="button" data-go="baccarat">百家乐</button>
+      <button type="button" data-go="dt">龙虎</button>
       <button type="button" data-go="blackjack">21点</button>
       <button type="button" data-go="roulette">轮盘</button>
       <button type="button" data-go="poker">三张牌</button>
       <button type="button" data-go="holdem">德州</button>
+      <button type="button" data-go="niu">牛牛</button>
       <button type="button" data-go="slotseries">老虎机</button>
     </nav>
     <div class="bank">
@@ -735,6 +792,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <linearGradient id="gAmeth" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e7c2ff"/><stop offset=".5" stop-color="#8e2fd1"/><stop offset="1" stop-color="#3a0b60"/></linearGradient>
     <linearGradient id="gAmber" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe0a3"/><stop offset=".5" stop-color="#f08a00"/><stop offset="1" stop-color="#7a3d00"/></linearGradient>
     <linearGradient id="gSeven" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a8a"/><stop offset=".35" stop-color="#ff2a22"/><stop offset=".7" stop-color="#b00d12"/><stop offset="1" stop-color="#ff5a4a"/></linearGradient>
+    <radialGradient id="fgCher" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#ffb3b3"/><stop offset=".25" stop-color="#f0242e"/><stop offset=".75" stop-color="#9c0610"/><stop offset="1" stop-color="#4d0207"/></radialGradient>
+    <radialGradient id="fgLem" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#fffbd0"/><stop offset=".3" stop-color="#ffe94a"/><stop offset=".8" stop-color="#e0b800"/><stop offset="1" stop-color="#8a6a00"/></radialGradient>
+    <radialGradient id="fgOra" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#ffe0b0"/><stop offset=".3" stop-color="#ffa21f"/><stop offset=".8" stop-color="#e0620a"/><stop offset="1" stop-color="#7a2e00"/></radialGradient>
+    <radialGradient id="fgPlum" cx=".36" cy=".3" r=".8"><stop offset="0" stop-color="#f0b8ff"/><stop offset=".3" stop-color="#9c3fc8"/><stop offset=".8" stop-color="#561277"/><stop offset="1" stop-color="#26052f"/></radialGradient>
+    <radialGradient id="fgGrape" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#d9c2ff"/><stop offset=".35" stop-color="#6a3fd0"/><stop offset="1" stop-color="#22105a"/></radialGradient>
+    <linearGradient id="fgMel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a7a"/><stop offset=".6" stop-color="#ef2b3a"/><stop offset="1" stop-color="#c3142a"/></linearGradient>
+    <linearGradient id="fgRind" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ce07a"/><stop offset=".5" stop-color="#1f8f3a"/><stop offset="1" stop-color="#0b4a1c"/></linearGradient>
+    <linearGradient id="fgLeaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a9f08a"/><stop offset=".5" stop-color="#2fa63a"/><stop offset="1" stop-color="#0d5a1c"/></linearGradient>
+    <linearGradient id="fgRain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5a5a"/><stop offset=".25" stop-color="#ffcf3a"/><stop offset=".5" stop-color="#4fe06a"/><stop offset=".75" stop-color="#3fa0ff"/><stop offset="1" stop-color="#c45aff"/></linearGradient>
     <filter id="fShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-color="#000" flood-opacity=".55"/></filter>
     <linearGradient id="gDia" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#cfe9ff"/><stop offset="1" stop-color="#7d9ab8"/></linearGradient>
     <radialGradient id="gPearl" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#f1e6f3"/><stop offset=".85" stop-color="#c9b8cf"/><stop offset="1" stop-color="#8e7f96"/></radialGradient>
@@ -941,6 +1007,74 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   <symbol id="s-T" viewBox="0 0 100 100"><text x="50" y="74" text-anchor="middle" font-size="64" font-weight="900" letter-spacing="-4" fill="url(#gAmber)" stroke="#fff" stroke-width="2.5" paint-order="stroke" filter="url(#fShadow)" font-family="'Bodoni Moda','Didot',serif">10</text></symbol>
 
   <!-- 幸运 7 symbols -->
+  <symbol id="f-C" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <path d="M50 12 C46 30 36 44 30 58 M50 12 C56 32 64 46 70 60" fill="none" stroke="#5a3a12" stroke-width="4" stroke-linecap="round"/>
+    <path d="M50 13 C60 4 78 6 84 16 C72 22 58 22 50 13 Z" fill="url(#fgLeaf)" stroke="#0d5a1c" stroke-width="1.5"/>
+    <path d="M54 14 C64 13 74 14 80 16" stroke="#d8ffc0" stroke-opacity=".7" stroke-width="1.5" fill="none"/>
+    <circle cx="30" cy="70" r="19" fill="url(#fgCher)"/><circle cx="70" cy="72" r="19" fill="url(#fgCher)"/>
+    <ellipse cx="24" cy="63" rx="6" ry="4" fill="#fff" opacity=".75" transform="rotate(-30 24 63)"/><ellipse cx="64" cy="65" rx="6" ry="4" fill="#fff" opacity=".75" transform="rotate(-30 64 65)"/>
+  </g></symbol>
+  <symbol id="f-L" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <path d="M8 52 C10 46 16 44 20 40 C34 22 66 22 80 40 C84 44 90 46 92 52 C90 58 84 60 80 64 C66 82 34 82 20 64 C16 60 10 58 8 52 Z" fill="url(#fgLem)" stroke="#9a7400" stroke-width="1.5"/>
+    <path d="M28 38 C40 30 56 30 66 34" stroke="#fff" stroke-opacity=".8" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <g fill="#b38a00" opacity=".35"><circle cx="40" cy="56" r="1.4"/><circle cx="52" cy="62" r="1.4"/><circle cx="64" cy="54" r="1.4"/><circle cx="46" cy="46" r="1.2"/><circle cx="60" cy="44" r="1.2"/><circle cx="34" cy="62" r="1.2"/></g>
+    <path d="M76 36 C80 26 88 24 94 28 C90 34 84 38 76 36 Z" fill="url(#fgLeaf)"/>
+  </g></symbol>
+  <symbol id="f-O" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <circle cx="50" cy="56" r="36" fill="url(#fgOra)"/>
+    <g fill="#c24e00" opacity=".3"><circle cx="38" cy="70" r="1.6"/><circle cx="52" cy="76" r="1.6"/><circle cx="66" cy="66" r="1.6"/><circle cx="70" cy="50" r="1.6"/><circle cx="58" cy="60" r="1.4"/><circle cx="44" cy="58" r="1.4"/><circle cx="30" cy="54" r="1.4"/><circle cx="60" cy="40" r="1.4"/></g>
+    <ellipse cx="36" cy="40" rx="10" ry="6" fill="#fff" opacity=".6" transform="rotate(-30 36 40)"/>
+    <path d="M50 22 C50 18 52 15 54 13" stroke="#5a3a12" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M52 20 C58 8 74 6 82 12 C74 22 62 24 52 20 Z" fill="url(#fgLeaf)" stroke="#0d5a1c" stroke-width="1.2"/>
+  </g></symbol>
+  <symbol id="f-P" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <path d="M50 20 C76 18 90 40 86 62 C82 82 64 90 50 90 C36 90 18 82 14 62 C10 40 24 18 50 20 Z" fill="url(#fgPlum)"/>
+    <path d="M50 22 C46 40 46 66 52 88" stroke="#3a0a52" stroke-opacity=".6" stroke-width="2.5" fill="none"/>
+    <ellipse cx="34" cy="40" rx="9" ry="6" fill="#fff" opacity=".5" transform="rotate(-35 34 40)"/>
+    <path d="M50 22 C50 16 52 12 55 9" stroke="#5a3a12" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M54 14 C62 4 78 6 82 12 C74 20 62 20 54 14 Z" fill="url(#fgLeaf)"/>
+  </g></symbol>
+  <symbol id="f-G" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <path d="M50 8 C50 14 50 18 52 22" stroke="#5a3a12" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <path d="M52 14 C40 2 20 6 16 16 C28 24 44 22 52 14 Z" fill="url(#fgLeaf)" stroke="#0d5a1c" stroke-width="1.2"/>
+    <g>
+      <circle cx="34" cy="30" r="11" fill="url(#fgGrape)"/><circle cx="54" cy="28" r="11" fill="url(#fgGrape)"/><circle cx="72" cy="32" r="11" fill="url(#fgGrape)"/>
+      <circle cx="42" cy="47" r="11" fill="url(#fgGrape)"/><circle cx="63" cy="47" r="11" fill="url(#fgGrape)"/><circle cx="26" cy="46" r="10" fill="url(#fgGrape)"/>
+      <circle cx="34" cy="64" r="11" fill="url(#fgGrape)"/><circle cx="55" cy="65" r="11" fill="url(#fgGrape)"/><circle cx="74" cy="56" r="9" fill="url(#fgGrape)"/>
+      <circle cx="44" cy="81" r="10" fill="url(#fgGrape)"/><circle cx="62" cy="81" r="9" fill="url(#fgGrape)"/><circle cx="53" cy="94" r="7" fill="url(#fgGrape)"/>
+    </g>
+  </g></symbol>
+  <symbol id="f-M" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <path d="M6 34 H94 C94 62 74 86 50 86 C26 86 6 62 6 34 Z" fill="url(#fgRind)"/>
+    <path d="M12 34 H88 C88 58 70 78 50 78 C30 78 12 58 12 34 Z" fill="#eafbd6"/>
+    <path d="M16 34 H84 C84 55 68 73 50 73 C32 73 16 55 16 34 Z" fill="url(#fgMel)"/>
+    <g fill="#1a0a0a"><ellipse cx="34" cy="46" rx="2.2" ry="3.4" transform="rotate(-20 34 46)"/><ellipse cx="50" cy="52" rx="2.2" ry="3.4"/><ellipse cx="66" cy="46" rx="2.2" ry="3.4" transform="rotate(20 66 46)"/><ellipse cx="42" cy="61" rx="2" ry="3" transform="rotate(-15 42 61)"/><ellipse cx="58" cy="61" rx="2" ry="3" transform="rotate(15 58 61)"/></g>
+    <path d="M20 37 H80" stroke="#fff" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/>
+  </g></symbol>
+  <symbol id="f-B" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <circle cx="50" cy="13" r="6" fill="none" stroke="url(#gGoldD)" stroke-width="4"/>
+    <path d="M50 18 C30 18 24 34 24 50 C24 64 18 70 12 76 H88 C82 70 76 64 76 50 C76 34 70 18 50 18 Z" fill="url(#gGold)" stroke="#8a5a00" stroke-width="2"/>
+    <rect x="10" y="74" width="80" height="8" rx="4" fill="url(#gGoldD)" stroke="#8a5a00" stroke-width="1.5"/>
+    <circle cx="50" cy="88" r="7" fill="url(#gGoldR)" stroke="#8a5a00" stroke-width="1.5"/>
+    <path d="M36 30 C32 40 32 54 30 64" stroke="#fff" stroke-opacity=".75" stroke-width="4" stroke-linecap="round" fill="none"/>
+  </g></symbol>
+  <symbol id="f-W" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <path d="M50 4 L61 34 L94 36 L68 56 L78 90 L50 70 L22 90 L32 56 L6 36 L39 34 Z" fill="url(#fgRain)" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+    <text x="50" y="60" text-anchor="middle" font-size="21" font-weight="900" font-family="Arial Black, Arial, sans-serif" fill="#fff" stroke="#5a1080" stroke-width="3" paint-order="stroke">WILD</text>
+  </g></symbol>
+  <symbol id="f-X" viewBox="0 0 100 100"><g filter="url(#fShadow)">
+    <circle cx="50" cy="52" r="42" fill="url(#gGoldD)"/>
+    <g transform="translate(50 52)">
+      <path d="M0 0 L0 -36 A36 36 0 0 1 25.5 -25.5 Z" fill="#e0262c"/><path d="M0 0 L25.5 -25.5 A36 36 0 0 1 36 0 Z" fill="#ffcf3a"/>
+      <path d="M0 0 L36 0 A36 36 0 0 1 25.5 25.5 Z" fill="#2fa63a"/><path d="M0 0 L25.5 25.5 A36 36 0 0 1 0 36 Z" fill="#3a7bff"/>
+      <path d="M0 0 L0 36 A36 36 0 0 1 -25.5 25.5 Z" fill="#9c3fc8"/><path d="M0 0 L-25.5 25.5 A36 36 0 0 1 -36 0 Z" fill="#ff8a1f"/>
+      <path d="M0 0 L-36 0 A36 36 0 0 1 -25.5 -25.5 Z" fill="#e0262c"/><path d="M0 0 L-25.5 -25.5 A36 36 0 0 1 0 -36 Z" fill="#ffcf3a"/>
+      <circle r="11" fill="url(#gGoldR)" stroke="#8a5a00" stroke-width="1.5"/>
+    </g>
+    <path d="M50 2 L58 14 H42 Z" fill="#fff" stroke="#8a5a00" stroke-width="1.5"/>
+    <rect x="18" y="74" width="64" height="18" rx="9" fill="#a3080c" stroke="#ffd860" stroke-width="2"/>
+    <text x="50" y="88" text-anchor="middle" font-size="13" font-weight="900" fill="#ffe08a" letter-spacing="1">BONUS</text>
+  </g></symbol>
   <symbol id="s-7" viewBox="0 0 100 100">
     <g filter="url(#fShadow)">
       <path d="M18 14 H84 V28 C70 44 60 62 56 88 H34 C38 64 48 46 62 32 H18 Z" fill="#6d070b" transform="translate(2.5 3)"/>
@@ -997,11 +1131,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   <section id="v-lobby">
     <div class="lobby-head">
       <h2>选一张桌子坐下</h2>
-      <p class="note">纯娱乐模拟：所有筹码都是虚拟的，不涉及真实金钱。规则按国际通行标准设置。</p>
+      <p class="note">纯娱乐模拟：所有筹码都是虚拟的，不涉及真实金钱。<span class="lh-x">规则按国际通行标准设置。</span></p>
     </div>
     <div class="lsec">
       <h3>百家乐 <span class="note">4 桌 · 每 15 秒自动开局</span></h3>
       <div class="btiles" id="lobbyBac"></div>
+    </div>
+    <div class="lsec">
+      <h3>龙虎 <span class="note">2 桌 · 每 15 秒自动开局</span></h3>
+      <div class="btiles dtiles" id="lobbyDt"></div>
     </div>
     <div class="lsec">
       <h3>其他游戏</h3>
@@ -1010,15 +1148,16 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" data-go="roulette"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><circle cx="24" cy="24" r="3" fill="currentColor"/><path d="M24 6v7M24 35v7M6 24h7M35 24h7M11.3 11.3l5 5M31.7 31.7l5 5M36.7 11.3l-5 5M16.3 31.7l-5 5"/><circle cx="34" cy="15" r="2.4" fill="currentColor" stroke="none"/></svg></span><b>轮盘</b><small>欧式单零 · 35:1</small></button>
         <button class="gtile" type="button" data-go="poker"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="17" height="25" rx="3" transform="rotate(-16 14 26)"/><rect x="15.5" y="10" width="17" height="25" rx="3"/><rect x="25" y="13" width="17" height="25" rx="3" transform="rotate(16 34 26)" fill="currentColor" fill-opacity=".12"/><path d="M24 17l3 4h-6z" fill="currentColor" stroke="none"/></svg></span><b>三张牌</b><small>对子加注 40:1</small></button>
         <button class="gtile" type="button" data-go="holdem"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M36.7 11.3l-3.5 3.5M14.8 33.2l-3.5 3.5"/><path d="M24 17c3 3 6 5 6 8a3 3 0 0 1-5 2l1 4h-4l1-4a3 3 0 0 1-5-2c0-3 3-5 6-8z" fill="currentColor" stroke="none"/></svg></span><b>德州扑克</b><small>盲注最高 500:1</small></button>
-        <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机系列</b><small>龙腾财宝 · 宝石瀑布 · 幸运 7</small></button>
+        <button class="gtile" type="button" data-go="niu"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12c2 6 6 8 10 8M39 12c-2 6-6 8-10 8"/><path d="M15 19c0-3 4-5 9-5s9 2 9 5v9c0 7-4 12-9 12s-9-5-9-12z" fill="currentColor" fill-opacity=".14"/><circle cx="20" cy="26" r="1.6" fill="currentColor"/><circle cx="28" cy="26" r="1.6" fill="currentColor"/><path d="M20 34c2 1.5 6 1.5 8 0"/><circle cx="24" cy="38" r="2.4"/></svg></span><b>牛牛</b><small>翻倍最高 ×5</small></button>
+        <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.9.3</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.10.0</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
   </div></div>
 
   <!-- Baccarat -->
@@ -1092,7 +1231,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>完美对子：任一方前两张为同花同点，25:1；两方都是，200:1。</li>
         <li>龙宝：所押一方以天牌赢 1:1，天牌和局退回；非天牌赢 9 点 30:1、8 点 10:1、7 点 6:1、6 点 4:1、5 点 2:1、4 点 1:1；赢 3 点及以下或输则输。</li>
         <li>共 4 张桌（A–D），各自有 8 副牌的牌靴、路单和倒计时，每 15 秒自动开一局。在牌桌上左右滑动，或点底部的 A B C D，可以换桌。</li>
-        <li>剩余约 1/4 时换新牌靴（约 10 秒）：洗牌、装入牌靴，然后烧牌——翻开第一张，按它的点数再烧掉相应张数（A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。换靴后路单清空。</li>
+        <li>剩余约 1/4 时换新牌靴（约 20 秒）：洗牌、装入牌靴，然后烧牌——翻开第一张，按它的点数再烧掉相应张数（A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。换靴后路单清空。</li>
         <li>离开牌桌（去大厅、别的桌或别的游戏）时，即使有下注也照常倒数开局，结果自动结算并在屏幕上方提示。路单和牌靴保存在本机。</li>
       </ul>
       <h4>大路</h4>
@@ -1103,6 +1242,74 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <ul>
         <li>从大路推算，红色表示有规律（齐整），蓝色表示无规律，与庄闲无关。大眼仔空心圈（隔 1 列）、小路实心点（隔 2 列）、曱甴路斜线（隔 3 列）。</li>
         <li>P / B 问路按钮显示「如果下一局闲赢 / 庄赢」三条下路会出什么，点一下会在路单上闪烁预览。</li>
+      </ul>
+    </div></div>
+  </section>
+
+  <!-- Dragon Tiger -->
+  <section id="v-dt" class="game" hidden>
+    <div class="btable bac dt">
+      <div class="cdring" id="dtCd" aria-live="off" title="距离自动开局的秒数">15</div>
+      <div class="shoebox" id="dtShoeBox" aria-hidden="true"></div>
+      <div class="bside bp-side dt-d" id="dtDSide"><div class="blabel">龙 DRAGON</div><div class="hand" id="dtD"></div><div class="btotal" id="dtDT">–</div></div>
+      <div class="bside bb-side dt-t" id="dtTSide"><div class="blabel">虎 TIGER</div><div class="hand" id="dtT"></div><div class="btotal" id="dtTT">–</div></div>
+      <p class="bresult" id="dtMsg">下注后等待开局</p>
+    </div>
+    <div class="roads">
+      <div class="road-scroll" id="dtRoadScroll"><div class="road" id="dtRoad"></div></div>
+      <div class="droads">
+        <div class="road-scroll dsc" id="dtEyeScroll" title="大眼仔"><div class="road droad" id="dtEye"></div></div>
+        <div class="road-scroll dsc" id="dtSmallScroll" title="小路"><div class="road droad" id="dtSmall"></div></div>
+        <div class="road-scroll dsc" id="dtRoachScroll" title="曱甴路"><div class="road droad" id="dtRoach"></div></div>
+      </div>
+    </div>
+    <div class="bstats">
+      <span class="hno">#<span id="dtHandNo">1</span></span>
+      <span class="ball B">龙</span><span id="dtCntD">0</span>
+      <span class="ball P">虎</span><span id="dtCntT">0</span>
+      <span class="ball T">和</span><span id="dtCntX">0</span>
+    </div>
+    <div class="bets">
+      <div class="bmain">
+        <button class="spot spot-p dt-spot-d" data-dt="dragon" type="button"><span class="lab"><b>龙</b><small>1:1</small></span><span class="stake"></span></button>
+        <button class="spot spot-b dt-spot-t" data-dt="tiger" type="button"><span class="lab"><b>虎</b><small>1:1</small></span><span class="stake"></span></button>
+        <button class="spot spot-t" data-dt="tie" type="button"><span class="stake"></span><span class="lab"><b>和</b><small>8:1</small></span></button>
+      </div>
+      <div class="bsides">
+        <button class="spot side sb" data-dt="dodd" type="button"><span class="lab"><b>龙单</b><small>1:1</small></span><span class="stake"></span></button>
+        <button class="spot side sb" data-dt="deven" type="button"><span class="lab"><b>龙双</b><small>1:1</small></span><span class="stake"></span></button>
+        <button class="spot side sp" data-dt="todd" type="button"><span class="lab"><b>虎单</b><small>1:1</small></span><span class="stake"></span></button>
+        <button class="spot side sp" data-dt="teven" type="button"><span class="lab"><b>虎双</b><small>1:1</small></span><span class="stake"></span></button>
+        <button class="spot side sx full" data-dt="suited" type="button"><span class="lab"><b>同花和</b><small>50:1</small></span><span class="stake"></span></button>
+      </div>
+    </div>
+    <div class="bctl" data-g="dt"></div>
+    <div class="bfoot">
+      <div>总投注额 <b id="dtBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+      <div class="r"><span>龙虎 <span id="dtName">A</span> 桌 · #<span id="dtHandNo2">1</span> · 牌靴 <span id="dtShoe">416</span></span><span class="tsw" id="dtTables" aria-label="换桌"></span></div>
+    </div>
+    <div class="sheet" id="menu-dt" hidden><div class="sheet-in" role="dialog" aria-label="龙虎菜单">
+      <div class="sheet-head"><h3>龙虎</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <div class="menu-grid">
+        <button class="btn" id="dtDeal" type="button" data-close>立即开局</button>
+        <button class="btn ghost" id="dtRebet" type="button" data-close>重复上局下注</button>
+        <button class="btn ghost" id="dtClear" type="button" data-close>清除下注</button>
+        <button class="btn ghost" id="dtShuffle" type="button" data-close>洗牌（这一桌换新牌靴）</button>
+        <button class="toggle" id="dtAuto" type="button" aria-pressed="true">自动开局（每 15 秒）</button>
+        <button class="btn ghost" type="button" data-close data-rules="rules-dt">规则</button>
+      </div>
+    </div></div>
+    <div class="sheet" id="rules-dt" hidden><div class="sheet-in" role="dialog" aria-label="龙虎规则">
+      <div class="sheet-head"><h3>龙虎规则</h3><span class="note">Dragon Tiger 国际规则</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <ul>
+        <li>8 副牌的牌靴。每局龙、虎各发一张明牌，点大的一方赢。</li>
+        <li>大小只看点数，不看花色：K 最大（13），Q 12、J 11、10–2 按面值，A 最小（1）。</li>
+        <li>龙、虎 1:1。开和局时，押龙或虎输一半，退回另一半。</li>
+        <li>和 8:1。同花和：龙虎同点而且同花色，50:1。</li>
+        <li>单双只看所押一方的牌：A、3、5、9、J、K 为单，2、4、6、8、10、Q 为双，1:1；开出 7 时单双都输。</li>
+        <li>共 2 张桌（A、B），各自有牌靴、路单和倒计时，每 15 秒自动开一局。左右滑动或点底部 A B 换桌。</li>
+        <li>剩余约 1/4 时换新牌靴（约 20 秒）：洗牌、装入牌靴、烧牌（翻开第一张，A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。</li>
+        <li>路单：红圈为龙赢，蓝圈为虎赢，绿色斜线为和；下三路的推算方法与百家乐相同。</li>
       </ul>
     </div></div>
   </section>
@@ -1209,13 +1416,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <div class="mlist">
       <button class="mcard" type="button" data-m="dragon"><span class="mc-art"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg></span><span class="mc-txt"><b>龙腾财宝</b><small>5×3 · 243 路 · 金币锁定 · 四级头奖 GRAND</small><span class="mc-tags"><i>免费旋转</i><i>累积奖池</i></span></span></button>
       <button class="mcard" type="button" data-m="gems"><span class="mc-art gem"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#g-D"/></svg></span><span class="mc-txt"><b>宝石瀑布</b><small>6×5 · 任意位置 8 个即中 · 连环消除</small><span class="mc-tags"><i>倍数 ×10</i><i>免费旋转</i></span></span></button>
+      <button class="mcard" type="button" data-m="fruit"><span class="mc-art fruit"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#f-X"/></svg></span><span class="mc-txt"><b>水果转轮</b><small>5×3 · 20 线 · 百搭扩展整列并锁住重转</small><span class="mc-tags"><i>奖金转盘 ×500</i><i>百搭重转</i></span></span></button>
       <button class="mcard" type="button" data-m="slots"><span class="mc-art"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg></span><span class="mc-txt"><b>幸运 7</b><small>3 卷轴 · 5 条线 · 经典玩法</small><span class="mc-tags"><i>7-7-7 ×200</i></span></span></button>
     </div>
     <p class="note" style="margin-top:10px">在机台上左右滑动也可以换机。</p>
   </div></div>
   <!-- 龙腾财宝: 5x3 video slot, 243 ways, free spins, coin hold & spin with four jackpots -->
   <section id="v-dragon" class="game" hidden>
-    <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
+    <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-D"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
     <div class="btable col mg">
       <div class="jps" id="mgJps">
         <div class="jp grand" data-jp="GRAND"><span>GRAND</span><b id="jpGRAND">–</b></div>
@@ -1283,7 +1491,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 
   <!-- 宝石瀑布: 6x5 cascading pay-anywhere slot -->
   <section id="v-gems" class="game" hidden>
-    <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
+    <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#g-D"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
     <div class="btable col gm">
       <div class="gm-head"><b>宝石瀑布</b><span class="note" id="gmMode">任意位置 8 个相同即中奖</span></div>
       <div class="ladder" id="gmLadder"><i>×1</i><i>×2</i><i>×3</i><i>×5</i><i>×10</i></div>
@@ -1342,6 +1550,55 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   </section>
 
   <!-- Ultimate Texas Hold'em -->
+  <!-- 水果转轮: 5x3, 20 lines, expanding wild respins, bonus prize wheel -->
+  <section id="v-fruit" class="game" hidden>
+    <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#f-X"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
+    <div class="btable col fr">
+      <div class="mg-title"><b>水果转轮</b><span class="note" id="frMode">20 线 · 5 × 3</span></div>
+      <div class="frbox"><div class="mgrid frgrid" id="frGrid"></div><svg class="frlines" id="frLines" viewBox="0 0 500 300" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+      <p class="tmsg" id="frMsg">百搭出现就扩展整列并锁住重转 · 3 个转轮进入奖金转盘</p>
+      <div class="mg-banner" id="frBanner" hidden></div>
+      <div class="frwheel" id="frWheel" hidden><div class="fw-in"><p class="fw-t">奖金转盘</p><div class="fw-box"><svg class="fw-disc" id="frDisc" viewBox="-100 -100 200 200" aria-hidden="true"></svg><i class="fw-ptr"></i></div><p class="fw-r" id="frWheelRes">&nbsp;</p></div></div>
+    </div>
+    <div class="acts"><div class="actrow">
+      <button class="btn big" id="frSpin" type="button">旋转</button>
+      <span class="autowrap">
+        <button class="btn ghost autobtn" id="frAuto" type="button" aria-expanded="false">自动</button>
+        <span class="autopop" id="frAutoPop" hidden>
+          <span class="note">自动旋转</span>
+          <button type="button" data-n="10">10 次</button><button type="button" data-n="25">25 次</button><button type="button" data-n="50">50 次</button><button type="button" data-n="100">100 次</button><button type="button" data-n="0">一直转</button>
+        </span>
+      </span>
+      <button class="btn ghost spdbtn" id="frSpeed" type="button" title="旋转速度" aria-label="旋转速度">1×</button>
+    </div></div>
+    <div class="betbar" data-bb="fr">
+      <button class="bb-btn" type="button" data-step="-1" aria-label="每局金额减少">−</button>
+      <span class="bb-wrap"><button class="bb-amt" type="button" aria-expanded="false"><small>每局</small><b>100</b></button><span class="bb-pop" hidden></span></span>
+      <button class="bb-btn" type="button" data-step="1" aria-label="每局金额增加">+</button>
+      <button class="bb-btn bb-max" type="button" data-step="max" aria-label="最高">MAX</button>
+      <button class="bb-btn bb-menu" type="button" data-rules="menu-fr" aria-label="菜单">≡</button>
+    </div>
+    <div class="bfoot">
+      <div>每次旋转 <b id="frBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+      <div class="r"><span>水果转轮 · 5×3 · 20 线</span><span>理论回报约 96%</span></div>
+    </div>
+    <div class="sheet" id="menu-fr" hidden><div class="sheet-in" role="dialog" aria-label="水果转轮菜单">
+      <div class="sheet-head"><h3>水果转轮</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <div class="menu-grid"><button class="btn ghost" type="button" data-close data-rules="rules-fr">规则与赔率</button></div>
+    </div></div>
+    <div class="sheet" id="rules-fr" hidden><div class="sheet-in" role="dialog" aria-label="水果转轮规则">
+      <div class="sheet-head"><h3>水果转轮</h3><span class="note">5 × 3 · 20 条固定线</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <h4>怎么赢</h4>
+      <ul>
+        <li>20 条线固定开着，每局金额平均分到 20 条线。同一条线上从最左边一列开始连续 3、4、5 个相同就中奖。</li>
+        <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#f-W"/></svg> 百搭只出现在第 2、3、4 列，可以代替所有水果。百搭一出现就扩展成整列百搭并锁住，其余各列免费重转一次；重转时又出现新百搭，就再扩展、再重转（最多 3 列百搭）。</li>
+        <li><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#f-X"/></svg> 转轮只出现在第 1、3、5 列，三列都有就进入奖金转盘，转出每局金额的 10 到 500 倍。</li>
+      </ul>
+      <h4>赔率（× 每条线的金额，3 / 4 / 5 个）</h4>
+      <table id="frPayTable"></table>
+      <ul><li>理论回报率约 96%（1500 万次旋转模拟）：平均每 2.7 次中奖，百搭重转约每 5 次一回，奖金转盘约每 480 次一回。</li></ul>
+    </div></div>
+  </section>
   <section id="v-holdem" class="game" hidden>
     <div class="btable col">
       <div class="shoebox" id="thShoeBox" aria-hidden="true"></div>
@@ -1496,6 +1753,51 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <table>
         <tr><td>同花顺</td><td>40:1</td></tr><tr><td>三条</td><td>30:1</td></tr><tr><td>顺子</td><td>6:1</td></tr>
         <tr><td>同花</td><td>3:1</td></tr><tr><td>对子</td><td>1:1</td></tr>
+      </table>
+    </div></div>
+  </section>
+  <!-- Niu Niu (Bull Bull) -->
+  <section id="v-niu" class="game" hidden>
+    <div class="btable col">
+      <div class="shoebox" id="nnShoeBox" aria-hidden="true"></div>
+      <div class="pk-row" id="nnDRow"><div class="bj-label">庄家 BANKER <span class="total" id="nnDR">–</span></div><div class="hand nnhand" id="nnD"></div></div>
+      <p class="note paysline">牛七至牛九 ×2 · 牛牛 ×3 · 五花牛 ×5 · 赢钱抽 5%</p>
+      <div class="pk-row" id="nnPRow"><div class="bj-label">闲家 PLAYER <span class="total" id="nnPR">–</span></div><div class="hand nnhand" id="nnP"></div></div>
+      <p class="tmsg" id="nnMsg">下注后发牌，各拿 5 张比牛</p>
+    </div>
+    <div class="nnbets">
+      <button class="spot nn-fan" data-nn="fan" type="button"><span class="lab"><b>翻倍</b><small>×1–×5 · 输赢都按牌型翻倍</small></span><span class="stake"></span></button>
+      <button class="spot nn-ping" data-nn="ping" type="button"><span class="lab"><b>平倍</b><small>1:1</small></span><span class="stake"></span></button>
+    </div>
+    <div class="acts"><div class="actrow"><button class="btn big" id="nnDeal" type="button">发牌</button></div></div>
+    <div class="bctl" data-g="nn"></div>
+    <div class="bfoot">
+      <div>总投注额 <b id="nnBetTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+      <div class="r"><span>牛牛 · 单副牌</span><span>每局重新洗牌</span></div>
+    </div>
+    <div class="sheet" id="menu-nn" hidden><div class="sheet-in" role="dialog" aria-label="牛牛菜单">
+      <div class="sheet-head"><h3>牛牛</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <div class="menu-grid">
+        <button class="btn ghost" id="nnRebet" type="button" data-close>重复上局下注</button>
+        <button class="btn ghost" id="nnClear" type="button" data-close>清除下注</button>
+        <button class="btn ghost" type="button" data-close data-rules="rules-nn">规则</button>
+      </div>
+    </div></div>
+    <div class="sheet" id="rules-nn" hidden><div class="sheet-in" role="dialog" aria-label="牛牛规则">
+      <div class="sheet-head"><h3>牛牛规则</h3><span class="note">庄闲对比 · 单副 52 张</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <ul>
+        <li>每局用一副新洗的 52 张牌，闲家和庄家各发 5 张。</li>
+        <li>点数：A 为 1，2–9 按面值，10、J、Q、K 都算 10。</li>
+        <li>从 5 张里找 3 张，加起来是 10 的倍数（10、20、30）就是「有牛」；剩下 2 张相加的个位数就是牛几，个位是 0 就是「牛牛」。找不到这样的 3 张就是「无牛」。系统会自动帮你选出最大的组合。</li>
+        <li>牌型从大到小：五花牛（5 张都是 J、Q、K）＞ 牛牛 ＞ 牛九 … 牛一 ＞ 无牛。</li>
+        <li>牌型相同时比最大的一张牌：K 最大、A 最小；点数也相同再比花色：♠ ＞ ♥ ＞ ♣ ＞ ♦。所以不会出现平局。</li>
+        <li>平倍：赢 1:1，输掉下注。</li>
+        <li>翻倍：按赢的一方的牌型翻倍——无牛至牛六 ×1、牛七至牛九 ×2、牛牛 ×3、五花牛 ×5。你赢就赢下注 × 倍数，庄家赢你就输下注 × 倍数，所以发牌时要先预留 4 倍下注，结算后退回没用到的部分。</li>
+        <li>闲家赢钱时抽 5% 佣金（只抽赢的部分）。</li>
+      </ul>
+      <h4>牌型倍数（翻倍）</h4>
+      <table>
+        <tr><td>五花牛</td><td>×5</td></tr><tr><td>牛牛</td><td>×3</td></tr><tr><td>牛七 · 牛八 · 牛九</td><td>×2</td></tr><tr><td>无牛 · 牛一至牛六</td><td>×1</td></tr>
       </table>
     </div></div>
   </section>
@@ -1784,8 +2086,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
 
   /* ---------- Navigation and sheets ---------- */
-  const VIEWS = ["lobby", "baccarat", "blackjack", "roulette", "poker", "holdem", "slots", "dragon", "gems"];
-  const MACHINES = ["dragon", "gems", "slots"], MACHINE_NAME = { dragon: "龙腾财宝", gems: "宝石瀑布", slots: "幸运 7" };
+  const VIEWS = ["lobby", "baccarat", "dt", "blackjack", "roulette", "poker", "holdem", "niu", "slots", "dragon", "gems", "fruit"];
+  const MACHINES = ["dragon", "gems", "fruit", "slots"], MACHINE_NAME = { dragon: "龙腾财宝", gems: "宝石瀑布", fruit: "水果转轮", slots: "幸运 7" };
   function show(v) {
     if (!VIEWS.includes(v)) v = "lobby";
     S.view = v;
@@ -1801,6 +2103,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     closePops();
     if (v === "roulette") drawWheel();
     if (v === "baccarat") { if (!bac.busy) showLastHand(); renderRoad(); bacRender(); }
+    if (v === "dt") { if (!dt.busy) dtShowLast(); dtRoad(); dtRender(); }
     if (v === "lobby") renderLobby();
     renderAuto();
   }
@@ -1816,8 +2119,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   $$("#slotPicker .mcard").forEach((b) => b.addEventListener("click", () => { $("#slotPicker").hidden = true; switchMachine(b.dataset.m); }));
   function switchMachine(m) {
     if (m === S.view) return;
-    if ((S.view === "slots" && sl.spinning) || (S.view === "dragon" && mg.spinning) || (S.view === "gems" && gm.spinning)) { toast("正在旋转，转完再换机台"); return; }
-    sl.auto = 0; mg.auto = 0; gm.auto = 0;
+    if (slotBusy()) { toast("正在旋转，转完再换机台"); return; }
+    sl.auto = 0; mg.auto = 0; gm.auto = 0; fr.auto = 0;
     go(m);
   }
   // swipe left / right on a machine to switch to the other one
@@ -1859,15 +2162,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     // a swipe that starts on a bet spot or a button must not also press it
     root.addEventListener("click", (e) => { if (Date.now() - at < 450) { e.stopPropagation(); e.preventDefault(); } }, true);
   }
-  // slot machines: the whole machine slides
-  ["#v-slots", "#v-dragon", "#v-gems"].forEach((sel) => {
-    const busy = () => (S.view === "slots" && sl.spinning) || (S.view === "dragon" && mg.spinning) || (S.view === "gems" && gm.spinning);
-    const can = () => !busy(); can.reason = () => "正在旋转，转完再换机台";
-    dragSwitch($(sel), () => [$("#v-" + S.view)], can, (d) => {
+  // slot machines: only the machine itself slides; the picker button above and the spin / stake controls below stay put
+  function slotBusy() { return (S.view === "slots" && sl.spinning) || (S.view === "dragon" && mg.spinning) || (S.view === "gems" && gm.spinning) || (S.view === "fruit" && fr.spinning); }
+  MACHINES.forEach((m0) => {
+    const can = () => !slotBusy(); can.reason = () => "正在旋转，转完再换机台";
+    dragSwitch($("#v-" + m0), () => [$("#v-" + S.view + " .btable")], can, (d) => {
       const i = MACHINES.indexOf(S.view), m = MACHINES[(i + d + MACHINES.length) % MACHINES.length];
-      sl.auto = 0; mg.auto = 0; gm.auto = 0;
+      sl.auto = 0; mg.auto = 0; gm.auto = 0; fr.auto = 0;
       show(m); try { history.replaceState(null, "", "#" + m); } catch (e) { location.hash = m; }
-      return [$("#v-" + m)];
+      return [$("#v-" + m + " .btable")];
     });
   });
   window.addEventListener("hashchange", () => show(location.hash.slice(1) || "lobby"));
@@ -1884,6 +2187,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   const emptyBets = () => Object.fromEntries(BAC_KEYS.map((k) => [k, 0]));
   const sumBets = (o) => Object.values(o).reduce((a, b) => a + b, 0);
   const AUTO = 15;
+  let dtTables = [], dt = null;            // Dragon Tiger tables (set up further down)
   const TABLE_NAMES = ["A", "B", "C", "D"];
   const tables = TABLE_NAMES.map((name, i) => ({
     name, shoe: new Shoe(8), road: [], autoLeft: AUTO - i * 4, busy: false,
@@ -2068,9 +2372,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     for (let i = 0; i < n; i++) shoe.draw();
     return { first, n };
   }
-  const SHUFFLE_SEC = 10;
-  // A new shoe: shuffle, load it into the shoe, burn. On screen this is a 10-second animation;
-  // a table nobody is watching just pauses for the same 10 seconds.
+  const SHUFFLE_SEC = 20;
+  // A new shoe: shuffle, load it into the shoe, burn. On screen this is a 20-second animation;
+  // a table nobody is watching just pauses for the same 20 seconds.
   async function changeShoe(tb, animate) {
     tb.shoe.fill(); tb.road = []; tb.lastHand = null;
     const b = burn(tb.shoe);
@@ -2082,14 +2386,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     tb.busy = true; tb.shuffling = true; bacRender();
     showLastHand(); renderRoad();
     msg($("#bacMsg"), "换牌靴");
-    await playShoeChange(b);
+    await playShoeChange(b, $("#v-baccarat .btable"), "#bacShoeBox");
     tb.shuffling = false; tb.busy = false; tb.autoLeft = AUTO;
     msg($("#bacMsg"), tb.burnNote);
     bacRender();
   }
-  async function playShoeChange(b) {
-    const t0 = performance.now();
-    const table = $("#v-baccarat .btable"), shoe = $("#bacShoeBox");
+  // About 20 s: four riffles (≈9 s), the shoe comes to the middle and is loaded (≈4.5 s), then the burn; the rest is a short hold.
+  async function playShoeChange(b, table, shoeSel) {
+    const t0 = performance.now(), shoe = $(shoeSel);
     const stage = document.createElement("div"); stage.className = "stage";
     stage.innerHTML = '<p class="st-msg">洗牌中</p><p class="st-sub"></p>';
     table.appendChild(stage); table.classList.add("shuffling");
@@ -2097,47 +2401,47 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const anim = (el, kf, o) => (el.animate && !reduced ? el.animate(kf, o) : null);
     const W = table.getBoundingClientRect().width;
     const spread = Math.min(W * 0.22, 110);
-    // 1. riffle shuffle: two halves fly together, twice
-    const N = 16, cards = [];
+    // 1. riffle shuffle: two halves fly together, four times
+    const N = 16, cards = [], ROUNDS = 4;
     for (let i = 0; i < N; i++) { const c = document.createElement("div"); c.className = "sc"; stage.appendChild(c); cards.push(c); }
-    for (let round = 0; round < 2; round++) {
+    for (let round = 0; round < ROUNDS; round++) {
+      say("洗牌中", "第 " + (round + 1) + " / " + ROUNDS + " 次");
       cards.forEach((c, i) => {
         const side = i % 2 ? 1 : -1;
         anim(c, [{ transform: "translate(" + side * spread + "px," + (-i * 0.6) + "px) rotate(" + side * 8 + "deg)" }, { transform: "translate(0px," + (-i * 1.2) + "px)" }],
-          { duration: 260, delay: i * 80, fill: "both", easing: "ease-in" });
+          { duration: 380, delay: i * 110, fill: "both", easing: "ease-in" });
       });
-      for (let i = 0; i < N; i += 2) setTimeout(() => SND.flip(), i * 80);
-      await sleep(N * 80 + 320);
-      if (round === 0) { say("洗牌中", "再洗一次"); }
+      for (let i = 0; i < N; i += 2) setTimeout(() => SND.flip(), i * 110);
+      await sleep(reduced ? 60 : N * 110 + 520);
     }
     // 2. the shoe comes to the middle and the cards go in
-    say("装入牌靴");
+    say("装入牌靴", "8 副牌 · 416 张");
     const sr = shoe.getBoundingClientRect(), tr = table.getBoundingClientRect();
     const dx = tr.left + tr.width / 2 - (sr.left + sr.width / 2), dy = tr.top + tr.height * 0.56 - (sr.top + sr.height / 2);
     shoe.classList.add("lift");
-    const toMid = anim(shoe, [{ transform: "rotate(-8deg)" }, { transform: "translate(" + dx + "px," + dy + "px) rotate(0deg) scale(1.7)" }], { duration: 750, fill: "forwards", easing: "ease-in-out" });
-    await sleep(800);
-    cards.forEach((c, i) => anim(c, [{ transform: "translate(0px," + (-i * 1.2) + "px)", opacity: 1 }, { transform: "translate(0px,-6px) scale(.45)", opacity: 0 }], { duration: 380, delay: i * 45, fill: "forwards", easing: "ease-in" }));
-    SND.deal();
-    await sleep(N * 45 + 420);
+    const toMid = anim(shoe, [{ transform: "rotate(-8deg)" }, { transform: "translate(" + dx + "px," + dy + "px) rotate(0deg) scale(1.7)" }], { duration: 1100, fill: "forwards", easing: "ease-in-out" });
+    await sleep(reduced ? 60 : 1200);
+    cards.forEach((c, i) => anim(c, [{ transform: "translate(0px," + (-i * 1.2) + "px)", opacity: 1 }, { transform: "translate(0px,-6px) scale(.45)", opacity: 0 }], { duration: 500, delay: i * 80, fill: "forwards", easing: "ease-in" }));
+    SND.deal(); setTimeout(() => SND.deal(), 600);
+    await sleep(reduced ? 60 : N * 80 + 700);
     // 3. back to the top-right corner
     say("牌靴归位");
-    const back = anim(shoe, [{ transform: "translate(" + dx + "px," + dy + "px) rotate(0deg) scale(1.7)" }, { transform: "rotate(-8deg)" }], { duration: 750, fill: "forwards", easing: "ease-in-out" });
-    await sleep(800);
+    const back = anim(shoe, [{ transform: "translate(" + dx + "px," + dy + "px) rotate(0deg) scale(1.7)" }, { transform: "rotate(-8deg)" }], { duration: 1100, fill: "forwards", easing: "ease-in-out" });
+    await sleep(reduced ? 60 : 1200);
     if (toMid) toMid.cancel(); if (back) back.cancel();
     cards.forEach((c) => c.remove());
     // 4. burn: first card face up, then that many cards face down to the discard pile
     say("烧牌 BURN");
     const face = flipCard(b.first); face.classList.add("burnface"); stage.appendChild(face);
-    dealFromShoe(face, "#bacShoeBox", { sound: true });
-    await sleep(MOVE_MS + 300);
+    dealFromShoe(face, shoeSel, { sound: true });
+    await sleep(MOVE_MS + 500);
     say("烧牌 BURN", "首张 " + b.first.s + b.first.r + " → 再烧 " + b.n + " 张");
     for (let i = 0; i < b.n; i++) {
       const c = document.createElement("div"); c.className = "sc discard"; c.style.transform = "translate(" + i * 2 + "px," + -i * 2 + "px)"; stage.appendChild(c);
-      SND.deal(); dealFromShoe(c, "#bacShoeBox", { faceDown: true });
-      await sleep(reduced ? 20 : 150);
+      SND.deal(); dealFromShoe(c, shoeSel, { faceDown: true });
+      await sleep(reduced ? 20 : 260);
     }
-    // hold until ten seconds have passed, then clear the stage
+    // hold until twenty seconds have passed, then clear the stage
     await sleep(Math.max(500, SHUFFLE_SEC * 1000 - (performance.now() - t0)));
     shoe.classList.remove("lift"); table.classList.remove("shuffling");
     stage.remove();
@@ -2203,31 +2507,41 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     cd.classList.toggle("soon", autoOn && !bac.busy && bac.autoLeft <= 5);
     cd.textContent = !autoOn ? "–" : bac.shuffling ? "洗" : bac.busy ? "…" : String(bac.autoLeft);
     cd.style.setProperty("--p", !autoOn || bac.busy ? 0 : Math.min(1, bac.autoLeft / AUTO));
-    tables.forEach((tb, i) => {
-      const el = document.getElementById("lcd" + i);
-      if (!el) return;
-      el.textContent = !autoOn ? "已暂停" : tb.shuffling || tb.autoLeft > AUTO ? "换牌靴中" : tb.busy ? "开牌中" : (hasBets(tb) ? "有下注 · " : "") + tb.autoLeft + " 秒";
-      el.classList.toggle("soon", autoOn && !tb.busy && tb.autoLeft <= 3);
-      // the lobby shows the shoe change too: shuffling, loading the shoe, then the burn
-      const sh = document.getElementById("lsh" + i), changing = tb.shuffling || tb.autoLeft > AUTO;
-      if (sh) {
-        if (sh.hidden !== !changing && !changing && S.view === "lobby") setTimeout(renderLobby, 0);
-        sh.hidden = !changing;
-        if (changing) {
-          const left = tb.shuffleEnd ? Math.max(0, (tb.shuffleEnd - performance.now()) / 1000) : tb.autoLeft - AUTO, stage = left > 7 ? 0 : left > 5 ? 1 : 2;
-          sh.dataset.stage = stage;
-          sh.querySelector("b").textContent = ["洗牌中", "装入牌靴", "烧牌"][stage];
-          sh.querySelector("small").textContent = stage === 2 && tb.burnNote ? tb.burnNote.replace("新牌靴 · ", "") : stage === 0 ? "新牌靴 8 副牌" : "";
-        }
-      }
-    });
+    tables.forEach((tb, i) => lobbyLive(tb, "lcd" + i, "lsh" + i));
+    if (dt) {
+      const dc = $("#dtCd");
+      dc.classList.toggle("off", !autoOn);
+      dc.classList.toggle("soon", autoOn && !dt.busy && dt.autoLeft <= 5);
+      dc.textContent = !autoOn ? "–" : dt.shuffling ? "洗" : dt.busy ? "…" : String(dt.autoLeft);
+      dc.style.setProperty("--p", !autoOn || dt.busy ? 0 : Math.min(1, dt.autoLeft / AUTO));
+      dtTables.forEach((tb, i) => lobbyLive(tb, "ldcd" + i, "ldsh" + i));
+    }
   }
-  $("#bacAuto").addEventListener("click", () => {
+  // a lobby tile's countdown, and the shoe change shown on it: shuffling, loading the shoe, then the burn
+  function lobbyLive(tb, cdId, shId) {
+    const el = document.getElementById(cdId);
+    if (!el) return;
+    const changing = tb.shuffling || tb.autoLeft > AUTO;
+    el.textContent = !autoOn ? "已暂停" : changing ? "换牌靴中" : tb.busy ? "开牌中" : (hasBets(tb) ? "有下注 · " : "") + tb.autoLeft + " 秒";
+    el.classList.toggle("soon", autoOn && !tb.busy && tb.autoLeft <= 3);
+    const sh = document.getElementById(shId);
+    if (!sh) return;
+    if (sh.hidden !== !changing && !changing && S.view === "lobby") setTimeout(renderLobby, 0);
+    sh.hidden = !changing;
+    if (changing) {
+      const left = tb.shuffleEnd ? Math.max(0, (tb.shuffleEnd - performance.now()) / 1000) : tb.autoLeft - AUTO, stage = left > 11 ? 0 : left > 6.5 ? 1 : 2;
+      sh.dataset.stage = stage;
+      sh.querySelector("b").textContent = ["洗牌中", "装入牌靴", "烧牌"][stage];
+      sh.querySelector("small").textContent = stage === 2 && tb.burnNote ? tb.burnNote.replace("新牌靴 · ", "") : stage === 0 ? "新牌靴 8 副牌" : "";
+    }
+  }
+  function toggleAuto() {
     autoOn = !autoOn;
-    $("#bacAuto").setAttribute("aria-pressed", String(autoOn));
-    tables.forEach((t) => { t.autoLeft = AUTO; });
+    ["#bacAuto", "#dtAuto"].forEach((q) => $(q).setAttribute("aria-pressed", String(autoOn)));
+    tables.concat(dtTables).forEach((t) => { if (!t.shuffling && t.autoLeft <= AUTO) t.autoLeft = AUTO; });
     renderAuto();
-  });
+  }
+  $("#bacAuto").addEventListener("click", toggleAuto);
   setInterval(() => {
     if (!autoOn || document.hidden) return;
     for (const tb of tables) {
@@ -2236,6 +2550,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       tb.autoLeft--;
       if (here && tb.autoLeft > 0 && tb.autoLeft <= 3) SND.tick();
       if (tb.autoLeft <= 0) { if (here) bacDeal(); else bgDeal(tb); }
+    }
+    for (const tb of dtTables) {
+      if (tb.busy) continue;
+      const here = S.view === "dt" && tb === dt;
+      tb.autoLeft--;
+      if (here && tb.autoLeft > 0 && tb.autoLeft <= 3) SND.tick();
+      if (tb.autoLeft <= 0) { if (here) dtDeal(); else dtBg(tb); }
     }
     renderAuto();
   }, 1000);
@@ -2351,11 +2672,211 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         ? '<i class="burn">' + tb.burnNote.replace("新牌靴 · ", "新牌靴 · ").replace(" · 烧 ", " · 烧 <b>").replace(" 张", "</b> 张") + "</i>"
         : '<i class="P">闲 ' + c.P + '</i><i class="B">庄 ' + c.B + '</i><i class="T">和 ' + c.T + "</i><i>#" + (tb.road.length + 1) + "</i>";
     });
+    dtTables.forEach((tb, i) => {
+      drawGrid($("#ldr" + i), $("#ldrs" + i), place(bigEntries(tb.road), sameW), bigHTML, 8);
+      const c = counts(tb.road);
+      $("#ldst" + i).innerHTML = !tb.road.length && tb.burnNote
+        ? '<i class="burn">' + tb.burnNote.replace(" · 烧 ", " · 烧 <b>").replace(" 张", "</b> 张") + "</i>"
+        : '<i class="B">龙 ' + c.B + '</i><i class="P">虎 ' + c.P + '</i><i class="T">和 ' + c.T + "</i><i>#" + (tb.road.length + 1) + "</i>";
+    });
     renderAuto();
   }
   showLastHand();
   bacRender();
-  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (S.view === "baccarat") renderRoad(); if (S.view === "lobby") renderLobby(); }, 150); });
+  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (S.view === "baccarat") renderRoad(); if (S.view === "dt") dtRoad(); if (S.view === "lobby") renderLobby(); }, 150); });
+
+  /* ======================================================
+     DRAGON TIGER — two tables, one card each side, K high, A low
+     ====================================================== */
+  const DT_KEYS = ["dragon", "tiger", "tie", "suited", "dodd", "deven", "todd", "teven"];
+  const dtEmpty = () => Object.fromEntries(DT_KEYS.map((k) => [k, 0]));
+  dtTables = ["A", "B"].map((name, i) => ({ name, shoe: new Shoe(8), road: [], autoLeft: AUTO - 2 - i * 7, busy: false, bets: dtEmpty(), hist: [], last: null, lastHand: null }));
+  dt = dtTables[0];
+  try {
+    const sv = JSON.parse(localStorage.getItem("gbc-dt") || "null");
+    if (sv && Array.isArray(sv.tables)) {
+      sv.tables.forEach((t, i) => { if (dtTables[i] && t && validCards(t.cards)) { dtTables[i].shoe.cards = t.cards.map((c) => ({ r: c.r, s: c.s })); dtTables[i].road = cleanRoad(t.road); } });
+      if (dtTables[sv.cur]) dt = dtTables[sv.cur];
+    }
+  } catch (e) {}
+  dtTables.forEach((t) => { if (t.shoe.cards.length === 416) burn(t.shoe); });
+  function dtSave() { try { localStorage.setItem("gbc-dt", JSON.stringify({ cur: dtTables.indexOf(dt), tables: dtTables.map((t) => ({ road: t.road, cards: t.shoe.cards })) })); } catch (e) {} }
+  const dtv = (c) => ({ A: 1, J: 11, Q: 12, K: 13 }[c.r] || +c.r);
+  const dtTotal = () => sumBets(dt.bets);
+  dtTables.forEach((t, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = t.name; b.dataset.t = i; b.setAttribute("aria-label", "龙虎 " + t.name + " 桌");
+    b.addEventListener("click", () => dtUse(i));
+    $("#dtTables").appendChild(b);
+  });
+  function dtRender() {
+    $$("#v-dt .spot").forEach((s) => { setStake(s.querySelector(".stake"), dt.bets[s.dataset.dt]); s.disabled = dt.busy; });
+    const has = dtTotal() > 0;
+    $("#dtDeal").disabled = dt.busy; $("#dtShuffle").disabled = dt.busy;
+    $("#dtClear").disabled = dt.busy || !has;
+    $("#dtRebet").disabled = dt.busy || !dt.last; $("#dtRepeat").disabled = $("#dtRebet").disabled;
+    $("#dtUndo").disabled = dt.busy || !dt.hist.length;
+    $("#dtDouble").disabled = dt.busy || !has;
+    $("#dtShoe").textContent = dt.shoe.cards.length;
+    $("#dtBetTotal").textContent = fmt(dtTotal());
+    $("#dtName").textContent = dt.name;
+    $$("#dtTables button").forEach((b) => { b.setAttribute("aria-pressed", String(dtTables[+b.dataset.t] === dt)); b.disabled = !!dt.shuffling && dtTables[+b.dataset.t] !== dt; });
+    renderAuto();
+  }
+  function dtClearWins() { $$("#v-dt .spot").forEach((x) => x.classList.remove("win")); $("#dtDSide").classList.remove("won"); $("#dtTSide").classList.remove("won"); }
+  const dtLabel = (c) => ({ A: "1", J: "11", Q: "12", K: "13" }[c.r] || c.r);
+  function dtShowLast() {
+    dtClearWins();
+    const h = dt.lastHand;
+    $("#dtD").innerHTML = ""; $("#dtT").innerHTML = "";
+    if (!h) { $("#dtDT").textContent = "–"; $("#dtTT").textContent = "–"; msg($("#dtMsg"), "龙虎 " + dt.name + " 桌 · 下注后等待开局"); return; }
+    $("#dtD").appendChild(flipCard(h.D)); $("#dtT").appendChild(flipCard(h.T));
+    $("#dtDT").textContent = dtLabel(h.D); $("#dtTT").textContent = dtLabel(h.T);
+    if (h.win !== "tiger") $("#dtDSide").classList.add("won");
+    if (h.win !== "dragon") $("#dtTSide").classList.add("won");
+    msg($("#dtMsg"), h.msg);
+  }
+  function dtRoad() {
+    const ents = bigEntries(dt.road);
+    drawGrid($("#dtRoad"), $("#dtRoadScroll"), place(ents, sameW), bigHTML, 12);
+    [["#dtEye", "#dtEyeScroll", "eye", 1], ["#dtSmall", "#dtSmallScroll", "small", 2], ["#dtRoach", "#dtRoachScroll", "roach", 3]]
+      .forEach(([r, sc, cls, k]) => drawGrid($(r), $(sc), place(derive(ents, k), sameW), dHTML(cls), 6));
+    const c = counts(dt.road);
+    $("#dtCntD").textContent = c.B; $("#dtCntT").textContent = c.P; $("#dtCntX").textContent = c.T;
+    $("#dtHandNo").textContent = dt.road.length + 1; $("#dtHandNo2").textContent = dt.road.length + 1;
+  }
+  function dtUse(i) {
+    if (dt.shuffling || dtTables[i] === dt) return;
+    dt = dtTables[i]; dtSave();
+    if (!dt.busy) dtShowLast(); dtRoad(); dtRender();
+  }
+  {
+    const top = () => ["#v-dt .btable", "#v-dt .roads", "#v-dt .bstats"].map((q) => $(q));
+    const can = () => !dt.shuffling; can.reason = () => "换牌靴中，稍后再换桌";
+    dragSwitch($("#v-dt"), top, can, (d) => { dtUse((dtTables.indexOf(dt) + d + dtTables.length) % dtTables.length); toast("龙虎 " + dt.name + " 桌"); return top(); });
+  }
+  $$("#v-dt .spot").forEach((s) => s.addEventListener("click", () => {
+    if (dt.busy) return;
+    dtClearWins();
+    if (!take(S.chip)) { msg($("#dtMsg"), '<span class="l">筹码不足</span>'); return; }
+    dt.bets[s.dataset.dt] += S.chip; dt.hist.push([s.dataset.dt, S.chip]); dtRender();
+  }));
+  $("#dtUndo").addEventListener("click", () => { if (dt.busy || !dt.hist.length) return; const [k, a] = dt.hist.pop(); dt.bets[k] = Math.max(0, dt.bets[k] - a); addBank(a); dtRender(); });
+  $("#dtDouble").addEventListener("click", () => {
+    if (dt.busy) return;
+    const t = dtTotal(); if (!t) return;
+    if (!take(t)) { msg($("#dtMsg"), '<span class="l">筹码不足，无法加倍</span>'); return; }
+    for (const k of DT_KEYS) if (dt.bets[k]) { dt.hist.push([k, dt.bets[k]]); dt.bets[k] *= 2; }
+    dtRender();
+  });
+  $("#dtClear").addEventListener("click", () => { addBank(dtTotal()); dt.bets = dtEmpty(); dt.hist = []; dtRender(); });
+  $("#dtRebet").addEventListener("click", () => {
+    if (!dt.last) return;
+    const need = sumBets(dt.last);
+    addBank(dtTotal()); dt.bets = dtEmpty(); dt.hist = [];
+    if (!take(need)) { msg($("#dtMsg"), '<span class="l">筹码不足，无法重复上局下注</span>'); dtRender(); return; }
+    Object.assign(dt.bets, dt.last);
+    for (const k of DT_KEYS) if (dt.bets[k]) dt.hist.push([k, dt.bets[k]]);
+    dtRender();
+  });
+  $("#dtDeal").addEventListener("click", () => dtDeal());
+  $("#dtShuffle").addEventListener("click", () => { if (!dt.busy) dtChangeShoe(dt, true); });
+  $("#dtAuto").addEventListener("click", toggleAuto);
+  function dtSettle(tb, hand) {
+    const d = dtv(hand.D), t = dtv(hand.T);
+    const win = d > t ? "dragon" : t > d ? "tiger" : "tie";
+    const suited = win === "tie" && hand.D.s === hand.T.s;
+    const odd = (v) => v !== 7 && v % 2 === 1, even = (v) => v % 2 === 0;
+    const mult = {
+      dragon: win === "dragon" ? 2 : win === "tie" ? 0.5 : 0, tiger: win === "tiger" ? 2 : win === "tie" ? 0.5 : 0,
+      tie: win === "tie" ? 9 : 0, suited: suited ? 51 : 0,
+      dodd: odd(d) ? 2 : 0, deven: even(d) ? 2 : 0, todd: odd(t) ? 2 : 0, teven: even(t) ? 2 : 0,
+    };
+    const total = sumBets(tb.bets);
+    let pay = 0;
+    for (const k of DT_KEYS) pay += tb.bets[k] * mult[k];
+    pay = Math.round(pay * 100) / 100;
+    if (pay) addBank(pay);
+    const name = { dragon: "龙赢", tiger: "虎赢", tie: suited ? "同花和" : "和局" }[win];
+    const text = "<b>" + name + " " + hand.D.s + hand.D.r + " : " + hand.T.s + hand.T.r + "</b>" + (total ? " · " + net(pay - total) : "");
+    tb.road.push({ w: win === "dragon" ? "B" : win === "tiger" ? "P" : "T", pp: false, bp: false });
+    tb.lastHand = { D: hand.D, T: hand.T, win, msg: text };
+    if (total) tb.last = { ...tb.bets };
+    tb.bets = dtEmpty(); tb.hist = [];
+    tb.autoLeft = AUTO;
+    dtSave();
+    return { win, mult, pay, total, text };
+  }
+  async function dtChangeShoe(tb, animate) {
+    tb.shoe.fill(); tb.road = []; tb.lastHand = null;
+    const b = burn(tb.shoe);
+    tb.burnNote = "新牌靴 · 首张 " + b.first.s + b.first.r + " · 烧 " + b.n + " 张";
+    dtSave();
+    tb.shuffleEnd = performance.now() + SHUFFLE_SEC * 1000;
+    const onScreen = animate && tb === dt && S.view === "dt";
+    if (!onScreen) { tb.autoLeft = AUTO + SHUFFLE_SEC; if (tb === dt) { dtShowLast(); dtRoad(); } if (S.view === "lobby") renderLobby(); return; }
+    tb.busy = true; tb.shuffling = true; dtRender();
+    dtShowLast(); dtRoad();
+    msg($("#dtMsg"), "换牌靴");
+    await playShoeChange(b, $("#v-dt .btable"), "#dtShoeBox");
+    tb.shuffling = false; tb.busy = false; tb.autoLeft = AUTO;
+    msg($("#dtMsg"), tb.burnNote);
+    dtRender();
+  }
+  function dtBg(tb) {
+    const r = dtSettle(tb, { D: tb.shoe.draw(), T: tb.shoe.draw() });
+    if (r.total) { toast("龙虎 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
+    if (tb.shoe.needsShuffle()) dtChangeShoe(tb, false);
+    if (S.view === "lobby") renderLobby();
+  }
+  async function dtDeal() {
+    const tb = dt;
+    if (tb.busy) return;
+    tb.busy = true; dtRender(); dtClearWins();
+    if (tb.shoe.needsShuffle()) { tb.busy = false; await dtChangeShoe(tb, true); tb.busy = true; dtRender(); }
+    const hand = { D: tb.shoe.draw(), T: tb.shoe.draw() };
+    $("#dtD").innerHTML = ""; $("#dtT").innerHTML = ""; $("#dtDT").textContent = "–"; $("#dtTT").textContent = "–";
+    msg($("#dtMsg"), "停止下注 · 发牌中");
+    const here = () => dt === tb && S.view === "dt";
+    for (const [side, c] of [["D", hand.D], ["T", hand.T]]) {
+      if (!here()) continue;
+      const el = flipCard(c);
+      $("#dt" + side).appendChild(el);
+      SND.deal(); dealFromShoe(el, "#dtShoeBox");
+      await sleep(MOVE_MS * 0.62); if (!here()) continue; SND.flip();
+      $("#dt" + side + "T").textContent = dtLabel(c);
+      await sleep(MOVE_MS * 0.38 + (reduced ? 40 : 420));
+    }
+    const r = dtSettle(tb, hand);
+    if (!here()) {
+      tb.busy = false;
+      if (r.total) { toast("龙虎 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
+      if (dt === tb) { dtShowLast(); dtRoad(); }
+      dtRender(); if (S.view === "lobby") renderLobby();
+      if (tb.shoe.needsShuffle()) dtChangeShoe(tb, false);
+      return;
+    }
+    $$("#v-dt .spot").forEach((s) => { const k = s.dataset.dt; if (k === "dragon" || k === "tiger" ? r.win === k : r.mult[k] > 1) s.classList.add("win"); });
+    if (r.win !== "tiger") $("#dtDSide").classList.add("won");
+    if (r.win !== "dragon") $("#dtTSide").classList.add("won");
+    msg($("#dtMsg"), r.text);
+    if (r.total && r.pay > r.total) SND.win();
+    dtRoad();
+    tb.busy = false; dtRender();
+    if (tb.shoe.needsShuffle()) { tb.busy = true; dtRender(); await sleep(reduced ? 50 : 2500); tb.busy = false; await dtChangeShoe(tb, dt === tb && S.view === "dt"); }
+  }
+  // lobby tiles
+  dtTables.forEach((tb, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "btile";
+    b.innerHTML = '<span class="bt-head"><span class="bt-ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="17" height="25" rx="3" transform="rotate(-8 13 23)"/><rect x="26" y="11" width="17" height="25" rx="3" transform="rotate(8 35 23)" fill="currentColor" fill-opacity=".14"/><text x="13.5" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor" stroke="none">龙</text><text x="34.5" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor" stroke="none">虎</text></svg></span><b>龙虎 ' + tb.name + '</b><span class="bt-cd" id="ldcd' + i + '"></span></span>' +
+      '<span class="road-scroll mini" id="ldrs' + i + '"><span class="road" id="ldr' + i + '"></span></span>' +
+      '<span class="bt-stats" id="ldst' + i + '"></span>' +
+      '<span class="bt-shuf" id="ldsh' + i + '" hidden><span class="bs-cards"><i></i><i></i><i></i><i></i></span><b>洗牌中</b><small></small></span>';
+    b.addEventListener("click", () => { if (!dt.shuffling) { dt = dtTables[i]; dtSave(); } go("dt"); });
+    $("#lobbyDt").appendChild(b);
+  });
+  dtShowLast(); dtRender();
 
   /* ======================================================
      BLACKJACK
@@ -3159,6 +3680,118 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
 
   /* ======================================================
+     NIU NIU (牛牛) — player vs banker, 5 cards each from a fresh 52-card deck
+     ====================================================== */
+  const NN_CN = ["无牛", "牛一", "牛二", "牛三", "牛四", "牛五", "牛六", "牛七", "牛八", "牛九", "牛牛", "五花牛"];
+  const nnPt = (c) => (c.r === "A" ? 1 : ["10", "J", "Q", "K"].includes(c.r) ? 10 : +c.r);
+  const nnRank = (c) => ({ A: 1, J: 11, Q: 12, K: 13 }[c.r] || +c.r);
+  const nnSuit = (c) => ({ "♠": 4, "♥": 3, "♣": 2, "♦": 1 }[c.s]);
+  const nnCardKey = (c) => nnRank(c) * 10 + nnSuit(c);
+  // best grouping: three cards summing to a multiple of ten, the other two give the niu
+  function evalNiu(cs) {
+    let best = null;
+    for (let i = 0; i < 5; i++) for (let j = i + 1; j < 5; j++) for (let k = j + 1; k < 5; k++) {
+      if ((nnPt(cs[i]) + nnPt(cs[j]) + nnPt(cs[k])) % 10) continue;
+      const rest = [0, 1, 2, 3, 4].filter((x) => x !== i && x !== j && x !== k);
+      const r = (nnPt(cs[rest[0]]) + nnPt(cs[rest[1]])) % 10, n = r === 0 ? 10 : r;
+      if (!best || n > best.n) best = { n, three: [i, j, k], rest };
+    }
+    let n = best ? best.n : 0;
+    if (cs.every((c) => ["J", "Q", "K"].includes(c.r))) n = 11;
+    const top = cs.reduce((a, c) => Math.max(a, nnCardKey(c)), 0);
+    const mult = n >= 11 ? 5 : n === 10 ? 3 : n >= 7 ? 2 : 1;
+    return { n, name: NN_CN[n], mult, top, three: best ? best.three : null, rest: best ? best.rest : null };
+  }
+  const nnCmp = (a, b) => (a.n !== b.n ? a.n - b.n : a.top - b.top);
+  const nn = { bets: { fan: 0, ping: 0 }, hist: [], last: null, busy: false };
+  const nnTotal = () => nn.bets.fan + nn.bets.ping;
+  function nnRender() {
+    $$("#v-niu .spot").forEach((s) => { setStake(s.querySelector(".stake"), nn.bets[s.dataset.nn]); s.disabled = nn.busy; });
+    $("#nnDeal").disabled = nn.busy;
+    $("#nnUndo").disabled = nn.busy || !nn.hist.length;
+    $("#nnDouble").disabled = nn.busy || !nnTotal();
+    $("#nnClear").disabled = nn.busy || !nnTotal();
+    $("#nnRebet").disabled = nn.busy || !nn.last; $("#nnRepeat").disabled = $("#nnRebet").disabled;
+    $("#nnBetTotal").textContent = fmt(nnTotal());
+  }
+  function nnClearWins() { $$("#v-niu .spot").forEach((x) => x.classList.remove("win")); $("#nnPRow").classList.remove("won"); $("#nnDRow").classList.remove("won"); }
+  $$("#v-niu .spot").forEach((s) => s.addEventListener("click", () => {
+    if (nn.busy) return;
+    nnClearWins();
+    if (!take(S.chip)) { msg($("#nnMsg"), '<span class="l">筹码不足</span>'); return; }
+    nn.bets[s.dataset.nn] += S.chip; nn.hist.push([s.dataset.nn, S.chip]); nnRender();
+  }));
+  $("#nnUndo").addEventListener("click", () => { if (nn.busy || !nn.hist.length) return; const [k, a] = nn.hist.pop(); nn.bets[k] = Math.max(0, nn.bets[k] - a); addBank(a); nnRender(); });
+  $("#nnDouble").addEventListener("click", () => {
+    if (nn.busy) return;
+    const t = nnTotal(); if (!t) return;
+    if (!take(t)) { msg($("#nnMsg"), '<span class="l">筹码不足，无法加倍</span>'); return; }
+    for (const k of ["fan", "ping"]) if (nn.bets[k]) { nn.hist.push([k, nn.bets[k]]); nn.bets[k] *= 2; }
+    nnRender();
+  });
+  $("#nnClear").addEventListener("click", () => { if (nn.busy) return; addBank(nnTotal()); nn.bets = { fan: 0, ping: 0 }; nn.hist = []; nnRender(); });
+  $("#nnRebet").addEventListener("click", () => {
+    if (nn.busy || !nn.last) return;
+    addBank(nnTotal()); nn.bets = { fan: 0, ping: 0 }; nn.hist = [];
+    if (!take(nn.last.fan + nn.last.ping)) { msg($("#nnMsg"), '<span class="l">筹码不足，无法重复上局下注</span>'); nnRender(); return; }
+    Object.assign(nn.bets, nn.last);
+    for (const k of ["fan", "ping"]) if (nn.bets[k]) nn.hist.push([k, nn.bets[k]]);
+    nnRender();
+  });
+  // lay a hand out as 3 + 2 once its niu is known
+  function nnArrange(el, cards, ev) {
+    const els = [...el.children];
+    if (!ev.three) return;
+    const order = ev.three.concat(ev.rest);
+    order.forEach((idx, pos) => { const c = els[idx]; c.classList.toggle("nn3", pos < 3); c.classList.toggle("nn-gap", pos === 3); el.appendChild(c); });
+  }
+  async function nnDeal() {
+    if (nn.busy) return;
+    if (!nnTotal()) { msg($("#nnMsg"), "请先下注：选择筹码后点翻倍或平倍"); return; }
+    const reserve = nn.bets.fan * 4;
+    if (reserve && !take(reserve)) { msg($("#nnMsg"), '<span class="l">翻倍要先预留 4 倍下注（' + fmt(reserve) + '），余额不够</span>'); return; }
+    nn.busy = true; nnClearWins(); nnRender();
+    const deck = new Shoe(1), P = [], D = [];
+    const pe = $("#nnP"), de = $("#nnD");
+    pe.innerHTML = ""; de.innerHTML = ""; $("#nnPR").textContent = "–"; $("#nnDR").textContent = "–";
+    $("#nnPR").classList.remove("niu"); $("#nnDR").classList.remove("niu");
+    msg($("#nnMsg"), "发牌中…" + (reserve ? "（已预留 " + fmt(reserve) + "）" : ""));
+    for (let i = 0; i < 5; i++) {
+      const pc = deck.draw(); P.push(pc);
+      const pel = flipCard(pc); pe.appendChild(pel); dealFromShoe(pel, "#nnShoeBox", { sound: true });
+      await sleep(DEAL_MS * 0.7);
+      const dc = deck.draw(); D.push(dc);
+      const del = flipCard(dc, true); de.appendChild(del); dealFromShoe(del, "#nnShoeBox", { sound: true, faceDown: true });
+      await sleep(DEAL_MS * 0.7);
+    }
+    const pv = evalNiu(P);
+    await sleep(reduced ? 30 : 300);
+    nnArrange(pe, P, pv); $("#nnPR").textContent = pv.name; $("#nnPR").classList.toggle("niu", pv.n > 0);
+    msg($("#nnMsg"), "你的牌：<b>" + pv.name + "</b> · 开庄家的牌");
+    await sleep(reduced ? 30 : 700);
+    for (const el of $$("#nnD .card")) { flipOver(el); await sleep(reduced ? 30 : 240); }
+    const dv = evalNiu(D);
+    nnArrange(de, D, dv); $("#nnDR").textContent = dv.name; $("#nnDR").classList.toggle("niu", dv.n > 0);
+    const youWin = nnCmp(pv, dv) > 0, m = youWin ? pv.mult : dv.mult;
+    const { fan, ping } = nn.bets, total = fan + ping;
+    let pay = reserve;                                   // the reserve comes back, less what a doubled loss uses
+    if (youWin) pay += fan * (1 + m * 0.95) + ping * 1.95;
+    else pay -= fan * (m - 1);
+    pay = Math.round(pay * 100) / 100;
+    if (pay) addBank(pay);
+    const netv = pay - reserve - total;
+    (youWin ? $("#nnPRow") : $("#nnDRow")).classList.add("won");
+    if (youWin) $$("#v-niu .spot").forEach((s) => { if (nn.bets[s.dataset.nn]) s.classList.add("win"); });
+    msg($("#nnMsg"), "你：<b>" + pv.name + "</b> · 庄家：" + dv.name + " · " + (youWin ? "闲赢" : "庄赢") + (fan && m > 1 ? " · 翻倍 ×" + m : "") + " · " + net(Math.round(netv * 100) / 100));
+    if (youWin) SND.win();
+    nn.last = { fan, ping };
+    nn.bets = { fan: 0, ping: 0 }; nn.hist = [];
+    nn.busy = false; nnRender();
+  }
+  $("#nnDeal").addEventListener("click", nnDeal);
+  nnRender();
+
+  /* ======================================================
      SLOT MACHINE — 3 reels, 5 lines
      ====================================================== */
   /* ---------- Stake selector for the slot series (no chips: pick how much one spin costs) ---------- */
@@ -3746,9 +4379,201 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   gm.cols = []; for (let c = 0; c < G_COLS; c++) { const col = []; for (let r = 0; r < G_ROWS; r++) col.push(gmCell(gmDraw(), c, r)); gm.cols.push(col); }
   gmLadder(-1);
 
+  /* ======================================================
+     水果转轮 — 5×3, 20 fixed lines. A 百搭 on reels 2–4 expands to the whole reel and holds while the
+     other reels respin (a new 百搭 gives another respin). Three 转轮 on reels 1, 3, 5 spin the prize wheel.
+     Numbers match tools/fruit_sim (about 96%).
+     ====================================================== */
+  const FR_BASE = { S: 2, B: 4, M: 5, G: 6, P: 7, O: 8, L: 9, C: 10 };
+  const FRC = {
+    REELS: [{ ...FR_BASE, X: 2.4 }, { ...FR_BASE, W: 1.2 }, { ...FR_BASE, W: 1.2, X: 2.4 }, { ...FR_BASE, W: 1.2 }, { ...FR_BASE, X: 2.4 }],
+    PAY: { S: [25, 125, 750], B: [16, 55, 200], M: [11, 35, 140], G: [8, 25, 95], P: [5, 16, 60], O: [4, 12, 48], L: [3.2, 8, 34], C: [2.8, 7, 28] },
+    WHEEL: [10, 20, 15, 50, 10, 25, 15, 100, 10, 20, 15, 30, 10, 25, 15, 500, 10, 20, 15, 40],
+    LINES: [[1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [2, 2, 2, 2, 2], [0, 1, 2, 1, 0], [2, 1, 0, 1, 2], [0, 0, 1, 2, 2], [2, 2, 1, 0, 0], [1, 0, 0, 0, 1], [1, 2, 2, 2, 1], [1, 0, 1, 2, 1],
+      [1, 2, 1, 0, 1], [0, 1, 1, 1, 0], [2, 1, 1, 1, 2], [0, 1, 0, 1, 0], [2, 1, 2, 1, 2], [1, 1, 0, 1, 1], [1, 1, 2, 1, 1], [0, 0, 2, 0, 0], [2, 2, 0, 2, 2], [0, 2, 2, 2, 0]],
+  };
+  const FR_ART = { S: "s-7", B: "f-B", M: "f-M", G: "f-G", P: "f-P", O: "f-O", L: "f-L", C: "f-C", W: "f-W", X: "f-X" };
+  const FR_NAME = { S: "7", B: "铃铛", M: "西瓜", G: "葡萄", P: "李子", O: "橙子", L: "柠檬", C: "樱桃" };
+  const FR_LC = ["#ffd34d", "#ff5a5f", "#5ab0ff", "#4fd37a", "#c77dff", "#ff9f40", "#40e0d0", "#ff7ac8", "#b8f04a", "#f5f5f5"];
+  const frTabs = FRC.REELS.map((w) => { const ks = Object.keys(w), iw = ks.map((k) => Math.round(w[k] * 10)); return { ks, iw, tot: iw.reduce((a, b) => a + b, 0) }; });
+  function frDraw(r) { const t = frTabs[r]; let x = rand(t.tot); for (let i = 0; i < t.ks.length; i++) { if ((x -= t.iw[i]) < 0) return t.ks[i]; } return t.ks[0]; }
+  const frNewGrid = (held) => [0, 1, 2, 3, 4].map((r) => (held[r] ? ["W", "W", "W"] : [frDraw(r), frDraw(r), frDraw(r)]));
+  function frEval(g) {
+    let win = 0; const hits = [];
+    FRC.LINES.forEach((ln, li) => {
+      const s0 = g[0][ln[0]]; if (s0 === "X" || s0 === "W") return;
+      let n = 1; while (n < 5) { const s = g[n][ln[n]]; if (s === s0 || s === "W") n++; else break; }
+      if (n >= 3) { const p = FRC.PAY[s0][n - 3] / 20; win += p; hits.push([li, n, s0, p]); }
+    });
+    return { win, hits };
+  }
+  const fr = { bet: 0, speed: 1, auto: 0, spinning: false };
+  const frT = (ms) => (reduced ? Math.min(ms, 60) : ms / fr.speed);
+  const frCell = (k) => '<div class="mc" data-k="' + k + '">' + art(FR_ART[k]) + "</div>";
+  const frGridEl = $("#frGrid");
+  for (let r = 0; r < 5; r++) { const d = document.createElement("div"); d.className = "mreel"; d.innerHTML = '<div class="col"></div>'; frGridEl.appendChild(d); }
+  const frReels = () => $$("#frGrid .mreel"), frCols = () => $$("#frGrid .mreel .col");
+  function frDrawGrid(g, held) {
+    frCols().forEach((col, r) => {
+      if (col.getAnimations) col.getAnimations().forEach((a) => a.cancel());
+      col.style.transform = ""; col.innerHTML = g[r].map(frCell).join("");
+      frReels()[r].classList.toggle("wildx", !!(held && held[r]));
+    });
+  }
+  function frClearLines() { $("#frLines").innerHTML = ""; $$("#frGrid .mc.win").forEach((e) => e.classList.remove("win")); }
+  async function frAnimate(g, held) {
+    frClearLines();
+    const cell = $("#frGrid .mreel").getBoundingClientRect().height / 3, runs = [];
+    let k = 0;
+    frCols().forEach((col, r) => {
+      if (held[r]) return;
+      const parts = [...col.querySelectorAll(".mc")].map((el) => el.outerHTML).slice(0, 3);
+      const n = 10 + k * 4; k++;
+      for (let i = 0; i < n; i++) parts.push(frCell(frDraw(r)));
+      g[r].forEach((s) => parts.push(frCell(s)));
+      col.innerHTML = parts.join("");
+      const dist = (parts.length - 3) * cell, dur = frT(800 + (k - 1) * 230);
+      if (col.animate) col.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.2,.65,.25,1)", fill: "forwards" });
+      else col.style.transform = "translateY(-" + dist + "px)";
+      runs.push(new Promise((res) => setTimeout(() => { SND.flip(); res(); }, dur)));
+    });
+    const tick = setInterval(() => SND.ball(), 70);
+    await Promise.all(runs); clearInterval(tick);
+    frDrawGrid(g, held);
+  }
+  const frBanner = (big, small) => { const b = $("#frBanner"); b.innerHTML = "<b>" + big + "</b>" + (small ? "<span>" + small + "</span>" : ""); b.hidden = false; b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); };
+  // a new 百搭 grows over its whole reel and stays there; returns how many reels just turned wild
+  async function frExpand(g, held) {
+    const fresh = [1, 2, 3].filter((r) => !held[r] && g[r].includes("W"));
+    if (!fresh.length) return 0;
+    await sleep(frT(250));
+    fresh.forEach((r) => {
+      held[r] = 1; g[r] = ["W", "W", "W"];
+      const reel = frReels()[r];
+      reel.querySelector(".col").innerHTML = g[r].map(frCell).join("");
+      reel.classList.add("wildx"); reel.classList.remove("wildgo"); void reel.offsetWidth; reel.classList.add("wildgo");
+    });
+    SND.win();
+    await sleep(frT(800));
+    return fresh.length;
+  }
+  async function frPay(g) {
+    const e = frEval(g);
+    if (!e.win) return 0;
+    const amt = Math.round(e.win * fr.bet * 100) / 100;
+    addBank(amt); SND.chip();
+    const svg = $("#frLines"), cells = frCols().map((col) => col.querySelectorAll(".mc"));
+    svg.innerHTML = e.hits.map(([li, n]) => '<polyline stroke="' + FR_LC[li % FR_LC.length] + '" points="' + FRC.LINES[li].slice(0, n).map((row, r) => (r * 100 + 50) + "," + (row * 100 + 50)).join(" ") + '"/>').join("");
+    e.hits.forEach(([li, n]) => { for (let r = 0; r < n; r++) cells[r][FRC.LINES[li][r]].classList.add("win"); });
+    msg($("#frMsg"), e.hits.slice(0, 3).map(([li, n, s]) => "第 " + (li + 1) + " 线 " + FR_NAME[s] + "×" + n).join(" · ") + (e.hits.length > 3 ? " 等 " + e.hits.length + " 条线" : "") + ' · <span class="w">+' + fmt(amt) + "</span>");
+    await sleep(frT(1100));
+    return amt;
+  }
+  // prize wheel: 20 segments, the result lands under the pointer at the top
+  (function buildDisc() {
+    const n = FRC.WHEEL.length, a = 360 / n, R = 96;
+    const pt = (deg, r) => { const t = (deg - 90) * Math.PI / 180; return (Math.cos(t) * r).toFixed(2) + " " + (Math.sin(t) * r).toFixed(2); };
+    let h = '<circle r="99" fill="url(#gGoldD)"/>';
+    FRC.WHEEL.forEach((v, i) => {
+      const c = v >= 500 ? "#a3080c" : v >= 100 ? "#7a2fb8" : v >= 40 ? "#1f62d6" : ["#d7191f", "#e08a00", "#14a35a", "#2a62d0"][i % 4];
+      h += '<path d="M0 0 L' + pt(i * a - a / 2, R) + " A" + R + " " + R + " 0 0 1 " + pt(i * a + a / 2, R) + ' Z" fill="' + c + '" stroke="#ffe08a" stroke-width="1"/>';
+      h += '<text transform="rotate(' + i * a + ') translate(0 -70) rotate(90)" text-anchor="middle" dominant-baseline="middle">×' + v + "</text>";
+    });
+    h += '<circle r="20" fill="url(#gGoldR)" stroke="#8a5a00" stroke-width="2"/><text y="1" text-anchor="middle" dominant-baseline="middle" style="fill:#7a0a0e;stroke:none;font-size:10px">BONUS</text>';
+    $("#frDisc").innerHTML = h;
+  })();
+  async function frWheelSpin() {
+    const ov = $("#frWheel"), disc = $("#frDisc"), n = FRC.WHEEL.length, idx = rand(n);
+    frBanner("奖金转盘", "3 个转轮"); SND.win(); await sleep(frT(1500)); $("#frBanner").hidden = true;
+    ov.hidden = false; $("#frWheelRes").innerHTML = "&nbsp;";
+    disc.style.transition = "none"; disc.style.transform = "rotate(0deg)"; void disc.offsetWidth;
+    const jitter = (rand(1000) / 1000 - 0.5) * (360 / n) * 0.6, turn = 360 * 6 - idx * (360 / n) + jitter, dur = Math.max(1800, frT(5200));
+    disc.style.transition = "transform " + dur + "ms cubic-bezier(.12,.6,.08,1)"; disc.style.transform = "rotate(" + turn + "deg)";
+    const tick = setInterval(() => SND.tick(), 110);
+    await sleep(dur * 0.75); clearInterval(tick);
+    await sleep(dur * 0.25 + 200);
+    const mult = FRC.WHEEL[idx], amt = Math.round(mult * fr.bet * 100) / 100;
+    $("#frWheelRes").textContent = "×" + mult + " = +" + fmt(amt);
+    addBank(amt); SND.win();
+    await sleep(frT(2000));
+    ov.hidden = true;
+    return amt;
+  }
+  function frRender() {
+    betbarRender("fr", fr.bet, fr.spinning || fr.auto > 0);
+    $("#frSpin").disabled = fr.spinning || !fr.bet || fr.auto > 0;
+    $("#frSpin").textContent = fr.bet ? "旋转 · " + fmt(fr.bet) : "旋转";
+    const ab = $("#frAuto");
+    ab.classList.toggle("on", fr.auto > 0);
+    ab.textContent = fr.auto > 0 ? "停止" + (fr.auto === Infinity ? "" : " · 剩 " + fr.auto) : "自动";
+    ab.disabled = !fr.auto && (!fr.bet || fr.spinning);
+    $("#frBetTotal").textContent = fmt(fr.bet);
+  }
+  fr.bet = betLoad("fr");
+  betbarWire("fr", () => fr.bet, (v) => { fr.bet = v; frRender(); }, () => fr.spinning || fr.auto > 0);
+  async function frSpin() {
+    if (fr.spinning || !fr.bet) return false;
+    if (!take(fr.bet)) { msg($("#frMsg"), '<span class="l">余额不足，点右上角 + 加余额</span>'); return false; }
+    fr.spinning = true; frRender();
+    msg($("#frMsg"), "旋转中…");
+    const held = [0, 0, 0, 0, 0];
+    frReels().forEach((r) => r.classList.remove("wildx", "wildgo"));
+    let g = frNewGrid(held);
+    await frAnimate(g, held);
+    const sc = [0, 2, 4].filter((r) => g[r].includes("X")).length;
+    let total = 0, respins = 0, fresh = await frExpand(g, held);
+    total += await frPay(g);
+    while (fresh) {
+      respins++;
+      $("#frMode").textContent = "百搭重转 · 第 " + respins + " 次";
+      msg($("#frMsg"), "百搭锁住 · 其余重转");
+      await sleep(frT(500));
+      g = frNewGrid(held);
+      await frAnimate(g, held);
+      fresh = await frExpand(g, held);
+      total += await frPay(g);
+    }
+    $("#frMode").textContent = "20 线 · 5 × 3";
+    let wheel = 0;
+    if (sc >= 3) { wheel = await frWheelSpin(); total += wheel; }
+    total = Math.round(total * 100) / 100;
+    const notes = [];
+    if (respins) notes.push("百搭重转 " + respins + " 次");
+    if (wheel) notes.push("奖金转盘 +" + fmt(wheel));
+    msg($("#frMsg"), (notes.length ? notes.join(" · ") + " · " : total ? "" : "没有中奖 · ") + (total ? "共赢 +" + fmt(total) + " · " : "") + net(total - fr.bet));
+    if (total > 0 && total < fr.bet * 20) SND.win();
+    if (total >= fr.bet * 20) await bigWin(total, fr.bet, fr.speed);
+    fr.spinning = false; frRender();
+    return true;
+  }
+  $("#frSpin").addEventListener("click", () => { if (!fr.auto) frSpin(); });
+  async function frAutoRun(n) {
+    fr.auto = n || Infinity; frRender();
+    while (fr.auto > 0) {
+      if (S.view !== "fruit" || !fr.bet) break;
+      if (S.bank < fr.bet) { msg($("#frMsg"), '<span class="l">余额不足，自动旋转已停止</span>'); break; }
+      if (!(await frSpin())) break;
+      if (fr.auto !== Infinity && fr.auto > 0) fr.auto--;
+      frRender();
+      if (fr.auto > 0) await sleep(frT(450));
+    }
+    fr.auto = 0; frRender();
+  }
+  const frPop = $("#frAutoPop");
+  $("#frAuto").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (fr.auto > 0) { fr.auto = 0; frRender(); msg($("#frMsg"), "自动旋转已停止"); return; }
+    frPop.hidden = !frPop.hidden; $("#frAuto").setAttribute("aria-expanded", String(!frPop.hidden));
+  });
+  $$("#frAutoPop button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); frPop.hidden = true; frAutoRun(+b.dataset.n); }));
+  document.addEventListener("click", (e) => { if (!e.target.closest("#v-fruit .autowrap")) frPop.hidden = true; });
+  $("#frPayTable").innerHTML = Object.keys(FRC.PAY).map((k) => '<tr><td><svg class="art" viewBox="0 0 100 100"><use href="#' + FR_ART[k] + '"/></svg> ' + FR_NAME[k] + "</td><td>" + FRC.PAY[k].join(" / ") + "</td></tr>").join("");
+  frDrawGrid(frNewGrid([0, 0, 0, 0, 0]), null);
+
+
   // Spin speed for the slot machines: 1× · 2× · 5× · 10×
   const SPEEDS = [1, 2, 5, 10];
-  [["#slSpeed", sl], ["#mgSpeed", mg], ["#gmSpeed", gm]].forEach(([id, st]) => {
+  [["#slSpeed", sl], ["#mgSpeed", mg], ["#gmSpeed", gm], ["#frSpeed", fr]].forEach(([id, st]) => {
     const b = $(id);
     b.addEventListener("click", () => {
       st.speed = SPEEDS[(SPEEDS.indexOf(st.speed) + 1) % SPEEDS.length];
@@ -3763,6 +4588,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   slRender();
   mgRender();
   gmRender();
+  frRender();
   show(location.hash.slice(1) || "lobby");
 
   // Home-screen app: offline cache (only where service workers are allowed, e.g. GitHub Pages)
