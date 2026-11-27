@@ -251,7 +251,7 @@
    --scene-height is fitted by script to the room left on screen; everything below follows from it. */
 .bac-dealer-stage {
   --scene-height: 210px;
-  --portrait-width: min(calc(100vw - 44px), calc(var(--scene-height) * .78 * 424 / 321));
+  --portrait-width: min(calc(100vw - 44px), calc(var(--scene-height) * var(--portrait-scale, .78) * 424 / 321));
   --portrait-top: calc(var(--scene-height) * .02);
   --portrait-height: calc(var(--portrait-width) * 321 / 424);
   --table-edge: calc(var(--portrait-top) + var(--portrait-height) * .88);   /* where the dealer's hands rest */
@@ -386,12 +386,17 @@
 }
 .bac-felt-zone + .bac-felt-zone::before { transform-origin: calc(clamp(13px, 4vw, 35px) / -2) 100%; }
 .bac-felt-zone small {
+  position: absolute;
+  right: 5%;
+  top: 50%;
+  translate: 0 -50%;
+  font-size: 12px !important;
   color: #ddc7a5;
   font: 500 9px/1.3 var(--body);
   opacity: .84;
 }
 .bac-felt-lane {
-  --felt-card-w: clamp(21px, 6.5vw, 31px);
+  --felt-card-w: clamp(17px, min(6.5vw, calc(var(--scene-height) * .135)), 31px);
   --felt-gap: clamp(3px, 1.1vw, 6px);
   display: flex;
   justify-content: flex-start;
@@ -412,7 +417,7 @@
   left: 0;
   height: calc(var(--cw) * 88 / 63);
   translate: 0 -50%;
-  transform: perspective(150px) rotateX(var(--felt-tilt));
+  transform: perspective(340px) rotateX(var(--felt-tilt));   /* same as the boxes; the pivot is set per card by script */
   transform-origin: 50% 80%;
   font-family: Georgia, "Times New Roman", serif;
 }
