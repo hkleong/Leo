@@ -1,6 +1,6 @@
 // Offline support for the 俱乐部 home-screen app.
 // Bump VERSION whenever index.html changes so installed copies pick up the update.
-const VERSION = "gbc-0.18.5";
+const VERSION = "gbc-0a9293d896";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png",
   "art/dragon-idle.webp", "art/thor-idle.webp", "art/dragon-reward-24.webp", "art/thor-reward-24.webp"];
 
