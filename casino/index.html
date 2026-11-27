@@ -5748,6 +5748,36 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   $("#nnDeal").addEventListener("click", nnDeal);
   nnRender();
 
+  /* ---------- Auto spin, shared by every slot machine: a set number of spins (or until stopped);
+     it stops when the balance runs out, a spin fails, or you leave the machine. ---------- */
+  function autoBtn(p, st, ready) {
+    const ab = $("#" + p + "Auto");
+    ab.classList.toggle("on", st.auto > 0);
+    ab.textContent = st.auto > 0 ? "停止" + (st.auto === Infinity ? "" : " · 剩 " + st.auto) : "自动";
+    ab.disabled = !st.auto && (!ready || st.spinning);
+  }
+  function wireAuto(p, o) {
+    const st = o.st, btn = $("#" + p + "Auto"), pop = $("#" + p + "AutoPop"), msgEl = $("#" + p + "Msg");
+    async function run(n) {
+      st.auto = n || Infinity; o.render();
+      while (st.auto > 0) {
+        if (S.view !== o.view || !o.ready()) break;
+        if (S.bank < o.cost()) { msg(msgEl, '<span class="l">余额不足，自动旋转已停止</span>'); break; }
+        if (!(await o.spin())) break;
+        if (st.auto !== Infinity && st.auto > 0) st.auto--;
+        o.render();
+        if (st.auto > 0) await sleep(o.T(o.gap));
+      }
+      st.auto = 0; o.render();
+    }
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (st.auto > 0) { st.auto = 0; o.render(); msg(msgEl, "自动旋转已停止"); return; }
+      pop.hidden = !pop.hidden; btn.setAttribute("aria-expanded", String(!pop.hidden));
+    });
+    pop.querySelectorAll("button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); pop.hidden = true; btn.setAttribute("aria-expanded", "false"); run(+b.dataset.n); }));
+    document.addEventListener("click", (e) => { if (!e.target.closest("#v-" + o.view + " .autowrap")) pop.hidden = true; });
+  }
   /* ======================================================
      SLOT MACHINE — 3 reels, 5 lines
      ====================================================== */
@@ -5822,10 +5852,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   function slRender() {
     betbarRender("sl", sl.line * 5, sl.spinning || sl.auto > 0);
     $("#slSpin").disabled = sl.spinning || !sl.line || sl.auto > 0;
-    const ab = $("#slAuto");
-    ab.classList.toggle("on", sl.auto > 0);
-    ab.textContent = sl.auto > 0 ? "停止" + (sl.auto === Infinity ? "" : " · 剩 " + sl.auto) : "自动";
-    ab.disabled = !sl.auto && (!sl.line || sl.spinning);
+    autoBtn("sl", sl, sl.line);
     $("#slSpin").textContent = sl.line ? "旋转 · " + fmt(sl.line * 5) : "旋转";
     $("#slBetTotal").textContent = fmt(sl.line * 5);
   }
@@ -5877,32 +5904,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     sl.spinning = false; slRender();
     return true;
   }
-  // Auto spin: a set number of spins (or until stopped); stops when the balance runs out or you leave the slot machine
-  async function slAutoRun(n) {
-    sl.auto = n || Infinity; slRender();
-    while (sl.auto > 0) {
-      if (S.view !== "slots") { break; }
-      if (!sl.line) break;
-      if (S.bank < sl.line * 5) { msg($("#slMsg"), '<span class="l">余额不足，自动旋转已停止</span>'); break; }
-      const ok = await slSpin();
-      if (!ok) break;
-      if (sl.auto !== Infinity && sl.auto > 0) sl.auto--;
-      slRender();
-      if (sl.auto > 0) await sleep(slT(450));
-    }
-    sl.auto = 0; slRender();
-  }
-  const autoPop = $("#slAutoPop");
-  $("#slAuto").addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (sl.auto > 0) { sl.auto = 0; slRender(); msg($("#slMsg"), "自动旋转已停止"); return; }
-    autoPop.hidden = !autoPop.hidden; $("#slAuto").setAttribute("aria-expanded", String(!autoPop.hidden));
-  });
-  $$("#slAutoPop button").forEach((b) => b.addEventListener("click", (e) => {
-    e.stopPropagation(); autoPop.hidden = true; $("#slAuto").setAttribute("aria-expanded", "false");
-    slAutoRun(+b.dataset.n);
-  }));
-  document.addEventListener("click", (e) => { if (!e.target.closest(".autowrap")) autoPop.hidden = true; });
+  wireAuto("sl", { st: sl, view: "slots", spin: () => slSpin(), ready: () => sl.line, cost: () => sl.line * 5, T: slT, gap: 450, render: () => slRender() });
   slDrawStatic();
 
   /* ======================================================
@@ -6013,10 +6015,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#mgSpin").textContent = hw ? "锁定旋转 · 剩 " + mg.holdLeft + " 次" : mg.bet ? "旋转 · " + fmt(mg.bet) : "旋转";
     $("#mgSpin").classList.toggle("holdgo", hw);
     startBtn(mg, $("#mgSpin"));
-    const ab = $("#mgAuto");
-    ab.classList.toggle("on", mg.auto > 0);
-    ab.textContent = mg.auto > 0 ? "停止" + (mg.auto === Infinity ? "" : " · 剩 " + mg.auto) : "自动";
-    ab.disabled = !mg.auto && (!mg.bet || mg.spinning);
+    autoBtn("mg", mg, mg.bet);
     $("#mgBetTotal").textContent = fmt(mg.bet);
     jpRender();
   }
@@ -6173,26 +6172,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   try { $("#mgAutoHold").checked = localStorage.getItem("gbc-autohold") !== "off"; } catch (e) {}
   $("#mgAutoHold").addEventListener("click", (e) => e.stopPropagation());
   $("#mgAutoHold").addEventListener("change", () => { try { localStorage.setItem("gbc-autohold", $("#mgAutoHold").checked ? "on" : "off"); } catch (e) {} });
-  async function mgAutoRun(n) {
-    mg.auto = n || Infinity; mgRender();
-    while (mg.auto > 0) {
-      if (S.view !== "dragon" || !mg.bet) break;
-      if (S.bank < mg.bet) { msg($("#mgMsg"), '<span class="l">余额不足，自动旋转已停止</span>'); break; }
-      if (!(await mgSpin())) break;
-      if (mg.auto !== Infinity && mg.auto > 0) mg.auto--;
-      mgRender();
-      if (mg.auto > 0) await sleep(mgT(500));
-    }
-    mg.auto = 0; mgRender();
-  }
-  const mgPop = $("#mgAutoPop");
-  $("#mgAuto").addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (mg.auto > 0) { mg.auto = 0; mgRender(); msg($("#mgMsg"), "自动旋转已停止"); return; }
-    mgPop.hidden = !mgPop.hidden; $("#mgAuto").setAttribute("aria-expanded", String(!mgPop.hidden));
-  });
-  $$("#mgAutoPop button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); mgPop.hidden = true; mgAutoRun(+b.dataset.n); }));
-  document.addEventListener("click", (e) => { if (!e.target.closest("#v-dragon .autowrap")) mgPop.hidden = true; });
+  wireAuto("mg", { st: mg, view: "dragon", spin: () => mgSpin(), ready: () => mg.bet, cost: () => mg.bet, T: mgT, gap: 500, render: () => mgRender() });
   mgDrawGrid(mgNewGrid());
 
   /* ======================================================
@@ -6307,10 +6287,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     betbarRender("gm", gm.bet, gm.spinning || gm.auto > 0);
     $("#gmSpin").disabled = gm.spinning || !gm.bet || gm.auto > 0;
     $("#gmSpin").textContent = gm.bet ? "旋转 · " + fmt(gm.bet) : "旋转";
-    const ab = $("#gmAuto");
-    ab.classList.toggle("on", gm.auto > 0);
-    ab.textContent = gm.auto > 0 ? "停止" + (gm.auto === Infinity ? "" : " · 剩 " + gm.auto) : "自动";
-    ab.disabled = !gm.auto && (!gm.bet || gm.spinning);
+    autoBtn("gm", gm, gm.bet);
     $("#gmBetTotal").textContent = fmt(gm.bet);
     startBtn(gm, $("#gmSpin"));
   }
@@ -6334,26 +6311,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     return true;
   }
   $("#gmSpin").addEventListener("click", () => { if (gm.waitGo) return gm.waitGo(); if (!gm.auto) gmSpin(); });
-  async function gmAutoRun(n) {
-    gm.auto = n || Infinity; gmRender();
-    while (gm.auto > 0) {
-      if (S.view !== "gems" || !gm.bet) break;
-      if (S.bank < gm.bet) { msg($("#gmMsg"), '<span class="l">余额不足，自动旋转已停止</span>'); break; }
-      if (!(await gmSpin())) break;
-      if (gm.auto !== Infinity && gm.auto > 0) gm.auto--;
-      gmRender();
-      if (gm.auto > 0) await sleep(gT(450));
-    }
-    gm.auto = 0; gmRender();
-  }
-  const gmPop = $("#gmAutoPop");
-  $("#gmAuto").addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (gm.auto > 0) { gm.auto = 0; gmRender(); msg($("#gmMsg"), "自动旋转已停止"); return; }
-    gmPop.hidden = !gmPop.hidden; $("#gmAuto").setAttribute("aria-expanded", String(!gmPop.hidden));
-  });
-  $$("#gmAutoPop button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); gmPop.hidden = true; gmAutoRun(+b.dataset.n); }));
-  document.addEventListener("click", (e) => { if (!e.target.closest("#v-gems .autowrap")) gmPop.hidden = true; });
+  wireAuto("gm", { st: gm, view: "gems", spin: () => gmSpin(), ready: () => gm.bet, cost: () => gm.bet, T: gT, gap: 450, render: () => gmRender() });
   // a resting board to look at before the first spin
   gm.cols = []; for (let c = 0; c < G_COLS; c++) { const col = []; for (let r = 0; r < G_ROWS; r++) col.push(gmCell(gmDraw(), c, r)); gm.cols.push(col); }
   gmLadder(-1);
@@ -6499,10 +6457,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     betbarRender("fr", fr.bet, fr.spinning || fr.auto > 0);
     $("#frSpin").disabled = fr.spinning || !fr.bet || fr.auto > 0;
     $("#frSpin").textContent = fr.bet ? "旋转 · " + fmt(fr.bet) : "旋转";
-    const ab = $("#frAuto");
-    ab.classList.toggle("on", fr.auto > 0);
-    ab.textContent = fr.auto > 0 ? "停止" + (fr.auto === Infinity ? "" : " · 剩 " + fr.auto) : "自动";
-    ab.disabled = !fr.auto && (!fr.bet || fr.spinning);
+    autoBtn("fr", fr, fr.bet);
     $("#frBetTotal").textContent = fmt(fr.bet);
     startBtn(fr, $("#frSpin"));
   }
@@ -6546,26 +6501,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   $("#frSpin").addEventListener("click", () => { if (fr.waitGo) return fr.waitGo(); if (!fr.auto) frSpin(); });
   $("#frWheel").addEventListener("click", () => { if (fr.waitGo) fr.waitGo(); });
-  async function frAutoRun(n) {
-    fr.auto = n || Infinity; frRender();
-    while (fr.auto > 0) {
-      if (S.view !== "fruit" || !fr.bet) break;
-      if (S.bank < fr.bet) { msg($("#frMsg"), '<span class="l">余额不足，自动旋转已停止</span>'); break; }
-      if (!(await frSpin())) break;
-      if (fr.auto !== Infinity && fr.auto > 0) fr.auto--;
-      frRender();
-      if (fr.auto > 0) await sleep(frT(450));
-    }
-    fr.auto = 0; frRender();
-  }
-  const frPop = $("#frAutoPop");
-  $("#frAuto").addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (fr.auto > 0) { fr.auto = 0; frRender(); msg($("#frMsg"), "自动旋转已停止"); return; }
-    frPop.hidden = !frPop.hidden; $("#frAuto").setAttribute("aria-expanded", String(!frPop.hidden));
-  });
-  $$("#frAutoPop button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); frPop.hidden = true; frAutoRun(+b.dataset.n); }));
-  document.addEventListener("click", (e) => { if (!e.target.closest("#v-fruit .autowrap")) frPop.hidden = true; });
+  wireAuto("fr", { st: fr, view: "fruit", spin: () => frSpin(), ready: () => fr.bet, cost: () => fr.bet, T: frT, gap: 450, render: () => frRender() });
   $("#frPayTable").innerHTML = Object.keys(FRC.PAY).map((k) => '<tr><td><svg class="art" viewBox="0 0 100 100"><use href="#' + FR_ART[k] + '"/></svg> ' + FR_NAME[k] + "</td><td>" + FRC.PAY[k].join(" / ") + "</td></tr>").join("");
   frDrawGrid(frNewGrid([0, 0, 0, 0, 0]), null);
 
@@ -6716,10 +6652,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     betbarRender("dv", dv.bet, dv.spinning || dv.auto > 0);
     $("#dvSpin").disabled = dv.spinning || !dv.bet || dv.auto > 0;
     $("#dvSpin").textContent = dv.bet ? "旋转 · " + fmt(dv.bet) : "旋转";
-    const ab = $("#dvAuto");
-    ab.classList.toggle("on", dv.auto > 0);
-    ab.textContent = dv.auto > 0 ? "停止" + (dv.auto === Infinity ? "" : " · 剩 " + dv.auto) : "自动";
-    ab.disabled = !dv.auto && (!dv.bet || dv.spinning);
+    autoBtn("dv", dv, dv.bet);
     $("#dvBetTotal").textContent = fmt(dv.bet);
     startBtn(dv, $("#dvSpin"));
   }
@@ -6751,26 +6684,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   $("#dvSpin").addEventListener("click", () => { if (dv.waitGo) return dv.waitGo(); if (!dv.auto) dvSpin(); });
   $("#dvBanner").addEventListener("click", () => { if (dv.waitGo) dv.waitGo(); });
-  async function dvAutoRun(n) {
-    dv.auto = n || Infinity; dvRender();
-    while (dv.auto > 0) {
-      if (S.view !== "diver" || !dv.bet) break;
-      if (S.bank < dv.bet) { msg($("#dvMsg"), '<span class="l">余额不足，自动旋转已停止</span>'); break; }
-      if (!(await dvSpin())) break;
-      if (dv.auto !== Infinity && dv.auto > 0) dv.auto--;
-      dvRender();
-      if (dv.auto > 0) await sleep(dvT(450));
-    }
-    dv.auto = 0; dvRender();
-  }
-  const dvPop = $("#dvAutoPop");
-  $("#dvAuto").addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (dv.auto > 0) { dv.auto = 0; dvRender(); msg($("#dvMsg"), "自动旋转已停止"); return; }
-    dvPop.hidden = !dvPop.hidden; $("#dvAuto").setAttribute("aria-expanded", String(!dvPop.hidden));
-  });
-  $$("#dvAutoPop button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); dvPop.hidden = true; dvAutoRun(+b.dataset.n); }));
-  document.addEventListener("click", (e) => { if (!e.target.closest("#v-diver .autowrap")) dvPop.hidden = true; });
+  wireAuto("dv", { st: dv, view: "diver", spin: () => dvSpin(), ready: () => dv.bet, cost: () => dv.bet, T: dvT, gap: 450, render: () => dvRender() });
   $("#dvPayTable").innerHTML = Object.keys(DVC.PAY).map((k) => '<tr><td><svg class="art" viewBox="0 0 100 100"><use href="#' + DV_ART[k] + '"/></svg> ' + DV_NAME[k] + "</td><td>" + DVC.PAY[k].join(" / ") + "</td></tr>").join("");
   dvDraw(dvGrid(DV_B));
 
@@ -6966,10 +6880,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     betbarRender("tn", tn.bet, busy);
     $("#tnSpin").disabled = busy || !tn.bet;
     $("#tnSpin").textContent = tn.bet ? "旋转 · " + fmt(cost) : "旋转";
-    const ab = $("#tnAuto");
-    ab.classList.toggle("on", tn.auto > 0);
-    ab.textContent = tn.auto > 0 ? "停止" + (tn.auto === Infinity ? "" : " · 剩 " + tn.auto) : "自动";
-    ab.disabled = !tn.auto && (!tn.bet || tn.spinning);
+    autoBtn("tn", tn, tn.bet);
     $("#tnBetTotal").textContent = fmt(cost);
     $("#tnAnte").setAttribute("aria-pressed", String(tn.ante)); $("#tnAnte").disabled = busy;
     $("#tnBuy").disabled = busy || tn.ante || !tn.bet; $("#tnBuyPrice").textContent = fmt(Math.round(tn.bet * THC.BUY * 100) / 100);
@@ -7011,26 +6922,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#tnBuyGo").disabled = S.bank < price; $("#tnBuySheet").hidden = false;
   });
   $("#tnBuyGo").addEventListener("click", () => { $("#tnBuySheet").hidden = true; if (!tn.spinning && !tn.auto) tnRound(true); });
-  async function tnAutoRun(n) {
-    tn.auto = n || Infinity; tnRender();
-    while (tn.auto > 0) {
-      if (S.view !== "thor" || !tn.bet) break;
-      if (S.bank < tnCost()) { msg($("#tnMsg"), '<span class="l">余额不足，自动旋转已停止</span>'); break; }
-      if (!(await tnRound(false))) break;
-      if (tn.auto !== Infinity && tn.auto > 0) tn.auto--;
-      tnRender();
-      if (tn.auto > 0) await sleep(tnT(450));
-    }
-    tn.auto = 0; tnRender();
-  }
-  const tnPop = $("#tnAutoPop");
-  $("#tnAuto").addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (tn.auto > 0) { tn.auto = 0; tnRender(); msg($("#tnMsg"), "自动旋转已停止"); return; }
-    tnPop.hidden = !tnPop.hidden; $("#tnAuto").setAttribute("aria-expanded", String(!tnPop.hidden));
-  });
-  $$("#tnAutoPop button").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); tnPop.hidden = true; tnAutoRun(+b.dataset.n); }));
-  document.addEventListener("click", (e) => { if (!e.target.closest("#v-thor .autowrap")) tnPop.hidden = true; });
+  wireAuto("tn", { st: tn, view: "thor", spin: () => tnRound(false), ready: () => tn.bet, cost: () => tnCost(), T: tnT, gap: 450, render: () => tnRender() });
   $("#tnPayTable").innerHTML = Object.keys(THC.PAY).map((k) => '<tr><td><svg class="art" viewBox="0 0 100 100"><use href="#' + TN_ART[k] + '"/></svg> ' + TN_NAME[k] + "</td><td>" + THC.PAY[k].join(" / ") + "</td></tr>").join("");
   tn.cols = Array.from({ length: 6 }, (_, c) => Array.from({ length: 5 }, (_, r) => tnCell(tnDraw(), c, r)));
   $$("#tnBoard .tcell.dormant").forEach((e) => e.classList.remove("dormant"));
