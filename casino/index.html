@@ -1447,10 +1447,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .s3-felt::before { content: ""; position: absolute; inset: -11px; border-radius: 20px; pointer-events: none; background: linear-gradient(180deg, rgba(255,220,160,.18), transparent 30%, rgba(0,0,0,.25)); mix-blend-mode: overlay; }
 .s3-emblem { position: absolute; left: 50%; top: 50%; width: 30%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 2px solid rgba(212,175,55,.35); display: grid; grid-template-columns: 1fr 1fr; place-items: center; font-size: clamp(14px, 4.4vw, 24px); color: rgba(212,175,55,.3); }
 .s3-spread { position: absolute; display: grid; gap: 2px; justify-items: center; --cw: clamp(17px, 5.6vw, 28px); }
-.s3-spread[data-pos="n"] { top: 3%; left: 50%; transform: translateX(-50%); }
-.s3-spread[data-pos="s"] { bottom: 3%; left: 50%; transform: translateX(-50%); --cw: clamp(20px, 7vw, 34px); }
-.s3-spread[data-pos="w"] { left: 3%; top: 50%; transform: translateY(-50%); }
-.s3-spread[data-pos="e"] { right: 3%; top: 50%; transform: translateY(-50%); }
+/* every player's cards face that player: across is upside down, the sides are turned a quarter */
+.s3-spread { --hx: -50%; --hy: -50%; transform: translate(var(--hx), var(--hy)) rotate(var(--rot, 0deg)); }
+.s3-spread[data-pos="n"] { top: 18%; left: 50%; --rot: 180deg; }
+.s3-spread[data-pos="s"] { top: 80%; left: 50%; --cw: clamp(20px, 7vw, 34px); }
+.s3-spread[data-pos="w"] { left: 17%; top: 50%; --rot: 90deg; }
+.s3-spread[data-pos="e"] { left: 83%; top: 50%; --rot: -90deg; }
 .s3-sr { position: relative; display: flex; justify-content: center; }
 .s3-sr .card { box-shadow: -1px 0 2px rgba(0,0,0,.35); }
 .s3-sr .card + .card { margin-left: calc(var(--cw) * -.48); }
@@ -1463,8 +1465,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .s3-tagm:empty, .s3-rp:empty { display: none; }
 .s3-rp { position: absolute; right: -16px; top: 50%; transform: translateY(-50%); font: 800 11px/1 var(--mono); font-style: normal; color: #fff; text-shadow: 0 1px 2px #000; }
 .s3-spread.hit { animation: s3hit .22s ease-out; }
-@keyframes s3hit { 30% { transform: translate(var(--hx, -50%), var(--hy, 0)) scale(.96) rotate(-2deg); } }
-.s3-spread[data-pos="n"], .s3-spread[data-pos="s"] { --hx: -50%; --hy: 0; } .s3-spread[data-pos="w"], .s3-spread[data-pos="e"] { --hx: 0; --hy: -50%; }
+@keyframes s3hit { 30% { transform: translate(var(--hx), var(--hy)) rotate(calc(var(--rot, 0deg) - 3deg)) scale(.95); } }
 /* seats */
 .s3-plate { position: absolute; z-index: 5; }
 .s3-plate[data-pos="n"] { top: 4px; left: 50%; transform: translateX(-50%); }
