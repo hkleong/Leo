@@ -555,3 +555,8 @@
   #v-room .droad { --rc: clamp(5px, .85vh, 8px); }
   #v-room .bfoot { display: none; }     /* balance is in the header, my result is on my chip in the players row */
 }
+/* countdown and the table's status sit in the top-right corner of the dealer scene */
+.bac-scene-info { position: absolute; z-index: 6; top: 7px; right: 7px; display: flex; align-items: flex-start; justify-content: flex-end; gap: 5px; max-width: 42%; pointer-events: none; }
+.bac-scene-info .cdring { position: static; transform: none; flex: none; width: 26px; height: 26px; font-size: 11px; }
+.bac-scene-info .bresult { position: static; left: auto; bottom: auto; transform: none; margin: 0; min-height: 0; max-width: 100%; padding: 4px 8px; border-radius: 8px; background: #0a0a08c8; font-size: 11px; line-height: 1.35; text-align: right; white-space: normal; }
+.bac-dealer-try { display: none; }
