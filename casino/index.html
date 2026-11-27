@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.21.0">
+<meta name="version" content="0.22.0">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1437,6 +1437,135 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   .mj-center { min-height: 80px; }
   .mj-pool[data-pos="w"], .mj-pool[data-pos="e"] { max-height: 100px; }
 }
+/* ---------- 十三张 · tilted table ---------- */
+.ss-play { position: relative; }
+.s3-stage { position: relative; flex: 1 1 auto; min-height: 250px; border-radius: 16px; overflow: hidden; background: radial-gradient(ellipse 80% 60% at 50% 35%, #33291b, #0c0a07 78%); box-shadow: inset 0 0 0 1px rgba(212,175,55,.25); }
+.s3-table { position: absolute; inset: 9% 3% 5%; perspective: 900px; perspective-origin: 50% 20%; }
+.s3-felt { position: absolute; inset: 0; transform: rotateX(26deg); transform-origin: 50% 80%; border-radius: 20px; border: 11px solid #4a2f17;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.08), transparent 55%), repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 10px, transparent 10px 20px), linear-gradient(160deg, #1f6f6a, #0f4a49 60%, #0b3638);
+  box-shadow: inset 0 0 0 2px rgba(212,175,55,.45), inset 0 0 40px rgba(0,0,0,.55), 0 0 0 2px #2a1a0b, 0 16px 30px rgba(0,0,0,.7); }
+.s3-felt::before { content: ""; position: absolute; inset: -11px; border-radius: 20px; pointer-events: none; background: linear-gradient(180deg, rgba(255,220,160,.18), transparent 30%, rgba(0,0,0,.25)); mix-blend-mode: overlay; }
+.s3-emblem { position: absolute; left: 50%; top: 50%; width: 30%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; border: 2px solid rgba(212,175,55,.35); display: grid; grid-template-columns: 1fr 1fr; place-items: center; font-size: clamp(14px, 4.4vw, 24px); color: rgba(212,175,55,.3); }
+.s3-spread { position: absolute; display: grid; gap: 2px; justify-items: center; --cw: clamp(17px, 5.6vw, 28px); }
+.s3-spread[data-pos="n"] { top: 3%; left: 50%; transform: translateX(-50%); }
+.s3-spread[data-pos="s"] { bottom: 3%; left: 50%; transform: translateX(-50%); --cw: clamp(20px, 7vw, 34px); }
+.s3-spread[data-pos="w"] { left: 3%; top: 50%; transform: translateY(-50%); }
+.s3-spread[data-pos="e"] { right: 3%; top: 50%; transform: translateY(-50%); }
+.s3-sr { position: relative; display: flex; justify-content: center; }
+.s3-sr .card { box-shadow: -1px 0 2px rgba(0,0,0,.35); }
+.s3-sr .card + .card { margin-left: calc(var(--cw) * -.48); }
+.s3-sr .card .r { left: 2px; top: 1px; font-size: calc(var(--cw) * .42); }
+.s3-sr .card .s { font-size: calc(var(--cw) * .5); padding-top: calc(var(--cw) * .45); padding-left: calc(var(--cw) * .2); }
+.s3-sr.flip .card { animation: ssflip .35s ease-out both; }
+.s3-sr[data-res="win"] .card .front { box-shadow: 0 0 0 2px #ffd34d, 0 0 8px rgba(255,211,77,.8); }
+.s3-sr[data-res="lose"] .card .front { filter: brightness(.62); }
+.s3-tagm { position: absolute; left: 50%; bottom: -3px; transform: translateX(-50%); font: 800 9px/1.25 var(--body); font-style: normal; padding: 0 4px; border-radius: 3px; background: #f3d34a; color: #3a2400; white-space: nowrap; }
+.s3-tagm:empty, .s3-rp:empty { display: none; }
+.s3-rp { position: absolute; right: -16px; top: 50%; transform: translateY(-50%); font: 800 11px/1 var(--mono); font-style: normal; color: #fff; text-shadow: 0 1px 2px #000; }
+.s3-spread.hit { animation: s3hit .22s ease-out; }
+@keyframes s3hit { 30% { transform: translate(var(--hx, -50%), var(--hy, 0)) scale(.96) rotate(-2deg); } }
+.s3-spread[data-pos="n"], .s3-spread[data-pos="s"] { --hx: -50%; --hy: 0; } .s3-spread[data-pos="w"], .s3-spread[data-pos="e"] { --hx: 0; --hy: -50%; }
+/* seats */
+.s3-plate { position: absolute; z-index: 5; }
+.s3-plate[data-pos="n"] { top: 4px; left: 50%; transform: translateX(-50%); }
+.s3-plate[data-pos="w"] { left: 4px; top: 40%; }
+.s3-plate[data-pos="e"] { right: 4px; top: 40%; }
+.s3-plate[data-pos="s"] { left: 4px; bottom: 4px; }
+.s3-pl { position: relative; display: flex; align-items: center; gap: 5px; padding: 3px 7px 3px 3px; border-radius: 10px; background: linear-gradient(180deg, rgba(20,24,34,.92), rgba(8,10,16,.92)); border: 1px solid rgba(212,175,55,.6); box-shadow: 0 3px 8px rgba(0,0,0,.6); max-width: 34vw; }
+.s3-pl.done { border-color: #5fd38a; }
+.s3-ava { position: relative; flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 60%, #fff), var(--c) 60%, color-mix(in srgb, var(--c) 60%, #000)); color: #fff; font: 800 15px/1 var(--display); box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); }
+.s3-wind { position: absolute; right: -5px; bottom: -5px; font-style: normal; width: 15px; height: 15px; border-radius: 4px; display: grid; place-items: center; background: var(--brass); color: #2a1a00; font-size: 10px; }
+.s3-nm { display: grid; min-width: 0; }
+.s3-nm b { font-size: 12px; color: var(--ivory); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s3-nm small { font-size: 10px; color: rgba(242,234,216,.72); white-space: nowrap; }
+.s3-nm .ai { font-size: 8px; padding: 0 3px; border-radius: 3px; background: rgba(212,175,55,.25); color: var(--brass); }
+.s3-net { position: absolute; left: 50%; top: calc(100% + 3px); transform: translateX(-50%) scale(.5); opacity: 0; font: 800 14px/1.1 var(--mono); font-style: normal; text-align: center; white-space: nowrap; padding: 3px 8px; border-radius: 8px; background: rgba(0,0,0,.8); border: 1px solid rgba(212,175,55,.5); transition: .4s cubic-bezier(.2,1.6,.4,1); z-index: 6; }
+.s3-net small { display: block; font-size: 10px; color: rgba(242,234,216,.8); }
+.s3-net.on { opacity: 1; transform: translateX(-50%) scale(1); }
+.s3-plate[data-pos="s"] .s3-net { top: auto; bottom: calc(100% + 3px); }
+.s3-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 4; display: grid; justify-items: center; gap: 5px; text-align: center; pointer-events: none; }
+.s3-center > * { pointer-events: auto; }
+.s3-center .ss-cmsg { margin: 0; font-size: 12px; color: var(--ivory); text-shadow: 0 1px 3px #000; }
+.s3-center .ss-cmsg:empty { display: none; }
+#ssReady { padding: 9px 22px; min-width: 120px; box-shadow: 0 4px 14px rgba(0,0,0,.6); }
+#ssTable[data-phase="arrange"] { flex: 0 0 auto; height: clamp(120px, 21vh, 200px); min-height: 0; }
+#ssTable[data-phase="arrange"] .s3-spread { --cw: clamp(12px, 3.6vw, 18px); }
+#ssTable[data-phase="arrange"] .s3-spread[data-pos="s"] { display: none; }
+#ssTable[data-phase="arrange"] .s3-plate[data-pos="s"] { display: none; }
+#ssTable[data-phase="arrange"] .s3-plate[data-pos="w"], #ssTable[data-phase="arrange"] .s3-plate[data-pos="e"] { top: auto; bottom: 6px; }
+.s3-gun { width: 96px; height: 48px; margin: -24px 0 0 -14px; }
+/* effects */
+.s3-fx { position: absolute; inset: 0; z-index: 20; pointer-events: none; }
+.s3-ban { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; animation: s3ban var(--t, 1.2s) ease-out both; }
+.s3-ban span { display: block; font: 900 clamp(34px, 12vw, 60px)/1 var(--display); letter-spacing: .12em; background: linear-gradient(180deg, #fff7d0, #f6c453 45%, #b9741a 80%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 3px 0 #4a2a00) drop-shadow(0 0 18px rgba(255,190,60,.75)); }
+.s3-ban.start::before, .s3-ban.start::after { content: ""; position: absolute; top: 50%; width: 46vw; height: 2px; background: linear-gradient(90deg, transparent, #f6c453); }
+.s3-ban.start::before { right: 100%; } .s3-ban.start::after { left: 100%; transform: scaleX(-1); }
+.s3-ban.at span { font-size: clamp(22px, 7.5vw, 34px); }
+.s3-ban.gun span { background: linear-gradient(180deg, #f2ffd8, #8de05a 45%, #2f8a1c 85%); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 3px 0 #3a1a00) drop-shadow(0 0 0 #000) drop-shadow(0 0 14px rgba(255,210,80,.8)); }
+.s3-ban.gun { padding: 2px 18px; background: linear-gradient(90deg, transparent, rgba(120,20,10,.85) 15%, rgba(120,20,10,.85) 85%, transparent); }
+.s3-ban.foul span { background: linear-gradient(180deg, #fff, #b9b9b9); -webkit-background-clip: text; background-clip: text; }
+.s3-ban.sp span { background: linear-gradient(180deg, #fff, #ffd84a 40%, #ff5ad1 80%); -webkit-background-clip: text; background-clip: text; }
+.s3-ban.hr span { font-size: clamp(44px, 16vw, 84px); background: linear-gradient(180deg, #fff, #ffe169 35%, #ff8a1f 70%, #c0181e); -webkit-background-clip: text; background-clip: text; }
+@keyframes s3ban { 0% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; } 14% { transform: translate(-50%, -50%) scale(.94); opacity: 1; } 22% { transform: translate(-50%, -50%) scale(1); } 82% { opacity: 1; } 100% { transform: translate(-50%, -56%) scale(1.04); opacity: 0; } }
+.s3-sight { position: absolute; width: 90px; height: 90px; margin: -45px 0 0 -45px; animation: s3sight .7s cubic-bezier(.2,1.4,.4,1) both; }
+.s3-sight svg { width: 100%; height: 100%; fill: none; stroke: #ff2d2d; stroke-width: 4; filter: drop-shadow(0 0 4px rgba(255,0,0,.8)); animation: s3spin 2s linear infinite; }
+.s3-sight .dot { fill: #ff2d2d; }
+@keyframes s3sight { from { transform: scale(2.6) rotate(-90deg); opacity: 0; } }
+@keyframes s3spin { to { transform: rotate(360deg); } }
+.s3-gun { position: absolute; width: 74px; height: 37px; margin: -18px 0 0 -10px; transform-origin: 14% 50%; transform: rotate(var(--a)); animation: s3gunin .5s cubic-bezier(.2,1.5,.4,1) both; filter: drop-shadow(0 3px 4px rgba(0,0,0,.7)); }
+.s3-gun svg { width: 100%; height: 100%; }
+.s3-gun .flash { position: absolute; right: -16px; top: 0; width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle, #fff 0 20%, #ffd34d 40%, rgba(255,120,0,.6) 60%, transparent 70%); opacity: 0; }
+.s3-gun.bang svg { animation: s3recoil .2s ease-out; }
+.s3-gun.bang .flash { animation: s3flash .2s ease-out; }
+@keyframes s3gunin { from { transform: rotate(var(--a)) scale(0); opacity: 0; } }
+@keyframes s3recoil { 30% { transform: translateX(-8px) rotate(-10deg); } }
+@keyframes s3flash { 0% { opacity: 1; transform: scale(.6); } 100% { opacity: 0; transform: scale(1.6); } }
+/* arrange panel */
+.s3-arr { display: grid; gap: 5px; padding: 6px; border-radius: 14px; background: linear-gradient(180deg, #16202c, #0b1017); border: 1px solid rgba(110,170,220,.35); box-shadow: 0 -6px 18px rgba(0,0,0,.5); }
+.s3-arr-top { display: flex; align-items: center; gap: 6px; }
+.s3-clock { min-width: 34px; font: 900 22px/1 var(--display); color: #f6d98a; text-shadow: 0 0 10px rgba(246,217,138,.6); }
+.s3-clock.soon { color: #ff8a8a; animation: jpflash .5s ease-in-out infinite alternate; }
+.s3-hint { flex: 1; font-size: 11px; color: rgba(242,234,216,.75); line-height: 1.25; }
+.s3-rows { display: grid; gap: 4px; --cw: clamp(28px, min(9.8vw, 5.2vh), 46px); }
+.s3-row { display: grid; grid-template-columns: 50px 1fr 54px 22px; align-items: center; gap: 4px; padding: 3px; border-radius: 10px; background: rgba(120,180,230,.06); border: 1px solid rgba(120,180,230,.18); }
+.s3-row.can { border-color: #7fd0ff; background: rgba(127,208,255,.14); box-shadow: 0 0 10px rgba(127,208,255,.35); }
+.s3-row.foul { border-color: #ff6b6b; }
+.s3-rlab { height: 100%; min-height: 34px; border-radius: 8px; border: 1px solid rgba(127,208,255,.55); background: linear-gradient(180deg, #24425e, #142738); color: #dff2ff; font: 800 13px/1 var(--display); letter-spacing: .1em; }
+.s3-slots { display: flex; gap: 2px; justify-content: center; }
+.s3-tag { font: 800 12px/1.2 var(--display); color: #f3d34a; text-align: center; }
+.s3-x { width: 22px; height: 22px; border-radius: 50%; border: 0; background: rgba(255,90,90,.85); color: #fff; font-size: 14px; line-height: 1; padding: 0; }
+.s3-sug { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; padding-bottom: 1px; }
+.s3-sug::-webkit-scrollbar { display: none; }
+.s3-sug button { flex: none; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(95,211,138,.5); background: linear-gradient(180deg, #1d4a32, #0f2c1d); color: #e6ffe9; font: 700 12px/1 var(--display); white-space: nowrap; }
+.s3-types { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
+.s3-types button { padding: 6px 0; border-radius: 7px; border: 1px solid rgba(212,175,55,.55); background: linear-gradient(180deg, #3a2e12, #1d160a); color: #f6d98a; font: 700 clamp(10px, 2.9vw, 13px)/1 var(--display); }
+.s3-types button:disabled { opacity: .3; }
+.s3-hand { display: flex; justify-content: center; padding: 12px 0 2px; --cw: clamp(32px, 13vw, 50px); }
+.s3-hand .ss-c + .ss-c { margin-left: calc(var(--cw) * -.5); }
+.s3-hand .ss-c .card { box-shadow: -2px 0 4px rgba(0,0,0,.35); }
+.s3-hand .ss-c.pick { transform: translateY(-11px); }
+.s3-go { display: flex; gap: 6px; }
+.s3-go .btn { flex: 1; padding: 9px 6px; }
+.s3-go #ssGo { flex: 1.4; }
+/* 本局结算 */
+.s3-settle { position: absolute; inset: 36px 0 auto; z-index: 30; display: grid; place-items: center; padding: 8% 4%; pointer-events: none; }
+.s3-panel { pointer-events: auto; width: min(92vw, 380px); padding: 10px 12px 12px; border-radius: 14px; background: linear-gradient(180deg, #1c2840, #0d1322); border: 2px solid #8fa4c8; box-shadow: 0 0 0 1px #0a0e18, 0 18px 40px rgba(0,0,0,.75); animation: bwin .45s cubic-bezier(.2,1.5,.4,1); }
+.s3-panel h3 { margin: 0 0 8px; text-align: center; font: 900 20px/1 var(--display); letter-spacing: .3em; color: #eef3ff; }
+.s3-pbody { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.s3-items { list-style: none; margin: 0; padding: 6px 8px; border-radius: 10px; background: rgba(0,0,0,.35); display: grid; gap: 4px; align-content: start; min-height: 80px; }
+.s3-items li { display: flex; justify-content: space-between; gap: 6px; font-size: 13px; color: #dfe6f5; border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: 3px; }
+.s3-sum { display: grid; gap: 8px; align-content: center; }
+.s3-sum p { margin: 0; display: flex; justify-content: space-between; align-items: baseline; font: 700 14px/1 var(--display); color: #cfd8ea; }
+.s3-sum p b { font: 900 22px/1 var(--mono); }
+#ssOk { padding: 9px 8px; }
+@media (max-height: 700px) {
+  .s3-rows { --cw: clamp(24px, 4.6vh, 36px); }
+  .s3-hand { --cw: clamp(28px, 6.4vh, 44px); padding-top: 10px; }
+  .s3-types button { padding: 5px 0; }
+  .s3-sug button { padding: 5px 8px; }
+  #ssTable[data-phase="arrange"] { height: clamp(84px, 14vh, 120px); }
+  .s3-arr { gap: 4px; padding: 5px; }
+}
 </style>
 
 <header class="top">
@@ -1965,12 +2094,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 雷神之锤 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.21.0</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.22.0</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.21.0</b> <i class="vmaj">大改版</i><span>新游戏「十三张」：练习桌对 3 个 AI，或开房间和朋友联机（2–4 人，空位 AI 补上）；点选摆牌、自动摆牌、报到、逐道比牌、打枪、全垒打</span></li><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.22.0</b> <i class="vmaj">大改版</i><span>新游戏「麻将」：港式、四川血战到底、台湾十六张，可练习对 AI 或联机；十三张改成立体牌桌：推荐摆法、牌型快捷键、对调、开始比牌、打枪瞄准开枪、本局结算明细</span></li><li><b>v0.21.0</b> <i class="vmaj">大改版</i><span>新游戏「十三张」：练习桌对 3 个 AI，或开房间和朋友联机（2–4 人，空位 AI 补上）；点选摆牌、自动摆牌、报到、逐道比牌、打枪、全垒打</span></li><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
     <p class="note" style="margin-top:10px">音乐与音效的作者和授权：点右上角 ♪ 查看。</p>
   </div></div>
 
@@ -2253,7 +2382,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <h2>十三张</h2>
       <p class="note">每人 13 张牌，摆成头道 3 张、中道 5 张、尾道 5 张（头道 ≤ 中道 ≤ 尾道），和每一家逐道比大小。4 人一桌，没坐满的位置由 AI 补上。</p>
       <label class="rm-field"><span>你的名字</span><input id="ssName" maxlength="10" autocomplete="nickname" placeholder="例如 阿明"></label>
-      <label class="rm-field"><span>每水筹码（开房间 / 练习时选）</span><select id="ssBaseSel"><option value="10">10</option><option value="50">50</option><option value="100" selected>100</option><option value="500">500</option><option value="1000">1,000</option><option value="5000">5,000</option></select></label>
+      <label class="rm-field"><span>底分 · 每水筹码（开房间 / 练习时选）</span><select id="ssBaseSel"><option value="10">10</option><option value="50">50</option><option value="100" selected>100</option><option value="500">500</option><option value="1000">1,000</option><option value="5000">5,000</option></select></label>
       <div class="ss-start">
         <button class="btn big" id="ssPractice" type="button">练习桌 · 对 3 个 AI</button>
         <button class="btn big ghost" id="ssCreate" type="button">开十三张房间</button>
@@ -2264,36 +2393,42 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     </div>
     <div class="ss-play" id="ssPlay" hidden>
       <div class="rm-top"><span class="rm-id"><span id="ssCodeLab">房间号</span> <b id="ssCodeShow">––––––</b></span><button class="toggle" id="ssCopy" type="button">分享</button><span class="pr-bl" id="ssBase">每水 100</span><span class="rm-n" id="ssCount">1 人</span><button class="toggle" id="ssLeave" type="button">离开</button></div>
-      <div class="ss-table" id="ssTable">
-        <div class="ss-seat" data-pos="n"></div>
-        <div class="ss-seat" data-pos="w"></div>
-        <div class="ss-center" id="ssCenter">
-          <i class="ss-wind" data-pos="n"></i><i class="ss-wind" data-pos="w"></i><i class="ss-wind" data-pos="e"></i><i class="ss-wind" data-pos="s"></i>
-          <div class="ss-cin">
-            <p class="ss-cmsg" id="ssCMsg">等待开局</p>
-            <b class="ss-clock" id="ssTimer"></b>
-            <button class="btn" id="ssReady" type="button">✋ 准备</button>
-            <p class="ss-res" id="ssResult"></p>
-          </div>
+      <div class="s3-stage" id="ssTable">
+        <div class="s3-table" aria-hidden="true"><div class="s3-felt">
+          <div class="s3-emblem"><span>♠</span><span>♥</span><span>♣</span><span>♦</span></div>
+          <div class="s3-spread" data-pos="n"></div>
+          <div class="s3-spread" data-pos="w"></div>
+          <div class="s3-spread" data-pos="e"></div>
+          <div class="s3-spread" data-pos="s"></div>
+        </div></div>
+        <div class="s3-plate" data-pos="n"></div>
+        <div class="s3-plate" data-pos="w"></div>
+        <div class="s3-plate" data-pos="e"></div>
+        <div class="s3-plate" data-pos="s"></div>
+        <div class="s3-center" id="ssCenter">
+          <p class="ss-cmsg" id="ssCMsg">等待开局</p>
+          <button class="btn" id="ssReady" type="button">✋ 准备</button>
         </div>
-        <div class="ss-seat" data-pos="e"></div>
-        <div class="ss-mine" id="ssMine">
-          <div class="ss-metag" id="ssMeTag"></div>
-          <div class="ss-row" data-r="0"><span class="ss-lab"></span><span class="ss-slots"></span><span class="ss-rowpts"></span></div>
-          <div class="ss-row" data-r="1"><span class="ss-lab"></span><span class="ss-slots"></span><span class="ss-rowpts"></span></div>
-          <div class="ss-row" data-r="2"><span class="ss-lab"></span><span class="ss-slots"></span><span class="ss-rowpts"></span></div>
-          <p class="ss-foul" id="ssFoul" hidden>倒水：头道 ≤ 中道 ≤ 尾道 才能确定</p>
-        </div>
+        <div class="s3-fx" id="ssFx" aria-hidden="true"></div>
       </div>
-      <div class="ss-tray" id="ssTray" hidden></div>
-      <div class="pr-acts">
-        <div class="actrow ss-arr" id="ssArrBar" hidden>
-          <button class="btn ghost" id="ssSort" type="button">按花色</button>
-          <button class="btn ghost" id="ssClear" type="button">重摆</button>
-          <button class="btn ghost" id="ssAuto" type="button">自动摆牌</button>
-          <button class="btn" id="ssGo" type="button" disabled>确定</button>
+      <div class="s3-arr" id="ssArr" hidden>
+        <div class="s3-arr-top"><b class="s3-clock" id="ssTimer"></b><span class="s3-hint" id="ssHint">点牌选中，再点「头墩 / 中墩 / 尾墩」放进去</span><button class="toggle" id="ssSwap" type="button">⇅ 对调</button><button class="toggle" id="ssClear" type="button">重摆</button></div>
+        <div class="s3-rows" id="ssRows">
+          <div class="s3-row" data-r="0"><button class="s3-rlab" type="button">头墩</button><div class="s3-slots"></div><span class="s3-tag"></span><button class="s3-x" type="button" aria-label="退回头墩的牌">×</button></div>
+          <div class="s3-row" data-r="1"><button class="s3-rlab" type="button">中墩</button><div class="s3-slots"></div><span class="s3-tag"></span><button class="s3-x" type="button" aria-label="退回中墩的牌">×</button></div>
+          <div class="s3-row" data-r="2"><button class="s3-rlab" type="button">尾墩</button><div class="s3-slots"></div><span class="s3-tag"></span><button class="s3-x" type="button" aria-label="退回尾墩的牌">×</button></div>
         </div>
-        <div class="actrow" id="ssSpecialRow" hidden><button class="btn sp" id="ssSpecial" type="button" hidden>报到</button></div>
+        <p class="ss-foul" id="ssFoul" hidden>倒水了：头墩 ≤ 中墩 ≤ 尾墩 才能确定</p>
+        <div class="s3-sug" id="ssSug"></div>
+        <div class="s3-types" id="ssTypes"></div>
+        <div class="s3-hand" id="ssTray"></div>
+        <div class="s3-go"><button class="btn ghost" id="ssSort" type="button">按花色</button><button class="btn sp" id="ssSpecial" type="button" hidden>报到</button><button class="btn" id="ssGo" type="button" disabled>确定</button></div>
+      </div>
+      <div class="s3-settle" id="ssSettle" hidden>
+        <div class="s3-panel">
+          <h3>本局结算</h3>
+          <div class="s3-pbody"><ul class="s3-items" id="ssItems"></ul><div class="s3-sum"><p>分数 <b id="ssScore">0</b></p><p>损益 <b id="ssMoney">0</b></p><button class="btn" id="ssOk" type="button">确认</button></div></div>
+        </div>
       </div>
       <div class="rm-emo" id="ssEmo"><button class="chatbtn" type="button" data-chat="ss">💬 聊天<i class="unread" hidden></i></button><button type="button">👍</button><button type="button">😂</button><button type="button">🔫</button><button type="button">😭</button><button type="button" data-say="稳了">稳了</button><button type="button" data-say="快点摆">快点摆</button></div>
       <div class="bfoot">
@@ -2309,8 +2444,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>和每一家逐道比：赢一道得 1 水。用大牌赢的那一道多拿：头道冲三 3 水；中道葫芦 2 水、铁支 8 水、同花顺 10 水；尾道铁支 4 水、同花顺 5 水。</li>
         <li>打枪：三道全赢同一家，和这一家的输赢翻倍。全垒打：一个人打枪其他三家，再翻一倍。</li>
         <li>报到（特殊牌型，不比牌，直接向每家收水）：至尊清龙（同花 A–K）52 水、一条龙（A–K 各一张）13 水、六对半 3 水、三同花 3 水、三顺子 3 水。两家都报到就比谁的大。</li>
-        <li>每水的筹码由房主开房时决定，每局结束直接从余额加减。联机每局有 90 秒摆牌，超时由 AI 帮你摆。</li>
-        <li>操作：点下面的牌选中（可以多选），再点要放的那一道；点已经摆好的牌退回。两道摆满后，剩下的牌自动进最后一道。「自动摆牌」会给出 AI 认为最好的几种摆法，再点一下换下一种。</li>
+        <li>底分（每水的筹码）由房主开房时决定，每局结束直接从余额加减，结算面板会列出墩数、冲三、打枪等明细。联机每局有 90 秒摆牌，超时由 AI 帮你摆。</li>
+        <li>操作：点下面的牌选中（可以多选），再点「头墩 / 中墩 / 尾墩」放进去；点已经摆好的牌、或墩右边的 × 退回。牌型按钮（同花顺、铁支、葫芦……）会直接挑出你手上这种牌型，再点一次换下一组。绿色的推荐摆法点一下就摆好；「对调」把中墩和尾墩交换。两墩摆满后，剩下的牌自动进最后一墩。</li>
       </ul>
     </div></div>
   </section>
@@ -6135,6 +6270,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (row === 1) return r[0] >= 8 ? 10 : r[0] === 7 ? 8 : r[0] === 6 ? 2 : 1;  // 中道同花顺 / 铁支 / 葫芦
     return r[0] >= 8 ? 5 : r[0] === 7 ? 4 : 1;                                  // 尾道同花顺 / 铁支
   }
+  function sssBonusName(row, r) {
+    if (row === 0) return "冲三";
+    const k = r[0] >= 8 ? "同花顺" : r[0] === 7 ? "铁支" : "葫芦";
+    return (row === 1 ? "中墩" : "尾墩") + k;
+  }
   const SSS_HN = ["散牌", "对子", "两对", "三条", "顺子", "同花", "葫芦", "铁支", "同花顺", "同花顺"];
   function sssRowLabel(row, r) {
     if (!r) return "";
@@ -6192,19 +6332,22 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const n = players.length;
     const ev = players.map((p) => (p.special ? null : p.rows.map(sssEval)));
     const foul = players.map((p, i) => !p.special && (cmpRank(ev[i][0], ev[i][1]) > 0 || cmpRank(ev[i][1], ev[i][2]) > 0));
-    const pair = {}, res = players.map(() => ({ net: 0, rows: [0, 0, 0], vs: {}, shot: [], homerun: false }));
+    const pair = {}, res = players.map(() => ({ net: 0, rows: [0, 0, 0], vs: {}, shot: [], homerun: false, items: {} }));
     for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
       const a = players[i], b = players[j];
       let pts = 0, rowPts = [0, 0, 0], shot = 0;         // from i's point of view
+      const items = [];                                 // the same 水, broken down for the 本局结算 panel
       if (a.special || b.special) {
         const sa = a.special ? a.special.pts : 0, sb = b.special ? b.special.pts : 0;
         pts = sa > sb ? sa : sb > sa ? -sb : 0;
+        if (pts) items.push(["报到 " + (pts > 0 ? a : b).special.name, pts]);
       } else if (foul[i] || foul[j]) {
         if (foul[i] && foul[j]) pts = 0;
         else {                                         // the fouled hand loses every row, with the winner's bonuses, and is shot
           const w = foul[i] ? j : i;
           rowPts = [0, 1, 2].map((r) => sssRowBonus(r, ev[w][r]) * (w === i ? 1 : -1));
           pts = rowPts.reduce((x, y) => x + y, 0) * 2; shot = w === i ? 1 : -1;
+          items.push([w === i ? "对手倒水" : "倒水", pts]);
         }
       } else {
         let wi = 0, wj = 0;
@@ -6213,21 +6356,28 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
           if (c > 0) { rowPts[r] = sssRowBonus(r, ev[i][r]); wi++; } else if (c < 0) { rowPts[r] = -sssRowBonus(r, ev[j][r]); wj++; }
         }
         pts = rowPts.reduce((x, y) => x + y, 0);
-        if (wi === 3) { pts *= 2; shot = 1; } else if (wj === 3) { pts *= 2; shot = -1; }
+        items.push(["墩数", wi - wj]);
+        rowPts.forEach((x, r) => { if (Math.abs(x) > 1) items.push([sssBonusName(r, ev[x > 0 ? i : j][r]), x > 0 ? x - 1 : x + 1]); });
+        if (wi === 3) { items.push(["打枪", pts]); pts *= 2; shot = 1; } else if (wj === 3) { items.push(["被打枪", pts]); pts *= 2; shot = -1; }
       }
-      pair[i + "," + j] = { pts, rowPts, shot };
+      pair[i + "," + j] = { pts, rowPts, shot, items };
     }
     // 全垒打: shooting every opponent (at least three of them) doubles all of it again
     for (let i = 0; i < n; i++) {
       const others = [...Array(n).keys()].filter((j) => j !== i);
       if (others.length >= 3 && others.every((j) => { const p = pair[Math.min(i, j) + "," + Math.max(i, j)]; return p.shot === (i < j ? 1 : -1); })) {
         res[i].homerun = true;
-        others.forEach((j) => { const p = pair[Math.min(i, j) + "," + Math.max(i, j)]; p.pts *= 2; });
+        others.forEach((j) => { const p = pair[Math.min(i, j) + "," + Math.max(i, j)]; p.items.push([i < j ? "全垒打" : "被全垒打", p.pts]); p.pts *= 2; });
       }
     }
     for (const k in pair) {
       const [i, j] = k.split(",").map(Number), p = pair[k];
       res[i].net += p.pts; res[j].net -= p.pts;
+      p.items.forEach(([name, v]) => {
+        if (!v) return;
+        const flip = (nm) => ({ 打枪: "被打枪", 被打枪: "打枪", 全垒打: "被全垒打", 被全垒打: "全垒打", 倒水: "对手倒水", 对手倒水: "倒水" }[nm] || nm);
+        res[i].items[name] = (res[i].items[name] || 0) + v; res[j].items[flip(name)] = (res[j].items[flip(name)] || 0) - v;
+      });
       res[i].vs[j] = { pts: p.pts, rowPts: p.rowPts, shot: p.shot === 1 };
       res[j].vs[i] = { pts: -p.pts, rowPts: p.rowPts.map((x) => -x), shot: p.shot === -1 };
       if (p.shot === 1) res[i].shot.push(j); if (p.shot === -1) res[j].shot.push(i);
@@ -6427,7 +6577,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const res = sssScore(g.seats.map((p) => ({ rows: p.rows || [[], [], []], special: p.special || null })));
     g.res = res.map((r, i) => {
       const p = g.seats[i];
-      return { net: r.net, vs: r.vs, shot: r.shot, homerun: r.homerun, foul: r.foul, labels: p.rows ? p.rows.map((row, k) => sssRowLabel(k, sssEval(row))) : null };
+      return { net: r.net, vs: r.vs, shot: r.shot, homerun: r.homerun, foul: r.foul, items: r.items, labels: p.rows ? p.rows.map((row, k) => sssRowLabel(k, sssEval(row))) : null };
     });
     g.seats.forEach((p, i) => { p.last = res[i].net; p.total += res[i].net; if (!p.bot) p.ready = false; });
     g.phase = "show"; g.deadline = 0;
@@ -6440,8 +6590,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       const me = ssMeSeat();
       if (m.phase === "arrange" && ss.dealt !== m.handNo && me >= 0 && m.seats[me].cards) { ss.dealt = m.handNo; ssNewHand(m.seats[me].cards); }
       if (m.phase === "show" && ss.applied !== m.handNo) { ss.applied = m.handNo; ssRender(); ssShowdown(m); return; }
-      if (!(prev && prev.phase === "show" && m.phase === "show" && ss.showing)) ssRender();
-      else ssRenderBar();
+      if (!ss.showing) ssRender(); else ssPlates(m);
     }
     else if (m.t === "say") { ssBubble(m.id, m.text); if (!m.id) chatAdd("ss", null, m.text); }
     else if (m.t === "chat") { chatAdd("ss", m, m.text); ssBubble(m.id, m.text.length > 14 ? m.text.slice(0, 13) + "…" : m.text); }
@@ -6450,55 +6599,98 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   const ssMeSeat = () => (ss.st ? ss.st.seats.findIndex((p) => p.id === ssNet.me) : -1);
   function ssNewHand(cards) {
-    ss.cards = cards; ss.rows = [[], [], []]; ss.tray = [...Array(13).keys()]; ss.pick = []; ss.sug = null; ss.sugI = 0; ss.sent = false;
+    ss.cards = cards; ss.rows = [[], [], []]; ss.tray = [...Array(13).keys()]; ss.pick = []; ss.sug = null; ss.sugI = 0; ss.sent = false; ss.typeI = {};
     ss.special = sssSpecial(cards); ss.dealAnim = true; ssSortTray();
-    $("#ssResult").innerHTML = ""; SND.shuffle(1.2);
+    $("#ssSettle").hidden = true; SND.shuffle(1.2);
   }
   const ssVal = (i) => RV(ss.cards[i]);
   function ssSortTray() {
     const so = "♠♥♣♦";
-    ss.tray.sort(ss.sortSuit ? (a, b) => so.indexOf(ss.cards[a].s) - so.indexOf(ss.cards[b].s) || ssVal(b) - ssVal(a) : (a, b) => ssVal(b) - ssVal(a) || so.indexOf(ss.cards[a].s) - so.indexOf(ss.cards[b].s));
+    ss.tray.sort(ss.sortSuit ? (a, b) => so.indexOf(ss.cards[a].s) - so.indexOf(ss.cards[b].s) || ssVal(a) - ssVal(b) : (a, b) => ssVal(a) - ssVal(b) || so.indexOf(ss.cards[a].s) - so.indexOf(ss.cards[b].s));
   }
-  const SS_CAP = [3, 5, 5];
+  const SS_CAP = [3, 5, 5], SS_ROWNAME = ["头墩", "中墩", "尾墩"];
   function ssPlace(row) {
     if (ss.sent || !ss.pick.length) return;
     const room = SS_CAP[row] - ss.rows[row].length, go = ss.pick.slice(0, room);
-    if (!go.length) { toast(SSS_ROW_NAME[row] + "已经满了"); return; }
-    ss.rows[row].push(...go); ss.tray = ss.tray.filter((i) => !go.includes(i)); ss.pick = ss.pick.filter((i) => !go.includes(i));
-    ssFillLast(); SND.deal(); ssRender();
+    if (!go.length) { toast(SS_ROWNAME[row] + "已经满了"); return; }
+    ss.rows[row].push(...go); ss.rows[row].sort((a, b) => ssVal(b) - ssVal(a));
+    ss.tray = ss.tray.filter((i) => !go.includes(i)); ss.pick = ss.pick.filter((i) => !go.includes(i));
+    ssFillLast(); SND.deal(); ssRenderArr();
   }
   // when two rows are full the rest of the cards can only go to the third
   function ssFillLast() {
     const open = [0, 1, 2].filter((r) => ss.rows[r].length < SS_CAP[r]);
-    if (open.length === 1 && ss.tray.length === SS_CAP[open[0]] - ss.rows[open[0]].length) { ss.rows[open[0]].push(...ss.tray); ss.tray = []; ss.pick = []; }
+    if (open.length === 1 && ss.tray.length === SS_CAP[open[0]] - ss.rows[open[0]].length) { ss.rows[open[0]].push(...ss.tray); ss.rows[open[0]].sort((a, b) => ssVal(b) - ssVal(a)); ss.tray = []; ss.pick = []; }
   }
-  function ssUnplace(i) { if (ss.sent) return; ss.rows = ss.rows.map((r) => r.filter((x) => x !== i)); ss.tray.push(i); ssSortTray(); ssRender(); }
-  function ssAuto() {
+  function ssUnplace(i) { if (ss.sent) return; ss.rows = ss.rows.map((r) => r.filter((x) => x !== i)); ss.tray.push(i); ssSortTray(); ssRenderArr(); }
+  function ssClearRow(r) { if (ss.sent) return; ss.tray.push(...ss.rows[r]); ss.rows[r] = []; ssSortTray(); ssRenderArr(); }
+  function ssApply(split) {
+    ss.rows = split.map((r) => r.slice().sort((a, b) => ssVal(b) - ssVal(a))); ss.tray = []; ss.pick = [];
+    SND.deal(); ssRenderArr();
+  }
+  // the AI's best splits, offered as one-tap suggestions
+  function ssSugs() { if (!ss.sug) ss.sug = sssArrange(ss.cards, 5); return ss.sug; }
+  const ssCat = (row, r) => (row === 0 ? ["乌龙", "一对", "", "三条"][r[0]] : ["乌龙", "一对", "两对", "三条", "顺子", "同花", "葫芦", "铁支", "同花顺", "同花顺"][r[0]]);
+  // 牌型 shortcuts: pick the cards of the next hand of that kind among the cards not yet placed
+  const SS_TYPES = [["同花顺", 8], ["铁支", 7], ["葫芦", 6], ["同花", 5], ["顺子", 4], ["三条", 3], ["两对", 2], ["对子", 1]];
+  function ssTypeHands() {
+    const tray = ss.tray, out = {};
+    SS_TYPES.forEach(([n]) => { out[n] = []; });
+    const byRank = {};
+    tray.forEach((i) => { (byRank[ssVal(i)] = byRank[ssVal(i)] || []).push(i); });
+    const ranks = Object.keys(byRank).map(Number).sort((a, b) => b - a);
+    ranks.forEach((v) => { const g = byRank[v]; if (g.length >= 2) out["对子"].push(g.slice(0, 2)); if (g.length >= 3) out["三条"].push(g.slice(0, 3)); if (g.length === 4) out["铁支"].push(g.slice()); });
+    const pairs = out["对子"];
+    for (let a = 0; a < pairs.length; a++) for (let b = a + 1; b < pairs.length; b++) out["两对"].push(pairs[a].concat(pairs[b]));
+    if (tray.length >= 5) {
+      const seen = new Set();
+      for (const c of sssCombos(tray, 5)) {
+        const r = eval5(c.map((i) => ss.cards[i])), k = r[0] >= 8 ? "同花顺" : r[0] === 6 ? "葫芦" : r[0] === 5 ? "同花" : r[0] === 4 ? "顺子" : null;
+        if (!k) continue;
+        const key = k + r.join(".") + (k === "同花" || k === "同花顺" ? ss.cards[c[0]].s : "");
+        if (seen.has(key)) continue; seen.add(key);
+        out[k].push(c.slice().sort((a, b) => ssVal(b) - ssVal(a)));
+      }
+      ["同花顺", "葫芦", "同花", "顺子"].forEach((k) => out[k].sort((x, y) => cmpRank(eval5(y.map((i) => ss.cards[i])), eval5(x.map((i) => ss.cards[i])))));
+    }
+    return out;
+  }
+  function ssType(name) {
     if (ss.sent) return;
-    if (!ss.sug) ss.sug = sssArrange(ss.cards, 3);
-    const s = ss.sug[ss.sugI % ss.sug.length]; ss.sugI++;
-    // each row strongest card first
-    ss.rows = s.map((r) => r.slice().sort((a, b) => ssVal(b) - ssVal(a))); ss.tray = []; ss.pick = [];
-    SND.deal(); ssRender();
-    $("#ssAuto").textContent = ss.sug.length > 1 ? "换摆法 " + (((ss.sugI - 1) % ss.sug.length) + 1) + "/" + ss.sug.length : "自动摆牌";
+    const list = ssTypeHands()[name]; if (!list.length) return;
+    const k = (ss.typeI[name] || 0) % list.length; ss.typeI[name] = k + 1;
+    ss.pick = list[k].slice(); SND.flip(); ssRenderArr();
   }
   function ssSubmit(special) {
     if (ss.sent) return;
     if (special) { if (!ss.special) return; ss.sent = true; ssNet.toHost({ t: "arr", special: true }); ssRender(); return; }
     if (ss.rows.some((r, k) => r.length !== SS_CAP[k])) return;
-    if (sssFoul(ss.rows.map((r) => r.map((i) => ss.cards[i])))) { toast("倒水了：头道不能比中道大，中道不能比尾道大"); return; }
+    if (sssFoul(ss.rows.map((r) => r.map((i) => ss.cards[i])))) { toast("倒水了：头墩不能比中墩大，中墩不能比尾墩大"); return; }
     ss.sent = true; ssNet.toHost({ t: "arr", rows: ss.rows }); SND.chip(); ssRender();
   }
   function ssMini(c, down, cls) { const d = flipCard(c || { r: "A", s: "♠" }, down); if (cls) d.classList.add(cls); return d.outerHTML; }
-  // seats around me: my next seat sits on my right (东 side of the screen), then across (北), then on my left (西)
+  // seats around me: my next seat on my right, across, on my left
   const ssOrder = () => { const me = Math.max(0, ssMeSeat()); return [1, 2, 3].map((k) => (me + k) % 4); };
   const SS_POS = ["e", "n", "w"], SS_WIND = ["东", "南", "西", "北"];
-  function ssSeats(st, reveal) {
-    ssOrder().forEach((s, k) => { $('#ssTable .ss-seat[data-pos="' + SS_POS[k] + '"]').innerHTML = ssOppHTML(st, s, reveal); });
-    const me = Math.max(0, ssMeSeat());
-    [["s", me]].concat(ssOrder().map((s, k) => [SS_POS[k], s])).forEach(([pos, s]) => { $('#ssCenter .ss-wind[data-pos="' + pos + '"]').textContent = SS_WIND[s]; });
-    const my = st.seats[me] || {};
-    $("#ssMeTag").innerHTML = "<b>" + SS_WIND[me] + "</b> " + esc(my.name || "") + " · " + ssPts(my.total || 0) + " 水";
+  const ssPosOf = (s) => { const me = Math.max(0, ssMeSeat()); return s === me ? "s" : SS_POS[(s - me + 3) % 4]; };
+  const ssPts = (n) => (n > 0 ? '<span class="w">+' + n + "</span>" : n < 0 ? '<span class="l">' + n + "</span>" : "0");
+  const SS_AVA = ["#c9463d", "#3d7cc9", "#3da35a", "#b2862c", "#8a4fc9", "#c94f9a"];
+  function ssPlateHTML(st, s) {
+    const p = st.seats[s], pos = ssPosOf(s);
+    const status = st.phase === "arrange" ? (p.done ? "已摆好" : "摆牌中…") : st.phase === "wait" || st.phase === "show" ? (p.bot ? "AI" : p.ready ? "已准备" : st.phase === "show" ? "" : "未准备") : "";
+    const col = SS_AVA[[...String(p.name)].reduce((a, ch) => a + ch.charCodeAt(0), 0) % SS_AVA.length];
+    return '<div class="s3-pl' + (p.done && st.phase === "arrange" ? " done" : "") + '" data-seat="' + s + '" data-id="' + esc(p.id) + '"><span class="s3-ava" style="--c:' + col + '">' + esc([...p.name][0] || "?") + '<i class="s3-wind">' + SS_WIND[s] + "</i></span><span class=\"s3-nm\"><b>" + esc(p.name) + (p.bot ? ' <small class="ai">AI</small>' : "") + "</b><small>" + (status ? status + " · " : "") + ssPts(p.total) + ' 水</small></span><i class="s3-net"></i></div>';
+  }
+  function ssPlates(st) {
+    [Math.max(0, ssMeSeat())].concat(ssOrder()).forEach((s) => { $('#ssTable .s3-plate[data-pos="' + ssPosOf(s) + '"]').innerHTML = ssPlateHTML(st, s); });
+  }
+  // a player's three rows on the felt; face down until they are revealed
+  function ssSpreadHTML(st, s, shown) {
+    const p = st.seats[s], cs = [3, 5, 5];
+    return [0, 1, 2].map((k) => {
+      const up = shown > k, cards = up ? (p.rows ? p.rows[k] : p.cards.slice([0, 3, 8][k], [3, 8, 13][k])) : Array(cs[k]).fill(null);
+      return '<div class="s3-sr" data-r="' + k + '">' + cards.map((c) => ssMini(c, !up, "mini")).join("") + '<i class="s3-tagm"></i><i class="s3-rp"></i></div>';
+    }).join("");
   }
   function ssRender() {
     const st = ss.st, open = ssOpen() && !!st;
@@ -6507,140 +6699,151 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const me = ssMeSeat(), my = st.seats[me] || {};
     $("#ssCodeShow").textContent = ss.practice ? "练习桌" : ssNet.code;
     $("#ssCopy").hidden = ss.practice; $("#ssCodeLab").hidden = ss.practice; $("#ssEmo").hidden = ss.practice;
-    $("#ssBase").textContent = "每水 " + compact(st.base);
+    $("#ssBase").textContent = "底分 " + compact(st.base);
     $("#ssCount").textContent = st.seats.filter((p) => !p.bot).length + " 人 + " + st.seats.filter((p) => p.bot).length + " AI";
     $("#ssHandNo").textContent = st.handNo;
     $("#ssTotal").innerHTML = ssPts(my.total || 0) + " 水";
-    $("#ssTable").dataset.phase = st.phase;
+    const arranging = st.phase === "arrange" && ss.dealt === st.handNo && !ss.sent;
+    $("#ssTable").dataset.phase = arranging ? "arrange" : st.phase;
+    ssPlates(st);
     if (!ss.showing) {
-      ssSeats(st);
-      if (st.phase !== "show") ssRenderMine();
+      // face-down rows in front of everyone who has set their cards; after a showdown they stay face up
+      [me].concat(ssOrder()).forEach((s) => {
+        const el = $('#ssTable .s3-spread[data-pos="' + ssPosOf(s) + '"]'), p = st.seats[s];
+        el.innerHTML = st.phase === "show" && st.res ? ssSpreadHTML(st, s, 3) : st.phase === "arrange" && (p.done || (s === me && ss.sent)) ? ssSpreadHTML(st, s, 0) : "";
+        if (st.phase === "show" && st.res) ssMarkSpread(st, s, 3);
+      });
     }
-    ssRenderBar();
+    $("#ssArr").hidden = !arranging;
+    if (arranging) ssRenderArr();
+    ssRenderCenter();
   }
-  const ssPts = (n) => (n > 0 ? '<span class="w">+' + n + "</span>" : n < 0 ? '<span class="l">' + n + "</span>" : "0");
-  function ssOppHTML(st, s, reveal) {
-    const p = st.seats[s];
-    const status = st.phase === "arrange" ? (p.done ? "已摆好 ✓" : "摆牌中…") : st.phase === "wait" ? (p.bot ? "AI" : p.ready ? "已准备" : "未准备") : (p.bot ? "AI" : p.ready ? "已准备" : "看结果");
-    // after the showdown the rows stay face up with how each did against me
-    const done = st.phase === "show" && st.res && !reveal, me = ssMeSeat(), vs = done && st.res[me] ? st.res[me].vs[s] : null, mySp = done && st.seats[me].special;
-    let rows = "";
-    if (st.phase === "arrange" || st.phase === "show") rows = [3, 5, 5].map((n, k) => {
-      if (!done) return '<span class="ss-mr" data-r="' + k + '">' + Array.from({ length: n }, () => ssMini(null, true, "mini")).join("") + '<i class="ss-rp"></i></span>';
-      const cs = p.rows ? p.rows[k] : p.cards.slice([0, 3, 8][k], [3, 8, 13][k]), v = vs ? vs.rowPts[k] : 0;
-      return '<span class="ss-mr" data-r="' + k + '" data-res="' + (p.special || mySp ? "" : v > 0 ? "lose" : v < 0 ? "win" : "tie") + '">' + cs.map((c) => ssMini(c, false, "mini")).join("") + '<i class="ss-rp">' + (p.special ? (k === 1 ? esc(p.special.name) : "") : st.res[s].labels ? st.res[s].labels[k] : "") + "</i></span>";
-    }).join("");
-    const net = done ? '<i class="ss-net on">' + ssPts(st.res[s].net) + " 水</i>" : '<i class="ss-net"></i>';
-    return '<div class="ss-opp' + (p.bot ? " bot" : "") + '" data-seat="' + s + '" data-id="' + esc(p.id) + '"><div class="ss-who"><b><i class="ss-w">' + SS_WIND[s] + "</i>" + esc(p.name) + (p.bot ? ' <small class="ai">AI</small>' : "") + '</b><small><span class="ss-st">' + status + '</span> · ' + ssPts(p.total) + ' 水</small></div><div class="ss-mrows' + (st.phase === "arrange" && !p.done ? " dim" : "") + '">' + rows + "</div>" + net + "</div>";
-  }
-  function ssRenderMine() {
-    const st = ss.st, arranging = st.phase === "arrange" && ss.dealt === st.handNo && ss.cards.length;
-    if (!arranging) {   // empty rows on the table until the cards come
-      $$("#ssMine .ss-row").forEach((el, k) => { el.classList.remove("can", "foul"); delete el.dataset.res; el.querySelector(".ss-lab").innerHTML = "<b>" + SSS_ROW_NAME[k] + "</b><small>" + SS_CAP[k] + " 张</small>"; el.querySelector(".ss-slots").innerHTML = Array.from({ length: SS_CAP[k] }, () => '<span class="ss-slot"></span>').join(""); el.querySelector(".ss-rowpts").innerHTML = ""; });
-      $("#ssTray").hidden = true; $("#ssFoul").hidden = true; return;
-    }
-    const fouled = ss.rows.every((r, k) => r.length === SS_CAP[k]) && sssFoul(ss.rows.map((r) => r.map((i) => ss.cards[i])));
-    $$("#ssMine .ss-row").forEach((el, k) => {
-      const r = ss.rows[k], lab = r.length === SS_CAP[k] ? sssRowLabel(k, sssEval(r.map((i) => ss.cards[i]))) : SS_CAP[k] - r.length ? "还差 " + (SS_CAP[k] - r.length) + " 张" : "";
-      el.querySelector(".ss-lab").innerHTML = "<b>" + SSS_ROW_NAME[k] + "</b><small>" + lab + "</small>";
-      el.classList.toggle("foul", fouled); el.classList.toggle("can", !!ss.pick.length && r.length < SS_CAP[k] && !ss.sent);
-      el.querySelector(".ss-slots").innerHTML = r.map((i) => '<button type="button" class="ss-c" data-i="' + i + '">' + ssMini(ss.cards[i]) + "</button>").join("") + Array.from({ length: SS_CAP[k] - r.length }, () => '<span class="ss-slot"></span>').join("");
-    });
-    $("#ssTray").innerHTML = ss.tray.map((i, n) => '<button type="button" class="ss-c' + (ss.pick.includes(i) ? " pick" : "") + (ss.dealAnim ? " dealin" : "") + '" style="--d:' + n * 45 + 'ms" data-i="' + i + '">' + ssMini(ss.cards[i]) + "</button>").join("");
-    ss.dealAnim = false;
-    $("#ssTray").hidden = !ss.tray.length;
-    $("#ssFoul").hidden = !fouled;
-    $("#ssMine").classList.toggle("sent", ss.sent);
-  }
-  function ssWaitText(st) {
-    const humans = st.seats.filter((p) => !p.bot), notReady = humans.filter((p) => !p.ready).map((p) => p.name);
-    if (st.phase === "arrange") return "这一局正在进行，下一局入座";
-    return notReady.length ? "等 " + notReady.map(esc).join("、") + " 准备" : "开始发牌…";
-  }
-  function ssRenderBar() {
+  function ssRenderCenter() {
     const st = ss.st; if (!st) return;
-    const me = ssMeSeat(), my = st.seats[me] || {};
-    const arranging = st.phase === "arrange" && ss.dealt === st.handNo;
-    $("#ssArrBar").hidden = !arranging || ss.sent;
-    $("#ssSpecial").hidden = !ss.special || !arranging || ss.sent; $("#ssSpecialRow").hidden = $("#ssSpecial").hidden; if (ss.special) $("#ssSpecial").textContent = "报到 · " + ss.special.name + " " + ss.special.pts + " 水";
-    const full = ss.rows.every((r, k) => r.length === SS_CAP[k]);
-    $("#ssGo").disabled = !full || sssFoul(ss.rows.map((r) => r.map((i) => ss.cards[i])));
-    $("#ssReady").hidden = st.phase === "arrange" || ss.showing;
+    const my = st.seats[ssMeSeat()] || {};
+    $("#ssReady").hidden = st.phase === "arrange" || ss.showing || !$("#ssSettle").hidden;
     $("#ssReady").textContent = my.ready ? "已准备 ✓" : st.phase === "show" ? "下一局" : "✋ 准备";
     $("#ssReady").classList.toggle("ghost", !!my.ready);
+    const humans = st.seats.filter((p) => !p.bot), notReady = humans.filter((p) => !p.ready).map((p) => esc(p.name));
+    $("#ssCMsg").innerHTML = ss.showing ? "" : st.phase === "arrange" ? (ss.dealt === st.handNo ? (ss.sent ? "已摆好，等其他人…" : "") : "这一局正在进行，下一局入座") : st.phase === "show" ? "第 " + st.handNo + " 局结束" : notReady.length ? "等 " + notReady.join("、") + " 准备" : "发牌…";
     const left = st.left ? Math.max(0, st.left - Math.floor((Date.now() - (ss.stAt || Date.now())) / 1000)) : 0;
-    $("#ssTimer").textContent = arranging && st.left ? left : "";
+    $("#ssTimer").textContent = st.phase === "arrange" && st.left ? left : "";
     $("#ssTimer").classList.toggle("soon", left > 0 && left <= 10);
-    $("#ssCMsg").innerHTML = ss.showing ? "比牌中…" : st.phase === "arrange" ? (arranging ? (ss.sent ? "已摆好，等其他人…" : "请摆牌") : "这一局正在进行，下一局入座") : st.phase === "show" ? "第 " + st.handNo + " 局结束" : ssWaitText(st);
-    $("#ssResult").hidden = st.phase !== "show";
   }
-  // ---- showdown: row by row, then 打枪, 全垒打 and the money ----
+  function ssRenderArr() {
+    const fouled = ss.rows.every((r, k) => r.length === SS_CAP[k]) && sssFoul(ss.rows.map((r) => r.map((i) => ss.cards[i])));
+    $$("#ssRows .s3-row").forEach((el, k) => {
+      const r = ss.rows[k], full = r.length === SS_CAP[k];
+      el.querySelector(".s3-slots").innerHTML = r.map((i) => '<button type="button" class="ss-c" data-i="' + i + '">' + ssMini(ss.cards[i]) + "</button>").join("") + Array.from({ length: SS_CAP[k] - r.length }, () => '<span class="ss-slot"></span>').join("");
+      el.querySelector(".s3-tag").textContent = full ? ssCat(k, sssEval(r.map((i) => ss.cards[i]))) : "";
+      el.querySelector(".s3-x").hidden = !r.length;
+      el.classList.toggle("can", !!ss.pick.length && !full); el.classList.toggle("foul", fouled);
+    });
+    $("#ssFoul").hidden = !fouled;
+    $("#ssTray").innerHTML = ss.tray.map((i, n) => '<button type="button" class="ss-c' + (ss.pick.includes(i) ? " pick" : "") + (ss.dealAnim ? " dealin" : "") + '" style="--d:' + n * 45 + "ms;--n:" + n + '" data-i="' + i + '">' + ssMini(ss.cards[i]) + "</button>").join("");
+    $("#ssTray").style.setProperty("--k", ss.tray.length);
+    ss.dealAnim = false;
+    const th = ssTypeHands();
+    $("#ssTypes").innerHTML = SS_TYPES.map(([n]) => '<button type="button" data-type="' + n + '"' + (th[n].length ? "" : " disabled") + ">" + n + "</button>").join("");
+    const sug = ssSugs();
+    $("#ssSug").innerHTML = sug.map((sp, k) => '<button type="button" data-sug="' + k + '">' + sp.map((r, row) => ssCat(row, sssEval(r.map((i) => ss.cards[i])))).join(" · ") + "</button>").join("");
+    $("#ssHint").textContent = ss.tray.length ? (ss.pick.length ? "已选 " + ss.pick.length + " 张，点要放的墩" : "点牌选中，或点上面的牌型 / 推荐") : fouled ? "倒水了，换个摆法" : "摆好了，按确定";
+    $("#ssSpecial").hidden = !ss.special; if (ss.special) $("#ssSpecial").textContent = "报到 " + ss.special.name;
+    $("#ssGo").disabled = !ss.rows.every((r, k) => r.length === SS_CAP[k]) || fouled;
+    $("#ssSort").textContent = ss.sortSuit ? "按点数" : "按花色";
+  }
+  // ---- showdown: 开始比牌, row by row, 打枪, 全垒打, then the 本局结算 panel ----
+  function ssMarkSpread(st, s, upTo) {
+    const me = Math.max(0, ssMeSeat()), p = st.seats[s], res = st.res[s], my = st.seats[me];
+    $$('#ssTable .s3-spread[data-pos="' + ssPosOf(s) + '"] .s3-sr').forEach((el, k) => {
+      if (k >= upTo) return;
+      el.querySelector(".s3-tagm").textContent = p.special ? (k === 1 ? p.special.name : "") : res.labels ? ssCat(k, sssEval(p.rows[k])) : "";
+      let v = 0;
+      if (s === me) ssOrder().forEach((o) => { v += st.res[me].vs[o].rowPts[k]; }); else v = st.res[me].vs[s].rowPts[k] * -1;
+      el.querySelector(".s3-rp").innerHTML = p.special || my.special ? "" : (v > 0 ? "+" : "") + v;
+      el.dataset.res = p.special || my.special ? "" : s === me ? (v > 0 ? "win" : v < 0 ? "lose" : "tie") : v > 0 ? "win" : v < 0 ? "lose" : "tie";
+    });
+  }
   async function ssShowdown(st) {
     ss.showing = true;
-    const me = ssMeSeat(), order = ssOrder(), T = (ms) => (reduced ? 30 : ms);
-    ssSeats(st, true);
-    $("#ssTray").hidden = true; $("#ssArrBar").hidden = true; $("#ssFoul").hidden = true;
-    const my = st.seats[me], myRes = st.res[me];
-    // my rows as submitted (the host's copy)
-    $$("#ssMine .ss-row").forEach((el, k) => {
-      el.classList.remove("can", "foul");
-      const cs = my.rows ? my.rows[k] : my.cards.slice([0, 3, 8][k], [3, 8, 13][k]);
-      el.querySelector(".ss-slots").innerHTML = cs.map((c) => '<span class="ss-c">' + ssMini(c) + "</span>").join("");
-      el.querySelector(".ss-lab").innerHTML = "<b>" + SSS_ROW_NAME[k] + "</b><small>" + (my.special ? (k === 1 ? "报到 " + my.special.name : "") : myRes.labels ? myRes.labels[k] : "") + "</small>";
-    });
-    ssRenderBar();
-    await sleep(T(500));
+    const me = Math.max(0, ssMeSeat()), all = [me].concat(ssOrder()), T = (ms) => (reduced ? 30 : ms);
+    $("#ssArr").hidden = true; $("#ssTable").dataset.phase = "show"; ssRenderCenter();
+    all.forEach((s) => { $('#ssTable .s3-spread[data-pos="' + ssPosOf(s) + '"]').innerHTML = ssSpreadHTML(st, s, 0); });
+    await ssBanner("开始比牌", "start", T(1300));
     for (let k = 0; k < 3; k++) {
-      let mine = 0;
-      for (const s of order) {
-        const p = st.seats[s], el = $('#ssTable .ss-opp[data-seat="' + s + '"] .ss-mr[data-r="' + k + '"]'), res = st.res[s];
-        if (!el) continue;
-        const cs = p.rows ? p.rows[k] : p.cards.slice([0, 3, 8][k], [3, 8, 13][k]);
-        el.innerHTML = cs.map((c) => ssMini(c, false, "mini")).join("") + '<i class="ss-rp"></i>';
+      all.forEach((s) => {
+        const el = $('#ssTable .s3-spread[data-pos="' + ssPosOf(s) + '"] .s3-sr[data-r="' + k + '"]'), p = st.seats[s];
+        const cards = p.rows ? p.rows[k] : p.cards.slice([0, 3, 8][k], [3, 8, 13][k]);
+        el.innerHTML = cards.map((c) => ssMini(c, false, "mini")).join("") + '<i class="s3-tagm"></i><i class="s3-rp"></i>';
         el.classList.add("flip");
-        const v = myRes.vs[s].rowPts[k]; mine += v;
-        const badge = el.querySelector(".ss-rp");
-        badge.textContent = p.special ? "" : res.labels ? res.labels[k] : "";
-        el.dataset.res = my.special || p.special ? "" : v > 0 ? "lose" : v < 0 ? "win" : "tie";
-      }
-      const mr = $$("#ssMine .ss-row")[k];
-      mr.dataset.res = my.special ? "" : mine > 0 ? "win" : mine < 0 ? "lose" : "tie";
-      mr.querySelector(".ss-rowpts").innerHTML = my.special ? "" : ssPts(mine);
-      SND.flip(); await sleep(T(1000));
+      });
+      all.forEach((s) => ssMarkSpread(st, s, k + 1));
+      SND.flip(); await sleep(T(1100));
     }
-    // 报到
-    for (const s of [me].concat(order)) { const p = st.seats[s]; if (p.special) { ssBanner(s === me ? $("#ssMine") : $('#ssTable .ss-opp[data-seat="' + s + '"]'), "报到 · " + p.special.name, "sp"); SND.win(); await sleep(T(900)); } }
-    // 倒水
-    for (const s of [me].concat(order)) if (st.res[s].foul) { ssBanner(s === me ? $("#ssMine") : $('#ssTable .ss-opp[data-seat="' + s + '"]'), "倒水", "foul"); await sleep(T(700)); }
-    // 打枪: the shooter fires at each victim
-    for (const s of [me].concat(order)) {
-      for (const v of st.res[s].shot) {
-        const vic = v === me ? $("#ssMine") : $('#ssTable .ss-opp[data-seat="' + v + '"]');
-        ssBanner(vic, esc(st.seats[s].name) + " 打枪", "gun"); ssShots(vic); SND.pop(1.2); await sleep(T(900));
-      }
-    }
-    for (const s of [me].concat(order)) if (st.res[s].homerun) { ssBanner($("#ssTable"), esc(st.seats[s].name) + " 全垒打！", "hr"); SND.pop(1.5); SND.win(); await sleep(T(1400)); }
-    // totals
-    for (const s of order) { const el = $('#ssTable .ss-opp[data-seat="' + s + '"] .ss-net'); el.innerHTML = ssPts(st.res[s].net) + " 水"; el.classList.add("on"); }
-    const chips = Math.round(myRes.net * st.base * 100) / 100;
+    for (const s of all) { const p = st.seats[s]; if (p.special) { await ssBanner("报到 · " + p.special.name, "sp", T(1200), s); SND.win(); } }
+    for (const s of all) if (st.res[s].foul) await ssBanner("倒水", "foul", T(900), s);
+    for (const s of all) for (const v of st.res[s].shot) await ssShoot(s, v, T);
+    for (const s of all) if (st.res[s].homerun) { SND.pop(1.5); SND.win(); await ssBanner("全垒打", "hr", T(1700)); }
+    // money and the panel
+    const myRes = st.res[me], chips = Math.round(myRes.net * st.base * 100) / 100;
     if (chips > 0) { addBank(chips); SND.coins(2); SND.win(); } else if (chips < 0) { addBank(-Math.min(-chips, S.bank)); SND.chip(); }
-    $("#ssResult").innerHTML = "这一局 " + ssPts(myRes.net) + " 水 · " + (chips > 0 ? '<span class="w">+' + fmt(chips) + "</span>" : chips < 0 ? '<span class="l">-' + fmt(-chips) + "</span>" : "不输不赢");
-    ss.showing = false; ssRender();
+    all.forEach((s) => { const n = $('#ssTable .s3-pl[data-seat="' + s + '"] .s3-net'); if (n) { n.innerHTML = ssPts(st.res[s].net) + '<small>(' + (st.res[s].net >= 0 ? "+" : "") + compact(st.res[s].net * st.base) + ")</small>"; n.classList.add("on"); } });
+    const items = Object.entries(myRes.items || {}).filter(([, v]) => v);
+    $("#ssItems").innerHTML = items.length ? items.map(([n, v]) => "<li><span>" + esc(n) + "</span><b>" + ssPts(v) + "</b></li>").join("") : "<li><span>和局</span><b>0</b></li>";
+    $("#ssScore").innerHTML = ssPts(myRes.net);
+    $("#ssMoney").innerHTML = chips > 0 ? '<span class="w">+' + fmt(chips) + "</span>" : chips < 0 ? '<span class="l">-' + fmt(-chips) + "</span>" : "0";
+    ss.showing = false;
+    $("#ssSettle").hidden = false;
+    ssOkCount(8);
+    ssRender();
   }
-  function ssBanner(host, text, cls) {
-    if (!host) return;
-    const b = document.createElement("div"); b.className = "ss-ban " + cls; b.innerHTML = text; host.appendChild(b);
-    setTimeout(() => b.remove(), reduced ? 900 : 1900);
+  // the 确认 button counts down and closes the panel by itself
+  function ssOkCount(n) {
+    clearInterval(ss.okT);
+    const b = $("#ssOk"), tick = () => { b.textContent = "确认 (" + n + ")"; if (n-- <= 0) ssCloseSettle(false); };
+    tick(); ss.okT = setInterval(tick, 1000);
   }
-  function ssShots(host) {
-    if (reduced || !host) return;
-    for (let i = 0; i < 3; i++) setTimeout(() => {
-      const h = document.createElement("i"); h.className = "ss-hole"; h.style.left = 15 + rand(70) + "%"; h.style.top = 20 + rand(60) + "%"; host.appendChild(h); setTimeout(() => h.remove(), 1600);
-    }, i * 140);
+  function ssCloseSettle(ready) {
+    clearInterval(ss.okT); $("#ssSettle").hidden = true;
+    const my = ss.st && ss.st.seats[ssMeSeat()];
+    if (ready && my && !my.ready && ss.st.phase === "show") { if (S.bank < ss.st.base * 30) toast("余额不够：底分 " + fmt(ss.st.base) + " 至少要有 " + fmt(ss.st.base * 30)); else ssNet.toHost({ t: "ready", on: true }); }
+    ssRender();
+  }
+  function ssBanner(text, cls, ms, seat) {
+    const fx = $("#ssFx"), b = document.createElement("div");
+    b.className = "s3-ban " + cls; b.innerHTML = "<span>" + esc(text) + "</span>";
+    if (seat != null) { const pl = $('#ssTable .s3-spread[data-pos="' + ssPosOf(seat) + '"]'); if (pl) { const r = pl.getBoundingClientRect(), t = $("#ssTable").getBoundingClientRect(); b.style.left = (r.left + r.width / 2 - t.left) + "px"; b.style.top = (r.top + r.height / 2 - t.top) + "px"; b.classList.add("at"); } }
+    fx.appendChild(b);
+    return new Promise((res) => setTimeout(() => { b.remove(); res(); }, ms));
+  }
+  // 打枪: the sight locks onto the victim's cards, the shooter's gun fires three times
+  async function ssShoot(from, to, T) {
+    const fx = $("#ssFx"), tb = $("#ssTable").getBoundingClientRect();
+    const vr = $('#ssTable .s3-spread[data-pos="' + ssPosOf(to) + '"]').getBoundingClientRect(), sr = $('#ssTable .s3-plate[data-pos="' + ssPosOf(from) + '"]').getBoundingClientRect();
+    const vx = vr.left + vr.width / 2 - tb.left, vy = vr.top + vr.height / 2 - tb.top, sx = sr.left + sr.width / 2 - tb.left, sy = sr.top + sr.height / 2 - tb.top;
+    const sight = document.createElement("div"); sight.className = "s3-sight"; sight.style.left = vx + "px"; sight.style.top = vy + "px";
+    sight.innerHTML = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="34"/><circle cx="50" cy="50" r="20"/><path d="M50 4v24M50 72v24M4 50h24M72 50h24"/><circle cx="50" cy="50" r="3" class="dot"/></svg>';
+    const gun = document.createElement("div"); gun.className = "s3-gun";
+    const ang = Math.atan2(vy - sy, vx - sx) * 180 / Math.PI;
+    gun.style.left = sx + "px"; gun.style.top = sy + "px"; gun.style.setProperty("--a", ang + "deg");
+    gun.innerHTML = '<svg viewBox="0 0 120 60"><path d="M8 20h78l6-6h12v10h8v8H92l-4 4H50l-6 22H24l6-22H8z" fill="#3a3f47" stroke="#15181c" stroke-width="2"/><path d="M14 23h68" stroke="#8d96a3" stroke-width="3"/><circle cx="40" cy="30" r="4" fill="#15181c"/></svg><i class="flash"></i>';
+    fx.appendChild(sight); fx.appendChild(gun);
+    const victim = $('#ssTable .s3-spread[data-pos="' + ssPosOf(to) + '"]');
+    await sleep(T(700));
+    for (let n = 0; n < 3; n++) {
+      gun.classList.remove("bang"); void gun.offsetWidth; gun.classList.add("bang");
+      SND.pop(1.3);
+      const h = document.createElement("i"); h.className = "ss-hole"; h.style.left = (vx + (Math.random() - 0.5) * vr.width * 0.7) + "px"; h.style.top = (vy + (Math.random() - 0.5) * vr.height * 0.6) + "px"; fx.appendChild(h); setTimeout(() => h.remove(), 2200);
+      victim.classList.remove("hit"); void victim.offsetWidth; victim.classList.add("hit");
+      await sleep(T(230));
+    }
+    const ban = ssBanner("打枪", "gun", T(1100), to);
+    await sleep(T(400)); sight.remove(); gun.remove();
+    await ban;
   }
   function ssBubble(id, text) {
     if (!id) { if (S.view === "sss") toast(esc(text)); return; }
-    const host = id === ssNet.me ? $("#ssMine") : $('#ssTable .ss-opp[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+    const host = $('#ssTable .s3-pl[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
     if (host) { const b = document.createElement("span"); b.className = "say"; b.textContent = text; host.appendChild(b); setTimeout(() => b.remove(), 3300); }
   }
   // share a room: the system share sheet, or the code and link copied
@@ -6693,26 +6896,31 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   $("#ssReady").addEventListener("click", () => {
     const my = ss.st && ss.st.seats[ssMeSeat()];
     if (!my) return;
-    if (!my.ready && S.bank < ss.st.base * 30) { toast("余额不够：每水 " + fmt(ss.st.base) + " 至少要有 " + fmt(ss.st.base * 30)); return; }
+    if (!my.ready && S.bank < ss.st.base * 30) { toast("余额不够：底分 " + fmt(ss.st.base) + " 至少要有 " + fmt(ss.st.base * 30)); return; }
     ssNet.toHost({ t: "ready", on: !my.ready });
   });
-  $("#ssAuto").addEventListener("click", ssAuto);
-  $("#ssClear").addEventListener("click", () => { if (ss.sent) return; ss.tray = [...Array(13).keys()]; ss.rows = [[], [], []]; ss.pick = []; ssSortTray(); ssRender(); $("#ssAuto").textContent = "自动摆牌"; });
-  $("#ssSort").addEventListener("click", () => { ss.sortSuit = !ss.sortSuit; ssSortTray(); ssRender(); $("#ssSort").textContent = ss.sortSuit ? "按点数" : "按花色"; });
+  $("#ssOk").addEventListener("click", () => ssCloseSettle(true));
+  $("#ssClear").addEventListener("click", () => { if (ss.sent) return; ss.tray = [...Array(13).keys()]; ss.rows = [[], [], []]; ss.pick = []; ssSortTray(); ssRenderArr(); });
+  // 对调: middle and back rows change places
+  $("#ssSwap").addEventListener("click", () => { if (ss.sent) return; [ss.rows[1], ss.rows[2]] = [ss.rows[2], ss.rows[1]]; SND.deal(); ssRenderArr(); });
+  $("#ssSort").addEventListener("click", () => { ss.sortSuit = !ss.sortSuit; ssSortTray(); ssRenderArr(); });
   $("#ssGo").addEventListener("click", () => ssSubmit(false));
   $("#ssSpecial").addEventListener("click", () => { if (confirm("报到「" + ss.special.name + "」：不比牌，直接向每家收 " + ss.special.pts + " 水（对方也报到就比谁大）。确定？")) ssSubmit(true); });
   $("#ssTray").addEventListener("click", (e) => {
     const b = e.target.closest(".ss-c"); if (!b || ss.sent) return;
     const i = +b.dataset.i; ss.pick = ss.pick.includes(i) ? ss.pick.filter((x) => x !== i) : ss.pick.concat(i);
-    SND.flip(); ssRenderMine();
+    SND.flip(); ssRenderArr();
   });
-  $$("#ssMine .ss-row").forEach((el, k) => el.addEventListener("click", (e) => {
+  $$("#ssRows .s3-row").forEach((el, k) => el.addEventListener("click", (e) => {
+    if (e.target.closest(".s3-x")) { ssClearRow(k); return; }
     const b = e.target.closest(".ss-c");
     if (b && !ss.pick.length) { ssUnplace(+b.dataset.i); return; }
     ssPlace(k);
   }));
+  $("#ssSug").addEventListener("click", (e) => { const b = e.target.closest("[data-sug]"); if (b && !ss.sent) ssApply(ssSugs()[+b.dataset.sug]); });
+  $("#ssTypes").addEventListener("click", (e) => { const b = e.target.closest("[data-type]"); if (b) ssType(b.dataset.type); });
   $$("#ssEmo button:not(.chatbtn)").forEach((b) => b.addEventListener("click", () => { if (ssOpen() && !ss.practice) ssNet.toHost({ t: "say", text: b.dataset.say || b.textContent }); }));
-  setInterval(() => { if (S.view === "sss" && ss.st && ss.st.phase === "arrange") ssRenderBar(); }, 1000);
+  setInterval(() => { if (S.view === "sss" && ss.st && ss.st.phase === "arrange") ssRenderCenter(); }, 1000);
   function ssFromHash() { const m = /^#sss=(\d{6})$/.exec(location.hash); if (m) { $("#ssCode").value = m[1]; if (!ssOpen()) ssStatus("输入名字，点「加入」进入十三张房间 " + m[1]); } }
   /* ===================== 麻将 — shared engine =====================
      Tiles are codes: 0–8 万 1–9 · 9–17 筒 · 18–26 条 · 27–30 东南西北 · 31–33 中发白 · 34–37 春夏秋冬 · 38–41 梅兰竹菊.
