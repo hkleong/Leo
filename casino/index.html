@@ -1363,6 +1363,80 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .ss-hole { position: absolute; z-index: 5; width: 16px; height: 16px; margin: -8px; border-radius: 50%; background: radial-gradient(circle, #111 0 35%, #3a2a1a 45%, rgba(255,230,180,.6) 55%, transparent 70%); animation: sshole 1.6s ease-out both; pointer-events: none; }
 @keyframes sshole { 0% { transform: scale(2.4); opacity: 0; box-shadow: 0 0 20px 8px rgba(255,220,120,.9); } 15% { transform: scale(1); opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 .ss-opp .say, .ss-mine .say { position: absolute; z-index: 7; right: 10px; top: -6px; }
+/* ---------- 麻将 ---------- */
+.mjt { --mw: 24px; position: relative; display: inline-grid; place-items: center; align-content: center; width: var(--mw); height: calc(var(--mw) * 1.36); flex: none; border-radius: calc(var(--mw) * .16);
+  background: linear-gradient(180deg, #fffdf4, #efe6cc); box-shadow: inset 0 -2px 0 #cfc3a0, 0 1px 0 #6d5f3d, 0 2px 3px rgba(0,0,0,.45); color: #1b1b1b; font-family: var(--display); line-height: 1; overflow: hidden; }
+.mjt b { font-size: calc(var(--mw) * .56); font-weight: 900; }
+.mjt i { font-style: normal; font-size: calc(var(--mw) * .4); margin-top: calc(var(--mw) * .02); font-weight: 700; }
+.mjt.s0 b { color: #1b1b1b; } .mjt.s0 i { color: #c0181e; }
+.mjt.s1 b { color: #1b1b1b; } .mjt.s1 i { color: #1557b0; }
+.mjt.s2 b { color: #1b1b1b; } .mjt.s2 i { color: #13803f; }
+.mjt.s3 b { font-size: calc(var(--mw) * .7); color: #14284f; }
+.mjt.h4 b { color: #c0181e; } .mjt.h5 b { color: #13803f; }
+.mjt.h6::after { content: ""; position: absolute; inset: 22% 20%; border: 2px solid #1557b0; border-radius: 2px; }
+.mjt.s4 b { font-size: calc(var(--mw) * .5); color: #b02a7a; } .mjt.s4 i { color: #7a5a1a; font-size: calc(var(--mw) * .34); }
+.mjt.back { background: linear-gradient(180deg, #2a9d74, #146d4f); box-shadow: inset 0 -2px 0 #0d4f39, 0 1px 0 #083626, 0 2px 3px rgba(0,0,0,.45); }
+.mjt.xs { --mw: clamp(10px, 3.1vw, 15px); border-radius: 2px; box-shadow: 0 1px 0 #6d5f3d; }
+.mjt.xs.back { box-shadow: 0 1px 0 #083626; }
+.mjt.sm { --mw: clamp(13px, 4.2vw, 19px); border-radius: 3px; box-shadow: inset 0 -1px 0 #cfc3a0, 0 1px 0 #6d5f3d; }
+.mjt.last { box-shadow: 0 0 0 2px #ffd34d, 0 0 8px rgba(255,211,77,.9); animation: mjlast .9s ease-in-out infinite alternate; }
+@keyframes mjlast { to { box-shadow: 0 0 0 2px #fff2b0, 0 0 14px rgba(255,211,77,1); } }
+.mjt.win { box-shadow: 0 0 0 2px #5fd38a, 0 0 8px rgba(95,211,138,.8); }
+.mjt.fl { opacity: .95; }
+.mjm { display: inline-flex; gap: 0; margin-right: 3px; }
+.mj-table { grid-template-columns: minmax(46px, 15vw) 1fr minmax(46px, 15vw); }
+.mj-seat[data-pos="n"] { grid-area: n; justify-self: center; } .mj-seat[data-pos="w"] { grid-area: w; } .mj-seat[data-pos="e"] { grid-area: e; }
+.mj-seat { min-width: 0; display: grid; align-content: center; }
+.mj-opp { position: relative; display: grid; justify-items: center; gap: 2px; padding: 3px; border-radius: 10px; background: rgba(0,0,0,.22); transition: box-shadow .3s; }
+.mj-opp.on { box-shadow: 0 0 0 2px var(--brass), 0 0 12px rgba(212,175,55,.6); }
+.mj-ohand { display: flex; flex-wrap: wrap; justify-content: center; gap: 0; max-width: 100%; }
+.mj-ohand.v { flex-direction: column; flex-wrap: nowrap; align-items: center; }
+.mj-ohand.v .mjt + .mjt { margin-top: calc(var(--mw) * -.62); }
+.mj-omelds { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; max-width: 100%; }
+.mj-wontile { margin-left: 3px; }
+.mj-que { font-style: normal; display: inline-grid; place-items: center; width: 15px; height: 15px; margin-left: 3px; border-radius: 50%; font-size: 10px; color: #fff; vertical-align: 1px; }
+.mj-que.q0 { background: #c0181e; } .mj-que.q1 { background: #1557b0; } .mj-que.q2 { background: #13803f; }
+.mj-mid { grid-area: c; display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto 1fr auto; grid-template-areas: "pn pn pn" "pw cc pe" "ps ps ps"; gap: 3px; min-height: 0; }
+.mj-pool { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 1px; min-height: 0; }
+.mj-pool .mjt.sm { --mw: clamp(12px, 3.6vw, 17px); }
+.mj-pool[data-pos="n"] { grid-area: pn; justify-content: center; flex-direction: row-reverse; flex-wrap: wrap-reverse; max-width: calc(9 * 18px); justify-self: center; }
+.mj-pool[data-pos="s"] { grid-area: ps; justify-content: center; max-width: calc(9 * 18px); justify-self: center; }
+.mj-pool[data-pos="w"] { grid-area: pw; flex-direction: column; max-height: 130px; flex-wrap: wrap; width: auto; }
+.mj-pool[data-pos="e"] { grid-area: pe; flex-direction: column; max-height: 130px; flex-wrap: wrap-reverse; }
+.mj-center { grid-area: cc; min-height: 96px; }
+.mj-center .ss-cin { padding: 14px 14px; gap: 3px; }
+.mj-center.result .ss-cin { padding: 18px 8px; }
+.mj-center .ss-cmsg small { display: block; font-size: 10px; color: rgba(242,234,216,.75); margin-bottom: 3px; }
+.mj-info { font-size: 10px; color: rgba(242,234,216,.7); }
+.ss-wind.turn { color: #fff; text-shadow: 0 0 8px var(--brass); }
+.ss-wind sup { font-size: 8px; color: #ffb3b3; }
+.mj-mine { position: relative; display: grid; gap: 4px; }
+.mj-mytop { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-height: 22px; }
+.mj-melds { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; }
+.mj-mywon { font-size: 12px; color: var(--win); }
+.mj-hand { display: flex; align-items: flex-end; justify-content: center; gap: 1px; padding-top: 10px; }
+.mjb { flex: 1 1 0; min-width: 0; max-width: 38px; padding: 0; border: 0; background: none; transition: transform .12s; }
+.mjb .mjt { --mw: 100%; width: 100%; height: auto; aspect-ratio: 1 / 1.36; }
+.mjb .mjt b { font-size: clamp(11px, 4.4vw, 21px); } .mjb .mjt i { font-size: clamp(8px, 3vw, 14px); }
+.mjb .mjt.s3 b { font-size: clamp(13px, 5.4vw, 25px); } .mjb .mjt.s4 b { font-size: clamp(10px, 3.8vw, 18px); }
+.mjb.sel { transform: translateY(-10px); }
+.mjb.sel .mjt { box-shadow: 0 0 0 2px var(--brass), 0 6px 10px rgba(0,0,0,.5); }
+.mjb.dim .mjt { filter: brightness(.6); }
+.mjb.queT .mjt::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: #ff6b6b; }
+.mjb:disabled { opacity: 1; }
+.mj-hand.myturn .mjb:not(:disabled):not(.dim) .mjt { cursor: pointer; }
+.mj-gap { flex: 0 0 6px; }
+.mjb.fresh { margin-left: 2px; }
+.mj-bar { flex-wrap: wrap; justify-content: center; gap: 5px; }
+.mj-bar .btn { flex: 0 1 auto; padding: 8px 14px; min-width: 56px; }
+.mj-bar .mjchow { display: inline-flex; gap: 1px; padding: 6px 8px; }
+.mj-ct { display: inline-grid; place-items: center; }
+.mj-opp .say { position: absolute; z-index: 7; top: -6px; right: -4px; }
+@media (max-height: 700px) {
+  .mj-hand { padding-top: 8px; }
+  .mj-center { min-height: 80px; }
+  .mj-pool[data-pos="w"], .mj-pool[data-pos="e"] { max-height: 100px; }
+}
 </style>
 
 <header class="top">
@@ -1379,6 +1453,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <button type="button" data-go="holdem">德州</button>
       <button type="button" data-go="niu">牛牛</button>
       <button type="button" data-go="sss">十三张</button>
+      <button type="button" data-go="mj">麻将</button>
       <button type="button" data-go="slotseries">老虎机</button>
     </nav>
     <div class="bank">
@@ -1871,7 +1946,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     </div>
     <div class="lsec">
       <h3>联机 <span class="note">和朋友同桌 · 也可以单人练习</span></h3>
-      <button class="rtile" type="button" data-go="online"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="6"/><circle cx="33" cy="16" r="6"/><path d="M5 38c0-7 5-12 11-12s11 5 11 12M24 30c2-3 5-4 9-4 6 0 10 5 10 12"/></svg></span><span class="rt-txt"><b>联机房间</b><small>百家乐 · 德州扑克 · 十三张（玩家对玩家）· 练习桌（对 AI）</small></span><i aria-hidden="true">›</i></button>
+      <button class="rtile" type="button" data-go="online"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="6"/><circle cx="33" cy="16" r="6"/><path d="M5 38c0-7 5-12 11-12s11 5 11 12M24 30c2-3 5-4 9-4 6 0 10 5 10 12"/></svg></span><span class="rt-txt"><b>联机房间</b><small>百家乐 · 德州扑克 · 十三张 · 麻将（玩家对玩家）· 练习桌（对 AI）</small></span><i aria-hidden="true">›</i></button>
     </div>
     <div class="lsec">
       <h3>龙虎 <span class="note">2 桌 · 每 15 秒自动开局</span></h3>
@@ -1886,6 +1961,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" data-go="holdem"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M36.7 11.3l-3.5 3.5M14.8 33.2l-3.5 3.5"/><path d="M24 17c3 3 6 5 6 8a3 3 0 0 1-5 2l1 4h-4l1-4a3 3 0 0 1-5-2c0-3 3-5 6-8z" fill="currentColor" stroke="none"/></svg></span><b>德州扑克</b><small>盲注最高 500:1</small></button>
         <button class="gtile" type="button" data-go="niu"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12c2 6 6 8 10 8M39 12c-2 6-6 8-10 8"/><path d="M15 19c0-3 4-5 9-5s9 2 9 5v9c0 7-4 12-9 12s-9-5-9-12z" fill="currentColor" fill-opacity=".14"/><circle cx="20" cy="26" r="1.6" fill="currentColor"/><circle cx="28" cy="26" r="1.6" fill="currentColor"/><path d="M20 34c2 1.5 6 1.5 8 0"/><circle cx="24" cy="38" r="2.4"/></svg></span><b>牛牛</b><small>翻倍最高 ×5</small></button>
         <button class="gtile" type="button" data-go="sss"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="6" width="22" height="9" rx="2"/><rect x="8" y="18" width="32" height="10" rx="2" fill="currentColor" fill-opacity=".12"/><rect x="8" y="31" width="32" height="11" rx="2"/><path d="M18 6v9M24 6v9M30 6v9M14.4 18v10M20.8 18v10M27.2 18v10M33.6 18v10M14.4 31v11M20.8 31v11M27.2 31v11M33.6 31v11" stroke-width="1.4"/></svg></span><b>十三张</b><small>对 AI 练习 · 联机 4 人</small></button>
+        <button class="gtile" type="button" data-go="mj"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="7" width="24" height="34" rx="4" fill="currentColor" fill-opacity=".12"/><rect x="15" y="10" width="18" height="28" rx="2.5"/><text x="24" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="currentColor" stroke="none">中</text></svg></span><b>麻将</b><small>港式 · 四川 · 台湾 · 可联机</small></button>
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 雷神之锤 · 幸运 7</small></button>
       </div>
     </div>
@@ -2014,6 +2090,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="on-card" type="button" data-on="room"><b>开百家乐房间</b><small>同一副牌、同一条路，各自下注</small></button>
         <button class="on-card" type="button" data-on="proom"><b>开德州扑克房间</b><small>玩家对玩家 · 最多 9 人 · 抽水 5%</small></button>
         <button class="on-card" type="button" data-on="sss"><b>开十三张房间</b><small>2–4 人 · 空位 AI 补上 · 也能单人练习</small></button>
+        <button class="on-card" type="button" data-on="mj"><b>开麻将房间</b><small>港式 · 四川血战 · 台湾十六张 · 也能单人练习</small></button>
       </div>
       <p class="rm-or">或者输入朋友的房间号</p>
       <div class="rm-code"><input id="onCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位数字"><button class="btn" id="onJoin" type="button">加入</button></div>
@@ -2234,6 +2311,86 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>报到（特殊牌型，不比牌，直接向每家收水）：至尊清龙（同花 A–K）52 水、一条龙（A–K 各一张）13 水、六对半 3 水、三同花 3 水、三顺子 3 水。两家都报到就比谁的大。</li>
         <li>每水的筹码由房主开房时决定，每局结束直接从余额加减。联机每局有 90 秒摆牌，超时由 AI 帮你摆。</li>
         <li>操作：点下面的牌选中（可以多选），再点要放的那一道；点已经摆好的牌退回。两道摆满后，剩下的牌自动进最后一道。「自动摆牌」会给出 AI 认为最好的几种摆法，再点一下换下一种。</li>
+      </ul>
+    </div></div>
+  </section>
+  <!-- 麻将: practice table (you + 3 AI) or an online room; 港式 / 四川血战 / 台湾十六张 -->
+  <section id="v-mj" class="game" hidden>
+    <div class="rm-join" id="mjJoin">
+      <button class="toggle on-backlink" type="button" data-go="online">‹ 返回联机</button>
+      <h2>麻将</h2>
+      <p class="note">4 人一桌，没坐满的位置由 AI 补上。开房间或练习时选玩法，朋友加入时跟着房主的玩法。</p>
+      <label class="rm-field"><span>你的名字</span><input id="mjName" maxlength="10" autocomplete="nickname" placeholder="例如 阿明"></label>
+      <div class="pr-sel">
+        <label class="rm-field"><span>玩法</span><select id="mjVariant"><option value="hk" selected>港式麻将（广东牌）</option><option value="sc">四川血战到底</option><option value="tw">台湾十六张</option></select></label>
+        <label class="rm-field"><span>底</span><select id="mjBaseSel"><option value="10">10</option><option value="50">50</option><option value="100" selected>100</option><option value="500">500</option><option value="1000">1,000</option></select></label>
+      </div>
+      <label class="rm-field" id="mjMinFanBox"><span>起胡番数（港式）</span><select id="mjMinFan"><option value="0">0 番（鸡糊也可以）</option><option value="1" selected>1 番</option><option value="3">3 番</option></select></label>
+      <div class="ss-start">
+        <button class="btn big" id="mjPractice" type="button">练习桌 · 对 3 个 AI</button>
+        <button class="btn big ghost" id="mjCreate" type="button">开麻将房间</button>
+      </div>
+      <p class="rm-or">或者输入朋友的房间号</p>
+      <div class="rm-code"><input id="mjCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位数字"><button class="btn" id="mjJoinBtn" type="button">加入</button></div>
+      <p class="tmsg" id="mjStatus"></p>
+    </div>
+    <div class="ss-play" id="mjPlay" hidden>
+      <div class="rm-top"><span class="rm-id"><span id="mjCodeLab">房间号</span> <b id="mjCodeShow">––––––</b></span><button class="toggle" id="mjCopy" type="button">分享</button><span class="pr-bl" id="mjRule">港式</span><span class="rm-n" id="mjCount">1 人</span><button class="toggle" id="mjLeave" type="button">离开</button></div>
+      <div class="ss-table mj-table" id="mjTable">
+        <div class="mj-seat" data-pos="n"></div>
+        <div class="mj-seat" data-pos="w"></div>
+        <div class="mj-mid">
+          <div class="mj-pool" data-pos="n"></div>
+          <div class="mj-pool" data-pos="w"></div>
+          <div class="ss-center mj-center" id="mjCenter">
+            <i class="ss-wind" data-pos="n"></i><i class="ss-wind" data-pos="w"></i><i class="ss-wind" data-pos="e"></i><i class="ss-wind" data-pos="s"></i>
+            <div class="ss-cin">
+              <small class="mj-info"><span id="mjRound"></span> <span id="mjWall"></span></small>
+              <b class="ss-clock" id="mjClock"></b>
+              <p class="ss-cmsg" id="mjCMsg">等待开局</p>
+              <button class="btn" id="mjReady" type="button">✋ 准备</button>
+            </div>
+          </div>
+          <div class="mj-pool" data-pos="e"></div>
+          <div class="mj-pool" data-pos="s"></div>
+        </div>
+        <div class="mj-seat" data-pos="e"></div>
+      </div>
+      <div class="mj-mine" id="mjMine">
+        <div class="mj-mytop"><span class="ss-metag" id="mjMeTag"></span><span class="mj-melds" id="mjMelds"></span></div>
+        <div class="mj-hand" id="mjHand"></div>
+        <div class="actrow mj-bar" id="mjBar" hidden></div>
+      </div>
+      <div class="rm-emo" id="mjEmo"><button class="chatbtn" type="button" data-chat="mj">💬 聊天<i class="unread" hidden></i></button><button type="button">👍</button><button type="button">😂</button><button type="button">🀄</button><button type="button">😭</button><button type="button" data-say="快点出牌">快点出牌</button><button type="button" data-say="听了">听了</button></div>
+      <div class="bfoot">
+        <div>累计 <b id="mjTotal">0</b><br>余额 <b class="bal-mirror">10,000</b></div>
+        <div class="r"><span>麻将 · 第 <span id="mjHandNo">0</span> 局</span><button class="toggle" type="button" data-rules="rules-mj">规则</button></div>
+      </div>
+    </div>
+    <div class="sheet" id="rules-mj" hidden><div class="sheet-in" role="dialog" aria-label="麻将规则">
+      <div class="sheet-head"><h3>麻将</h3><span class="note">三种玩法</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <h4>操作</h4>
+      <ul>
+        <li>轮到你时点一张牌选中，再点一次（或按「打出」）就打出去。摸到的牌放在最右边。别人打牌时，能吃、碰、杠、胡就会出现按钮，不要就按「过」。联机每次出牌有 20 秒、吃碰杠有 10 秒，超时由 AI 代打。</li>
+        <li>胡牌 = 4 组（台湾 5 组）顺子或刻子 + 1 对将。胡的优先级：胡 ＞ 碰 / 杠 ＞ 吃；只有下家可以吃。</li>
+      </ul>
+      <h4>港式麻将（广东牌）</h4>
+      <ul>
+        <li>136 张加 8 张花，13 张。可吃碰杠，抢杠可胡，十三幺可胡。可以设起胡番数（0 / 1 / 3 番）。</li>
+        <li>番：自摸 1、门前清 1、平糊 1、对对糊 3、混一色 3、清一色 7、中发白刻子各 1、门风 1、圈风 1、小三元 5、正花每只 1、无花 1、一台花 1、杠上开花 2、抢杠 1、海底捞月 1；大三元 8、小四喜 10、字一色 10、清幺九 10、坎坎糊 8、大四喜 13、十三幺 13、九莲宝灯 13、十八罗汉 13、天糊地糊 13。最多 10 番。</li>
+        <li>结算（半辣）：0–10 番分别是 1、2、4、8、16、24、32、48、64、96、128 份底。自摸三家各付 1 份；食糊由放铳的人付 2 份。</li>
+      </ul>
+      <h4>四川血战到底</h4>
+      <ul>
+        <li>只有万、筒、条 108 张，13 张，只碰杠不吃，可以胡七对。开局先「定缺」：选一门花色不要，这门牌要先打完才能胡。</li>
+        <li>一家胡了不结束，其他人继续打，直到三家胡了或摸完牌。一张牌可以几家同时胡（一炮多响）。</li>
+        <li>番：平胡 0、对对胡 1、金钩钓 2、清一色 2、七对 2、全带幺 2、清对 3、将对 3、龙七对 3、清七对 4、清龙七对 5、每个根（4 张一样）+1、自摸 +1、杠上花 +1、杠上炮 +1、抢杠胡 +1、海底 +1。最多 4 番。结算 2^番 × 底：自摸每家（没胡的）付，点炮由放炮的人付。</li>
+        <li>刮风下雨（杠马上收钱）：明杠放杠的人付 2 底，暗杠每家付 2 底，补杠每家付 1 底。摸完牌：没定缺干净的「花猪」赔每家 4 番；没听牌的赔给听牌的人他能胡的最大番（查大叫）。</li>
+      </ul>
+      <h4>台湾十六张</h4>
+      <ul>
+        <li>144 张（含 8 张花），16 张，胡 5 组 + 1 对，可吃碰杠，最后留 16 张不摸。结算：底 + 台数 × 每台（每台 = 底 ÷ 5）；自摸三家各付，放枪由放枪的人付。</li>
+        <li>台：庄家 1（连 n 拉 n 再加 2n）、门清 1、自摸 1、门清自摸 3、全求人 2、平胡 2、碰碰胡 4、三暗刻 2、四暗刻 5、五暗刻 8、混一色 4、清一色 8、字一色 16、中发白刻子各 1、小三元 4、大三元 8、门风 1、圈风 1、小四喜 8、大四喜 16、正花每只 1、花杠 2、八仙过海 8、独听 1、杠上开花 1、抢杠 1、海底捞月 / 河底捞鱼 1、天胡地胡 16。庄家参与的付款都加庄家的台。</li>
       </ul>
     </div></div>
   </section>
@@ -3384,7 +3541,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
 
   /* ---------- Navigation and sheets ---------- */
-  const VIEWS = ["lobby", "online", "room", "proom", "baccarat", "dt", "blackjack", "roulette", "poker", "holdem", "niu", "sss", "slots", "dragon", "gems", "fruit", "diver", "thor"];
+  const VIEWS = ["lobby", "online", "room", "proom", "baccarat", "dt", "blackjack", "roulette", "poker", "holdem", "niu", "sss", "mj", "slots", "dragon", "gems", "fruit", "diver", "thor"];
   const MACHINES = ["dragon", "gems", "fruit", "diver", "thor", "slots"], MACHINE_NAME = { dragon: "龙腾财宝", gems: "宝石瀑布", fruit: "水果转轮", diver: "深海寻宝", thor: "雷神之锤", slots: "幸运 7" };
   function show(v) {
     if (!VIEWS.includes(v)) v = "lobby";
@@ -3408,6 +3565,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (v === "proom") prRender();
     if (v === "online") onRender();
     if (v === "sss") ssRender();
+    if (v === "mj") mjRender();
     if (v === "dragon" || v === "thor") fitCabinet(v);
     // fetch a machine's win animation as soon as the machine opens, so it is ready for the first win
     if ((v === "dragon" || v === "thor") && !show["art" + v]) { show["art" + v] = true; (new Image()).src = "art/" + v + "-reward-24.webp"; }
@@ -3492,8 +3650,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       return [$("#v-" + m + " .btable")];
     });
   });
-  const hashView = () => { const h = location.hash.slice(1); return h.startsWith("room=") ? "room" : h.startsWith("proom=") ? "proom" : h.startsWith("sss=") ? "sss" : h || "lobby"; };
-  window.addEventListener("hashchange", () => { show(hashView()); if (hashView() === "room") rmFromHash(); if (hashView() === "proom") prFromHash(); if (hashView() === "sss") ssFromHash(); });
+  const hashView = () => { const h = location.hash.slice(1); return h.startsWith("room=") ? "room" : h.startsWith("proom=") ? "proom" : h.startsWith("sss=") ? "sss" : h.startsWith("mj=") ? "mj" : h || "lobby"; };
+  window.addEventListener("hashchange", () => { show(hashView()); if (hashView() === "room") rmFromHash(); if (hashView() === "proom") prFromHash(); if (hashView() === "sss") ssFromHash(); if (hashView() === "mj") mjFromHash(); });
   $$("[data-rules]").forEach((b) => b.addEventListener("click", () => { closePops(); $("#" + b.dataset.rules).hidden = false; }));
   $$(".sheet").forEach((sh) => sh.addEventListener("click", (e) => {
     if (e.target === sh || e.target.closest("[data-close]")) sh.hidden = true;
@@ -5887,16 +6045,18 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (!$("#onName").value) { try { $("#onName").value = localStorage.getItem("gbc-name") || ""; } catch (e) {} }
     const back = [];
     if (rm.peer) back.push('<button class="btn" type="button" data-go="room">回到百家乐房间 ' + rm.code + "</button>");
+    if (mjOpen()) back.push('<button class="btn" type="button" data-go="mj">回到' + (mj.practice ? "麻将练习桌" : "麻将房间 " + mjNet.code) + "</button>");
     if (ssOpen()) back.push('<button class="btn" type="button" data-go="sss">回到' + (ss.practice ? "十三张练习桌" : "十三张房间 " + ssNet.code) + "</button>");
     if (pr.peer || pr.practice) back.push('<button class="btn" type="button" data-go="proom">回到' + (pr.practice ? "德州练习桌" : "德州房间 " + pr.code) + "</button>");
     $("#onBack").innerHTML = back.join(""); $("#onBack").hidden = !back.length;
     $$("#onBack [data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
   }
-  const onSyncName = () => { const n = ($("#onName").value || "").trim(); if (n) { $("#rmName").value = n; $("#prName").value = n; $("#ssName").value = n; try { localStorage.setItem("gbc-name", n); } catch (e) {} } };
+  const onSyncName = () => { const n = ($("#onName").value || "").trim(); if (n) { $("#rmName").value = n; $("#prName").value = n; $("#ssName").value = n; $("#mjName").value = n; try { localStorage.setItem("gbc-name", n); } catch (e) {} } };
   $$("#v-online .on-card").forEach((b) => b.addEventListener("click", () => {
     onSyncName();
     if (b.dataset.on === "room") { go("room"); if (!rm.peer) rmCreate(); }
     else if (b.dataset.on === "sss") { go("sss"); if (!ssOpen()) ssCreate(); }
+    else if (b.dataset.on === "mj") { go("mj"); if (!mjOpen()) mjStatus("选好玩法和底，再点「开麻将房间」"); }
     else { go("proom"); if (!pr.peer && !pr.practice) prStatus("选好盲注和带入筹码，再点「开一个德州房间」"); }
   }));
   function onJoin() {
@@ -5906,6 +6066,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     msg($("#onStatus"), "");
     if (+code[0] < 5) { $("#rmCode").value = code; go("room"); rmJoin(code); }
     else if (code[0] === "8") { $("#ssCode").value = code; go("sss"); ssJoin(code); }
+    else if (code[0] === "9") { $("#mjCode").value = code; go("mj"); mjJoin(code); }
     else { $("#prCode").value = code; go("proom"); prJoin(code); }
   }
   $("#onJoin").addEventListener("click", onJoin);
@@ -5918,6 +6079,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     rm: { me: () => rm.me, view: "room", title: () => "百家乐房间 " + rm.code, send: (text) => rmToHost({ t: "chat", text }) },
     pr: { me: () => pr.me, view: "proom", title: () => "德州房间 " + pr.code, send: (text) => prSend({ t: "chat", text }) },
     ss: { me: () => ssNet.me, view: "sss", title: () => "十三张房间 " + ssNet.code, send: (text) => ssNet.toHost({ t: "chat", text }) },
+    mj: { me: () => mjNet.me, view: "mj", title: () => "麻将房间 " + mjNet.code, send: (text) => mjNet.toHost({ t: "chat", text }) },
   };
   function chatAdd(room, from, text) {
     const c = chat[room];
@@ -6552,6 +6714,947 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   $$("#ssEmo button:not(.chatbtn)").forEach((b) => b.addEventListener("click", () => { if (ssOpen() && !ss.practice) ssNet.toHost({ t: "say", text: b.dataset.say || b.textContent }); }));
   setInterval(() => { if (S.view === "sss" && ss.st && ss.st.phase === "arrange") ssRenderBar(); }, 1000);
   function ssFromHash() { const m = /^#sss=(\d{6})$/.exec(location.hash); if (m) { $("#ssCode").value = m[1]; if (!ssOpen()) ssStatus("输入名字，点「加入」进入十三张房间 " + m[1]); } }
+  /* ===================== 麻将 — shared engine =====================
+     Tiles are codes: 0–8 万 1–9 · 9–17 筒 · 18–26 条 · 27–30 东南西北 · 31–33 中发白 · 34–37 春夏秋冬 · 38–41 梅兰竹菊.
+     Three rule sets share the engine: 港式 (广东牌), 四川血战到底, 台湾十六张. */
+  const MJ_NUM = ["一", "二", "三", "四", "五", "六", "七", "八", "九"], MJ_SUIT = ["万", "筒", "条"];
+  const MJ_HONOR = ["东", "南", "西", "北", "中", "发", "白"], MJ_FLOWER = ["春", "夏", "秋", "冬", "梅", "兰", "竹", "菊"];
+  const mjSuit = (t) => (t < 27 ? Math.floor(t / 9) : t < 34 ? 3 : 4);
+  const mjNum = (t) => (t % 9) + 1;
+  const mjIsHonor = (t) => t >= 27 && t < 34;
+  const mjIsTerm = (t) => t < 27 && (t % 9 === 0 || t % 9 === 8);
+  const mjIsFlower = (t) => t >= 34;
+  const mjName = (t) => (t < 27 ? MJ_NUM[t % 9] + MJ_SUIT[mjSuit(t)] : t < 34 ? MJ_HONOR[t - 27] : MJ_FLOWER[t - 34]);
+  const MJ_VARIANTS = {
+    hk: { name: "港式麻将", short: "港式", hand: 13, flowers: true, honors: true, chow: true, sevenPairs: false, orphans: true, bloody: false, que: false },
+    sc: { name: "四川血战到底", short: "四川", hand: 13, flowers: false, honors: false, chow: false, sevenPairs: true, orphans: false, bloody: true, que: true },
+    tw: { name: "台湾十六张", short: "台湾", hand: 16, flowers: true, honors: true, chow: true, sevenPairs: false, orphans: false, bloody: false, que: false, keep: 16 },
+  };
+  function mjWall(v) {
+    const w = [];
+    const kinds = v.honors ? 34 : 27;
+    for (let t = 0; t < kinds; t++) for (let k = 0; k < 4; k++) w.push(t);
+    if (v.flowers) for (let t = 34; t < 42; t++) w.push(t);
+    for (let i = w.length - 1; i > 0; i--) { const j = rand(i + 1); [w[i], w[j]] = [w[j], w[i]]; }
+    return w;
+  }
+  const mjCounts = (tiles) => { const c = new Array(34).fill(0); tiles.forEach((t) => { if (t < 34) c[t]++; }); return c; };
+  // every way to split the concealed tiles into sets plus one pair
+  function mjDecomp(c, sets) {
+    const out = [];
+    for (let p = 0; p < 34; p++) {
+      if (c[p] < 2) continue;
+      c[p] -= 2;
+      const melds = [];
+      (function rec(i) {
+        while (i < 34 && !c[i]) i++;
+        if (i === 34) { if (melds.length === sets) out.push({ pair: p, melds: melds.slice() }); return; }
+        if (c[i] >= 3) { c[i] -= 3; melds.push({ k: "pung", t: i }); rec(i); melds.pop(); c[i] += 3; }
+        if (i < 27 && i % 9 <= 6 && c[i + 1] && c[i + 2]) { c[i]--; c[i + 1]--; c[i + 2]--; melds.push({ k: "chow", t: i }); rec(i); melds.pop(); c[i]++; c[i + 1]++; c[i + 2]++; }
+      })(0);
+      c[p] += 2;
+    }
+    return out;
+  }
+  const MJ_ORPH = [0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33];
+  // is this concealed hand (with `sets` sets still to make) a win? returns the shapes it wins with
+  function mjWinShapes(tiles, sets, v) {
+    const c = mjCounts(tiles), shapes = mjDecomp(c, sets).map((d) => ({ kind: "std", ...d }));
+    if (v.sevenPairs && sets === 4 && tiles.length === 14 && c.every((n) => n === 0 || n === 2 || n === 4)) shapes.push({ kind: "7p" });
+    if (v.orphans && sets === 4 && tiles.length === 14 && MJ_ORPH.every((t) => c[t] >= 1) && MJ_ORPH.some((t) => c[t] === 2)) shapes.push({ kind: "13o" });
+    return shapes;
+  }
+  /* shanten: how many tiles away from ready (−1 = complete). Standard search over sets, partial sets and a pair. */
+  // each suit on its own: every useful (sets, partial sets, pair) mix it can make, cached by its pattern
+  const MJ_SUIT_MEMO = new Map();
+  function mjSuitMix(c, honor) {
+    const key = (honor ? "h" : "s") + c.join("");
+    let hit = MJ_SUIT_MEMO.get(key);
+    if (hit) return hit;
+    const res = new Map();
+    (function rec(i, m, t, p) {
+      while (i < c.length && !c[i]) i++;
+      if (i === c.length) { const k = m * 100 + t * 10 + p; res.set(k, [m, t, p]); return; }
+      if (c[i] >= 3) { c[i] -= 3; rec(i, m + 1, t, p); c[i] += 3; }
+      if (!honor && i <= 6 && c[i + 1] && c[i + 2]) { c[i]--; c[i + 1]--; c[i + 2]--; rec(i, m + 1, t, p); c[i]++; c[i + 1]++; c[i + 2]++; }
+      if (c[i] >= 2) { if (!p) { c[i] -= 2; rec(i, m, t, 1); c[i] += 2; } c[i] -= 2; rec(i, m, t + 1, p); c[i] += 2; }
+      if (!honor && i <= 7 && c[i + 1]) { c[i]--; c[i + 1]--; rec(i, m, t + 1, p); c[i]++; c[i + 1]++; }
+      if (!honor && i <= 6 && c[i + 2]) { c[i]--; c[i + 2]--; rec(i, m, t + 1, p); c[i]++; c[i + 2]++; }
+      const keep = c[i]; c[i] = 0; rec(i + 1, m, t, p); c[i] = keep;
+    })(0, 0, 0, 0);
+    // drop mixes another mix beats on every count
+    const all = [...res.values()];
+    hit = all.filter((a) => !all.some((b) => b !== a && b[0] >= a[0] && b[1] >= a[1] && b[2] >= a[2] && (b[0] > a[0] || b[1] > a[1] || b[2] > a[2])));
+    MJ_SUIT_MEMO.set(key, hit);
+    return hit;
+  }
+  /* shanten: how many tiles away from ready (−1 = complete) */
+  function mjShanten(tiles, sets, v) {
+    const c = mjCounts(tiles), need = sets;
+    const groups = [mjSuitMix(c.slice(0, 9), false), mjSuitMix(c.slice(9, 18), false), mjSuitMix(c.slice(18, 27), false), mjSuitMix(c.slice(27, 34), true)];
+    let best = 99;
+    (function rec(k, m, t, p) {
+      if (k === 4) { const tt = Math.min(t, need - m); const s = 2 * (need - m) - tt - p; if (s < best) best = s; return; }
+      for (const [gm, gt, gp] of groups[k]) { if (p && gp) continue; if (m + gm > need) continue; rec(k + 1, m + gm, t + gt, p || gp); }
+    })(0, 0, 0, 0);
+
+    if (v && v.sevenPairs && sets === 4) { const pairs = c.filter((n) => n >= 2).length, kinds = c.filter((n) => n > 0).length; best = Math.min(best, 6 - pairs + Math.max(0, 7 - kinds)); }
+    if (v && v.orphans && sets === 4) { const k = MJ_ORPH.filter((x) => c[x]).length, pr = MJ_ORPH.some((x) => c[x] >= 2) ? 1 : 0; best = Math.min(best, 13 - k - pr); }
+    return best;
+  }
+  // tiles that would complete a hand that is one tile short
+  function mjWaits(tiles, sets, v, seen) {
+    const out = [], c = mjCounts(tiles);
+    for (let t = 0; t < (v.honors ? 34 : 27); t++) {
+      if (c[t] >= 4) continue;
+      if (mjWinShapes(tiles.concat(t), sets, v).length) out.push(t);
+    }
+    return out;
+  }
+  const mjSetsLeft = (p, v) => (v.hand === 16 ? 5 : 4) - p.melds.length;
+
+  /* ---------- a hand of play (host side) ----------
+     seat: { id, name, bot, hand: [codes], melds: [{k: chow|pung|kong|ankong, t, from, add}], flowers: [], discards: [], won, que } */
+  function mjDeal(g) {
+    const v = MJ_VARIANTS[g.variant];
+    g.wall = mjWall(v); g.tail = 0; g.turn = g.dealer; g.last = null; g.claim = null; g.log = []; g.winners = []; g.kongDraw = false; g.firstRound = true; g.pay = [];
+    g.seats.forEach((p) => { p.hand = []; p.melds = []; p.flowers = []; p.discards = []; p.won = null; p.que = v.que ? -1 : null; p.fresh = null; p.paid = 0; });
+    for (let r = 0; r < v.hand; r++) g.seats.forEach((p) => p.hand.push(g.wall.pop()));
+    g.seats.forEach((p, i) => mjFlowers(g, i));
+    g.seats.forEach((p) => p.hand.sort((a, b) => a - b));
+    g.phase = v.que ? "que" : "play";
+    if (!v.que) mjDraw(g, g.dealer, false, true);
+  }
+  // flowers go face up beside the player and are replaced from the back of the wall
+  function mjFlowers(g, i) {
+    const p = g.seats[i];
+    let f;
+    while ((f = p.hand.findIndex(mjIsFlower)) >= 0) {
+      p.flowers.push(p.hand.splice(f, 1)[0]);
+      if (mjWallLeft(g) <= 0) break;
+      p.hand.push(g.wall.shift());
+    }
+  }
+  const mjWallLeft = (g) => g.wall.length - (MJ_VARIANTS[g.variant].keep || 0);
+  function mjDraw(g, i, fromTail, first) {
+    const p = g.seats[i];
+    if (mjWallLeft(g) <= 0) return false;
+    let t = fromTail ? g.wall.shift() : g.wall.pop();
+    p.hand.push(t);
+    let flower = false;
+    while (mjIsFlower(p.hand[p.hand.length - 1])) {
+      p.flowers.push(p.hand.pop()); flower = true;
+      if (mjWallLeft(g) <= 0) return false;
+      p.hand.push(g.wall.shift());
+    }
+    p.fresh = p.hand[p.hand.length - 1];
+    g.kongDraw = !!fromTail;
+    g.turn = i; g.step = "discard";
+    return true;
+  }
+  // what the player on turn may do with 14 (or 17) tiles: 自摸, 暗杠, 补杠
+  function mjSelfOptions(g, i) {
+    const v = MJ_VARIANTS[g.variant], p = g.seats[i], o = { win: false, kongs: [] };
+    if (p.que >= 0 && p.hand.some((t) => mjSuit(t) === p.que)) { o.queLeft = true; }
+    const shapes = o.queLeft ? [] : mjWinShapes(p.hand, mjSetsLeft(p, v), v);
+    if (shapes.length && mjMinOk(g, i, p.fresh, true)) o.win = true;
+    if (mjWallLeft(g) > 0) {
+      const c = mjCounts(p.hand);
+      for (let t = 0; t < 34; t++) if (c[t] === 4 && !(p.que >= 0 && mjSuit(t) === p.que)) o.kongs.push({ k: "ankong", t });
+      p.melds.forEach((m) => { if (m.k === "pung" && c[m.t]) o.kongs.push({ k: "add", t: m.t }); });
+      // after a win in 血战 the hand is locked: only kongs that keep the same waits are allowed (kept simple: none)
+      if (p.won) o.kongs = [];
+    }
+    return o;
+  }
+  // what each other player may claim on a discard
+  function mjClaimOptions(g, from, t) {
+    const v = MJ_VARIANTS[g.variant], out = {};
+    for (let k = 1; k < 4; k++) {
+      const i = (from + k) % 4, p = g.seats[i];
+      if (p.won && v.bloody) continue;
+      const o = {};
+      const queBad = p.que >= 0 && (mjSuit(t) === p.que || p.hand.some((x) => mjSuit(x) === p.que));
+      if (!queBad && mjWinShapes(p.hand.concat(t), mjSetsLeft(p, v), v).length && mjMinOk(g, i, t, false)) o.win = true;
+      const n = p.hand.filter((x) => x === t).length, queT = p.que >= 0 && mjSuit(t) === p.que;
+      if (!p.won && !queT && n >= 2) o.pung = true;
+      if (!p.won && !queT && n >= 3 && mjWallLeft(g) > 0) o.kong = true;
+      if (!p.won && v.chow && k === 1 && t < 27) {
+        const has = (x) => x >= 0 && x < 27 && mjSuit(x) === mjSuit(t) && p.hand.includes(x);
+        const chows = [];
+        const n0 = t % 9;
+        if (n0 >= 2 && has(t - 2) && has(t - 1)) chows.push(t - 2);
+        if (n0 >= 1 && n0 <= 7 && has(t - 1) && has(t + 1)) chows.push(t - 1);
+        if (n0 <= 6 && has(t + 1) && has(t + 2)) chows.push(t);
+        if (chows.length) o.chow = chows;
+      }
+      if (Object.keys(o).length) out[i] = o;
+    }
+    return out;
+  }
+  // minimum 番 / 台 to declare a win
+  function mjMinOk(g, i, t, self) {
+    const min = g.minFan || 0;
+    if (!min) return true;
+    const s = mjScore(g, i, t, self, null, true);
+    return s && s.fan >= min;
+  }
+  /* ---------- scoring ---------- */
+  // build the full hand view: concealed sets from the chosen shape plus the open melds
+  function mjAllSets(p, shape) {
+    const sets = p.melds.map((m) => ({ k: m.k === "chow" ? "chow" : "pung", t: m.t, open: m.k !== "ankong", kong: m.k === "kong" || m.k === "ankong" }));
+    if (shape.kind === "std") shape.melds.forEach((m) => sets.push({ k: m.k, t: m.t, open: false, kong: false }));
+    return sets;
+  }
+  // score a win for seat i on tile t (already in hand when self-drawn). ctx: { self, kongDraw, robKong, lastTile, kongDiscard, heaven, earth }
+  function mjScore(g, i, t, self, ctx, quick) {
+    const v = MJ_VARIANTS[g.variant], p = g.seats[i];
+    const tiles = self ? p.hand.slice() : p.hand.concat(t);
+    const shapes = mjWinShapes(tiles, mjSetsLeft(p, v), v);
+    if (!shapes.length) return null;
+    ctx = ctx || {};
+    let best = null;
+    for (const sh of shapes) {
+      const r = g.variant === "hk" ? mjFanHK(g, i, tiles, sh, t, self, ctx) : g.variant === "sc" ? mjFanSC(g, i, tiles, sh, t, self, ctx) : mjFanTW(g, i, tiles, sh, t, self, ctx);
+      if (!best || r.fan > best.fan) best = r;
+    }
+    return best;
+  }
+  const mjAll = (tiles, p) => tiles.concat(...p.melds.map((m) => (m.k === "chow" ? [m.t, m.t + 1, m.t + 2] : [m.t, m.t, m.t])));
+  function mjSuits(tiles, p) { const s = new Set(mjAll(tiles, p).map(mjSuit)); return s; }
+  function mjFanHK(g, i, tiles, sh, t, self, ctx) {
+    const p = g.seats[i], items = [], add = (n, f) => items.push([n, f]);
+    const seatWind = 27 + ((i - g.dealer + 4) % 4), roundWind = 27 + (g.round || 0);
+    const closed = p.melds.every((m) => m.k === "ankong");
+    let limit = 0;
+    if (sh.kind === "13o") limit = 13;
+    const sets = sh.kind === "std" ? mjAllSets(p, sh) : [];
+    const pungs = sets.filter((s) => s.k === "pung"), chows = sets.filter((s) => s.k === "chow");
+    const suits = mjSuits(tiles, p), num = [...suits].filter((s) => s < 3), honors = suits.has(3);
+    if (sh.kind === "std") {
+      const dragons = pungs.filter((s) => s.t >= 31).length, winds = pungs.filter((s) => s.t >= 27 && s.t <= 30).length;
+      if (dragons === 3) limit = Math.max(limit, 8);
+      else if (dragons === 2 && sh.pair >= 31) add("小三元", 5);
+      if (winds === 4) limit = 13; else if (winds === 3 && sh.pair >= 27 && sh.pair <= 30) limit = Math.max(limit, 10);
+      if (!num.length) limit = Math.max(limit, 10);                                   // 字一色
+      if (pungs.length === 4 && sets.every((s) => s.k === "pung") && [...mjAll(tiles, p)].every((x) => mjIsTerm(x))) limit = Math.max(limit, 10);  // 清幺九
+      if (pungs.filter((s) => !s.open).length === 4 && (self || pungs.some((s) => !s.open && s.t !== t))) limit = Math.max(limit, 8);  // 坎坎糊
+      if (sets.filter((s) => s.kong).length === 4) limit = 13;                       // 十八罗汉
+      if (closed && num.length === 1 && !honors && !p.melds.length) {               // 九莲宝灯
+        const c = mjCounts(tiles), b = num[0] * 9, base = [3, 1, 1, 1, 1, 1, 1, 1, 3];
+        if (base.every((n, k) => c[b + k] >= n)) limit = 13;
+      }
+      if (!limit) {
+        if (pungs.length === 4) add("对对糊", 3);
+        else if (chows.length === 4) add("平糊", 1);
+        if (num.length === 1) add(honors ? "混一色" : "清一色", honors ? 3 : 7);
+        pungs.forEach((s) => { if (s.t >= 31) add(MJ_HONOR[s.t - 27] + "（番子）", 1); });
+        if (pungs.some((s) => s.t === seatWind)) add("门风", 1);
+        if (pungs.some((s) => s.t === roundWind)) add("圈风", 1);
+      }
+    }
+    if (!limit) {
+      if (self) add("自摸", 1);
+      if (closed) add("门前清", 1);
+      const own = p.flowers.filter((f) => (f - 34) % 4 === (i - g.dealer + 4) % 4).length;
+      if (!p.flowers.length) add("无花", 1); else if (own) add("正花", own);
+      if ([34, 35, 36, 37].every((f) => p.flowers.includes(f)) || [38, 39, 40, 41].every((f) => p.flowers.includes(f))) add("一台花", 1);
+      if (ctx.kongDraw) add("杠上开花", 2);
+      if (ctx.robKong) add("抢杠", 1);
+      if (ctx.lastTile) add("海底捞月", 1);
+      if (ctx.heaven || ctx.earth) limit = 13;
+    }
+    if (limit) { items.length = 0; add(sh.kind === "13o" ? "十三幺" : ctx.heaven ? "天糊" : ctx.earth ? "地糊" : "满糊", limit); }
+    if (!items.length) add("鸡糊", 0);
+    const fan = Math.min(items.reduce((a, x) => a + x[1], 0), g.cap || 10);
+    return { fan, items };
+  }
+  function mjFanSC(g, i, tiles, sh, t, self, ctx) {
+    const p = g.seats[i], items = [], add = (n, f) => items.push([n, f]);
+    const all = mjAll(tiles, p), c = mjCounts(all), suits = new Set(all.map(mjSuit));
+    const qing = suits.size === 1;
+    const roots = c.filter((n) => n === 4).length;
+    if (sh.kind === "7p") {
+      const dragon = c.some((n) => n === 4);
+      add(qing ? (dragon ? "清龙七对" : "清七对") : dragon ? "龙七对" : "七对", qing ? (dragon ? 5 : 4) : dragon ? 3 : 2);
+      if (roots > 1) add("根 ×" + (roots - 1), roots - 1);
+    } else {
+      const sets = mjAllSets(p, sh), allPung = sets.every((s) => s.k === "pung");
+      const yaojiu = sets.every((s) => (s.k === "pung" ? mjIsTerm(s.t) : s.t % 9 === 0 || s.t % 9 === 6)) && mjIsTerm(sh.pair);
+      const jiang = allPung && sets.every((s) => [1, 4, 7].includes(s.t % 9)) && [1, 4, 7].includes(sh.pair % 9);
+      if (jiang) add("将对", 3);
+      else if (qing && allPung) add("清对", 3);
+      else if (qing && yaojiu) add("清带幺", 3);
+      else if (qing) add("清一色", 2);
+      else if (yaojiu) add("全带幺", 2);
+      else if (allPung) add(p.melds.length === 4 ? "金钩钓" : "对对胡", p.melds.length === 4 ? 2 : 1);
+      if (roots) add("根 ×" + roots, roots);
+    }
+    if (self) add("自摸", 1);
+    if (ctx.kongDraw) add("杠上花", 1);
+    if (ctx.kongDiscard) add("杠上炮", 1);
+    if (ctx.robKong) add("抢杠胡", 1);
+    if (ctx.lastTile) add("海底" + (self ? "捞月" : "炮"), 1);
+    if (ctx.heaven) add("天胡", 9); else if (ctx.earth) add("地胡", 9);
+    if (!items.length) add("平胡", 0);
+    const fan = Math.min(items.reduce((a, x) => a + x[1], 0), g.cap || 4);
+    return { fan, items };
+  }
+  function mjFanTW(g, i, tiles, sh, t, self, ctx) {
+    const p = g.seats[i], items = [], add = (n, f) => items.push([n, f]);
+    const seatPos = (i - g.dealer + 4) % 4, seatWind = 27 + seatPos, roundWind = 27 + (g.round || 0);
+    const sets = mjAllSets(p, sh), pungs = sets.filter((s) => s.k === "pung"), chows = sets.filter((s) => s.k === "chow");
+    const open = p.melds.filter((m) => m.k !== "ankong").length;
+    const suits = mjSuits(tiles, p), num = [...suits].filter((s) => s < 3), honors = suits.has(3);
+    if (ctx.heaven) add("天胡", 16); else if (ctx.earth) add("地胡", 16);
+    if (!open && self) add("门清自摸", 3); else { if (!open) add("门清", 1); if (self) add("自摸", 1); }
+    if (open === mjSetsLeft({ melds: [] }, MJ_VARIANTS.tw) && !self) add("全求人", 2);
+    const dragons = pungs.filter((s) => s.t >= 31).length, winds = pungs.filter((s) => s.t >= 27 && s.t <= 30).length;
+    if (dragons === 3) add("大三元", 8); else if (dragons === 2 && sh.pair >= 31) add("小三元", 4); else pungs.forEach((s) => { if (s.t >= 31) add(MJ_HONOR[s.t - 27], 1); });
+    if (winds === 4) add("大四喜", 16); else if (winds === 3 && sh.pair >= 27 && sh.pair <= 30) add("小四喜", 8);
+    else { if (pungs.some((s) => s.t === seatWind)) add("门风 " + MJ_HONOR[seatWind - 27], 1); if (pungs.some((s) => s.t === roundWind)) add("圈风 " + MJ_HONOR[roundWind - 27], 1); }
+    if (!num.length) add("字一色", 16); else if (num.length === 1) add(honors ? "混一色" : "清一色", honors ? 4 : 8);
+    if (pungs.length === sets.length) add("碰碰胡", 4);
+    else if (chows.length === sets.length && !honors && !p.flowers.length && !self && !mjIsHonor(sh.pair)) add("平胡", 2);
+    // concealed pungs: a pung completed by someone else's discard is not concealed
+    const hidden = pungs.filter((s) => !s.open && (self || s.t !== t || sh.pair === t)).length;
+    if (hidden >= 5) add("五暗刻", 8); else if (hidden === 4) add("四暗刻", 5); else if (hidden === 3) add("三暗刻", 2);
+    const own = p.flowers.filter((f) => (f - 34) % 4 === seatPos).length;
+    if (p.flowers.length === 8) add("八仙过海", 8);
+    else {
+      if (own) add("正花", own);
+      if ([34, 35, 36, 37].every((f) => p.flowers.includes(f))) add("花杠 春夏秋冬", 2);
+      if ([38, 39, 40, 41].every((f) => p.flowers.includes(f))) add("花杠 梅兰竹菊", 2);
+    }
+    // 独听: the hand before winning waited on this one tile only
+    const before = self ? tiles.filter((x, k) => k !== tiles.lastIndexOf(t)) : tiles.slice(0, -1);
+    if (!quickWaitsSkip(ctx) && mjWaits(before, mjSetsLeft(p, MJ_VARIANTS.tw), MJ_VARIANTS.tw).length === 1) add("独听", 1);
+    if (ctx.kongDraw) add("杠上开花", 1);
+    if (ctx.robKong) add("抢杠", 1);
+    if (ctx.lastTile) add(self ? "海底捞月" : "河底捞鱼", 1);
+    if (i === g.dealer) add("庄家" + (g.streak ? " 连" + g.streak + "拉" + g.streak : ""), 1 + 2 * (g.streak || 0));
+    const fan = items.reduce((a, x) => a + x[1], 0);
+    return { fan, items };
+  }
+  const quickWaitsSkip = (ctx) => !!ctx.noWaits;
+
+  /* ---------- AI ---------- */
+  // pick a discard: keep the hand closest to ready (shanten), then the one with the most useful draws
+  function mjBotDiscard(g, i) {
+    const v = MJ_VARIANTS[g.variant], p = g.seats[i], sets = mjSetsLeft(p, v);
+    if (p.won) return p.fresh != null && p.hand.includes(p.fresh) ? p.fresh : p.hand[p.hand.length - 1];   // 血战: after winning, tsumogiri
+    if (p.que >= 0) { const q = p.hand.filter((t) => mjSuit(t) === p.que); if (q.length) return q.sort((a, b) => Math.abs(4 - (a % 9)) - Math.abs(4 - (b % 9)))[q.length - 1]; }
+    const seen = mjVisible(g);
+    let best = null;
+    for (const t of [...new Set(p.hand)]) {
+      const rest = p.hand.slice(); rest.splice(rest.indexOf(t), 1);
+      const sh = mjShanten(rest, sets, v);
+      let uk = 0;
+      if (sh <= 3) for (let x = 0; x < (v.honors ? 34 : 27); x++) { const left = 4 - seen[x] - rest.filter((y) => y === x).length; if (left > 0 && mjShanten(rest.concat(x), sets, v) < sh) uk += left; }
+      // isolated honours and terminals go first when it makes no difference
+      const iso = mjIsHonor(t) ? 3 : mjIsTerm(t) ? 2 : 1;
+      const danger = mjDanger(g, i, t);
+      const score = -sh * 1000 + uk * 10 + iso - danger;
+      if (!best || score > best.score) best = { t, score };
+    }
+    return best.t;
+  }
+  // tiles everyone can see (discards, open melds) — for counting what is left
+  function mjVisible(g) {
+    const c = new Array(34).fill(0);
+    g.seats.forEach((p) => { p.discards.forEach((t) => { if (t < 34) c[t]++; }); p.melds.forEach((m) => { (m.k === "chow" ? [m.t, m.t + 1, m.t + 2] : m.k === "pung" ? [m.t, m.t, m.t] : [m.t, m.t, m.t, m.t]).forEach((x) => c[x]++); }); });
+    return c;
+  }
+  // a little caution: a tile someone just discarded is safe against them, honours others threw are safer
+  function mjDanger(g, i, t) {
+    let d = 0;
+    g.seats.forEach((q, k) => { if (k === i || (q.won && MJ_VARIANTS[g.variant].bloody)) return; if (q.melds.length >= 2 && !q.discards.includes(t)) d += 2; });
+    return d;
+  }
+  function mjBotClaim(g, i, o, t) {
+    const v = MJ_VARIANTS[g.variant], p = g.seats[i], sets = mjSetsLeft(p, v);
+    if (o.win) return { a: "win" };
+    const now = mjShanten(p.hand, sets, v);
+    if (o.kong) return { a: "kong" };
+    if (o.pung) {
+      const rest = p.hand.slice(); rest.splice(rest.indexOf(t), 1); rest.splice(rest.indexOf(t), 1);
+      // pung honours that score; otherwise only when it does not slow the hand down
+      const scoring = v.honors && (t >= 31 || t === 27 + ((i - g.dealer + 4) % 4) || t === 27 + (g.round || 0));
+      let bestAfter = 99; for (const d of new Set(rest)) { const r2 = rest.slice(); r2.splice(r2.indexOf(d), 1); bestAfter = Math.min(bestAfter, mjShanten(r2, sets - 1, v)); }
+      if (scoring || bestAfter < now) return { a: "pung" };
+    }
+    if (o.chow) {
+      for (const s of o.chow) {
+        const rest = p.hand.slice(); [s, s + 1, s + 2].filter((x) => x !== t).forEach((x) => rest.splice(rest.indexOf(x), 1));
+        let bestAfter = 99; for (const d of new Set(rest)) { const r2 = rest.slice(); r2.splice(r2.indexOf(d), 1); bestAfter = Math.min(bestAfter, mjShanten(r2, sets - 1, v)); }
+        if (bestAfter < now) return { a: "chow", s };
+      }
+    }
+    return { a: "pass" };
+  }
+  function mjBotQue(p) { const n = [0, 1, 2].map((s) => p.hand.filter((t) => mjSuit(t) === s).length); return n.indexOf(Math.min(...n)); }
+  /* ---------- the flow of a hand (runs on the host) ---------- */
+  const MJ_HK_UNIT = [1, 2, 4, 8, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384];
+  function mjLater(g, fn, ms) {
+    const seq = g.seq;
+    const run = () => { if (g.seq === seq && !g.dead) fn(); };
+    if (g.sim) g.queue.push(run); else setTimeout(run, ms);
+  }
+  const mjBump = (g) => { g.seq = (g.seq || 0) + 1; };
+  function mjNewHand(g) {
+    mjBump(g);
+    g.handNo++; g.result = null;
+    mjDeal(g);
+    g.seats.forEach((p) => { p.score = 0; });
+    if (g.phase === "que") {
+      g.deadline = g.timed ? Date.now() + 15000 : 0;
+      g.seats.forEach((p, i) => { if (p.bot) mjLater(g, () => mjQue(g, i, mjBotQue(p)), 400 + rand(600)); });
+    } else mjTurn(g);
+    g.push();
+  }
+  function mjQue(g, i, s) {
+    const p = g.seats[i];
+    if (g.phase !== "que" || p.que >= 0 || !(s >= 0 && s <= 2)) return;
+    p.que = s;
+    if (g.seats.every((q) => q.que >= 0)) { mjBump(g); g.phase = "play"; mjDraw(g, g.dealer, false, true); mjTurn(g); }
+    g.push();
+  }
+  // the player on turn has drawn: wait for a discard (or 自摸 / 杠)
+  function mjTurn(g) {
+    mjBump(g);
+    g.step = "discard"; g.claim = null;
+    const i = g.turn, p = g.seats[i];
+    g.self = mjSelfOptions(g, i);
+    g.deadline = g.timed && !p.bot ? Date.now() + (p.won ? 4000 : 20000) : 0;
+    if (p.bot || (p.won && MJ_VARIANTS[g.variant].bloody)) mjLater(g, () => mjBotTurn(g, i), p.bot ? 550 + rand(500) : 700);
+  }
+  function mjBotTurn(g, i) {
+    const p = g.seats[i], o = g.self;
+    if (o.win) { mjSelfWin(g, i); return; }
+    if (o.kongs.length && !p.won) {
+      const k = o.kongs[0], v = MJ_VARIANTS[g.variant];
+      const rest = p.hand.filter((t) => t !== k.t);
+      if (k.k === "add" || mjShanten(rest, mjSetsLeft(p, v) - 1, v) <= mjShanten(p.hand.slice(0, -1), mjSetsLeft(p, v), v)) { mjKong(g, i, k); return; }
+    }
+    mjDiscard(g, i, mjBotDiscard(g, i));
+  }
+  function mjDiscard(g, i, t) {
+    const p = g.seats[i], k = p.hand.indexOf(t);
+    if (g.phase !== "play" || g.step !== "discard" || g.turn !== i || k < 0) return false;
+    if (p.que >= 0 && mjSuit(t) !== p.que && p.hand.some((x) => mjSuit(x) === p.que)) return false;   // 定缺 tiles go first
+    mjBump(g);
+    p.hand.splice(k, 1); p.hand.sort((a, b) => a - b); p.fresh = null;
+    p.discards.push(t);
+    g.last = { from: i, t, afterKong: g.kongDraw };
+    g.kongDraw = false;
+    SNDq(g, "discard");
+    mjOpenClaims(g, i, t, null);
+    g.push();
+    return true;
+  }
+  function SNDq(g, k) { if (g.onSound) g.onSound(k); }
+  // others may claim the tile; robKong = the 补杠 being robbed
+  function mjOpenClaims(g, from, t, robKong) {
+    let opts = mjClaimOptions(g, from, t);
+    if (robKong) { for (const s in opts) { opts[s] = opts[s].win ? { win: true } : null; if (!opts[s]) delete opts[s]; } }
+    if (!Object.keys(opts).length) { if (robKong) mjFinishKong(g, from, robKong); else mjNext(g, from); return; }
+    g.step = "claim";
+    g.claim = { from, t, opts, resp: {}, robKong };
+    g.deadline = g.timed ? Date.now() + 10000 : 0;
+    for (const s in opts) { const i = +s; if (g.seats[i].bot) mjLater(g, () => mjClaim(g, i, mjBotClaim(g, i, opts[s], t)), 300 + rand(400)); }
+  }
+  function mjClaim(g, i, r) {
+    const c = g.claim;
+    if (!c || g.step !== "claim" || !c.opts[i] || c.resp[i]) return;
+    const o = c.opts[i];
+    if (r.a === "win" && !o.win) return;
+    if (r.a === "pung" && !o.pung) return;
+    if (r.a === "kong" && !o.kong) return;
+    if (r.a === "chow" && !(o.chow && o.chow.includes(r.s))) return;
+    c.resp[i] = r;
+    // decide as soon as nothing better can still come
+    mjResolve(g, false);
+    g.push();
+  }
+  function mjResolve(g, timeout) {
+    const c = g.claim, v = MJ_VARIANTS[g.variant];
+    const order = [1, 2, 3].map((k) => (c.from + k) % 4).filter((i) => c.opts[i]);
+    const pending = order.filter((i) => !c.resp[i]);
+    if (timeout) pending.forEach((i) => { c.resp[i] = { a: "pass" }; });
+    const left = order.filter((i) => !c.resp[i]);
+    const wins = order.filter((i) => c.resp[i] && c.resp[i].a === "win");
+    // a win beats everything; with one winner allowed, the first in turn order takes it (头跳)
+    if (v.bloody) { if (left.some((i) => c.opts[i].win)) return; }
+    else { const first = wins.length ? order.indexOf(wins[0]) : 99; if (left.some((i) => c.opts[i].win && order.indexOf(i) < first)) return; }
+    if (wins.length) { mjBump(g); mjDiscardWin(g, v.bloody ? wins : [wins[0]]); return; }
+    if (left.length) return;
+    mjBump(g);
+    const pk = order.find((i) => ["pung", "kong"].includes(c.resp[i].a)), ch = order.find((i) => c.resp[i].a === "chow");
+    if (c.robKong) { mjFinishKong(g, c.from, c.robKong); return; }
+    const taker = pk !== undefined ? pk : ch;
+    if (taker === undefined) { mjNext(g, c.from); return; }
+    const r = c.resp[taker], p = g.seats[taker], from = g.seats[c.from];
+    from.discards.pop();
+    const take = (x) => p.hand.splice(p.hand.indexOf(x), 1);
+    if (r.a === "chow") { [r.s, r.s + 1, r.s + 2].filter((x) => x !== c.t).forEach(take); p.melds.push({ k: "chow", t: r.s, from: c.from, got: c.t }); SNDq(g, "chow"); }
+    else if (r.a === "pung") { take(c.t); take(c.t); p.melds.push({ k: "pung", t: c.t, from: c.from }); SNDq(g, "pung"); }
+    else { take(c.t); take(c.t); take(c.t); p.melds.push({ k: "kong", t: c.t, from: c.from }); SNDq(g, "kong"); mjKongPay(g, taker, "kong", c.from); }
+    g.firstRound = false;
+    g.claim = null; g.turn = taker;
+    if (r.a === "kong") { if (!mjDraw(g, taker, true)) { mjExhausted(g); return; } g.kongDraw = true; }
+    mjTurnAfterClaim(g, taker, r.a === "kong");
+  }
+  function mjTurnAfterClaim(g, i, drew) {
+    mjBump(g); g.step = "discard";
+    g.self = drew ? mjSelfOptions(g, i) : { win: false, kongs: [] };
+    g.deadline = g.timed && !g.seats[i].bot ? Date.now() + 20000 : 0;
+    if (g.seats[i].bot) mjLater(g, () => mjBotTurn(g, i), 600 + rand(400));
+    g.push();
+  }
+  // next player draws
+  function mjNext(g, from) {
+    const v = MJ_VARIANTS[g.variant];
+    let i = (from + 1) % 4;
+    if (v.bloody) { let n = 0; while (g.seats[i].won && n < 4) { i = (i + 1) % 4; n++; } }
+    g.claim = null;
+    if (!mjDraw(g, i, false)) { mjExhausted(g); return; }
+    mjTurn(g); g.push();
+  }
+  // 暗杠 / 补杠 by the player on turn
+  function mjKong(g, i, k) {
+    const p = g.seats[i];
+    if (g.step !== "discard" || g.turn !== i || !g.self || !g.self.kongs.some((x) => x.k === k.k && x.t === k.t)) return;
+    mjBump(g);
+    if (k.k === "ankong") { for (let n = 0; n < 4; n++) p.hand.splice(p.hand.indexOf(k.t), 1); p.melds.push({ k: "ankong", t: k.t }); SNDq(g, "kong"); mjKongPay(g, i, "ankong"); g.firstRound = false; if (!mjDraw(g, i, true)) { mjExhausted(g); return; } g.kongDraw = true; mjTurn(g); g.push(); return; }
+    // 补杠: others may rob it
+    p.hand.splice(p.hand.indexOf(k.t), 1);
+    mjOpenClaims(g, i, k.t, { t: k.t });
+    if (g.step !== "claim") return;
+    g.push();
+  }
+  function mjFinishKong(g, i, rk) {
+    const p = g.seats[i], m = p.melds.find((x) => x.k === "pung" && x.t === rk.t);
+    m.k = "kong"; m.add = true; SNDq(g, "kong"); mjKongPay(g, i, "add");
+    g.claim = null; g.turn = i;
+    if (!mjDraw(g, i, true)) { mjExhausted(g); return; }
+    g.kongDraw = true; mjTurn(g); g.push();
+  }
+  // 四川: 刮风下雨 — kongs are paid at once
+  function mjKongPay(g, i, kind, from) {
+    if (g.variant !== "sc") return;
+    const b = g.base, others = g.seats.map((q, j) => j).filter((j) => j !== i && !g.seats[j].won);
+    if (kind === "kong") mjPay(g, from, i, 2 * b, "明杠");
+    else others.forEach((j) => mjPay(g, j, i, (kind === "ankong" ? 2 : 1) * b, kind === "ankong" ? "暗杠（下雨）" : "补杠（刮风）"));
+  }
+  function mjPay(g, from, to, amt, why) {
+    amt = Math.round(amt * 100) / 100;
+    if (!amt || from === to) return;
+    g.seats[from].score -= amt; g.seats[to].score += amt;
+    g.pay.push({ from, to, amt, why });
+  }
+  function mjSelfWin(g, i) {
+    const p = g.seats[i];
+    if (g.step !== "discard" || g.turn !== i || !g.self || !g.self.win) return;
+    mjBump(g);
+    const ctx = { kongDraw: g.kongDraw, lastTile: mjWallLeft(g) <= 0, heaven: g.firstRound && i === g.dealer && !p.discards.length, earth: g.firstRound && i !== g.dealer && !p.discards.length };
+    const sc = mjScore(g, i, p.fresh, true, ctx);
+    mjWinPay(g, i, null, sc, p.fresh);
+    p.won = { t: p.fresh, self: true, fan: sc.fan, items: sc.items, order: g.winners.length };
+    g.winners.push(i);
+    p.hand.splice(p.hand.lastIndexOf(p.fresh), 1); p.fresh = null;
+    SNDq(g, "win");
+    mjAfterWin(g, i);
+  }
+  function mjDiscardWin(g, ws) {
+    const c = g.claim, from = g.seats[c.from];
+    if (!c.robKong) from.discards.pop();
+    else { /* robbed kong: the pung stays a pung */ }
+    for (const i of ws) {
+      const p = g.seats[i];
+      const ctx = { robKong: !!c.robKong, kongDiscard: !!(g.last && g.last.afterKong && !c.robKong), lastTile: mjWallLeft(g) <= 0, earth: g.firstRound && !p.discards.length && !p.melds.length };
+      const sc = mjScore(g, i, c.t, false, ctx);
+      mjWinPay(g, i, c.from, sc, c.t);
+      p.won = { t: c.t, self: false, from: c.from, fan: sc.fan, items: sc.items, order: g.winners.length, shared: i !== ws[0] };   // 一炮多响: one tile, several winners
+      g.winners.push(i);
+    }
+    SNDq(g, "win");
+    g.claim = null;
+    mjAfterWin(g, ws[ws.length - 1]);
+  }
+  function mjWinPay(g, i, from, sc, t) {
+    const v = g.variant, b = g.base;
+    if (v === "hk") {
+      const unit = b * MJ_HK_UNIT[Math.min(sc.fan, MJ_HK_UNIT.length - 1)];
+      if (from == null) g.seats.forEach((q, j) => { if (j !== i) mjPay(g, j, i, unit, "自摸"); });
+      else mjPay(g, from, i, unit * 2, "放铳");
+    } else if (v === "sc") {
+      const unit = b * Math.pow(2, sc.fan);
+      if (from == null) g.seats.forEach((q, j) => { if (j !== i && !q.won) mjPay(g, j, i, unit, "自摸"); });
+      else mjPay(g, from, i, unit, "点炮");
+    } else {
+      const tai = b / 5, dealerTai = 1 + 2 * (g.streak || 0);
+      // a payment that involves the dealer carries the dealer's 台 (already counted when the dealer wins)
+      const amt = (j) => b + tai * (sc.fan + (j === g.dealer && i !== g.dealer ? dealerTai : 0));
+      if (from == null) g.seats.forEach((q, j) => { if (j !== i) mjPay(g, j, i, amt(j), "自摸"); });
+      else mjPay(g, from, i, amt(from), "放枪");
+    }
+  }
+  function mjAfterWin(g, last) {
+    const v = MJ_VARIANTS[g.variant];
+    if (!v.bloody || g.winners.length >= 3) { mjEndHand(g, false); return; }
+    // 血战到底: the others play on; the player after the last winner draws next
+    mjNext(g, last);
+  }
+  function mjExhausted(g) {
+    mjBump(g);
+    if (g.variant === "sc") {
+      // 查花猪 / 查大叫: still holding the void suit pays everyone; not ready pays every ready player their best hand
+      const cap = g.cap || 4, unit = (f) => g.base * Math.pow(2, f);
+      const live = g.seats.map((p, i) => i).filter((i) => !g.seats[i].won);
+      const pig = (i) => g.seats[i].hand.some((t) => mjSuit(t) === g.seats[i].que);
+      const best = {};
+      live.forEach((i) => {
+        const p = g.seats[i]; if (pig(i)) return;
+        const ws = mjWaits(p.hand, mjSetsLeft(p, MJ_VARIANTS.sc), MJ_VARIANTS.sc);
+        if (ws.length) best[i] = Math.max(...ws.map((t) => (mjScore(g, i, t, false, {}) || { fan: 0 }).fan));
+      });
+      live.forEach((i) => {
+        if (pig(i)) live.forEach((j) => { if (j !== i && !pig(j)) mjPay(g, i, j, unit(cap), "查花猪"); });
+        else if (best[i] == null) live.forEach((j) => { if (best[j] != null) mjPay(g, i, j, unit(best[j]), "查大叫"); });
+      });
+      g.seats.forEach((p, i) => { p.ready = best[i] != null; });
+    }
+    mjEndHand(g, true);
+  }
+  function mjEndHand(g, drawn) {
+    mjBump(g);
+    g.phase = "end"; g.step = null; g.claim = null; g.deadline = 0;
+    const v = MJ_VARIANTS[g.variant];
+    g.result = { drawn: drawn && !g.winners.length, winners: g.winners.slice(), pay: g.pay.slice(), score: g.seats.map((p) => p.score), dealer: g.dealer };
+    g.seats.forEach((p) => { p.total = (p.total || 0) + p.score; });
+    // who deals next
+    if (g.variant === "sc") { if (g.winners.length) g.dealer = g.winners[0]; }
+    else if (g.winners.includes(g.dealer) || !g.winners.length) g.streak = (g.streak || 0) + 1;
+    else { g.streak = 0; g.dealer = (g.dealer + 1) % 4; g.moves = (g.moves || 0) + 1; g.round = Math.floor(g.moves / 4) % 4; }
+    g.seats.forEach((p) => { if (!p.bot) p.ready = false; });
+    SNDq(g, drawn && !g.winners.length ? "draw" : "end");
+    g.push();
+  }
+  // deadlines (online): auto discard, auto pass, auto void suit
+  function mjTick(g) {
+    if (!g.deadline || Date.now() < g.deadline) return;
+    if (g.phase === "que") { g.seats.forEach((p, i) => { if (p.que < 0) mjQue(g, i, mjBotQue(p)); }); return; }
+    if (g.step === "claim") { mjBump(g); mjResolve(g, true); g.push(); return; }
+    if (g.step === "discard") { const i = g.turn, p = g.seats[i]; if (g.self && g.self.win && p.won) { mjSelfWin(g, i); return; } mjDiscard(g, i, mjBotDiscard(g, i)); }
+  }
+  /* ======================================================
+     麻将 — practice table (you + 3 AI) or an online room (2–4 people, AI fill the rest); the host's phone runs the game
+     ====================================================== */
+  const MJ_PREFIX = "gbcmj-", MJ_BOTS = ["阿龙", "小凤", "老陈", "Lucky", "阿珍", "大飞"], MJ_WIND = ["东", "南", "西", "北"];
+  const mj = { practice: false, g: null, st: null, timer: 0, applied: -1, sel: null, stAt: 0, chowPick: false };
+  const mjNet = netRoom({
+    prefix: MJ_PREFIX, base: 900000, span: 100000, status: (h) => mjStatus(h),
+    onHost: (id, m) => mjHostGot(id, m), onGuest: (m) => mjGot(m), onGone: (id) => mjGone(id),
+    onClosed: () => { mjEnd(); mjStatus('<span class="l">房主已离开，房间结束</span>'); toast("麻将房间已结束"); },
+  });
+  const mjStatus = (h) => msg($("#mjStatus"), h);
+  const mjOpen = () => !!(mjNet.peer || mj.practice);
+  const mjBotSeat = (seat, used) => ({ id: "bot" + seat + "-" + rand(1e6), name: MJ_BOTS.filter((x) => !used.includes(x))[0] || "AI", bot: true, ready: true, total: 0 });
+  function mjNewGame(opt, name) {
+    const g = { variant: opt.variant, base: opt.base, cap: opt.variant === "sc" ? 4 : 10, minFan: opt.variant === "hk" ? opt.minFan : 0,
+      seats: [{ id: "host", name, bot: false, ready: false, total: 0 }], dealer: 0, round: 0, streak: 0, moves: 0, handNo: 0, phase: "wait", timed: !mj.practice, push: () => mjPush(), onSound: null };
+    for (let s = 1; s < 4; s++) g.seats.push(mjBotSeat(s, g.seats.map((p) => p.name)));
+    g.seats.forEach((p) => { p.hand = []; p.melds = []; p.flowers = []; p.discards = []; p.score = 0; });
+    mj.g = g; clearInterval(mj.timer); mj.timer = setInterval(() => { if (mj.g) mjTick(mj.g); }, 300);
+    mjPush();
+  }
+  function mjView(g, forId) {
+    const me = g.seats.findIndex((p) => p.id === forId), end = g.phase === "end";
+    const queOpen = g.phase !== "que";
+    const c = g.claim;
+    return {
+      t: "mj", variant: g.variant, base: g.base, minFan: g.minFan, phase: g.phase, step: g.step, turn: g.turn, dealer: g.dealer, round: g.round, streak: g.streak, handNo: g.handNo,
+      wall: g.wall ? Math.max(0, mjWallLeft(g)) : 0, left: g.deadline ? Math.max(0, Math.ceil((g.deadline - Date.now()) / 1000)) : 0, practice: mj.practice,
+      last: g.last && g.step === "claim" ? g.last : g.last ? { from: g.last.from, t: g.last.t, gone: true } : null,
+      seats: g.seats.map((p, i) => ({ id: p.id, name: p.name, bot: p.bot, ready: p.ready, total: p.total || 0, score: p.score || 0, melds: p.melds, flowers: p.flowers, discards: p.discards, n: p.hand.length,
+        hand: i === me || end ? p.hand : null, fresh: i === me ? p.fresh : null, won: p.won || null, que: queOpen || i === me ? p.que : p.que >= 0 ? -2 : -1 })),
+      self: g.step === "discard" && g.turn === me && g.phase === "play" ? g.self : null,
+      claim: c && c.opts[me] && !c.resp[me] ? { t: c.t, from: c.from, o: c.opts[me], rob: !!c.robKong } : null,
+      waiting: c ? Object.keys(c.opts).filter((s) => !c.resp[s]).map(Number) : [],
+      result: end ? g.result : null,
+    };
+  }
+  function mjPush() { const g = mj.g; if (!g) return; g.seats.forEach((p) => { if (!p.bot) mjNet.to(p.id, mjView(g, p.id)); }); }
+  function mjHostGot(id, m) {
+    const g = mj.g; if (!g) return;
+    const i = g.seats.findIndex((x) => x.id === id), p = g.seats[i];
+    if (m.t === "hello") {
+      if (p) { mjPush(); return; }
+      const seat = g.seats.findIndex((x) => x.bot && !x.handOver);
+      if (seat < 0) { mjNet.to(id, { t: "full" }); return; }
+      const name = String(m.name || "玩家").slice(0, 10);
+      if (g.phase !== "wait" && g.phase !== "end") { g.seats[seat].handOver = { id, name }; mjNet.to(id, { t: "wait" }); mjSayAll("", name + " 进来了，下一局入座"); return; }
+      Object.assign(g.seats[seat], { id, name, bot: false, ready: false, total: 0 });
+      mjSayAll("", name + " 坐下了"); mjPush(); return;
+    }
+    if (i < 0) return;
+    if (m.t === "ready") { p.ready = !!m.on; mjPush(); mjMaybeStart(); }
+    else if (m.t === "que") mjQue(g, i, +m.s);
+    else if (m.t === "discard") mjDiscard(g, i, +m.tile);
+    else if (m.t === "self") { if (m.a === "win") mjSelfWin(g, i); else if (m.a === "kong") mjKong(g, i, { k: m.k, t: +m.tile }); }
+    else if (m.t === "claim") mjClaim(g, i, { a: m.a, s: m.s == null ? undefined : +m.s });
+    else if (m.t === "say") mjSayAll(id, String(m.text || "").slice(0, 12));
+    else if (m.t === "chat") { const text = String(m.text || "").trim().slice(0, 80); if (text) mjNet.all({ t: "chat", id, name: p.name, text }); }
+  }
+  function mjSayAll(id, text) { mjNet.all({ t: "say", id, text }); }
+  function mjGone(id) {
+    const g = mj.g; if (!g) return;
+    g.seats.forEach((x) => { if (x.handOver && x.handOver.id === id) x.handOver = null; });
+    const i = g.seats.findIndex((x) => x.id === id); if (i < 0) return;
+    const p = g.seats[i], bot = mjBotSeat(i, g.seats.map((x) => x.name));
+    p.id = bot.id; p.bot = true; p.ready = true; const was = p.name; p.name = bot.name;
+    mjSayAll("", was + " 离开了，由 AI " + p.name + " 接手");
+    // the AI picks up whatever was waiting on this seat
+    if (g.phase === "que" && p.que < 0) mjQue(g, i, mjBotQue(p));
+    else if (g.step === "claim" && g.claim && g.claim.opts[i] && !g.claim.resp[i]) mjClaim(g, i, mjBotClaim(g, i, g.claim.opts[i], g.claim.t));
+    else if (g.step === "discard" && g.turn === i) mjBotTurn(g, i);
+    mjPush(); mjMaybeStart();
+  }
+  function mjMaybeStart() {
+    const g = mj.g;
+    if (!g || (g.phase !== "wait" && g.phase !== "end")) return;
+    g.seats.forEach((p) => { if (p.bot && p.handOver) { Object.assign(p, { id: p.handOver.id, name: p.handOver.name, bot: false, ready: false, total: 0 }); delete p.handOver; } });
+    if (!g.seats.filter((p) => !p.bot).every((p) => p.ready)) { mjPush(); return; }
+    g.onSound = null;
+    mjNewHand(g);
+  }
+  /* ---------- everyone: drawing the table ---------- */
+  function mjGot(m) {
+    if (m.t === "mj") {
+      const prev = mj.st; mj.st = m; mj.stAt = Date.now();
+      mjSounds(prev, m);
+      if (m.phase === "end" && mj.applied !== m.handNo && m.result) {
+        mj.applied = m.handNo;
+        const me = mjMe(), amt = m.result.score[me] || 0;
+        if (amt > 0) { addBank(amt); SND.coins(2); } else if (amt < 0) addBank(-Math.min(-amt, S.bank));
+      }
+      if (!prev || prev.handNo !== m.handNo || m.turn !== prev.turn || m.step !== prev.step) { mj.sel = null; mj.chowPick = false; }
+      mjRender();
+    }
+    else if (m.t === "say") { mjBubble(m.id, m.text); if (!m.id) chatAdd("mj", null, m.text); }
+    else if (m.t === "chat") { chatAdd("mj", m, m.text); mjBubble(m.id, m.text.length > 14 ? m.text.slice(0, 13) + "…" : m.text); }
+    else if (m.t === "full") { mjEnd(); mjStatus('<span class="l">房间已满（4 人）</span>'); }
+    else if (m.t === "wait") mjStatus("这一局正在进行，下一局入座…");
+  }
+  // sounds from what changed on the table
+  function mjSounds(a, b) {
+    if (!a || S.view !== "mj") return;
+    const tot = (st, k) => st.seats.reduce((n, p) => n + (k === "d" ? p.discards.length : p.melds.length), 0);
+    if (b.handNo !== a.handNo) { SND.shuffle(1.4); return; }
+    if (tot(b, "m") > tot(a, "m")) SND.chip();
+    else if (tot(b, "d") > tot(a, "d")) SND.flip();
+    if (b.seats.filter((p) => p.won).length > a.seats.filter((p) => p.won).length) SND.win();
+    if (b.claim && !a.claim) SND.tick();
+  }
+  const mjMe = () => (mj.st ? mj.st.seats.findIndex((p) => p.id === mjNet.me) : -1);
+  const MJ_POS = ["e", "n", "w"];
+  function mjTile(t, cls, extra) {
+    if (t == null || t < 0) return '<span class="mjt back' + (cls ? " " + cls : "") + '"' + (extra || "") + "></span>";
+    const s = mjSuit(t);
+    let face;
+    if (s < 3) face = "<b>" + MJ_NUM[t % 9] + "</b><i>" + MJ_SUIT[s] + "</i>";
+    else if (s === 3) face = "<b>" + (t === 33 ? "" : MJ_HONOR[t - 27]) + "</b>";
+    else face = "<b>" + MJ_FLOWER[t - 34] + "</b><i>" + (t < 38 ? "季" : "花") + "</i>";
+    return '<span class="mjt s' + s + (t >= 27 && t < 34 ? " h" + (t - 27) : "") + (cls ? " " + cls : "") + '"' + (extra || "") + ">" + face + "</span>";
+  }
+  function mjMeldHTML(m, cls) {
+    const ts = m.k === "chow" ? [m.t, m.t + 1, m.t + 2] : m.k === "pung" ? [m.t, m.t, m.t] : [m.t, m.t, m.t, m.t];
+    return '<span class="mjm">' + ts.map((t, k) => (m.k === "ankong" && (k === 0 || k === 3) ? mjTile(null, cls) : mjTile(t, cls))).join("") + "</span>";
+  }
+  function mjRender() {
+    const st = mj.st, open = mjOpen() && !!st;
+    $("#mjJoin").hidden = open; $("#mjPlay").hidden = !open;
+    if (!open) return;
+    const me = Math.max(0, mjMe()), my = st.seats[me], v = MJ_VARIANTS[st.variant];
+    $("#mjCodeShow").textContent = mj.practice ? "练习桌" : mjNet.code;
+    $("#mjCopy").hidden = mj.practice; $("#mjCodeLab").hidden = mj.practice; $("#mjEmo").hidden = mj.practice;
+    $("#mjRule").textContent = v.short + " · 底 " + compact(st.base) + (st.variant === "tw" ? " / 台 " + compact(st.base / 5) : "");
+    $("#mjCount").textContent = st.seats.filter((p) => !p.bot).length + " 人 + " + st.seats.filter((p) => p.bot).length + " AI";
+    $("#mjTotal").innerHTML = mjPts(my.total);
+    $("#mjHandNo").textContent = st.handNo;
+    // opponents
+    [1, 2, 3].forEach((k, n) => { const s = (me + k) % 4; $('#mjTable .mj-seat[data-pos="' + MJ_POS[n] + '"]').innerHTML = mjSeatHTML(st, s, MJ_POS[n]); });
+    // discard pools around the centre
+    [[me, "s"], [(me + 1) % 4, "e"], [(me + 2) % 4, "n"], [(me + 3) % 4, "w"]].forEach(([s, pos]) => {
+      const p = st.seats[s], lastHere = st.last && st.last.from === s && !st.last.gone;
+      $('#mjTable .mj-pool[data-pos="' + pos + '"]').innerHTML = p.discards.map((t, k) => mjTile(t, "sm" + (lastHere && k === p.discards.length - 1 ? " last" : ""))).join("");
+      $('#mjCenter .ss-wind[data-pos="' + pos + '"]').innerHTML = MJ_WIND[(s - st.dealer + 4) % 4] + (s === st.dealer ? "<sup>庄</sup>" : "");
+      $('#mjCenter .ss-wind[data-pos="' + pos + '"]').classList.toggle("turn", st.phase === "play" && st.turn === s);
+    });
+    mjCenter(st, me);
+    mjMine(st, me);
+    mjBar(st, me);
+  }
+  const mjPts = (n) => (n > 0 ? '<span class="w">+' + compact(n) + "</span>" : n < 0 ? '<span class="l">-' + compact(-n) + "</span>" : "0");
+  function mjSeatHTML(st, s, pos) {
+    const p = st.seats[s], end = st.phase === "end";
+    const status = p.won ? '<span class="w">已胡' + (p.won.self ? " 自摸" : "") + "</span>" : st.phase === "play" && st.turn === s ? "出牌中…" : st.waiting.includes(s) ? "考虑中…" : st.phase === "que" ? (p.que >= 0 || p.que === -2 ? "已定缺" : "定缺中…") : st.phase === "wait" || end ? (p.bot ? "AI" : p.ready ? "已准备" : "未准备") : "";
+    const que = p.que >= 0 && st.variant === "sc" ? '<i class="mj-que q' + p.que + '">' + MJ_SUIT[p.que] + "</i>" : "";
+    const hand = p.hand ? p.hand.map((t) => mjTile(t, "xs")).join("") : Array.from({ length: p.n }, () => mjTile(null, "xs")).join("");
+    const won = p.won ? '<span class="mj-wontile">' + mjTile(p.won.t, "xs win") + "</span>" : "";
+    return '<div class="mj-opp' + (st.phase === "play" && st.turn === s ? " on" : "") + '" data-seat="' + s + '" data-id="' + esc(p.id) + '"><div class="ss-who"><b><i class="ss-w">' + MJ_WIND[(s - st.dealer + 4) % 4] + "</i>" + esc(p.name) + (p.bot ? ' <small class="ai">AI</small>' : "") + que + "</b><small>" + status + " · " + mjPts(p.total) + "</small></div>" +
+      '<div class="mj-ohand' + (pos === "n" ? "" : " v") + '">' + hand + won + "</div>" +
+      (p.melds.length || p.flowers.length ? '<div class="mj-omelds">' + p.melds.map((m) => mjMeldHTML(m, "xs")).join("") + p.flowers.map((f) => mjTile(f, "xs fl")).join("") + "</div>" : "") +
+      (end && st.result ? '<i class="ss-net on">' + mjPts(st.result.score[s]) + "</i>" : "") + "</div>";
+  }
+  function mjCenter(st, me) {
+    const v = MJ_VARIANTS[st.variant], my = st.seats[me];
+    const left = st.left ? Math.max(0, st.left - Math.floor((Date.now() - mj.stAt) / 1000)) : 0;
+    $("#mjWall").textContent = st.phase === "wait" ? "" : "余 " + st.wall + " 张";
+    $("#mjRound").textContent = st.phase === "wait" ? "" : MJ_WIND[st.round || 0] + "风圈" + (st.streak && st.variant !== "sc" ? " · 连庄 " + st.streak : "");
+    $("#mjClock").textContent = left || "";
+    $("#mjClock").classList.toggle("soon", left > 0 && left <= 5);
+    let txt = "";
+    if (st.phase === "wait") { const nr = st.seats.filter((p) => !p.bot && !p.ready).map((p) => esc(p.name)); txt = nr.length ? "等 " + nr.join("、") + " 准备" : "开始…"; }
+    else if (st.phase === "que") txt = my.que >= 0 ? "等其他人定缺…" : "选一门不要的花色（定缺）";
+    else if (st.phase === "play") txt = st.claim ? (st.claim.rob ? "可以抢杠" : "有人打出 " + mjName(st.claim.t)) : st.turn === me ? "轮到你出牌" : st.waiting.length ? "等其他人决定…" : esc(st.seats[st.turn].name) + " 出牌中";
+    else if (st.phase === "end") txt = mjResultHTML(st, me);
+    $("#mjCMsg").innerHTML = txt;
+    $("#mjReady").hidden = !(st.phase === "wait" || st.phase === "end");
+    $("#mjReady").textContent = my.ready ? "已准备 ✓" : st.phase === "end" ? "下一局" : "✋ 准备";
+    $("#mjReady").classList.toggle("ghost", !!my.ready);
+    $("#mjCenter").classList.toggle("result", st.phase === "end");
+  }
+  function mjResultHTML(st, me) {
+    const r = st.result;
+    if (!r) return "";
+    const lines = [];
+    if (r.drawn) lines.push("<b>流局</b>");
+    st.seats.forEach((p, i) => { if (p.won) lines.push("<b>" + esc(p.name) + (p.won.self ? " 自摸" : " 胡 " + esc(st.seats[p.won.from].name) + " 的" + mjName(p.won.t)) + "</b> " + p.won.fan + (st.variant === "tw" ? " 台" : " 番") + "<small>" + p.won.items.map(([n, f]) => n + (f ? " " + f : "")).join(" · ") + "</small>"); });
+    lines.push("你这一局 " + mjPts(r.score[me]));
+    return lines.join("<br>");
+  }
+  function mjMine(st, me) {
+    const my = st.seats[me], hand = my.hand || [], fresh = st.self && my.fresh != null ? my.fresh : null;
+    let rest = hand.slice();
+    if (fresh != null) rest.splice(rest.lastIndexOf(fresh), 1);
+    const canDiscard = !!st.self && !my.won;
+    const queOn = my.que >= 0 && hand.some((t) => mjSuit(t) === my.que);
+    const tileBtn = (t, k, extra) => {
+      const bad = canDiscard && queOn && mjSuit(t) !== my.que;
+      return '<button type="button" class="mjb' + (mj.sel === k ? " sel" : "") + (bad ? " dim" : "") + (my.que >= 0 && mjSuit(t) === my.que ? " queT" : "") + (extra || "") + '" data-k="' + k + '" data-t="' + t + '"' + (canDiscard ? "" : " disabled") + ">" + mjTile(t) + "</button>";
+    };
+    $("#mjHand").innerHTML = rest.map((t, k) => tileBtn(t, k)).join("") + (fresh != null ? '<span class="mj-gap"></span>' + tileBtn(fresh, 99, " fresh") : "");
+    $("#mjMelds").innerHTML = my.melds.map((m) => mjMeldHTML(m, "sm")).join("") + my.flowers.map((f) => mjTile(f, "sm fl")).join("") + (my.won ? '<span class="mj-mywon">已胡 ' + mjTile(my.won.t, "sm win") + "</span>" : "");
+    $("#mjMeTag").innerHTML = '<b>' + MJ_WIND[(me - st.dealer + 4) % 4] + "</b> " + esc(my.name) + (me === st.dealer ? " · 庄" : "") + (my.que >= 0 && st.variant === "sc" ? ' · 缺<i class="mj-que q' + my.que + '">' + MJ_SUIT[my.que] + "</i>" : "") + " · " + mjPts(my.total);
+    $("#mjHand").classList.toggle("myturn", canDiscard);
+  }
+  function mjBar(st, me) {
+    const my = st.seats[me], bar = [];
+    if (st.phase === "que" && my.que < 0) {
+      const n = [0, 1, 2].map((s) => (my.hand || []).filter((t) => mjSuit(t) === s).length), best = n.indexOf(Math.min(...n));
+      [0, 1, 2].forEach((s) => bar.push('<button type="button" class="btn' + (s === best ? "" : " ghost") + '" data-que="' + s + '">缺 ' + MJ_SUIT[s] + " (" + n[s] + ")</button>"));
+    } else if (st.claim) {
+      const o = st.claim.o;
+      if (mj.chowPick && o.chow) o.chow.forEach((s) => bar.push('<button type="button" class="btn mjchow" data-claim="chow" data-s="' + s + '">' + [s, s + 1, s + 2].map((x) => mjTile(x, "xs")).join("") + "</button>"));
+      else {
+        bar.push('<span class="mj-ct">' + mjTile(st.claim.t, "sm last") + "</span>");
+        if (o.win) bar.push('<button type="button" class="btn sp" data-claim="win">' + (st.claim.rob ? "抢杠胡" : "胡") + "</button>");
+        if (o.kong) bar.push('<button type="button" class="btn" data-claim="kong">杠</button>');
+        if (o.pung) bar.push('<button type="button" class="btn" data-claim="pung">碰</button>');
+        if (o.chow) bar.push('<button type="button" class="btn" data-claim="chow"' + (o.chow.length === 1 ? ' data-s="' + o.chow[0] + '"' : "") + ">吃</button>");
+      }
+      bar.push('<button type="button" class="btn ghost" data-claim="pass">过</button>');
+    } else if (st.self && !my.won) {
+      if (st.self.win) bar.push('<button type="button" class="btn sp" data-self="win">自摸</button>');
+      st.self.kongs.forEach((k) => bar.push('<button type="button" class="btn" data-self="kong" data-k="' + k.k + '" data-t="' + k.t + '">' + (k.k === "add" ? "补杠 " : "暗杠 ") + mjName(k.t) + "</button>"));
+      bar.push('<button type="button" class="btn' + (mj.sel == null ? " ghost" : "") + '" id="mjDiscardBtn"' + (mj.sel == null ? " disabled" : "") + ">打出" + (mj.sel != null ? " " + mjName(mjSelTile(st, me)) : "") + "</button>");
+    }
+    $("#mjBar").innerHTML = bar.join("");
+    $("#mjBar").hidden = !bar.length;
+  }
+  function mjSelTile(st, me) {
+    const my = st.seats[me], hand = my.hand || [], fresh = st.self && my.fresh != null ? my.fresh : null;
+    if (mj.sel === 99) return fresh;
+    const rest = hand.slice(); if (fresh != null) rest.splice(rest.lastIndexOf(fresh), 1);
+    return rest[mj.sel];
+  }
+  function mjBubble(id, text) {
+    if (!id) { if (S.view === "mj") toast(esc(text)); return; }
+    const host = id === mjNet.me ? $("#mjMine") : $('#mjTable .mj-opp[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+    if (host) { const b = document.createElement("span"); b.className = "say"; b.textContent = text; host.appendChild(b); setTimeout(() => b.remove(), 3300); }
+  }
+  /* ---------- entering and leaving ---------- */
+  const mjName2 = () => { const n = ($("#mjName").value || "").trim().slice(0, 10) || "玩家"; try { localStorage.setItem("gbc-name", n); } catch (e) {} return n; };
+  const mjOpt = () => ({ variant: $("#mjVariant").value, base: +$("#mjBaseSel").value, minFan: +$("#mjMinFan").value });
+  function mjPractice() {
+    if (mjOpen()) { go("mj"); return; }
+    mj.practice = true; mjNet.host = true; mjNet.me = "host";
+    mjNewGame(mjOpt(), mjName2()); go("mj");
+  }
+  async function mjCreate() {
+    if (mjOpen()) { go("mj"); return; }
+    const o = mjOpt(), name = mjName2();
+    $("#mjCreate").disabled = true; mjStatus("正在开房间…");
+    const ok = await mjNet.create();
+    $("#mjCreate").disabled = false;
+    if (!ok) return;
+    mjStatus(""); mj.practice = false; mjNewGame(o, name);
+    toast("麻将房间 " + mjNet.code + " 已开好（" + MJ_VARIANTS[o.variant].name + "），把房间号发给朋友");
+  }
+  async function mjJoin(code) {
+    code = String(code || "").replace(/\D/g, "");
+    if (code.length !== 6) { mjStatus('<span class="l">房间号是 6 位数字</span>'); return; }
+    if (mjOpen()) { toast("请先离开现在的麻将桌"); return; }
+    $("#mjJoinBtn").disabled = true; mjStatus("正在连接房间 " + code + "…");
+    const ok = await mjNet.join(code, { t: "hello", name: mjName2() });
+    $("#mjJoinBtn").disabled = false;
+    if (ok) { mj.practice = false; mjStatus(""); toast("已加入麻将房间 " + code); mjRender(); }
+  }
+  function mjEnd() {
+    clearInterval(mj.timer); if (mj.g) mj.g.dead = true;
+    mj.g = null; mj.st = null; mj.practice = false; mj.applied = -1; mj.sel = null;
+    mjNet.close(); chatClear("mj"); mjRender();
+  }
+  function mjLeave() {
+    const st = mj.st, inHand = st && (st.phase === "play" || st.phase === "que");
+    if (!confirm((mj.practice ? "离开练习桌？" : mjNet.host ? "你是房主，离开后房间会结束。确定离开？" : "离开麻将房间？") + (inHand ? "（这一局由 AI 帮你打完）" : ""))) return;
+    mjEnd(); go("online");
+  }
+  function mjFromHash() { const m = /^#mj=(\d{6})$/.exec(location.hash); if (m) { $("#mjCode").value = m[1]; if (!mjOpen()) mjStatus("输入名字，点「加入」进入麻将房间 " + m[1]); } }
+  // ---- wiring ----
+  $("#mjPractice").addEventListener("click", mjPractice);
+  $("#mjCreate").addEventListener("click", mjCreate);
+  $("#mjJoinBtn").addEventListener("click", () => mjJoin($("#mjCode").value));
+  $("#mjLeave").addEventListener("click", mjLeave);
+  $("#mjCopy").addEventListener("click", () => shareRoom("麻将", mjNet.code, "mj"));
+  $("#mjVariant").addEventListener("change", () => { $("#mjMinFanBox").hidden = $("#mjVariant").value !== "hk"; });
+  $("#mjReady").addEventListener("click", () => {
+    const st = mj.st, my = st && st.seats[mjMe()];
+    if (!my) return;
+    if (!my.ready && S.bank < st.base * 50) { toast("余额不够：底 " + fmt(st.base) + " 至少要有 " + fmt(st.base * 50)); return; }
+    mjNet.toHost({ t: "ready", on: !my.ready });
+  });
+  $("#mjHand").addEventListener("click", (e) => {
+    const b = e.target.closest(".mjb"); if (!b || b.disabled) return;
+    const k = +b.dataset.k;
+    if (mj.sel === k) { mjNet.toHost({ t: "discard", tile: +b.dataset.t }); mj.sel = null; return; }   // second tap discards
+    mj.sel = k; SND.flip(); mjRender();
+  });
+  $("#mjBar").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    const st = mj.st, me = mjMe();
+    if (b.dataset.que != null) mjNet.toHost({ t: "que", s: +b.dataset.que });
+    else if (b.dataset.claim) {
+      if (b.dataset.claim === "chow" && b.dataset.s == null) { mj.chowPick = true; mjRender(); return; }
+      mjNet.toHost({ t: "claim", a: b.dataset.claim, s: b.dataset.s == null ? null : +b.dataset.s }); mj.chowPick = false;
+    }
+    else if (b.dataset.self === "win") mjNet.toHost({ t: "self", a: "win" });
+    else if (b.dataset.self === "kong") mjNet.toHost({ t: "self", a: "kong", k: b.dataset.k, tile: +b.dataset.t });
+    else if (b.id === "mjDiscardBtn" && mj.sel != null) { mjNet.toHost({ t: "discard", tile: mjSelTile(st, me) }); mj.sel = null; }
+  });
+  $$("#mjEmo button:not(.chatbtn)").forEach((b) => b.addEventListener("click", () => { if (mjOpen() && !mj.practice) mjNet.toHost({ t: "say", text: b.dataset.say || b.textContent }); }));
+  setInterval(() => { if (S.view === "mj" && mj.st && mj.st.left) mjCenter(mj.st, Math.max(0, mjMe())); }, 1000);
   /* ======================================================
      NIU NIU (牛牛) — player vs banker, 5 cards each from a fresh 52-card deck
      ====================================================== */
@@ -8166,7 +9269,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   frRender();
   dvRender();
   tnRender();
-  show(hashView()); rmFromHash(); prFromHash(); ssFromHash();
+  show(hashView()); rmFromHash(); prFromHash(); ssFromHash(); mjFromHash();
 
   // Home-screen app: offline cache (only where service workers are allowed, e.g. GitHub Pages)
   try {
