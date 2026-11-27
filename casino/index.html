@@ -1624,11 +1624,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 #mjHand { --hw: min(40px, calc((100vw - 34px) / (var(--n, 14) + .8))); padding-top: calc(var(--hw) * .5); }
 .mjb { flex: none; max-width: none; }
 .mjb .mjt { --mw: var(--hw); width: 1em; height: 1.34em; aspect-ratio: auto; margin-top: .24em;
-  box-shadow: inset 0 0 0 .02em rgba(120,100,60,.35), inset 0 -.06em 0 #dccfab, 0 .06em .1em rgba(0,0,0,.55); }
-.mjb .mjt::before { content: ""; position: absolute; left: 0; right: 0; top: -.24em; height: .28em; border-radius: .13em .13em .02em .02em; background: linear-gradient(180deg, #5cc694, #23845a 70%, #1b6b48); box-shadow: inset 0 -.04em 0 #f1e9d2; }
+  box-shadow: inset 0 0 0 .02em rgba(120,100,60,.35), 0 .05em 0 #efe6cf, 0 .09em 0 #d9cdaa, 0 .13em .12em rgba(0,0,0,.55); }
+/* seen from my seat: the top edge shows the green back far away and the white body nearest me */
+.mjb .mjt::before { content: ""; position: absolute; left: 0; right: 0; top: -.26em; height: .3em; border-radius: .13em .13em .02em .02em;
+  background: linear-gradient(180deg, #4fbd8a 0, #23845a 36%, #1b6b48 44%, #d9cdaa 46%, #f3ecd9 70%, #fffaf0 100%); box-shadow: inset 0 0 0 .02em rgba(120,100,60,.25); }
 .mjb.sel .mjt { box-shadow: inset 0 0 0 .02em rgba(120,100,60,.35), 0 0 0 .06em var(--brass), 0 .3em .3em rgba(0,0,0,.5); }
 .mjb.queT .mjt::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: .08em; background: #ff6b6b; border-radius: 0 0 .1em .1em; }
-.mjb.queT .mjt::before { background: linear-gradient(180deg, #5cc694, #23845a 70%, #1b6b48); }
+
 </style>
 
 <header class="top">
