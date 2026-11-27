@@ -247,12 +247,18 @@
 }
 
 /* The camera scene and the game display have independent coordinate spaces. */
+/* The dealer, the table edge and the 闲 / 庄 boxes share one frame of reference: the dealer artwork.
+   --scene-height is fitted by script to the room left on screen; everything below follows from it. */
 .bac-dealer-stage {
-  --scene-height: clamp(210px, 29vh, 278px);
-  --portrait-width: min(calc(100% - 20px), calc(var(--scene-height) * .755 * 424 / 321));
+  --scene-height: 210px;
+  --portrait-width: min(calc(100vw - 44px), calc(var(--scene-height) * .78 * 424 / 321));
+  --portrait-top: calc(var(--scene-height) * .02);
+  --portrait-height: calc(var(--portrait-width) * 321 / 424);
+  --table-edge: calc(var(--portrait-top) + var(--portrait-height) * .88);   /* where the dealer's hands rest */
   position: relative;
   isolation: isolate;
   height: var(--scene-height);
+  flex: none;                     /* the script sizes it; the flex column must not squeeze it */
   overflow: hidden;
   border-radius: 11px;
   border: 1px solid #91765390;
@@ -266,7 +272,7 @@
   content: "";
   position: absolute;
   z-index: -1;
-  inset: 63% -8% -9%;
+  inset: var(--table-edge) -8% -9%;
   border-top: 2px solid #c2a57596;
   border-radius: 44% 44% 0 0 / 22% 22% 0 0;
   background:
@@ -279,7 +285,7 @@
   --shoe-mouth-x: 95%;
   --shoe-mouth-y: 86%;
   position: absolute;
-  top: 3%;
+  top: var(--portrait-top);
   left: calc(48% - var(--portrait-width) / 2);
   width: var(--portrait-width);
   aspect-ratio: 424 / 321;
@@ -327,7 +333,7 @@
 .bac-felt-board {
   position: absolute;
   z-index: 3;
-  inset: auto 14% 6% 14%;
+  inset: calc(var(--table-edge) + 5px) 14% auto 14%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(13px, 4vw, 35px);
@@ -485,4 +491,30 @@
 @media (max-width: 360px) {
   .bac-dealer-person { left: calc(46% - var(--portrait-width) / 2); }
   .bac-dealer-stage .shoebox { width: 25%; }
+}
+
+@media (max-height: 700px) {
+  .bac-round-state { min-height: 24px; gap: 5px; }
+}
+
+/* baccarat with the dealer on top: a tighter road and betting area so the page fits one screen */
+#v-baccarat .road:not(.droad), #v-room .road:not(.droad) { --rc: clamp(10px, 1.85vh, 18px); }
+#v-baccarat .droad, #v-room .droad { --rc: clamp(6px, .95vh, 9px); }
+#v-baccarat .bmain { height: clamp(54px, 9.6vh, 118px); }
+#v-baccarat .bsides .side, #v-room .bsides .side { min-height: clamp(28px, 4.6vh, 46px); }
+#v-baccarat .bsides .side .lab, #v-room .bsides .side .lab { line-height: 1.05; }
+@media (max-height: 700px) {
+  #v-baccarat.game { gap: 3px !important; }
+}
+/* online room: the chat row keeps its height, and on short screens the players line up on one row */
+#v-room .rm-emo, #v-room .rm-top, #v-room .bac-round-state { flex: none; }
+@media (max-height: 700px) {
+  #v-room.game { gap: 3px !important; }
+  #v-room .rm-players { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  #v-room .rmp { display: inline-flex; align-items: baseline; gap: 4px; padding: 2px 7px; white-space: nowrap; }
+  #v-room .rmp b { font-size: 12px; } #v-room .rmp small { font-size: 10px; }
+  #v-room .rm-emo button { padding-block: 3px; }
+  #v-room .road:not(.droad) { --rc: clamp(9px, 1.6vh, 16px); }
+  #v-room .droad { --rc: clamp(5px, .85vh, 8px); }
+  #v-room .bfoot { display: none; }     /* balance is in the header, my result is on my chip in the players row */
 }

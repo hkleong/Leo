@@ -1,6 +1,6 @@
 // Offline support for the 俱乐部 home-screen app.
 // Bump VERSION whenever index.html changes so installed copies pick up the update.
-const VERSION = "gbc-49581989d2";
+const VERSION = "gbc-f06b708426";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png",
   "cabinet-test.css", "art/cabinets/NotoSerifSC-cabinet.otf", "art/baccarat-shoe.webp",
   ...["a", "b", "c", "d"].flatMap(table => ["deal", "collect"].map(action => "art/baccarat-dealers/" + table + "-" + action + ".webp"))];
