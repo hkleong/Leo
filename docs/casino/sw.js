@@ -1,6 +1,6 @@
 // Offline support for the 俱乐部 home-screen app.
 // Bump VERSION whenever index.html changes so installed copies pick up the update.
-const VERSION = "gbc-0.18.9-cabinet-test";
+const VERSION = "gbc-0.20.3-web-test";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png",
   "cabinet-test.css", "art/dragon-idle.webp", "art/thor-idle.webp", "art/dragon-reward-24.webp", "art/thor-reward-24.webp",
   ...["dragon", "thor", "gems", "fruit", "diver", "slots"].map((name) => "art/cabinets/" + name + ".webp"),
