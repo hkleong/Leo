@@ -20,6 +20,8 @@ sw = open(os.path.join(HERE, "sw.js"), encoding="utf-8").read().replace('const V
 open(os.path.join(out, "sw.js"), "w", encoding="utf-8").write(sw)
 
 shutil.copy(os.path.join(HERE, "manifest.webmanifest"), out)
+for extra in ("cabinet-test.css",):
+    if os.path.exists(os.path.join(HERE, extra)): shutil.copy(os.path.join(HERE, extra), out)
 for f in os.listdir(os.path.join(HERE, "icons")):
     shutil.copy(os.path.join(HERE, "icons", f), os.path.join(out, "icons", f))
 # illustrations (machine art); copied as a whole folder
