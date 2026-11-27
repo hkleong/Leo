@@ -655,11 +655,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .pseat.fold { opacity: .45; }
 .pseat.turn .ps-box { border-color: var(--win); box-shadow: 0 0 0 2px var(--win), 0 0 14px rgba(231,199,111,.6); }
 .ps-timer { position: absolute; left: 4px; right: 4px; bottom: 1px; height: 2px; background: var(--win); transform-origin: left; border-radius: 2px; }
+#prBoard.show .card { opacity: .42; transition: opacity .3s; }
+#prBoard.show .card.best, .ps-cards .card.best { opacity: 1; }
+#prBoard .card.best .front, .ps-cards .card.best .front { box-shadow: 0 0 0 2px #ffe08a, 0 0 12px rgba(255,214,90,.85); }
+#prBoard .card.best { transform: translateY(-4px); transition: transform .3s; }
 .pseat.win .ps-box { border-color: #ffe08a; box-shadow: 0 0 16px rgba(255,220,120,.9); animation: jpflash .5s ease-in-out 4 alternate; }
 .pseat.out .ps-box { border-style: dashed; }
 .pseat.me { width: clamp(84px, 26vw, 120px); }
 .pseat.me .ps-cards { --cw: clamp(28px, 8.6vw, 42px); }
-.ps-rank { font-size: 10px; color: var(--ivory); white-space: nowrap; }
+.ps-rank { font-size: 10px; line-height: 1.15; color: var(--ivory); text-align: center; max-width: 100%; text-shadow: 0 1px 2px #000; }
 .pdealer { position: absolute; transform: translate(-50%, -50%); width: 18px; height: 18px; border-radius: 50%; background: #fff; color: #111; font: 800 10px/18px var(--body); text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.6); z-index: 3; }
 .pbet { position: absolute; transform: translate(-50%, -50%); z-index: 3; display: flex; align-items: center; gap: 3px; font: 700 11px/1 var(--mono); color: #fff; text-shadow: 0 1px 2px #000; }
 .pbet i { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle, #d0473f 45%, #fff 46% 55%, #d0473f 56%); box-shadow: 0 1px 2px rgba(0,0,0,.6); }
@@ -4876,6 +4880,31 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     })(0);
     return best;
   }
+  // the best five cards themselves (for showing which cards a hand plays)
+  function bestHand(cs) {
+    let best = null, pickBest = null; const pick = [];
+    (function rec(start) {
+      if (pick.length === Math.min(5, cs.length)) { const h = pick.map((i) => cs[i]), r = eval5(h); if (!best || cmpRank(r, best) > 0) { best = r; pickBest = h; } return; }
+      for (let i = start; i < cs.length; i++) { pick.push(i); rec(i + 1); pick.pop(); }
+    })(0);
+    return { rank: best, cards: pickBest };
+  }
+  // full hand name with kickers, e.g. 一对 A · 踢脚 K 8 7 · 两对 A、K · 踢脚 Q · 葫芦 7 带 K
+  function rankFull(r) {
+    const k = r.slice(1).map(RN), lo = (t) => RN(t === 5 ? 14 : t - 4);
+    switch (r[0]) {
+      case 9: return "皇家同花顺";
+      case 8: return "同花顺 " + lo(r[1]) + "–" + RN(r[1]);
+      case 7: return "四条 " + k[0] + " · 踢脚 " + k[1];
+      case 6: return "葫芦 " + k[0] + " 带 " + k[1];
+      case 5: return "同花 " + k.join(" ");
+      case 4: return "顺子 " + lo(r[1]) + "–" + RN(r[1]);
+      case 3: return "三条 " + k[0] + " · 踢脚 " + k.slice(1).join(" ");
+      case 2: return "两对 " + k[0] + "、" + k[1] + " · 踢脚 " + k[2];
+      case 1: return "一对 " + k[0] + " · 踢脚 " + k.slice(1).join(" ");
+      default: return "高牌 " + k.join(" ");
+    }
+  }
   const rankName = (r) => (r[0] === 0 ? RN(r[1]) + " 高" : HN[r[0]] + (r[0] === 1 || r[0] === 3 || r[0] === 7 ? " " + RN(r[1]) : ""));
   const th = { bets: { ante: 0, blind: 0, play: 0, trips: 0 }, hist: [], last: null, phase: "bet", busy: false, P: [], D: [], B: [], deck: null };
   const thTotal = () => th.bets.ante + th.bets.blind + th.bets.play + th.bets.trips;
@@ -5147,7 +5176,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       const net = amount - r, share = Math.floor(net / ws.length); let odd = net - share * ws.length;
       ws.forEach((w) => { w.stack += share; w.won += share; });
       for (let p = gNext(g, g.button, (x) => ws.includes(x)); odd > 0; p = gNext(g, p.seat, (x) => ws.includes(x))) { p.stack++; p.won++; odd--; }
-      if (elig.length > 1) lines.push((li ? "边池 " : "主池 ") + fmt(amount) + "：" + ws.map((w) => w.name).join("、") + "（" + rankName(best) + "）");
+      if (elig.length > 1) lines.push((li ? "边池 " : "主池 ") + fmt(amount) + "：" + ws.map((w) => w.name).join("、") + "（" + rankFull(best) + "）" + (ws.length > 1 ? " 平分" : ""));
     });
     g.result = { rake, lines };
     g.msg = lines.join(" · ") + (rake ? " · 抽水 " + fmt(rake) : "");
@@ -5327,13 +5356,19 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     // seats, turned so that you sit at the bottom
     const mySeat = me ? me.seat : 0, pos = (seat, r) => { const k = (seat - mySeat + PR_SEATS) % PR_SEATS, a = (k < 5 ? k : k + 1) / 10 * Math.PI * 2; return [50 - 43 * r * Math.sin(a), 50 + 41 * r * Math.cos(a)]; };   // ten spots round the table: you at the bottom, the AI dealer at the top
     let h = "";
+    // at the showdown the winners' best five cards light up, on their seats and on the board
+    const keyOf = (c) => c.r + c.s, lit = new Set();
+    if (st.street === "show" && st.board.length === 5) st.players.forEach((p) => { if (p.cards && p.won > 0 && !p.folded) bestHand(p.cards.concat(st.board)).cards.forEach((c) => lit.add(keyOf(c))); });
+    const showLit = lit.size > 0;
+    $("#prBoard").classList.toggle("show", showLit);
+    $$("#prBoard .card").forEach((el, i) => el.classList.toggle("best", showLit && lit.has(keyOf(st.board[i]))));
     st.players.forEach((p) => {
       const [x, y] = pos(p.seat, 1), isMe = p.id === pr.me;
       const cls = "pseat" + (isMe ? " me" : "") + (p.folded ? " fold" : "") + (st.toAct === p.id ? " turn" : "") + (st.street === "show" && p.won > 0 ? " win" : "") + (!p.inHand ? " out" : "");
       let cards = "";
-      if (p.cards) cards = p.cards.map((c) => prCardHTML(c)).join("");
+      if (p.cards) cards = p.cards.map((c) => prCardHTML(c).replace('class="card', 'class="card' + (showLit && p.won > 0 && lit.has(keyOf(c)) ? " best" : ""))).join("");
       else if (p.hasCards) cards = prCardHTML(null, true) + prCardHTML(null, true);
-      const rank = p.cards && st.board.length >= 3 && !p.folded ? rankName(best7(p.cards.concat(st.board))) : "";
+      const rank = p.cards && st.board.length >= 3 && !p.folded ? (st.street === "show" ? rankFull(best7(p.cards.concat(st.board))) : rankName(best7(p.cards.concat(st.board)))) : "";
       const act = st.street === "show" && p.won > 0 ? "赢 +" + compact(p.won) : p.allin && p.inHand && !p.folded ? "全下" : (st.street === "wait" || (st.street === "show" && !p.inHand)) && !st.practice ? (p.ready ? "✔ 已准备" : "未准备") : p.lastAct;
       h += '<div class="' + cls + '" style="left:' + x.toFixed(1) + "%;top:" + y.toFixed(1) + '%" data-id="' + esc(p.id) + '"><div class="ps-cards">' + cards + '</div><div class="ps-box"><span class="ps-act">' + esc(act || "") + "</span><b>" + esc(p.name) + (p.host ? " 👑" : "") + "</b><small>" + fmt(p.stack) + "</small>" +
         (st.toAct === p.id ? '<i class="ps-timer" style="transform:scaleX(' + Math.min(1, Math.max(0, (st.left - (st.paused ? 0 : Date.now() - pr.stAt)) / (PR_TURN * 1000))).toFixed(3) + ')"></i>' : "") + "</div>" + (rank ? '<span class="ps-rank">' + rank + "</span>" : "") + "</div>";
