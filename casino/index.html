@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.19.1">
+<meta name="version" content="0.20.0">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1250,6 +1250,36 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 /* the big-win hero keeps moving for the whole celebration */
 .bigwin[data-character="dragon"] .slot-sprite.dragon,
 .bigwin[data-character="thor"] .slot-sprite.thor { animation: hero-reward 1.5s steps(1, end) infinite; filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 16px rgba(255,200,90,.55)); }
+
+/* reels land with a bump and a flash; a teased reel glows and trembles while it holds back */
+.mreel.land, #slReels .reel.land { animation: reelland .34s cubic-bezier(.3,1.6,.5,1); }
+@keyframes reelland { 0% { transform: translateY(0); } 35% { transform: translateY(5px); box-shadow: inset 0 0 0 2px rgba(255,236,170,.95), inset 0 0 22px rgba(255,220,120,.7); } 100% { transform: none; box-shadow: none; } }
+.mreel.tease, #slReels .reel.tease { position: relative; z-index: 2; animation: reeltease .32s ease-in-out infinite alternate; }
+@keyframes reeltease { from { box-shadow: inset 0 0 0 2px #ffd34d, 0 0 10px 2px rgba(255,200,60,.7); filter: brightness(1.05); } to { box-shadow: inset 0 0 0 3px #fff2b0, 0 0 24px 7px rgba(255,190,40,.95); filter: brightness(1.25); } }
+/* big win: the title pops each time it climbs a tier; colours follow the machine */
+.bw-t.up { animation: bwup .6s cubic-bezier(.2,1.8,.4,1), bwpulse 1s ease-in-out .6s infinite alternate; }
+@keyframes bwup { 0% { transform: scale(1.9); filter: brightness(2.2); } 100% { transform: scale(1); filter: none; } }
+.bigwin[data-tier="3"] .bw-t { background: linear-gradient(180deg, #fff, #ffd84a 40%, #ff5ad1 75%, #7a4cff); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 3px 0 #5a2a00) drop-shadow(0 0 22px rgba(255,120,220,.8)); }
+.bigwin[data-theme="dragon"] { background: radial-gradient(70% 55% at 50% 50%, rgba(120,20,0,.6), rgba(0,0,0,.88)); }
+.bigwin[data-theme="thor"]   { background: radial-gradient(70% 55% at 50% 50%, rgba(20,60,140,.6), rgba(0,0,0,.88)); }
+.bigwin[data-theme="gems"]   { background: radial-gradient(70% 55% at 50% 50%, rgba(60,40,140,.6), rgba(0,0,0,.88)); }
+.bigwin[data-theme="fruit"]  { background: radial-gradient(70% 55% at 50% 50%, rgba(30,110,40,.6), rgba(0,0,0,.88)); }
+.bigwin[data-theme="diver"]  { background: radial-gradient(70% 55% at 50% 50%, rgba(0,90,140,.6), rgba(0,0,0,.88)); }
+.bigwin[data-theme="slots"]  { background: radial-gradient(70% 55% at 50% 50%, rgba(130,20,110,.55), rgba(0,0,0,.88)); }
+/* idle: a sheen sweeps the reel window */
+.mgrid::after, .gboard::after, .tboard::after, #slReels::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3; border-radius: inherit; background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.13) 47%, rgba(255,255,255,.22) 50%, rgba(255,255,255,.13) 53%, transparent 62%) no-repeat; background-size: 250% 100%; animation: sheen 7s ease-in-out infinite; }
+@keyframes sheen { 0%, 62% { background-position: 130% 0; } 92%, 100% { background-position: -30% 0; } }
+.mgrid, .gboard, .tboard, #slReels { position: relative; }
+#v-gems .gboard::after { animation-delay: -2s; } #v-fruit .mgrid::after { animation-delay: -4s; } #v-diver .mgrid::after { animation-delay: -1s; } #v-thor .tboard::after { animation-delay: -5s; }
+.fish { position: absolute; top: var(--y); left: 0; width: calc(46px * var(--s)); fill: rgba(140,220,255,.24); animation: swim var(--d) linear infinite; animation-delay: var(--l); }
+.fish svg { width: 100%; display: block; transform: scaleX(var(--dir, 1)); animation: fishwag 1.6s ease-in-out infinite alternate; }
+@keyframes swim { from { transform: translateX(calc(-120px * var(--dir, 1) + (var(--dir, 1) - 1) * -50vw)); } to { transform: translateX(calc(110vw * var(--dir, 1) + (var(--dir, 1) - 1) * -50vw)); } }
+@keyframes fishwag { from { transform: scaleX(var(--dir, 1)) translateY(-3px) rotate(-3deg); } to { transform: scaleX(var(--dir, 1)) translateY(3px) rotate(3deg); } }
+.slice { position: absolute; left: var(--x); bottom: -12%; width: 22px; height: 22px; border-radius: 50%; opacity: .35;
+  background: radial-gradient(circle, hsl(var(--h) 90% 85%) 0 14%, transparent 15%), repeating-conic-gradient(hsl(var(--h) 95% 60%) 0 26deg, hsl(var(--h) 90% 85%) 26deg 30deg), hsl(var(--h) 90% 85%);
+  box-shadow: 0 0 0 2px hsl(var(--h) 80% 88%), 0 0 0 3.5px hsl(var(--h) 90% 45%); animation: rise var(--d) linear infinite, spinslice 9s linear infinite; animation-delay: var(--l); }
+@keyframes spinslice { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .fish, .slice, .mgrid::after, .gboard::after, .tboard::after, #slReels::before, .mreel.tease, .mreel.land { animation: none !important; } }
 </style>
 
 <header class="top">
@@ -1774,12 +1804,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 雷神之锤 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.19.1</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.20.0</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
     <p class="note" style="margin-top:10px">音乐与音效的作者和授权：点右上角 ♪ 查看。</p>
   </div></div>
 
@@ -2628,7 +2658,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <ul>
         <li>用下方的 − / + 或点中间的金额直接选择每局多少钱（10 至 100,000），平均分到 5 条线上。金额会一直保留，可以连续旋转。</li>
         <li>「自动」可以选择自动旋转 10、25、50、100 次或一直转，按「停止」结束；余额不够、注额清空或离开老虎机画面时会自动停止。旁边的 1× / 2× / 5× / 10× 调整旋转速度。</li>
-        <li>一次赢得下注 20 倍以上会播放约 20 秒的大奖动画（20 倍大奖、50 倍巨奖、100 倍超级巨奖），点任意处可以跳过。</li>
+        <li>一次赢得下注 20 倍以上会播放约 20 秒的大奖动画（从大奖开始，金额数上去时依次升级为 50 倍巨奖、100 倍超级巨奖、250 倍史诗大奖），点任意处可以跳过。</li>
         <li>5 条线：中间横线、上横线、下横线、两条对角线（两侧的数字标出每条线）。</li>
         <li>任一条线上三个相同符号即中奖，奖金 = 每线注 × 下表倍数；多条线可同时中奖。</li>
         <li>每个卷轴有 20 格：7 有 1 格、★ 2 格、BAR 3 格、♦ 4 格、♥ 4 格、♠ 6 格，三个卷轴独立随机停止，理论回报率约 96%。</li>
@@ -2759,13 +2789,20 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   //  70 %    the count lands: chime, the number pops and a ring of coins bursts out of it
   //  70–88 % a gentle rain of coins falls from the top while the final amount glows
   //  88–100% nothing new is thrown, the coins already in the air fall away and the screen fades out
-  function bigWin(amount, bet, speed, character) {
+  const BW_TIERS = [[250, "史诗大奖", "EPIC WIN"], [100, "超级巨奖", "SUPER WIN"], [50, "巨奖", "MEGA WIN"], [0, "大奖", "BIG WIN"]];
+  function bigWin(amount, bet, speed, character, theme) {
     return new Promise((resolve) => {
       const ov = $("#bigwin"), cv = ov.querySelector("canvas"), g = cv.getContext("2d"), amtEl = ov.querySelector(".bw-amt");
-      ov.dataset.character = character || "";
-      const ratio = amount / bet;
-      const tier = ratio >= 100 ? ["超级巨奖", "SUPER WIN"] : ratio >= 50 ? ["巨奖", "MEGA WIN"] : ["大奖", "BIG WIN"];
-      ov.querySelector(".bw-t").textContent = tier[0]; ov.querySelector(".bw-e").textContent = tier[1];
+      ov.dataset.character = character || ""; ov.dataset.theme = theme || character || "";
+      // the title starts at 大奖 and climbs a tier each time the counter passes 50×, 100× and 250× the bet
+      const tEl = ov.querySelector(".bw-t"), eEl = ov.querySelector(".bw-e");
+      let tierNow = -1;
+      const setTier = (shown, up) => {
+        let i = BW_TIERS.findIndex(([m]) => shown / bet >= m); if (i < 0) i = BW_TIERS.length - 1;   // the first frame can land a hair before t0
+        if (i === tierNow) return; tierNow = i;
+        tEl.textContent = BW_TIERS[i][1]; eEl.textContent = BW_TIERS[i][2]; ov.dataset.tier = 3 - i;
+        if (up) { tEl.classList.remove("up"); void tEl.offsetWidth; tEl.classList.add("up"); SND.win(); burst(0.5); }
+      };
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       const W = (cv.width = innerWidth * dpr), H = (cv.height = innerHeight * dpr);
       let dur = reduced ? 1500 : Math.max(3000, 20000 / (speed || 1));
@@ -2775,20 +2812,20 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       let t0 = performance.now();
       ov.style.opacity = "1"; ov.classList.remove("landed");
       ov.hidden = false; ov.classList.remove("show"); void ov.offsetWidth; ov.classList.add("show");
-      amtEl.textContent = "0"; SND.win();
+      amtEl.textContent = "0"; SND.win(); setTier(0, false);
       const R = (a, b) => a + Math.random() * (b - a);
       function coin(x, y, vx, vy, bill) {
         if (parts.length < 320) parts.push({ x, y, vx, vy, r: R(9, 19) * dpr, ph: R(0, 6.28), sp: R(0.08, 0.28), bill, rot: R(0, 6.28), vr: R(-0.12, 0.12), drag: 1 });
       }
       const fountain = (n) => { for (let i = 0; i < n; i++) coin(W * R(0.05, 0.95), H + 30 * dpr, R(-3.5, 3.5) * dpr, -H * R(0.016, 0.03), Math.random() < 0.22); };
       const rain = (n) => { for (let i = 0; i < n; i++) { const p = coin(W * R(0, 1), -30 * dpr, R(-1, 1) * dpr, H * R(0.002, 0.006), Math.random() < 0.3); } };
-      function burst() {
+      function burst(k) {
         const r = amtEl.getBoundingClientRect(), cx = (r.left + r.width / 2) * dpr, cy = (r.top + r.height / 2) * dpr;
-        for (let i = 0; i < 70; i++) { const a = R(0, 6.28), v = R(0.006, 0.02) * H; coin(cx, cy, Math.cos(a) * v, Math.sin(a) * v - H * 0.006, Math.random() < 0.25); }
+        for (let i = 0; i < 70 * (k || 1); i++) { const a = R(0, 6.28), v = R(0.006, 0.02) * H; coin(cx, cy, Math.cos(a) * v, Math.sin(a) * v - H * 0.006, Math.random() < 0.25); }
       }
       function land() {
         if (landed) return; landed = true;
-        amtEl.textContent = fmt(amount); ov.classList.add("landed"); SND.win(); burst();
+        amtEl.textContent = fmt(amount); setTier(amount, false); ov.classList.add("landed"); SND.win(); burst();
       }
       function draw(p) {
         g.save(); g.translate(p.x, p.y);
@@ -2811,7 +2848,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         const t = (now - t0) / dur;
         if (!landed) {
           const k = Math.min(1, t / COUNT), e = 1 - Math.pow(1 - k, 3);
-          amtEl.textContent = fmt(Math.floor(amount * e));
+          amtEl.textContent = fmt(Math.floor(amount * e)); setTier(amount * e, true);
           if (now - lastTick > 90) { SND.ball(); lastTick = now; }
           if (k >= 1) land();
           if (Math.random() < 0.9 * step) fountain(reduced ? 1 : 4);
@@ -2972,6 +3009,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       shuffle(dur) { if (sample("shuffle", 0.8, 0, dur || 2.2)) return; for (let i = 0; i < 8; i++) noise({ at: i * 0.11, dur: 0.035, type: "highpass", f0: 2600, vol: 0.3, send: 0.1 }); },
       // slot machines: a reel notch passing, a reel coming to rest, coins paid out, a gem shattering
       reel() { if (sample("reeltick", 0.22)) return; ring([R(4200, 5200)], [0.015], 0.04, 0, 0.1); },
+      // anticipation: a rising, trembling tone while a reel holds back
+      tease(sec) { const c = ac(); if (!c) return; const t = c.currentTime, o = c.createOscillator(), lfo = c.createOscillator(), lg = c.createGain(), g = c.createGain(); o.type = "triangle"; o.frequency.setValueAtTime(330, t); o.frequency.exponentialRampToValueAtTime(880, t + sec); lfo.frequency.value = 11; lg.gain.value = 0.03; lfo.connect(lg).connect(g.gain); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.06, t + 0.15); g.gain.setValueAtTime(0.06, t + sec - 0.1); g.gain.linearRampToValueAtTime(0.0001, t + sec); o.connect(g); route(g, 0.4); o.start(t); lfo.start(t); o.stop(t + sec + 0.05); lfo.stop(t + sec + 0.05); },
       reelStop() { if (sample("reelstop", 0.55)) return; noise({ dur: 0.05, type: "lowpass", f0: 1600, vol: 0.35, send: 0.1 }); },
       coins(n) { if (!sample("coins", 0.6)) ring([R(3800, 4600), R(6200, 7400)], [0.12, 0.08], 0.07, 0, 0.35); if (n > 1) sample("coins", 0.45, R(0.25, 0.4)); if (n > 2) sample("coins", 0.35, R(0.6, 0.8)); },
       shatter() { if (sample("glass", 0.45)) return; noise({ dur: 0.03, type: "highpass", f0: 2600, vol: 0.4, send: 0.12 }); },
@@ -5890,6 +5929,20 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   sl.line = betLoad("sl") / 5;
   betbarWire("sl", () => sl.line * 5, (v) => { sl.line = v / 5; slRender(); }, () => sl.spinning || sl.auto > 0);
   $("#slSpin").addEventListener("click", () => { if (!sl.auto) slSpin(); });
+  /* Reels: each one lands with a small bump and a flash on its frame. When the bonus is one symbol away, the
+     reels still to stop hold back for an extra beat, glowing, with a rising tone (the result is already decided). */
+  function reelLand(reel) { if (!reel) return; reel.classList.remove("land", "tease"); void reel.offsetWidth; reel.classList.add("land"); setTimeout(() => reel.classList.remove("land"), 400); }
+  // tease[r]: reel r is the one that could complete the bonus
+  function teaseFrom(cols, isScat, need) { let n = 0; return cols.map((col, r) => { const t = n >= need; n += col.filter(isScat).length; return t; }); }
+  // stop times: later reels stop later; each teased reel adds an extra beat for itself and everything after it
+  function reelPlan(reels, base, step, tease, T, hold) {
+    let extra = 0;
+    return reels.map((reel, k) => { if (tease[k]) extra += hold || 1100; const dur = T(base + k * step + extra), from = tease[k] ? T(base + k * step + extra - (hold || 1100)) : 0; return { dur, from }; });
+  }
+  function reelRun(reel, plan) {
+    if (plan.from) setTimeout(() => { reel.classList.add("tease"); SND.tease((plan.dur - plan.from) / 1000); }, plan.from);
+    return new Promise((res) => setTimeout(() => { SND.reelStop(); reelLand(reel); res(); }, plan.dur));
+  }
   async function slSpin() {
     if (sl.spinning || !sl.line) return false;
     const cost = sl.line * 5;
@@ -5900,6 +5953,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const stops = [rand(20), rand(20), rand(20)];
     const cell = $("#slReels .reel").getBoundingClientRect().height / 3;
     const runs = [];
+    // the third reel holds back when the first two already show 7, ★ or BAR on a line
+    const lineHot = SL_LINES.some((rows) => { const a = SL_STRIPS[0][(stops[0] + rows[0]) % 20]; return a <= 2 && a === SL_STRIPS[1][(stops[1] + rows[1]) % 20]; });   // 7, ★ or BAR
+    const slPlan = reelPlan([0, 1, 2], 1100, 450, [false, false, lineHot], slT, 1000);
     $$("#slReels .reel").forEach((reel, r) => {
       const col = reel.querySelector(".col");
       const spins = 18 + r * 7;                               // later reels spin longer
@@ -5907,9 +5963,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       for (let k = 0; k < spins; k++) seq.push(rand(SL_SYM.length));
       seq.push(...visible(r, stops[r]));
       col.innerHTML = seq.map(symHTML).join("");
-      const dist = (seq.length - 3) * cell, dur = slT(1100 + r * 450);
+      const dist = (seq.length - 3) * cell, dur = slPlan[r].dur;
       const a = col.animate ? col.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.15,.6,.25,1)", fill: "forwards" }) : null;
-      runs.push(new Promise((res) => setTimeout(() => { SND.reelStop(); res(); }, dur)));
+      runs.push(reelRun(reel, slPlan[r]));
       if (!a) col.style.transform = "translateY(-" + dist + "px)";
     });
     // ticking while the reels run
@@ -5929,7 +5985,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (pay) { addBank(pay); if (pay < cost * 20) SND.win(); themeFx("slots", $$("#slReels .sym.win"), pay / cost); }
     machineFx("slots", pay, cost);
     msg($("#slMsg"), hits.length ? hits.join(" · ") + " · " + net(pay - cost) : "没有中奖 · " + net(-cost));
-    if (pay >= cost * 20) await bigWin(pay, cost, sl.speed);
+    if (pay >= cost * 20) await bigWin(pay, cost, sl.speed, "", "slots");
     sl.spinning = false; slRender();
     return true;
   }
@@ -6058,17 +6114,17 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   async function mgAnimate(grid) {
     const cell = $("#mgGrid .mreel").getBoundingClientRect().height / 3;
     const cur = reelCols().map((col) => [...col.querySelectorAll(".mc")].map((el) => el.outerHTML));
-    const runs = [];
+    const runs = [], mgPlan = reelPlan([0, 1, 2, 3, 4], 800, 220, teaseFrom(grid, (c) => c.s === "S", 2), mgT);
     reelCols().forEach((col, r) => {
-      const n = 10 + r * 4;
+      const n = 10 + r * 4 + (mgPlan[r].from ? 14 : 0);
       const parts = cur[r].slice(0, 3);
       for (let k = 0; k < n; k++) parts.push(cellHTML(randCell()));
       grid[r].forEach((c) => parts.push(cellHTML(c)));
       col.innerHTML = parts.join("");
-      const dist = (parts.length - 3) * cell, dur = mgT(800 + r * 220);
+      const dist = (parts.length - 3) * cell, dur = mgPlan[r].dur;
       if (col.animate) col.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.2,.65,.25,1)", fill: "forwards" });
       else col.style.transform = "translateY(-" + dist + "px)";
-      runs.push(new Promise((res) => setTimeout(() => { SND.reelStop(); res(); }, dur)));
+      runs.push(reelRun(col.parentElement, mgPlan[r]));
     });
     const tick = setInterval(() => SND.reel(), 70);
     await Promise.all(runs); clearInterval(tick);
@@ -6337,7 +6393,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     machineFx("gems", total, gm.bet);
     if (total >= gm.bet * 10 && !reduced) { const c = efxCanvas("gems"); bigFx("gems", c, c.width / c._d, c.height / c._d); }
     if (total > 0 && total < gm.bet * 20) SND.win();
-    if (total >= gm.bet * 20) await bigWin(total, gm.bet, gm.speed);
+    if (total >= gm.bet * 20) await bigWin(total, gm.bet, gm.speed, "", "gems");
     gm.spinning = false; gmRender();
     return true;
   }
@@ -6393,17 +6449,20 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     frClearLines();
     const cell = $("#frGrid .mreel").getBoundingClientRect().height / 3, runs = [];
     let k = 0;
+    const spinning = frCols().map((c, r) => r).filter((r) => !held[r]);
+    const frTease = spinning.map((r, i) => r === 4 && spinning.length === 5 && g[0].includes("X") && g[2].includes("X"));
+    const frPlan = reelPlan(spinning, 800, 230, frTease, frT);
     frCols().forEach((col, r) => {
       if (held[r]) return;
       const parts = [...col.querySelectorAll(".mc")].map((el) => el.outerHTML).slice(0, 3);
-      const n = 10 + k * 4; k++;
+      const pl = frPlan[k], n = 10 + k * 4 + (pl.from ? 14 : 0); k++;
       for (let i = 0; i < n; i++) parts.push(frCell(frDraw(r)));
       g[r].forEach((s) => parts.push(frCell(s)));
       col.innerHTML = parts.join("");
-      const dist = (parts.length - 3) * cell, dur = frT(800 + (k - 1) * 230);
+      const dist = (parts.length - 3) * cell, dur = pl.dur;
       if (col.animate) col.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.2,.65,.25,1)", fill: "forwards" });
       else col.style.transform = "translateY(-" + dist + "px)";
-      runs.push(new Promise((res) => setTimeout(() => { SND.reelStop(); res(); }, dur)));
+      runs.push(reelRun(col.parentElement, pl));
     });
     const tick = setInterval(() => SND.reel(), 70);
     await Promise.all(runs); clearInterval(tick);
@@ -6527,7 +6586,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     msg($("#frMsg"), (notes.length ? notes.join(" · ") + " · " : total ? "" : "没有中奖 · ") + (total ? "共赢 +" + fmt(total) + " · " : "") + net(total - fr.bet));
     machineFx("fruit", total, fr.bet);
     if (total > 0 && total < fr.bet * 20) SND.win();
-    if (total >= fr.bet * 20) await bigWin(total, fr.bet, fr.speed);
+    if (total >= fr.bet * 20) await bigWin(total, fr.bet, fr.speed, "", "fruit");
     fr.spinning = false; frRender();
     return true;
   }
@@ -6586,15 +6645,16 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   async function dvAnimate(g, T) {
     $("#dvLines").innerHTML = "";
     const cell = $("#dvGrid .mreel").getBoundingClientRect().height / 3, runs = [];
+    const dvPlan = reelPlan([0, 1, 2, 3, 4], 800, 230, teaseFrom(g, (c) => c.s === "X", 2), dvT);
     dvCols().forEach((col, r) => {
       const parts = [...col.querySelectorAll(".mc")].map((el) => el.outerHTML).slice(0, 3);
-      for (let i = 0; i < 10 + r * 4; i++) parts.push(dvCell(dvCellNew(T[r])));
+      for (let i = 0; i < 10 + r * 4 + (dvPlan[r].from ? 14 : 0); i++) parts.push(dvCell(dvCellNew(T[r])));
       g[r].forEach((c) => parts.push(dvCell(c)));
       col.innerHTML = parts.join("");
-      const dist = (parts.length - 3) * cell, dur = dvT(800 + r * 230);
+      const dist = (parts.length - 3) * cell, dur = dvPlan[r].dur;
       if (col.animate) col.animate([{ transform: "translateY(0)" }, { transform: "translateY(-" + dist + "px)" }], { duration: dur, easing: "cubic-bezier(.2,.65,.25,1)", fill: "forwards" });
       else col.style.transform = "translateY(-" + dist + "px)";
-      runs.push(new Promise((res) => setTimeout(() => { SND.reelStop(); res(); }, dur)));
+      runs.push(reelRun(col.parentElement, dvPlan[r]));
     });
     const tick = setInterval(() => SND.reel(), 70);
     await Promise.all(runs); clearInterval(tick);
@@ -6711,7 +6771,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     msg($("#dvMsg"), (notes.length ? notes.join(" · ") + " · " : total ? "共赢 +" + fmt(total) + " · " : "没有中奖 · ") + net(total - dv.bet));
     machineFx("diver", total, dv.bet);
     if (total > 0 && total < dv.bet * 20) SND.win();
-    if (total >= dv.bet * 20) await bigWin(total, dv.bet, dv.speed);
+    if (total >= dv.bet * 20) await bigWin(total, dv.bet, dv.speed, "", "diver");
     dv.spinning = false; dvRender();
     return true;
   }
@@ -6976,6 +7036,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     amb.innerHTML = Array.from({ length: 12 }, () => '<i style="--x:' + rand(96) + "%;--y:" + (4 + rand(88)) + "%;--d:" + (5 + rand(70) / 10) + "s;--l:-" + rand(90) / 10 + "s;--s:" + (0.6 + rand(90) / 100) + ";--h:" + rand(360) + '"></i>').join("");
     t.prepend(bulbs); t.prepend(amb);
   }
+  // 深海寻宝: fish shadows drifting behind the reels · 水果转轮: citrus slices floating up
+  const FISH = '<svg viewBox="0 0 60 28"><path d="M4 14c10-12 30-13 40-2l12-8-3 10 3 10-12-8C34 27 14 26 4 14z"/><circle cx="14" cy="12" r="1.6" fill="#000"/></svg>';
+  $("#v-diver .btable .amb").insertAdjacentHTML("beforeend", Array.from({ length: 4 }, (_, i) => '<b class="fish" style="--y:' + (14 + i * 20) + "%;--d:" + (16 + i * 5) + "s;--l:-" + (i * 6) + "s;--s:" + (0.7 + (i % 3) * 0.3) + (i % 2 ? ";--dir:-1" : "") + '">' + FISH + "</b>").join(""));
+  $("#v-fruit .btable .amb").insertAdjacentHTML("beforeend", Array.from({ length: 6 }, (_, i) => '<b class="slice" style="--x:' + (6 + i * 16) + "%;--d:" + (11 + i * 2) + "s;--l:-" + i * 3 + "s;--h:" + [30, 50, 95, 30, 50, 95][i] + '"></b>').join(""));
   // Restart the character sequence when another bonus follows immediately.
   function characterBonus(cabinet, kind) {
     delete cabinet.dataset.bonus;
