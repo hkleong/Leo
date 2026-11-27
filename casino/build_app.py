@@ -22,6 +22,9 @@ open(os.path.join(out, "sw.js"), "w", encoding="utf-8").write(sw)
 shutil.copy(os.path.join(HERE, "manifest.webmanifest"), out)
 for f in os.listdir(os.path.join(HERE, "icons")):
     shutil.copy(os.path.join(HERE, "icons", f), os.path.join(out, "icons", f))
+# illustrations (machine art); copied as a whole folder
+if os.path.isdir(os.path.join(HERE, "art")):
+    shutil.copytree(os.path.join(HERE, "art"), os.path.join(out, "art"), dirs_exist_ok=True)
 os.makedirs(os.path.join(out, "music"), exist_ok=True)
 for f in os.listdir(os.path.join(HERE, "music")):
     shutil.copy(os.path.join(HERE, "music", f), os.path.join(out, "music", f))

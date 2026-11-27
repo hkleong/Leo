@@ -1,7 +1,8 @@
 // Offline support for the 俱乐部 home-screen app.
 // Bump VERSION whenever index.html changes so installed copies pick up the update.
 const VERSION = "gbc-v1";
-const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
+const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png",
+  "art/dragon-marquee.webp", "art/dragon-reward.webp", "art/thor-poses.webp"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
