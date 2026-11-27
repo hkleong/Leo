@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.21.0">
+<meta name="version" content="0.21.1">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1100,26 +1100,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .cabinet .mreel { background: radial-gradient(ellipse at 50% 20%, #6b2020, #310a12 72%); }
 .cabinet .tboard { max-width: 100%; margin: 0; flex: none; }
 .cabinet-character {
-  --sprite-height: clamp(92px, 18vh, 200px);
+  --sprite-height: clamp(68px, 13vh, 126px);
   display: grid;
   place-items: center;
   height: var(--sprite-height);
   min-width: 0;
   pointer-events: none;
 }
-.cabinet-dragon-art { flex: none; width: 100%; }
-.cabinet-thor-art { flex: none; width: calc(var(--sprite-height) * 244 / 246); }
-/* 龙腾财宝: a one-line title on top, the dragon across the whole width lying on the reels */
-#v-dragon .cabinet-crown { flex-direction: column-reverse; align-items: stretch; gap: 0; }
-#v-dragon .cabinet-crown .mg-title { flex: none; flex-direction: row; align-self: center; align-items: baseline; padding-block: 1px; }
-#v-dragon .cabinet-character { --sprite-height: clamp(80px, 15vh, 170px); }
-/* the character stands on the reel frame: crown aligned to its bottom, overlapping the frame by a few px */
-.cabinet .cabinet-crown { align-items: flex-end; min-height: 0; margin-bottom: -7px; position: relative; z-index: 3; padding-bottom: 0; }
-.cabinet .cabinet-crown .mg-title { align-self: center; }
-.cabinet .cabinet-character { place-items: end center; }
-.cabinet .slot-idle, .cabinet .slot-sprite { filter: drop-shadow(0 4px 3px #000c) drop-shadow(0 0 10px var(--cab-glow)); }
-.cabinet .mgrid, .cabinet .tboard { position: relative; z-index: 2; }
-.cabinet .tn-head .tn-bar { margin-top: 4px; min-height: 22px; }
+.cabinet-dragon-art { flex: 0 1 350px; }
+.cabinet-thor-art { flex: 0 1 230px; }
 
 .slot-idle, .slot-sprite {
   display: block;
@@ -1157,12 +1146,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   display: none;
   justify-items: center;
 }
-.bigwin[data-character="dragon"] .bw-character,
-.bigwin[data-character="thor"] .bw-character { display: grid; }
-.bw-character .slot-sprite { display: none; }
-.bigwin[data-character="dragon"] .slot-sprite.dragon,
-.bigwin[data-character="thor"] .slot-sprite.thor {
-  display: block;
+.bigwin[data-character]:not([data-character=""]) .bw-character { display: grid; }
+.bigwin .bw-character .slot-sprite {
   animation: hero-reward 1.5s steps(1, end) both;
 }
 /* The 4 × 6 atlas follows the approved GIF's 24 individual frame delays. */
@@ -1219,40 +1204,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   .cabinet[data-bonus] .slot-sprite,
   .bigwin[data-character] .bw-character .slot-sprite { background-position: 100% 60%; }
 }
-
-/* Machine titles printed on the cabinet: metallic gradient lettering in the machine's colours with a soft glow,
-   a small shadowed subtitle and a fading light line underneath, no box behind them. */
-#v-dragon { --tt1: #fff6d0; --tt2: #f6c453; --tt3: #c0561c; --tglow: rgba(255,140,50,.55); }
-#v-gems   { --tt1: #f4fbff; --tt2: #a8d8ff; --tt3: #4a7fd8; --tglow: rgba(120,190,255,.6); }
-#v-fruit  { --tt1: #fbffe0; --tt2: #b8f06a; --tt3: #2f9a4a; --tglow: rgba(150,240,110,.45); }
-#v-diver  { --tt1: #f0fdff; --tt2: #8fe4ff; --tt3: #1f7fb8; --tglow: rgba(90,200,255,.55); }
-#v-thor   { --tt1: #ffffff; --tt2: #cfe8ff; --tt3: #5f9cff; --tglow: rgba(110,180,255,.75); }
-#v-dragon .mg-title > b, #v-gems .gm-head > b, #v-fruit .mg-title > b, #v-diver .mg-title > b, #v-thor .tn-head > b {
-  font-family: var(--display); font-weight: 900; letter-spacing: .14em;
-  color: transparent; background: linear-gradient(180deg, var(--tt1) 8%, var(--tt2) 52%, var(--tt3) 96%);
-  -webkit-background-clip: text; background-clip: text;
-  text-shadow: none !important;
-  filter: drop-shadow(0 2px 0 rgba(0,0,0,.65)) drop-shadow(0 0 10px var(--tglow));
-}
-#v-dragon .mg-title, #v-gems .gm-head, #v-fruit .mg-title, #v-diver .mg-title, #v-thor .tn-head, #v-slots .slot-top {
-  position: relative; border: 0 !important; background: none !important; padding-bottom: 6px;
-}
-#v-dragon .mg-title::after, #v-gems .gm-head::after, #v-fruit .mg-title::after, #v-diver .mg-title::after, #v-thor .tn-head::after, #v-slots .slot-top::after {
-  content: ""; position: absolute; left: 8%; right: 8%; bottom: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--tt2, #e7c76f) 50%, transparent); opacity: .7;
-  box-shadow: 0 0 6px var(--tglow, rgba(231,199,111,.5));
-}
-#v-dragon .mg-title .note, #v-gems .gm-head .note, #v-fruit .mg-title .note, #v-diver .mg-title .note, #v-thor .tn-head .note, #v-slots .slot-top .note {
-  color: var(--tt1, #f2ead8); opacity: .82; letter-spacing: .06em; text-shadow: 0 1px 3px #000, 0 0 8px var(--tglow, transparent);
-}
-/* 雷神 title block keeps one fixed size, so free-spin counters and the win amount never push the title around */
-#v-thor .cabinet-crown .tn-head { flex: 0 0 clamp(150px, 40%, 200px); width: clamp(150px, 40%, 200px); }
-#v-thor .tn-head .note { display: block; width: 100%; height: 2.5em; line-height: 1.25; overflow: hidden; white-space: normal; text-align: center; }
-#v-thor .tn-head .tn-bar { height: 26px; min-height: 0; flex-wrap: nowrap; white-space: nowrap; width: 100%; }
-#v-thor .tn-head .tn-win { font-variant-numeric: tabular-nums; }
-/* the big-win hero keeps moving for the whole celebration */
-.bigwin[data-character="dragon"] .slot-sprite.dragon,
-.bigwin[data-character="thor"] .slot-sprite.thor { animation: hero-reward 1.5s steps(1, end) infinite; filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 16px rgba(255,200,90,.55)); }
 
 /* reels land with a bump and a flash; a teased reel glows and trembles while it holds back */
 .mreel.land, #slReels .reel.land { animation: reelland .34s cubic-bezier(.3,1.6,.5,1); }
@@ -1366,6 +1317,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 @keyframes sshole { 0% { transform: scale(2.4); opacity: 0; box-shadow: 0 0 20px 8px rgba(255,220,120,.9); } 15% { transform: scale(1); opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 .ss-opp .say, .ss-mine .say { position: absolute; z-index: 7; right: 10px; top: -6px; }
 </style>
+<link rel="stylesheet" href="cabinet-test.css">
 
 <header class="top">
   <div class="top-in">
@@ -1859,7 +1811,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   </symbol>
 </svg>
 <div class="toasts" id="toasts" aria-live="polite"></div>
-<div class="bigwin" id="bigwin" hidden role="dialog" aria-label="大奖"><canvas></canvas><div class="bw-in"><div class="bw-character" aria-hidden="true"><span class="slot-sprite dragon"></span><span class="slot-sprite thor"></span></div><p class="bw-t">大奖</p><p class="bw-e">BIG WIN</p><b class="bw-amt">0</b><span class="bw-skip">点击任意处跳过</span></div></div>
+<div class="bigwin" id="bigwin" hidden role="dialog" aria-label="大奖"><canvas></canvas><div class="bw-in"><div class="bw-character" aria-hidden="true"><span class="slot-sprite"></span></div><p class="bw-t">大奖</p><p class="bw-e">BIG WIN</p><b class="bw-amt">0</b><span class="bw-skip">点击任意处跳过</span></div></div>
 <main>
   <!-- Lobby -->
   <section id="v-lobby">
@@ -1891,24 +1843,49 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 雷神之锤 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.21.0</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.21.1</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.21.0</b> <i class="vmaj">大改版</i><span>新游戏「十三张」：练习桌对 3 个 AI，或开房间和朋友联机（2–4 人，空位 AI 补上）；点选摆牌、自动摆牌、报到、逐道比牌、打枪、全垒打</span></li><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.21.1</b><span>百家乐加入双手发牌和右侧牌靴，荷官桌面与牌局同步显示白色牌面。老虎机重绘机台，并更新吉祥物待机和奖励动画。</span></li><li><b>v0.21.0</b> <i class="vmaj">大改版</i><span>新游戏「十三张」：练习桌对 3 个 AI，或开房间和朋友联机（2–4 人，空位 AI 补上）；点选摆牌、自动摆牌、报到、逐道比牌、打枪、全垒打</span></li><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
     <p class="note" style="margin-top:10px">音乐与音效的作者和授权：点右上角 ♪ 查看。</p>
   </div></div>
 
   <!-- Baccarat -->
   <section id="v-baccarat" class="game" hidden>
-    <div class="btable bac">
-      <div class="tname" id="bacTName" aria-hidden="true">A</div>
-      <div class="cdring" id="bacCd" aria-live="off" title="距离自动开局的秒数">15</div>
+    <div class="bac-dealer-stage" id="bacScene">
+      <span class="bac-scene-kicker">荷官桌面</span>
+      <div class="bac-dealer-person" aria-hidden="true">
+        <div class="bac-dealer-portrait" id="bacDealerPortrait"></div>
+        <div class="shoebox" id="bacShoeBox"></div>
+        <i class="bac-mark" id="bacShoeMouth"></i>
+        <i class="bac-mark" id="bacDrawGrip"></i>
+        <i class="bac-mark" id="bacHandoff"></i>
+        <i class="bac-mark" id="bacPush"></i>
+        <i class="bac-mark" id="bacDealerRelease"></i>
+      </div>
+      <div class="bac-felt-board" aria-hidden="true">
+        <div class="bac-felt-zone"><small>闲</small><div class="bac-felt-lane" id="bacFeltP"></div></div>
+        <div class="bac-felt-zone"><small>庄</small><div class="bac-felt-lane" id="bacFeltB"></div></div>
+      </div>
       <div class="cutcard" id="bacLast" hidden><span>LAST<br>HAND</span></div>
-      <div class="shoebox" id="bacShoeBox" aria-hidden="true"></div>
-      <div class="bside bp-side" id="bacPSide"><div class="blabel">PLAYER</div><div class="hand" id="bacP"></div><div class="btotal" id="bacPT">–</div></div>
-      <div class="bside bb-side" id="bacBSide"><div class="blabel">BANKER</div><div class="hand" id="bacB"></div><div class="btotal" id="bacBT">–</div></div>
+      <button class="bac-dealer-try" id="bacDealerTry" type="button">试发一局</button>
+    </div>
+    <div class="btable bac" role="group" aria-labelledby="bacResultLabel">
+      <div class="bac-result-head">
+        <div class="bac-result-label" id="bacResultLabel">牌局画面</div>
+        <div class="cdring" id="bacCd" aria-live="off" title="距离自动开局的秒数">15</div>
+      </div>
+      <div class="tname" id="bacTName" aria-hidden="true">A</div>
+      <div class="bside bp-side" id="bacPSide">
+        <div class="bac-side-head"><div class="blabel">PLAYER</div><div class="btotal" id="bacPT">–</div></div>
+        <div class="hand" id="bacP"></div>
+      </div>
+      <div class="bside bb-side" id="bacBSide">
+        <div class="bac-side-head"><div class="blabel">BANKER</div><div class="btotal" id="bacBT">–</div></div>
+        <div class="hand" id="bacB"></div>
+      </div>
       <p class="bresult" id="bacMsg">下注后等待开局</p>
     </div>
     <div class="roads">
@@ -2501,8 +2478,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   <!-- 宝石瀑布: 6x5 cascading pay-anywhere slot -->
   <section id="v-gems" class="game" hidden>
     <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#g-D"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
-    <div class="btable col gm">
-      <div class="gm-head"><b>宝石瀑布</b><span class="note" id="gmMode">任意位置 8 个相同即中奖</span></div>
+    <div class="btable col gm cabinet cabinet-gems">
+      <div class="cabinet-crown">
+        <div class="mg-title"><b>宝石瀑布</b><span class="note" id="gmMode">任意位置 8 个相同即中奖</span></div>
+        <div class="cabinet-character mascot" aria-hidden="true">
+          <span class="slot-idle mascot gems"></span>
+          <span class="slot-sprite mascot gems"></span>
+        </div>
+      </div>
       <div class="ladder" id="gmLadder"><i>×1</i><i>×2</i><i>×3</i><i>×5</i><i>×10</i></div>
       <div class="gboard" id="gmBoard"></div>
       <div class="gm-win" id="gmWin"></div>
@@ -2562,8 +2545,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   <!-- 水果转轮: 5x3, 20 lines, expanding wild respins, bonus prize wheel -->
   <section id="v-fruit" class="game" hidden>
     <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#f-X"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
-    <div class="btable col fr">
-      <div class="mg-title"><b>水果转轮</b><span class="note" id="frMode">20 线 · 5 × 3</span></div>
+    <div class="btable col fr cabinet cabinet-fruit">
+      <div class="cabinet-crown">
+        <div class="mg-title"><b>水果转轮</b><span class="note" id="frMode">20 线 · 5 × 3</span></div>
+        <div class="cabinet-character mascot" aria-hidden="true">
+          <span class="slot-idle mascot fruit"></span>
+          <span class="slot-sprite mascot fruit"></span>
+        </div>
+      </div>
       <div class="frbox"><div class="mgrid frgrid" id="frGrid"></div><svg class="frlines" id="frLines" viewBox="0 0 500 300" preserveAspectRatio="none" aria-hidden="true"></svg></div>
       <p class="tmsg" id="frMsg">百搭出现就扩展整列并锁住重转 · 3 个转轮进入奖金转盘</p>
       <div class="mg-banner" id="frBanner" hidden></div>
@@ -2611,8 +2600,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   <!-- 深海寻宝: 5x3, 10 lines, collect feature in free spins -->
   <section id="v-diver" class="game" hidden>
     <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-W"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
-    <div class="btable col dv">
-      <div class="mg-title"><b>深海寻宝</b><span class="note" id="dvMode">10 线 · 5 × 3</span></div>
+    <div class="btable col dv cabinet cabinet-diver">
+      <div class="cabinet-crown">
+        <div class="cabinet-character mascot" aria-hidden="true">
+          <span class="slot-idle mascot diver"></span>
+          <span class="slot-sprite mascot diver"></span>
+        </div>
+        <div class="mg-title"><b>深海寻宝</b><span class="note" id="dvMode">10 线 · 5 × 3</span></div>
+      </div>
       <div class="dvbar" id="dvBar"><span class="dv-lv">倍数 <b id="dvLv">×1</b></span><span class="dv-pips" id="dvPips"><i></i><i></i><i></i><i></i></span><span class="dv-fs" id="dvFs">免费旋转时潜水员收集宝箱</span></div>
       <div class="frbox"><div class="mgrid dvgrid" id="dvGrid"></div><svg class="frlines" id="dvLines" viewBox="0 0 500 300" preserveAspectRatio="none" aria-hidden="true"></svg></div>
       <p class="tmsg" id="dvMsg">3 个船舵进入免费旋转 · 潜水员把宝箱里的钱全部收走</p>
@@ -2666,12 +2661,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     <div class="btable col tn cabinet cabinet-thor">
       <div class="tn-sky" aria-hidden="true"></div>
       <div class="cabinet-crown">
-        <div class="mg-title tn-head"><b>雷神之锤</b><span class="note" id="tnMode">任意位置 8 个相同即中奖</span><div class="tn-bar"><span class="tn-mult" id="tnMult" hidden>×<b>0</b></span><span class="tn-win" id="tnWinNow"></span></div></div>
+        <div class="mg-title tn-head"><b>雷神之锤</b><span class="note" id="tnMode">任意位置 8 个相同即中奖</span></div>
         <div class="cabinet-character cabinet-thor-art" aria-hidden="true">
           <span class="slot-idle thor"></span>
           <span class="slot-sprite thor"></span>
         </div>
       </div>
+      <div class="tn-bar"><span class="tn-mult" id="tnMult" hidden>×<b>0</b></span><span class="tn-win" id="tnWinNow"></span></div>
       <div class="tboard" id="tnBoard"></div>
       <div class="gm-win" id="tnWin"></div>
       <canvas class="tn-fx" id="tnFx" aria-hidden="true"></canvas>
@@ -2788,8 +2784,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   <!-- Slot machine -->
   <section id="v-slots" class="game" hidden>
     <div class="mtabs"><button class="mt-pick" type="button" aria-haspopup="dialog"><svg class="art" viewBox="0 0 100 100" aria-hidden="true"><use href="#s-7"/></svg><span>老虎机系列</span><b class="mt-cur"></b><i aria-hidden="true">▾</i></button></div>
-    <div class="btable col slot">
-      <div class="slot-top"><b>幸运 7</b><span class="note">3 卷轴 · 5 条线</span></div>
+    <div class="btable col slot cabinet cabinet-slots">
+      <div class="cabinet-crown solo">
+        <div class="mg-title"><b>幸运 7</b><span class="note">3 卷轴 · 5 条线</span></div>
+      </div>
       <div class="slot-cab">
         <div class="lmarks" aria-hidden="true"><i data-l="1">2</i><i data-l="3">4</i><i data-l="0">1</i><i data-l="4">5</i><i data-l="2">3</i></div>
         <div class="reels" id="slReels"></div>
@@ -2967,6 +2965,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     return new Promise((resolve) => {
       const ov = $("#bigwin"), cv = ov.querySelector("canvas"), g = cv.getContext("2d"), amtEl = ov.querySelector(".bw-amt");
       ov.dataset.character = character || ""; ov.dataset.theme = theme || character || "";
+      const sprite = ov.querySelector(".bw-character .slot-sprite");
+      sprite.className = character ? "slot-sprite " + character : "slot-sprite";
+      sprite.classList.toggle("mascot", !!character && character !== "dragon" && character !== "thor");
       // the title starts at 大奖 and climbs a tier each time the counter passes 50×, 100× and 250× the bet
       const tEl = ov.querySelector(".bw-t"), eEl = ov.querySelector(".bw-e");
       let tierNow = -1;
@@ -3390,6 +3391,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   const MACHINES = ["dragon", "gems", "fruit", "diver", "thor", "slots"], MACHINE_NAME = { dragon: "龙腾财宝", gems: "宝石瀑布", fruit: "水果转轮", diver: "深海寻宝", thor: "雷神之锤", slots: "幸运 7" };
   function show(v) {
     if (!VIEWS.includes(v)) v = "lobby";
+    if (S.view === "baccarat" && v !== "baccarat") stopBacGesture();
     S.view = v;
     VIEWS.forEach((x) => { $("#v-" + x).hidden = x !== v; });
     const navKey = MACHINES.includes(v) ? "slotseries" : ["room", "proom"].includes(v) ? "online" : v;
@@ -3410,24 +3412,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (v === "proom") prRender();
     if (v === "online") onRender();
     if (v === "sss") ssRender();
-    if (v === "dragon" || v === "thor") fitCabinet(v);
-    // fetch a machine's win animation as soon as the machine opens, so it is ready for the first win
-    if ((v === "dragon" || v === "thor") && !show["art" + v]) { show["art" + v] = true; (new Image()).src = "art/" + v + "-reward-24.webp"; }
     renderAuto();
   }
-  // The illustrated cabinets (龙腾财宝, 雷神之锤) must fit one screen: if the page overflows, shrink the character
-  // first (down to 44px) and then the reel cells, by exactly the amount that is missing.
-  function fitCabinet(v) {
-    const sec = $("#v-" + v), main = $("main"), cellVar = v === "dragon" ? "--mc" : "--tc", rows = v === "dragon" ? 3 : 5;
-    const chr = sec.querySelector(".cabinet-character"), over = () => main.scrollHeight - main.clientHeight;
-    sec.style.removeProperty(cellVar); chr.style.removeProperty("--sprite-height");
-    const cellNow = () => parseFloat(getComputedStyle(sec).getPropertyValue(cellVar)) || (v === "dragon" ? sec.querySelector(".mc") : sec.querySelector(".tcell")).getBoundingClientRect().height;
-    const shrinkCells = (floor) => { const o = over(); if (o <= 0) return; const c = cellNow(); if (c > floor) sec.style.setProperty(cellVar, Math.max(floor, Math.floor(c - o / rows - 1)) + "px"); };
-    shrinkCells(v === "dragon" ? 58 : 44);                                  // 1. reels give a little
-    if (over() > 0) { const h = chr.getBoundingClientRect().height, cut = Math.min(over(), Math.max(0, h - 64)); if (cut > 0) chr.style.setProperty("--sprite-height", (h - cut) + "px"); }   // 2. then the character
-    shrinkCells(26);                                                          // 3. then the reels again
-  }
-  addEventListener("resize", () => { if (S.view === "dragon" || S.view === "thor") fitCabinet(S.view); });
   function go(v) {
     if (location.hash.slice(1) === v || (v === "lobby" && !location.hash)) show(v);
     else location.hash = v === "lobby" ? "" : v;
@@ -3516,6 +3502,66 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     bets: emptyBets(), hist: [], last: null, lastHand: null,
   }));
   let bac = tables[0];
+  const bacPortrait = $("#bacDealerPortrait");
+  const bacPortraitArt = new Image();
+  bacPortraitArt.src = "art/baccarat-dealer-two-hands.webp";
+  const BAC_GESTURE_MS = 760;
+  const BAC_POSES = [0, .09, .20, .36, .49, .625, .78, .92, 1];
+  let bacGesture = null;
+  function stopBacGesture(landed = false) {
+    if (!bacGesture) return;
+    bacGesture.portrait.cancel();
+    bacGesture.deal.cancel();
+    if (landed) delete bacGesture.card.dataset.inFlight;
+    else bacGesture.card.remove();
+    bacGesture = null;
+  }
+  function bacDeskCard(data) {
+    const slot = document.createElement("div");
+    slot.className = "bac-felt-card";
+    slot.appendChild(flipCard(data));
+    return slot;
+  }
+  function drawBacDesk(player, banker) {
+    for (const [side, cards] of [["P", player], ["B", banker]]) {
+      $("#bacFelt" + side).replaceChildren(...cards.map(bacDeskCard));
+    }
+  }
+  function playBacGesture(side, data) {
+    if (reduced || !bacPortrait.animate || !bacPortraitArt.complete || !bacPortraitArt.naturalWidth) return null;
+    stopBacGesture();
+    const poses = BAC_POSES.map((offset, index) => {
+      const frame = side === "B" && index === 6 ? 7 : Math.min(index, 7);
+      return { offset, backgroundPosition: (frame % 4 * 100 / 3) + "% " + (frame < 4 ? "0%" : "100%"), easing: "step-end" };
+    });
+    const card = bacDeskCard(data);
+    card.dataset.inFlight = "";
+    $("#bacFelt" + side).appendChild(card);
+    const dest = card.getBoundingClientRect();
+    const poseAt = (sel, offset, opacity, angle, scale, easing = "linear") => {
+      const point = $(sel).getBoundingClientRect();
+      const x = point.left + point.width / 2 - (dest.left + dest.width / 2);
+      const y = point.top + point.height / 2 - (dest.top + dest.height / 2);
+      return { offset, opacity, transform: "translate(" + x + "px," + y + "px) rotate(" + angle + "deg) scale(" + scale + ")", easing };
+    };
+    const cardPoses = [
+      poseAt("#bacShoeMouth", 0, 0, -19, .83),
+      poseAt("#bacShoeMouth", .225, 0, -19, .83),
+      poseAt("#bacShoeMouth", .25, 1, -19, .83, "cubic-bezier(.22,.56,.36,1)"),
+      poseAt("#bacDrawGrip", .39, 1, -11, .89, "ease-out"),
+      poseAt("#bacHandoff", .52, 1, -6, .94, "ease-in-out"),
+      poseAt("#bacPush", .65, 1, -3, .97, "cubic-bezier(.18,.65,.35,1)"),
+      ...(side === "P" ? [poseAt("#bacDealerRelease", .79, 1, 0, .99, "ease-out")] : []),
+      { offset: .97, opacity: 1, transform: "none" },
+      { offset: 1, opacity: 1, transform: "none" },
+    ];
+    bacGesture = {
+      card,
+      portrait: bacPortrait.animate(poses, { duration: BAC_GESTURE_MS }),
+      deal: card.animate(cardPoses, { duration: BAC_GESTURE_MS, fill: "both" }),
+    };
+    return bacGesture;
+  }
   const validCards = (cs) => Array.isArray(cs) && cs.length >= tables[0].shoe.cut && cs.every((c) => c && RANKS.includes(c.r) && SUITS.includes(c.s));
   const cleanRoad = (r) => (Array.isArray(r) ? r : []).filter((e) => e && ["P", "B", "T"].includes(e.w)).map((e) => ({ w: e.w, pp: !!e.pp, bp: !!e.bp }));
   // Roads and shoes survive leaving the page
@@ -3549,6 +3595,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $$("#v-baccarat .spot").forEach((s) => { setStake(s.querySelector(".stake"), bac.bets[s.dataset.bac]); s.disabled = bac.busy; });
     const has = bacTotal() > 0;
     $("#bacDeal").disabled = bac.busy;
+    $("#bacDealerTry").disabled = bac.busy || has;
     $("#bacShuffle").disabled = bac.busy;
     $("#bacClear").disabled = bac.busy || !has;
     $("#bacRebet").disabled = bac.busy || !bac.last;
@@ -3570,6 +3617,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     clearWins();
     const pe = $("#bacP"), be = $("#bacB"), h = bac.lastHand;
     pe.innerHTML = ""; be.innerHTML = "";
+    drawBacDesk(h && !h.swept ? h.P : [], h && !h.swept ? h.B : []);
     if (!h || h.swept) { $("#bacPT").textContent = "–"; $("#bacBT").textContent = "–"; msg($("#bacMsg"), h ? "请下注 · 上局 " + h.msg : "百家乐 " + bac.name + " 桌 · 请下注"); return; }
     h.P.forEach((c) => pe.appendChild(flipCard(c))); h.B.forEach((c) => be.appendChild(flipCard(c)));
     $("#bacPT").textContent = bt(h.P); $("#bacBT").textContent = bt(h.B);
@@ -3579,7 +3627,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   // Swipe left / right on the table to move to the next / previous table
   {
-    const top = () => ["#v-baccarat .btable", "#v-baccarat .roads", "#v-baccarat .bstats"].map((q) => $(q));
+    const top = () => ["#bacScene", "#v-baccarat .btable", "#v-baccarat .roads", "#v-baccarat .bstats"].map((q) => $(q));
     const can = () => !bac.shuffling; can.reason = () => "换牌靴中，稍后再换桌";
     dragSwitch($("#v-baccarat"), top, can, (d) => {
       useTable((tables.indexOf(bac) + d + tables.length) % tables.length);
@@ -3588,6 +3636,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function useTable(i) {
     if (bac.shuffling || tables[i] === bac) return;
+    stopBacGesture();
     bac = tables[i]; bacSave();
     if (bac.inDeal) drawInDeal(bac); else showLastHand();
     renderRoad(); bacRender();
@@ -3621,6 +3670,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   wireTableBets({ p: "bac", spots: "#v-baccarat .spot", attr: "bac", msg: "#bacMsg", keys: BAC_KEYS, empty: emptyBets, cur: () => bac, render: () => bacRender(), clearWins: () => clearWins() });
   $("#bacDeal").addEventListener("click", () => bacDeal());
+  $("#bacDealerTry").addEventListener("click", () => { if (!bac.busy && !bacTotal()) bacDeal(); });
   $("#bacShuffle").addEventListener("click", () => { if (!bac.busy) changeShoe(bac, true); });
 
   // Dragon Bonus multiplier (stake included): natural win 1:1, natural tie push, non-natural win by 9..4 pays 30..1
@@ -3690,7 +3740,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function announceLast(tb, game) {
     const here = game === "bac" ? tb === bac && S.view === "baccarat" : tb === dt && S.view === "dt";
-    if (here) lastBanner(game === "bac" ? "#v-baccarat .btable" : "#v-dt .btable");
+    if (here) lastBanner(game === "bac" ? "#bacScene" : "#v-dt .btable");
     else if (hasBets(tb)) toast((game === "bac" ? "百家乐 " : "龙虎 ") + tb.name + " 桌 · 下一局是最后一局");
     renderAuto();
   }
@@ -3736,7 +3786,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     tb.busy = true; tb.shuffling = true; bacRender();
     showLastHand(); renderRoad();
     msg($("#bacMsg"), "换牌靴");
-    await playShoeChange(b, $("#v-baccarat .btable"), "#bacShoeBox");
+    await playShoeChange(b, $("#bacScene"), "#bacShoeBox");
     tb.shuffling = false; tb.busy = false; tb.autoLeft = AUTO;
     msg($("#bacMsg"), tb.burnNote);
     bacRender();
@@ -3802,15 +3852,31 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   async function runDeal(tb, hand) {
     tb.inDeal = { order: hand.order, n: 0 };
     if (bac === tb && S.view === "baccarat") drawInDeal(tb);
-    for (const [s, c] of hand.order) {
+    const isWatched = () => bac === tb && S.view === "baccarat";
+    const move = reduced ? 60 : BAC_GESTURE_MS;
+    const reveal = reduced ? 40 : MOVE_MS + 260 - BAC_GESTURE_MS;
+    for (const [side, card] of hand.order) {
+      const motion = isWatched() ? playBacGesture(side, card) : null;
+      if (motion) setTimeout(() => { if (isWatched() && bacGesture === motion) SND.deal(); }, BAC_GESTURE_MS * .25);
+      await sleep(move);
       tb.inDeal.n++;
-      if (bac === tb && S.view === "baccarat") {
-        const el = flipCard(c); (s === "P" ? $("#bacP") : $("#bacB")).appendChild(el);
-        SND.deal(); dealFromShoe(el, "#bacShoeBox");
-        await sleep(MOVE_MS * 0.62);
-        if (bac === tb && S.view === "baccarat") { SND.flip(); inDealTotals(tb); }
-        await sleep(MOVE_MS * 0.38 + (reduced ? 40 : 260));
-      } else await sleep(reduced ? 20 : MOVE_MS + 260);
+      if (isWatched()) {
+        const landed = !!motion && bacGesture === motion;
+        const upper = landed ? motion.card : bacDeskCard(card);
+        stopBacGesture(landed);
+        if (!landed) { SND.deal(); $("#bacFelt" + side).appendChild(upper); }
+        const lower = flipCard(card);
+        $("#bac" + side).appendChild(lower);
+        for (const el of [upper, lower]) {
+          const inner = el.querySelector(".inner");
+          if (!reduced && inner.animate) inner.animate(
+            [{ transform: "rotateY(180deg)" }, { transform: "rotateY(0deg)" }],
+            { duration: reveal, easing: "ease-out" }
+          );
+        }
+      }
+      await sleep(reveal);
+      if (isWatched()) { SND.flip(); inDealTotals(tb); }
     }
     tb.inDeal = null;
   }
@@ -3819,9 +3885,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     for (const side of ["P", "B"]) { const cs = got.filter((x) => x[0] === side).map((x) => x[1]); $("#bac" + side + "T").textContent = cs.length ? bt(cs) : "–"; }
   }
   function drawInDeal(tb) {
+    if (bacGesture) return;
     clearWins();
     $("#bacP").innerHTML = ""; $("#bacB").innerHTML = "";
-    tb.inDeal.order.slice(0, tb.inDeal.n).forEach(([s, c]) => (s === "P" ? $("#bacP") : $("#bacB")).appendChild(flipCard(c)));
+    const dealt = { P: [], B: [] };
+    for (const [side, card] of tb.inDeal.order.slice(0, tb.inDeal.n)) {
+      dealt[side].push(card);
+      $("#bac" + side).appendChild(flipCard(card));
+    }
+    drawBacDesk(dealt.P, dealt.B);
     inDealTotals(tb);
     msg($("#bacMsg"), "停止下注 · 发牌中");
   }
@@ -7211,6 +7283,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     return { total, lad, stars, steps: notes.length };
   }
   async function gmFree(stars) {
+    characterBonus($("#v-gems .cabinet"), "free-spins");
     let left = GMC.FS, done = 0, lad = 0, total = 0;
     gmShowWin("免费旋转 " + left + " 次"); SND.win(); await sleep(gT(900));
     await tapToStart(gm, gmRender, "▶ 开始免费旋转 · " + left + " 次");
@@ -7219,7 +7292,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       $("#gmMode").textContent = "免费旋转 " + done + " / " + (done + left) + " · 累计 +" + fmt(total);
       const r = await gmOne(lad);
       total += r.total; lad = r.lad;                       // the multiplier ladder carries over
-      if (r.stars >= 3) { left += GMC.FS_RE; gmShowWin("再得 " + GMC.FS_RE + " 次"); await sleep(gT(1200)); }
+      if (r.stars >= 3) { left += GMC.FS_RE; characterBonus($("#v-gems .cabinet"), "retrigger"); gmShowWin("再得 " + GMC.FS_RE + " 次"); await sleep(gT(1200)); }
       $("#gmMode").textContent = "免费旋转 " + done + " / " + (done + left) + " · 累计 +" + fmt(total);
       await sleep(gT(450));
     }
@@ -7250,7 +7323,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     machineFx("gems", total, gm.bet);
     if (total >= gm.bet * 10 && !reduced) { const c = efxCanvas("gems"); bigFx("gems", c, c.width / c._d, c.height / c._d); }
     if (total > 0 && total < gm.bet * 20) SND.win();
-    if (total >= gm.bet * 20) await bigWin(total, gm.bet, gm.speed, "", "gems");
+    if (total >= gm.bet * 20) await bigWin(total, gm.bet, gm.speed, "gems");
     gm.spinning = false; gmRender();
     return true;
   }
@@ -7368,6 +7441,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#frDisc").innerHTML = h;
   })();
   async function frWheelSpin() {
+    characterBonus($("#v-fruit .cabinet"), "wheel");
     const ov = $("#frWheel"), disc = $("#frDisc"), n = FRC.WHEEL.length, idx = rand(n);
     frBanner("奖金转盘", "3 个转轮"); SND.win(); await sleep(frT(1500)); $("#frBanner").hidden = true;
     ov.hidden = false; $("#frWheelRes").textContent = "点一下转动转盘";
@@ -7443,7 +7517,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     msg($("#frMsg"), (notes.length ? notes.join(" · ") + " · " : total ? "" : "没有中奖 · ") + (total ? "共赢 +" + fmt(total) + " · " : "") + net(total - fr.bet));
     machineFx("fruit", total, fr.bet);
     if (total > 0 && total < fr.bet * 20) SND.win();
-    if (total >= fr.bet * 20) await bigWin(total, fr.bet, fr.speed, "", "fruit");
+    if (total >= fr.bet * 20) await bigWin(total, fr.bet, fr.speed, "fruit");
     fr.spinning = false; frRender();
     return true;
   }
@@ -7568,6 +7642,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   async function dvFree(n) {
     const tb = $("#v-diver .btable");
     tb.classList.add("free");
+    characterBonus(tb, "free-spins");
     { const b = $("#dvBanner"); b.innerHTML = "<b>免费旋转 " + n + " 次</b><span>潜水员会收集所有宝箱 · 点「开始」</span>"; b.hidden = false; b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); }
     await sleep(dvT(600));
     await tapToStart(dv, dvRender, "▶ 开始免费旋转 · " + n + " 次"); $("#dvBanner").hidden = true;
@@ -7628,7 +7703,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     msg($("#dvMsg"), (notes.length ? notes.join(" · ") + " · " : total ? "共赢 +" + fmt(total) + " · " : "没有中奖 · ") + net(total - dv.bet));
     machineFx("diver", total, dv.bet);
     if (total > 0 && total < dv.bet * 20) SND.win();
-    if (total >= dv.bet * 20) await bigWin(total, dv.bet, dv.speed, "", "diver");
+    if (total >= dv.bet * 20) await bigWin(total, dv.bet, dv.speed, "diver");
     dv.spinning = false; dvRender();
     return true;
   }
@@ -7882,6 +7957,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   for (const m in DECO) {
     const t = $("#v-" + m + " .btable");
     t.classList.add("deco", "deco-" + DECO[m]);
+    if (t.querySelector(".slot-sprite")) {
+      const preview = document.createElement("button");
+      preview.className = "cabinet-preview";
+      preview.type = "button";
+      preview.textContent = "奖励预览";
+      preview.addEventListener("click", () => characterBonus(t, "preview"));
+      $("#v-" + m + " .mtabs").appendChild(preview);
+    }
     const NX = 16, NY = 10, pts = [];
     for (let i = 0; i < NX; i++) pts.push([(i + 0.5) / NX * 100, 0]);
     for (let i = 0; i < NY; i++) pts.push([100, (i + 0.5) / NY * 100]);
@@ -7899,19 +7982,22 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   $("#v-fruit .btable .amb").insertAdjacentHTML("beforeend", Array.from({ length: 6 }, (_, i) => '<b class="slice" style="--x:' + (6 + i * 16) + "%;--d:" + (11 + i * 2) + "s;--l:-" + i * 3 + "s;--h:" + [30, 50, 95, 30, 50, 95][i] + '"></b>').join(""));
   // Restart the character sequence when another bonus follows immediately.
   function characterBonus(cabinet, kind) {
+    const sprite = cabinet.querySelector(".slot-sprite");
+    if (!sprite) return;
+    const duration = sprite.classList.contains("mascot") ? 2000 : 1500;
     delete cabinet.dataset.bonus;
     void cabinet.offsetWidth;
     cabinet.dataset.bonus = kind;
     clearTimeout(cabinet._characterBonus);
-    cabinet._characterBonus = setTimeout(() => { delete cabinet.dataset.bonus; }, 1500);
+    cabinet._characterBonus = setTimeout(() => { delete cabinet.dataset.bonus; }, duration);
   }
 
   // after a paying spin: the bulbs race and the cabinet glows; bigger wins also throw coins out of the reels
   function machineFx(view, won, bet) {
     if (!(won > 0)) return;
-    if (view === "dragon" || view === "thor") characterBonus($("#v-" + view + " .btable"), won >= bet * 20 ? "jackpot" : "win");
     SND.coins(won >= bet * 10 ? 3 : won >= bet * 2 ? 2 : 1);
     const t = $("#v-" + view + " .btable");
+    characterBonus(t, won >= bet * 20 ? "jackpot" : "win");
     t.classList.remove("winfx"); void t.offsetWidth; t.classList.add("winfx");
     clearTimeout(t._fx); t._fx = setTimeout(() => t.classList.remove("winfx"), 2700);
     if (reduced || won < bet * 3) return;
