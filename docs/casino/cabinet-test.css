@@ -276,7 +276,7 @@
   box-shadow: 0 -5px 22px #060f0bab;
 }
 .bac-dealer-person {
-  --shoe-mouth-x: 90%;
+  --shoe-mouth-x: 95%;
   --shoe-mouth-y: 86%;
   position: absolute;
   top: 3%;
@@ -289,20 +289,9 @@
   position: absolute;
   z-index: 1;
   inset: 0;
-  background: url("art/baccarat-dealer-two-hands.webp") 0 0 / 400% 200% no-repeat;
+  background: var(--dealer-art) 0 0 / 600% 400% no-repeat;
   filter: drop-shadow(0 5px 8px #080c0c76);
 }
-.bac-mark {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  translate: -50% -50%;
-}
-#bacShoeMouth { left: var(--shoe-mouth-x); top: var(--shoe-mouth-y); }
-#bacDrawGrip { left: 61%; top: 86%; }
-#bacHandoff { left: 47%; top: 90%; }
-#bacPush { left: 35%; top: 95%; }
-#bacDealerRelease { left: 24.5%; top: 96%; }
 .bac-dealer-stage .shoebox {
   position: absolute;
   z-index: 2;
@@ -402,7 +391,7 @@
   outline-offset: -2px;
 }
 .bac-felt-card[data-in-flight] .inner { transform: rotateY(180deg); }
-#bacScene .card .front, #v-baccarat .btable.bac .card .front { background: #fff; }
+.bac-dealer-stage .card .front, .bac-pivot-back .card .front { background: #fff; }
 .bac-dealer-try {
   position: absolute;
   right: 8px;
@@ -418,8 +407,28 @@
 }
 .bac-dealer-try:disabled { opacity: .45; cursor: default; }
 
-#v-baccarat .btable.bac {
-  flex: 1 0 auto !important;
+.bac-pivot {
+  perspective: 800px;
+}
+.bac-pivot-inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 320ms cubic-bezier(.36,.12,.27,1);
+}
+.bac-pivot[data-side="cards"] .bac-pivot-inner { transform: rotateX(180deg); }
+.bac-pivot-face {
+  grid-area: 1 / 1;
+  min-width: 0;
+  backface-visibility: hidden;
+}
+.bac-pivot-front {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+}
+.bac-pivot-back.btable {
+  transform: rotateX(180deg);
+  min-height: calc(var(--cw) * 1.4 + 63px);
   align-content: center;
   gap: 3px 9px;
   padding: 5px 8px;
@@ -430,17 +439,20 @@
 }
 .bac-result-head {
   grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.bac-result-label {
+  justify-self: center;
   color: #cbd4d6;
   font: 600 10px/1.4 var(--body);
   letter-spacing: .13em;
 }
-#v-baccarat .cdring {
+.bac-round-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 28px;
+}
+.bac-round-state .cdring {
+  flex: none;
   position: static;
   transform: none;
   width: clamp(21px, 3.2vh, 28px);
@@ -451,25 +463,25 @@
   align-items: center;
   gap: 8px;
 }
-#v-baccarat .bside .hand { min-height: calc(var(--cw) * 1.4); }
-#v-baccarat .bside .btotal {
+.bac-pivot-back .bside .hand { min-height: calc(var(--cw) * 1.4); }
+.bac-pivot-back .bside .btotal {
   position: static;
   min-width: 1.65em;
   padding: 0 4px;
   border-radius: 4px;
   font-size: clamp(13px, 2.3vh, 20px);
 }
-#v-baccarat .bresult {
+.bac-round-state .bresult {
   position: relative;
-  grid-column: 1 / -1;
-  justify-self: center;
   left: auto;
   bottom: auto;
   transform: none;
   max-width: 100%;
   min-height: 1.5em;
 }
-#v-baccarat .tname { top: 60%; opacity: .65; }
+@media (prefers-reduced-motion: reduce) {
+  .bac-pivot-inner { transition: none; }
+}
 @media (max-width: 360px) {
   .bac-dealer-person { left: calc(46% - var(--portrait-width) / 2); }
   .bac-dealer-stage .shoebox { width: 25%; }
