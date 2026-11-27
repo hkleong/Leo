@@ -1,6 +1,6 @@
 // Offline support for the 俱乐部 home-screen app.
 // Bump VERSION whenever index.html changes so installed copies pick up the update.
-const VERSION = "gbcbeta-c08f6aae3a";
+const VERSION = "gbcbeta-83d63490dd";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 // machine art is not pre-cached: it is fetched (and then cached) the first time that machine is opened
 
