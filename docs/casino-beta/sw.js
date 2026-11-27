@@ -1,8 +1,10 @@
 // Offline support for the 俱乐部 home-screen app.
 // Bump VERSION whenever index.html changes so installed copies pick up the update.
-const VERSION = "gbcbeta-9a064d4313";
-const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
-// machine art is not pre-cached: it is fetched (and then cached) the first time that machine is opened
+const VERSION = "gbcbeta-9eda9973c4";
+const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png",
+  "cabinet-test.css", "art/cabinets/NotoSerifSC-cabinet.otf", "art/baccarat-shoe.webp",
+  ...["a", "b", "c", "d"].flatMap(table => ["deal", "collect"].map(action => "art/baccarat-dealers/" + table + "-" + action + ".webp"))];
+// The online dealer and slot artwork are fetched and cached when first opened.
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
