@@ -255,6 +255,9 @@
   --portrait-top: calc(var(--scene-height) * .02);
   --portrait-height: calc(var(--portrait-width) * 321 / 424);
   --table-edge: calc(var(--portrait-top) + var(--portrait-height) * .88);   /* where the dealer's hands rest */
+  --table-far: calc(var(--portrait-top) + var(--portrait-height) * .64);    /* the far edge beside her, at elbow height */
+  --portrait-left: calc(48% - var(--portrait-width) / 2);
+  --felt-tilt: 40deg;
   position: relative;
   isolation: isolate;
   height: var(--scene-height);
@@ -268,8 +271,31 @@
     repeating-linear-gradient(90deg, #332519 0 20%, #3e2e21 20% calc(20% + 2px), #332519 calc(20% + 2px) 25%);
   box-shadow: inset 0 0 39px #0009, 0 4px 10px #0004;
 }
+/* the table: its far edge runs at elbow height on both sides and steps in around the dealer, who stands in the cut-out */
+.bac-table {
+  position: absolute;
+  z-index: 0;
+  inset: var(--table-far) 0 0;
+  pointer-events: none;
+  filter: drop-shadow(0 -2px 0 #c9ab78c0) drop-shadow(0 -7px 10px #0009);
+}
+.bac-table i {
+  position: absolute;
+  inset: 0;
+  --notch: calc(var(--table-edge) - var(--table-far));
+  clip-path: polygon(0 0,
+    calc(var(--portrait-left) + var(--portrait-width) * .1) 0,
+    calc(var(--portrait-left) + var(--portrait-width) * .19) var(--notch),
+    calc(var(--portrait-left) + var(--portrait-width) * .81) var(--notch),
+    calc(var(--portrait-left) + var(--portrait-width) * .9) 0,
+    100% 0, 100% 100%, 0 100%);
+  background:
+    radial-gradient(ellipse at 50% 0, #6f866052, transparent 62%),
+    repeating-linear-gradient(32deg, transparent 0 2px, #b2bc800a 2px 3px),
+    linear-gradient(180deg, #2f5545, #1d3c32 40%, #122b24 90%);
+}
 .bac-dealer-stage::after {
-  content: "";
+  content: none;
   position: absolute;
   z-index: -1;
   inset: var(--table-edge) -8% -9%;
@@ -340,15 +366,25 @@
   pointer-events: none;
 }
 .bac-felt-zone {
+  position: relative;
   display: grid;
   justify-items: center;
   align-content: start;
   min-width: 0;
   padding: 2px 2px 4px;
-  border: 1px solid #bba87b60;
-  border-radius: 6px;
-  box-shadow: inset 0 0 6px #10291f52;
 }
+.bac-felt-zone::before {
+  content: "";
+  position: absolute;
+  inset: -2px 0 -3px;
+  border: 1.5px solid #d7c08a8c;
+  border-radius: 6px;
+  box-shadow: inset 0 0 8px #10291f60;
+  transform: perspective(340px) rotateX(var(--felt-tilt));
+  transform-origin: calc(100% + clamp(13px, 4vw, 35px) / 2) 100%;
+  pointer-events: none;
+}
+.bac-felt-zone + .bac-felt-zone::before { transform-origin: calc(clamp(13px, 4vw, 35px) / -2) 100%; }
 .bac-felt-zone small {
   color: #ddc7a5;
   font: 500 9px/1.3 var(--body);
@@ -376,7 +412,8 @@
   left: 0;
   height: calc(var(--cw) * 88 / 63);
   translate: 0 -50%;
-  transform: perspective(280px) rotateX(49deg);
+  transform: perspective(150px) rotateX(var(--felt-tilt));
+  transform-origin: 50% 80%;
   font-family: Georgia, "Times New Roman", serif;
 }
 .bac-felt-card .card .face {
