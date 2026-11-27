@@ -9,8 +9,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="俱乐部">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="preload" as="image" href="art/dragon-reward-24.webp">
-<link rel="preload" as="image" href="art/thor-reward-24.webp">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1168,6 +1166,16 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   88% { background-position: 33.3333% 100% }
   91.3333% { background-position: 66.6667% 100% }
   93.3333%, 100% { background-position: 100% 100% }
+}
+/* short screens: keep the illustrated cabinets on one page */
+@media (max-height: 700px) {
+  .cabinet .tmsg { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 1.3em; font-size: 12px; }
+  .cabinet-crown .mg-title .note { font-size: 11px; }
+  .cabinet .tn-bar { min-height: 20px; }
+  .cabinet .tn-mult { font-size: 15px; padding: 2px 9px; }
+  #v-thor .tn-opts .btn { padding: 4px 10px; font-size: 12px; }
+  #v-thor .tn-ante small { display: none; }
+  #v-thor .acts { gap: 3px; }
 }
 @media (max-width: 480px) {
   .btable.col.cabinet { padding-inline: 8px; }
@@ -3100,8 +3108,27 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (v === "room") rmRender();
     if (v === "proom") prRender();
     if (v === "online") onRender();
+    if (v === "dragon" || v === "thor") fitCabinet(v);
+    // fetch a machine's win animation as soon as the machine opens, so it is ready for the first win
+    if ((v === "dragon" || v === "thor") && !show["art" + v]) { show["art" + v] = true; (new Image()).src = "art/" + v + "-reward-24.webp"; }
     renderAuto();
   }
+  // The illustrated cabinets (龙腾财宝, 雷神之锤) must fit one screen: if the page overflows, shrink the character
+  // first (down to 44px) and then the reel cells, by exactly the amount that is missing.
+  function fitCabinet(v) {
+    const sec = $("#v-" + v), main = $("main"), cellVar = v === "dragon" ? "--mc" : "--tc", rows = v === "dragon" ? 3 : 5;
+    const crown = sec.querySelector(".cabinet-crown"), chr = sec.querySelector(".cabinet-character");
+    sec.style.removeProperty(cellVar); crown.style.removeProperty("min-height"); chr.style.removeProperty("--sprite-height");
+    let over = main.scrollHeight - main.clientHeight;
+    if (over <= 0) return;
+    const h = chr.getBoundingClientRect().height, cut = Math.min(over, Math.max(0, h - 44));
+    if (cut > 0) { chr.style.setProperty("--sprite-height", (h - cut) + "px"); crown.style.minHeight = (h - cut) + "px"; over = main.scrollHeight - main.clientHeight; }
+    if (over > 0) {
+      const cell = parseFloat(getComputedStyle(sec).getPropertyValue(cellVar)) || (v === "dragon" ? sec.querySelector(".mc") : sec.querySelector(".tcell")).getBoundingClientRect().height;
+      sec.style.setProperty(cellVar, Math.max(26, Math.floor(cell - over / rows - 1)) + "px");
+    }
+  }
+  addEventListener("resize", () => { if (S.view === "dragon" || S.view === "thor") fitCabinet(S.view); });
   function go(v) {
     if (location.hash.slice(1) === v || (v === "lobby" && !location.hash)) show(v);
     else location.hash = v === "lobby" ? "" : v;
