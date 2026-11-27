@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>俱乐部</title>
-<meta name="version" content="0.20.2">
+<meta name="version" content="0.21.0">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#0b0b0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -567,8 +567,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 
 /* 联机 hub */
 .on-games { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.on-card { display: grid; gap: 3px; text-align: left; padding: 12px; border-radius: 12px; border: 1px solid var(--brass); background: linear-gradient(140deg, #2a2210, #0f0d09 70%); color: var(--ivory); }
-.on-card b { font-size: 15px; color: var(--win); } .on-card small { font-size: 12px; color: var(--muted); }
+.on-card { display: grid; gap: 2px; align-content: start; text-align: left; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--brass); background: linear-gradient(140deg, #2a2210, #0f0d09 70%); color: var(--ivory); }
+.on-card b { font-size: 14px; color: var(--win); } .on-card small { font-size: 11px; line-height: 1.3; color: var(--muted); }
 .on-prac { display: grid; gap: 8px; padding: 12px; border-radius: 12px; border: 1px dashed var(--brass-lo); text-align: left; }
 .on-prac > b { color: var(--win); font-size: 14px; }
 .on-back { display: grid; gap: 6px; }
@@ -1281,6 +1281,88 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   box-shadow: 0 0 0 2px hsl(var(--h) 80% 88%), 0 0 0 3.5px hsl(var(--h) 90% 45%); animation: rise var(--d) linear infinite, spinslice 9s linear infinite; animation-delay: var(--l); }
 @keyframes spinslice { to { rotate: 360deg; } }
 @media (prefers-reduced-motion: reduce) { .fish, .slice, .mgrid::after, .gboard::after, .tboard::after, #slReels::before, .mreel.tease, .mreel.land { animation: none !important; } }
+/* ---------- 十三张 ---------- */
+.ss-start { display: grid; gap: 8px; }
+.ss-play { display: flex; flex-direction: column; gap: 5px; flex: 1 1 auto; min-height: 0; }
+.ss-table { position: relative; flex: 1 1 auto; display: grid; grid-template-columns: minmax(60px, 21vw) 1fr minmax(60px, 21vw); grid-template-rows: auto auto 1fr; grid-template-areas: "n n n" "w c e" "s s s"; gap: 4px; padding: 8px; border-radius: 18px;
+  background: radial-gradient(110% 80% at 50% 45%, #187047, #0b3322 78%); border: 6px solid #5a3a1c; box-shadow: inset 0 0 0 2px rgba(212,175,55,.35), inset 0 0 34px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.5); }
+.ss-seat[data-pos="n"] { grid-area: n; justify-self: center; } .ss-seat[data-pos="w"] { grid-area: w; } .ss-seat[data-pos="e"] { grid-area: e; }
+.ss-seat { min-width: 0; display: grid; align-content: center; }
+.ss-opp { position: relative; display: grid; justify-items: center; gap: 3px; padding: 4px; border-radius: 10px; background: rgba(0,0,0,.22); }
+.ss-who { display: grid; justify-items: center; gap: 0; min-width: 0; max-width: 100%; text-align: center; }
+.ss-who b { font-size: 12px; color: var(--ivory); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.ss-w { font-style: normal; display: inline-grid; place-items: center; width: 16px; height: 16px; margin-right: 3px; border-radius: 4px; background: var(--brass); color: #2a1a00; font-size: 11px; vertical-align: 1px; }
+.ss-who small { font-size: 10px; color: rgba(242,234,216,.72); white-space: nowrap; }
+.ss-who .ai { font-size: 9px; padding: 0 3px; border-radius: 4px; background: rgba(212,175,55,.25); color: var(--brass); vertical-align: middle; }
+.ss-seat[data-pos="w"] .ss-mrows, .ss-seat[data-pos="e"] .ss-mrows { flex-direction: column; align-items: center; gap: 3px; }
+.ss-center { grid-area: c; position: relative; display: grid; place-items: center; min-height: 112px; margin: 2px; border-radius: 14px; background: radial-gradient(circle at 50% 50%, rgba(0,0,0,.18), rgba(0,0,0,.38)); border: 1px solid rgba(212,175,55,.35); }
+.ss-wind { position: absolute; font-style: normal; font: 700 12px/1 var(--display); color: rgba(212,175,55,.75); }
+.ss-wind[data-pos="n"] { top: 5px; left: 50%; transform: translateX(-50%); } .ss-wind[data-pos="s"] { bottom: 5px; left: 50%; transform: translateX(-50%); }
+.ss-wind[data-pos="w"] { left: 6px; top: 50%; transform: translateY(-50%); } .ss-wind[data-pos="e"] { right: 6px; top: 50%; transform: translateY(-50%); }
+.ss-cin { display: grid; justify-items: center; gap: 4px; padding: 16px 20px; text-align: center; }
+.ss-cmsg { margin: 0; font-size: 12px; color: rgba(242,234,216,.85); }
+.ss-clock { font: 800 26px/1 var(--mono); color: var(--ivory); } .ss-clock:empty { display: none; } .ss-clock.soon { color: #ff8a8a; animation: jpflash .5s ease-in-out infinite alternate; }
+#ssReady { padding: 8px 18px; min-width: 110px; }
+.ss-res { margin: 0; font-size: 13px; }
+.ss-mine { grid-area: s; }
+.ss-metag { font-size: 12px; color: rgba(242,234,216,.85); padding-left: 2px; } .ss-metag b { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 4px; background: var(--brass); color: #2a1a00; font-size: 11px; margin-right: 2px; }
+.ss-mrows { display: flex; gap: 6px; --cw: clamp(15px, min(4.8vw, 2.5vh), 24px); min-height: calc(var(--cw) * 1.4); }
+.ss-mrows.dim { opacity: .45; }
+.ss-mr { position: relative; display: flex; }
+.ss-mr .card + .card { margin-left: calc(var(--cw) * -.42); }
+.ss-mr .card .r { left: 2px; top: 1px; font-size: calc(var(--cw) * .42); }
+.ss-mr .card .s { font-size: calc(var(--cw) * .5); padding-top: calc(var(--cw) * .45); padding-left: calc(var(--cw) * .2); }
+.ss-mr.flip .card { animation: ssflip .35s ease-out both; }
+@keyframes ssflip { from { transform: rotateY(90deg); } }
+.ss-mr .ss-rp { position: absolute; left: 0; right: 0; bottom: -2px; text-align: center; font: 700 9px/1.2 var(--body); color: #fff; text-shadow: 0 1px 2px #000; white-space: nowrap; pointer-events: none; }
+.ss-mr[data-res="win"] .card .front, .ss-row[data-res="win"] .card .front { box-shadow: 0 0 0 2px #5fd38a, 0 0 8px rgba(95,211,138,.7); }
+.ss-mr[data-res="lose"] .card .front, .ss-row[data-res="lose"] .card .front { filter: brightness(.7); }
+.ss-net { position: absolute; right: -4px; top: -6px; white-space: nowrap; transform: scale(.6); opacity: 0; font: 800 13px/1 var(--mono); pointer-events: none; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,.5); background: rgba(0,0,0,.65); padding: 4px 8px; border-radius: 8px; transition: .35s cubic-bezier(.2,1.6,.4,1); }
+.ss-net.on { opacity: 1; transform: scale(1); }
+.ss-mine { position: relative; display: grid; gap: 3px; --cw: clamp(26px, min(9.6vw, 4.9vh), 50px); margin-top: auto; }
+.card.mini .back { outline-width: 1px; outline-offset: -2px; }
+.ss-row { position: relative; display: grid; grid-template-columns: 54px 1fr 34px; align-items: center; gap: 4px; padding: 2px 4px; border-radius: 10px; background: rgba(0,0,0,.22); border: 1px dashed rgba(242,234,216,.18); min-height: calc(var(--cw) * 1.4 + 8px); }
+.ss-row.can { border: 1px solid var(--brass); background: rgba(212,175,55,.12); cursor: pointer; }
+.ss-row.foul { border-color: #ff6b6b; background: rgba(255,80,80,.12); }
+.ss-lab { display: grid; gap: 1px; }
+.ss-lab b { font-size: 13px; color: var(--brass); }
+.ss-lab small { font-size: 10px; color: rgba(242,234,216,.8); line-height: 1.2; }
+.ss-slots { display: flex; gap: 3px; justify-content: center; }
+.ss-slot { width: var(--cw); height: calc(var(--cw) * 1.4); border-radius: 5px; border: 1px dashed rgba(242,234,216,.25); }
+.ss-c { padding: 0; border: 0; background: none; border-radius: 5px; transition: transform .15s; }
+.ss-c.pick { transform: translateY(-9px); }
+.ss-c.pick .card .front { box-shadow: 0 0 0 2px var(--brass), 0 4px 10px rgba(0,0,0,.5); }
+.ss-c.dealin { animation: ssdeal .4s cubic-bezier(.2,.9,.3,1.2) both; animation-delay: var(--d); }
+@keyframes ssdeal { from { transform: translate(0, -60vh) rotate(-20deg); opacity: 0; } }
+.ss-rowpts { font: 800 14px/1 var(--mono); text-align: right; }
+.ss-foul { margin: 0; text-align: center; color: #ff8a8a; font-size: 12px; }
+.ss-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px 2px; padding-top: 9px; --cw: clamp(26px, min(11.4vw, 5vh), 52px); }
+.ss-tray:empty { display: none; }
+@media (max-height: 700px) {
+  .ss-mine { --cw: clamp(24px, 4.4vh, 40px); }
+  .ss-tray { --cw: clamp(24px, 4.6vh, 42px); padding-top: 7px; }
+  .ss-mrows { --cw: clamp(14px, 2.2vh, 20px); }
+  .ss-who small { font-size: 10px; }
+  #v-sss .bfoot { font-size: 11px; }
+}
+.ss-mine.sent .ss-row { opacity: .85; }
+.ss-arr { flex-wrap: wrap; }
+.ss-arr { flex-wrap: nowrap; gap: 5px; }
+.ss-arr .btn { flex: 1 1 0; min-width: 0; padding-inline: 4px; font-size: clamp(12px, 3.6vw, 15px); white-space: nowrap; }
+.ss-arr #ssAuto { flex-grow: 1.6; }
+.ss-who small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn.sp { background: linear-gradient(180deg, #ffd86b, #d08a1f); color: #2a1600; }
+.ss-sent { text-align: center; }
+.ss-res { text-align: center; font-size: 15px; }
+.ss-ban { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; padding: 6px 14px; border-radius: 10px; font: 900 18px/1.1 var(--display); white-space: nowrap; pointer-events: none; animation: ssban 1.9s ease-out both; }
+.ss-ban.gun { background: rgba(140,10,10,.9); color: #fff; border: 2px solid #ffb3b3; }
+.ss-ban.sp { background: linear-gradient(180deg, #ffe48a, #c98a1a); color: #2a1600; }
+.ss-ban.foul { background: rgba(60,60,60,.92); color: #ffb0b0; }
+.ss-ban.hr { font-size: 30px; padding: 12px 22px; background: radial-gradient(circle, #ffef9a, #e0901c); color: #3a1500; box-shadow: 0 0 40px rgba(255,200,80,.8); }
+@keyframes ssban { 0% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; } 12% { transform: translate(-50%, -50%) scale(1); opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -60%) scale(1); } }
+.ss-hole { position: absolute; z-index: 5; width: 16px; height: 16px; margin: -8px; border-radius: 50%; background: radial-gradient(circle, #111 0 35%, #3a2a1a 45%, rgba(255,230,180,.6) 55%, transparent 70%); animation: sshole 1.6s ease-out both; pointer-events: none; }
+@keyframes sshole { 0% { transform: scale(2.4); opacity: 0; box-shadow: 0 0 20px 8px rgba(255,220,120,.9); } 15% { transform: scale(1); opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+.ss-opp .say, .ss-mine .say { position: absolute; z-index: 7; right: 10px; top: -6px; }
 </style>
 
 <header class="top">
@@ -1296,6 +1378,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <button type="button" data-go="poker">三张牌</button>
       <button type="button" data-go="holdem">德州</button>
       <button type="button" data-go="niu">牛牛</button>
+      <button type="button" data-go="sss">十三张</button>
       <button type="button" data-go="slotseries">老虎机</button>
     </nav>
     <div class="bank">
@@ -1788,7 +1871,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     </div>
     <div class="lsec">
       <h3>联机 <span class="note">和朋友同桌 · 也可以单人练习</span></h3>
-      <button class="rtile" type="button" data-go="online"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="6"/><circle cx="33" cy="16" r="6"/><path d="M5 38c0-7 5-12 11-12s11 5 11 12M24 30c2-3 5-4 9-4 6 0 10 5 10 12"/></svg></span><span class="rt-txt"><b>联机房间</b><small>百家乐 · 德州扑克（玩家对玩家）· 德州练习桌（对 AI）</small></span><i aria-hidden="true">›</i></button>
+      <button class="rtile" type="button" data-go="online"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="6"/><circle cx="33" cy="16" r="6"/><path d="M5 38c0-7 5-12 11-12s11 5 11 12M24 30c2-3 5-4 9-4 6 0 10 5 10 12"/></svg></span><span class="rt-txt"><b>联机房间</b><small>百家乐 · 德州扑克 · 十三张（玩家对玩家）· 练习桌（对 AI）</small></span><i aria-hidden="true">›</i></button>
     </div>
     <div class="lsec">
       <h3>龙虎 <span class="note">2 桌 · 每 15 秒自动开局</span></h3>
@@ -1802,15 +1885,16 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" data-go="poker"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="13" width="17" height="25" rx="3" transform="rotate(-16 14 26)"/><rect x="15.5" y="10" width="17" height="25" rx="3"/><rect x="25" y="13" width="17" height="25" rx="3" transform="rotate(16 34 26)" fill="currentColor" fill-opacity=".12"/><path d="M24 17l3 4h-6z" fill="currentColor" stroke="none"/></svg></span><b>三张牌</b><small>对子加注 40:1</small></button>
         <button class="gtile" type="button" data-go="holdem"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="24" r="18"/><circle cx="24" cy="24" r="11"/><path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.3 11.3l3.5 3.5M33.2 33.2l3.5 3.5M36.7 11.3l-3.5 3.5M14.8 33.2l-3.5 3.5"/><path d="M24 17c3 3 6 5 6 8a3 3 0 0 1-5 2l1 4h-4l1-4a3 3 0 0 1-5-2c0-3 3-5 6-8z" fill="currentColor" stroke="none"/></svg></span><b>德州扑克</b><small>盲注最高 500:1</small></button>
         <button class="gtile" type="button" data-go="niu"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12c2 6 6 8 10 8M39 12c-2 6-6 8-10 8"/><path d="M15 19c0-3 4-5 9-5s9 2 9 5v9c0 7-4 12-9 12s-9-5-9-12z" fill="currentColor" fill-opacity=".14"/><circle cx="20" cy="26" r="1.6" fill="currentColor"/><circle cx="28" cy="26" r="1.6" fill="currentColor"/><path d="M20 34c2 1.5 6 1.5 8 0"/><circle cx="24" cy="38" r="2.4"/></svg></span><b>牛牛</b><small>翻倍最高 ×5</small></button>
+        <button class="gtile" type="button" data-go="sss"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="6" width="22" height="9" rx="2"/><rect x="8" y="18" width="32" height="10" rx="2" fill="currentColor" fill-opacity=".12"/><rect x="8" y="31" width="32" height="11" rx="2"/><path d="M18 6v9M24 6v9M30 6v9M14.4 18v10M20.8 18v10M27.2 18v10M33.6 18v10M14.4 31v11M20.8 31v11M27.2 31v11M33.6 31v11" stroke-width="1.4"/></svg></span><b>十三张</b><small>对 AI 练习 · 联机 4 人</small></button>
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 雷神之锤 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.20.2</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.21.0</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.21.0</b> <i class="vmaj">大改版</i><span>新游戏「十三张」：练习桌对 3 个 AI，或开房间和朋友联机（2–4 人，空位 AI 补上）；点选摆牌、自动摆牌、报到、逐道比牌、打枪、全垒打</span></li><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
     <p class="note" style="margin-top:10px">音乐与音效的作者和授权：点右上角 ♪ 查看。</p>
   </div></div>
 
@@ -1923,12 +2007,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   <section id="v-online" class="game" hidden>
     <div class="rm-join on-hub">
       <h2>联机</h2>
-      <p class="note">开一个房间，把 6 位房间号发给朋友；或输入朋友的房间号加入（系统会自动认出是百家乐还是德州）。</p>
+      <p class="note">开一个房间，把 6 位房间号发给朋友；或输入朋友的房间号加入（系统会自动认出是哪个游戏）。</p>
       <label class="rm-field"><span>你的名字</span><input id="onName" maxlength="10" autocomplete="nickname" placeholder="例如 阿明"></label>
       <div class="on-back" id="onBack" hidden></div>
       <div class="on-games">
         <button class="on-card" type="button" data-on="room"><b>开百家乐房间</b><small>同一副牌、同一条路，各自下注</small></button>
         <button class="on-card" type="button" data-on="proom"><b>开德州扑克房间</b><small>玩家对玩家 · 最多 9 人 · 抽水 5%</small></button>
+        <button class="on-card" type="button" data-on="sss"><b>开十三张房间</b><small>2–4 人 · 空位 AI 补上 · 也能单人练习</small></button>
       </div>
       <p class="rm-or">或者输入朋友的房间号</p>
       <div class="rm-code"><input id="onCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位数字"><button class="btn" id="onJoin" type="button">加入</button></div>
@@ -2081,6 +2166,74 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>每次行动 25 秒，超时自动让牌，不能让牌就弃牌。筹码输光后可以点「补码」再带入。</li>
         <li>每个人都按「准备」，所有人都准备好（至少 2 人）才发牌；准备会一直保留，取消准备或有新人坐下，就在这一手结束后等所有人准备好再继续。房主随时可以「暂停」：不再发新的一手，正在进行的那一手计时停止（不会超时弃牌）。</li>
         <li>AI 荷官发牌：底牌从按钮左边开始一人一张、发两轮；翻牌、转牌、河牌从荷官那里发到桌上。发牌时不计时。</li>
+      </ul>
+    </div></div>
+  </section>
+  <!-- 十三张: 2–4 players (AI fill the empty seats), online room or practice table -->
+  <section id="v-sss" class="game" hidden>
+    <div class="rm-join" id="ssJoin">
+      <button class="toggle on-backlink" type="button" data-go="online">‹ 返回联机</button>
+      <h2>十三张</h2>
+      <p class="note">每人 13 张牌，摆成头道 3 张、中道 5 张、尾道 5 张（头道 ≤ 中道 ≤ 尾道），和每一家逐道比大小。4 人一桌，没坐满的位置由 AI 补上。</p>
+      <label class="rm-field"><span>你的名字</span><input id="ssName" maxlength="10" autocomplete="nickname" placeholder="例如 阿明"></label>
+      <label class="rm-field"><span>每水筹码（开房间 / 练习时选）</span><select id="ssBaseSel"><option value="10">10</option><option value="50">50</option><option value="100" selected>100</option><option value="500">500</option><option value="1000">1,000</option><option value="5000">5,000</option></select></label>
+      <div class="ss-start">
+        <button class="btn big" id="ssPractice" type="button">练习桌 · 对 3 个 AI</button>
+        <button class="btn big ghost" id="ssCreate" type="button">开十三张房间</button>
+      </div>
+      <p class="rm-or">或者输入朋友的房间号（每水跟着房主）</p>
+      <div class="rm-code"><input id="ssCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位数字"><button class="btn" id="ssJoinBtn" type="button">加入</button></div>
+      <p class="tmsg" id="ssStatus"></p>
+    </div>
+    <div class="ss-play" id="ssPlay" hidden>
+      <div class="rm-top"><span class="rm-id"><span id="ssCodeLab">房间号</span> <b id="ssCodeShow">––––––</b></span><button class="toggle" id="ssCopy" type="button">分享</button><span class="pr-bl" id="ssBase">每水 100</span><span class="rm-n" id="ssCount">1 人</span><button class="toggle" id="ssLeave" type="button">离开</button></div>
+      <div class="ss-table" id="ssTable">
+        <div class="ss-seat" data-pos="n"></div>
+        <div class="ss-seat" data-pos="w"></div>
+        <div class="ss-center" id="ssCenter">
+          <i class="ss-wind" data-pos="n"></i><i class="ss-wind" data-pos="w"></i><i class="ss-wind" data-pos="e"></i><i class="ss-wind" data-pos="s"></i>
+          <div class="ss-cin">
+            <p class="ss-cmsg" id="ssCMsg">等待开局</p>
+            <b class="ss-clock" id="ssTimer"></b>
+            <button class="btn" id="ssReady" type="button">✋ 准备</button>
+            <p class="ss-res" id="ssResult"></p>
+          </div>
+        </div>
+        <div class="ss-seat" data-pos="e"></div>
+        <div class="ss-mine" id="ssMine">
+          <div class="ss-metag" id="ssMeTag"></div>
+          <div class="ss-row" data-r="0"><span class="ss-lab"></span><span class="ss-slots"></span><span class="ss-rowpts"></span></div>
+          <div class="ss-row" data-r="1"><span class="ss-lab"></span><span class="ss-slots"></span><span class="ss-rowpts"></span></div>
+          <div class="ss-row" data-r="2"><span class="ss-lab"></span><span class="ss-slots"></span><span class="ss-rowpts"></span></div>
+          <p class="ss-foul" id="ssFoul" hidden>倒水：头道 ≤ 中道 ≤ 尾道 才能确定</p>
+        </div>
+      </div>
+      <div class="ss-tray" id="ssTray" hidden></div>
+      <div class="pr-acts">
+        <div class="actrow ss-arr" id="ssArrBar" hidden>
+          <button class="btn ghost" id="ssSort" type="button">按花色</button>
+          <button class="btn ghost" id="ssClear" type="button">重摆</button>
+          <button class="btn ghost" id="ssAuto" type="button">自动摆牌</button>
+          <button class="btn" id="ssGo" type="button" disabled>确定</button>
+        </div>
+        <div class="actrow" id="ssSpecialRow" hidden><button class="btn sp" id="ssSpecial" type="button" hidden>报到</button></div>
+      </div>
+      <div class="rm-emo" id="ssEmo"><button class="chatbtn" type="button" data-chat="ss">💬 聊天<i class="unread" hidden></i></button><button type="button">👍</button><button type="button">😂</button><button type="button">🔫</button><button type="button">😭</button><button type="button" data-say="稳了">稳了</button><button type="button" data-say="快点摆">快点摆</button></div>
+      <div class="bfoot">
+        <div>累计 <b id="ssTotal">0 水</b><br>余额 <b class="bal-mirror">10,000</b></div>
+        <div class="r"><span>十三张 · 第 <span id="ssHandNo">0</span> 局</span><button class="toggle" type="button" data-rules="rules-ss">规则</button></div>
+      </div>
+    </div>
+    <div class="sheet" id="rules-ss" hidden><div class="sheet-in" role="dialog" aria-label="十三张规则">
+      <div class="sheet-head"><h3>十三张</h3><span class="note">2–4 人 · 一副 52 张</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <ul>
+        <li>每人 13 张，分成头道 3 张、中道 5 张、尾道 5 张。必须 头道 ≤ 中道 ≤ 尾道，否则叫「倒水」，算全输。</li>
+        <li>牌型大小：同花顺 ＞ 铁支（四条）＞ 葫芦 ＞ 同花 ＞ 顺子 ＞ 三条 ＞ 两对 ＞ 对子 ＞ 散牌。头道只有 3 张，只算三条、对子、散牌。A 最大，A-2-3-4-5 是最小的顺子。完全一样算平手，不比花色。</li>
+        <li>和每一家逐道比：赢一道得 1 水。用大牌赢的那一道多拿：头道冲三 3 水；中道葫芦 2 水、铁支 8 水、同花顺 10 水；尾道铁支 4 水、同花顺 5 水。</li>
+        <li>打枪：三道全赢同一家，和这一家的输赢翻倍。全垒打：一个人打枪其他三家，再翻一倍。</li>
+        <li>报到（特殊牌型，不比牌，直接向每家收水）：至尊清龙（同花 A–K）52 水、一条龙（A–K 各一张）13 水、六对半 3 水、三同花 3 水、三顺子 3 水。两家都报到就比谁的大。</li>
+        <li>每水的筹码由房主开房时决定，每局结束直接从余额加减。联机每局有 90 秒摆牌，超时由 AI 帮你摆。</li>
+        <li>操作：点下面的牌选中（可以多选），再点要放的那一道；点已经摆好的牌退回。两道摆满后，剩下的牌自动进最后一道。「自动摆牌」会给出 AI 认为最好的几种摆法，再点一下换下一种。</li>
       </ul>
     </div></div>
   </section>
@@ -3231,7 +3384,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
 
   /* ---------- Navigation and sheets ---------- */
-  const VIEWS = ["lobby", "online", "room", "proom", "baccarat", "dt", "blackjack", "roulette", "poker", "holdem", "niu", "slots", "dragon", "gems", "fruit", "diver", "thor"];
+  const VIEWS = ["lobby", "online", "room", "proom", "baccarat", "dt", "blackjack", "roulette", "poker", "holdem", "niu", "sss", "slots", "dragon", "gems", "fruit", "diver", "thor"];
   const MACHINES = ["dragon", "gems", "fruit", "diver", "thor", "slots"], MACHINE_NAME = { dragon: "龙腾财宝", gems: "宝石瀑布", fruit: "水果转轮", diver: "深海寻宝", thor: "雷神之锤", slots: "幸运 7" };
   function show(v) {
     if (!VIEWS.includes(v)) v = "lobby";
@@ -3254,6 +3407,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (v === "room") rmRender();
     if (v === "proom") prRender();
     if (v === "online") onRender();
+    if (v === "sss") ssRender();
     if (v === "dragon" || v === "thor") fitCabinet(v);
     // fetch a machine's win animation as soon as the machine opens, so it is ready for the first win
     if ((v === "dragon" || v === "thor") && !show["art" + v]) { show["art" + v] = true; (new Image()).src = "art/" + v + "-reward-24.webp"; }
@@ -3338,8 +3492,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       return [$("#v-" + m + " .btable")];
     });
   });
-  const hashView = () => { const h = location.hash.slice(1); return h.startsWith("room=") ? "room" : h.startsWith("proom=") ? "proom" : h || "lobby"; };
-  window.addEventListener("hashchange", () => { show(hashView()); if (hashView() === "room") rmFromHash(); if (hashView() === "proom") prFromHash(); });
+  const hashView = () => { const h = location.hash.slice(1); return h.startsWith("room=") ? "room" : h.startsWith("proom=") ? "proom" : h.startsWith("sss=") ? "sss" : h || "lobby"; };
+  window.addEventListener("hashchange", () => { show(hashView()); if (hashView() === "room") rmFromHash(); if (hashView() === "proom") prFromHash(); if (hashView() === "sss") ssFromHash(); });
   $$("[data-rules]").forEach((b) => b.addEventListener("click", () => { closePops(); $("#" + b.dataset.rules).hidden = false; }));
   $$(".sheet").forEach((sh) => sh.addEventListener("click", (e) => {
     if (e.target === sh || e.target.closest("[data-close]")) sh.hidden = true;
@@ -5428,7 +5582,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#prCreate").disabled = true; prStatus("正在开房间…");
     try { await loadPeer(); } catch (e) { prStatus('<span class="l">连不上网络，无法开房间</span>'); $("#prCreate").disabled = false; return; }
     const open = (n) => {
-      const code = String(500000 + rand(500000)), peer = new Peer(PR_PREFIX + code);   // poker rooms start with 5–9
+      const code = String(500000 + rand(300000)), peer = new Peer(PR_PREFIX + code);   // poker rooms start with 5–7
       peer.on("open", () => {
         if (!take(buy)) { peer.destroy(); $("#prCreate").disabled = false; prStatus('<span class="l">余额不足</span>'); return; }
         pr.peer = peer; pr.host = true; pr.code = code; pr.me = "host";
@@ -5733,14 +5887,16 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (!$("#onName").value) { try { $("#onName").value = localStorage.getItem("gbc-name") || ""; } catch (e) {} }
     const back = [];
     if (rm.peer) back.push('<button class="btn" type="button" data-go="room">回到百家乐房间 ' + rm.code + "</button>");
+    if (ssOpen()) back.push('<button class="btn" type="button" data-go="sss">回到' + (ss.practice ? "十三张练习桌" : "十三张房间 " + ssNet.code) + "</button>");
     if (pr.peer || pr.practice) back.push('<button class="btn" type="button" data-go="proom">回到' + (pr.practice ? "德州练习桌" : "德州房间 " + pr.code) + "</button>");
     $("#onBack").innerHTML = back.join(""); $("#onBack").hidden = !back.length;
     $$("#onBack [data-go]").forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
   }
-  const onSyncName = () => { const n = ($("#onName").value || "").trim(); if (n) { $("#rmName").value = n; $("#prName").value = n; try { localStorage.setItem("gbc-name", n); } catch (e) {} } };
+  const onSyncName = () => { const n = ($("#onName").value || "").trim(); if (n) { $("#rmName").value = n; $("#prName").value = n; $("#ssName").value = n; try { localStorage.setItem("gbc-name", n); } catch (e) {} } };
   $$("#v-online .on-card").forEach((b) => b.addEventListener("click", () => {
     onSyncName();
     if (b.dataset.on === "room") { go("room"); if (!rm.peer) rmCreate(); }
+    else if (b.dataset.on === "sss") { go("sss"); if (!ssOpen()) ssCreate(); }
     else { go("proom"); if (!pr.peer && !pr.practice) prStatus("选好盲注和带入筹码，再点「开一个德州房间」"); }
   }));
   function onJoin() {
@@ -5749,20 +5905,27 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (code.length !== 6) { msg($("#onStatus"), '<span class="l">房间号是 6 位数字</span>'); return; }
     msg($("#onStatus"), "");
     if (+code[0] < 5) { $("#rmCode").value = code; go("room"); rmJoin(code); }
+    else if (code[0] === "8") { $("#ssCode").value = code; go("sss"); ssJoin(code); }
     else { $("#prCode").value = code; go("proom"); prJoin(code); }
   }
   $("#onJoin").addEventListener("click", onJoin);
   $("#onCode").addEventListener("keydown", (e) => { if (e.key === "Enter") onJoin(); });
   $("#onPractice").addEventListener("click", prPractice);
   /* ---------- 联机聊天: typed messages, relayed by the host to everyone in the room ---------- */
-  const chat = { rm: { log: [], unread: 0 }, pr: { log: [], unread: 0 }, open: "" };
+  const chat = { rm: { log: [], unread: 0 }, pr: { log: [], unread: 0 }, ss: { log: [], unread: 0 }, mj: { log: [], unread: 0 }, open: "" };
+  // each room: who I am there, which view shows it, its title and how a message is sent
+  const CHAT_ROOM = {
+    rm: { me: () => rm.me, view: "room", title: () => "百家乐房间 " + rm.code, send: (text) => rmToHost({ t: "chat", text }) },
+    pr: { me: () => pr.me, view: "proom", title: () => "德州房间 " + pr.code, send: (text) => prSend({ t: "chat", text }) },
+    ss: { me: () => ssNet.me, view: "sss", title: () => "十三张房间 " + ssNet.code, send: (text) => ssNet.toHost({ t: "chat", text }) },
+  };
   function chatAdd(room, from, text) {
     const c = chat[room];
     c.log.push(from ? { id: from.id, name: from.name, text } : { sys: true, text });
     if (c.log.length > 80) c.log.shift();
-    const mine = from && from.id === (room === "rm" ? rm.me : pr.me);
+    const mine = from && from.id === CHAT_ROOM[room].me();
     if (chat.open === room && !$("#chatSheet").hidden) chatRender();
-    else if (from && !mine) { c.unread++; if ((room === "rm" ? S.view !== "room" : S.view !== "proom")) toast("💬 " + esc(from.name) + "：" + esc(text)); }
+    else if (from && !mine) { c.unread++; if (S.view !== CHAT_ROOM[room].view) toast("💬 " + esc(from.name) + "：" + esc(text)); }
     chatBadges();
   }
   function chatClear(room) { chat[room] = { log: [], unread: 0 }; chatBadges(); if (chat.open === room) $("#chatSheet").hidden = true; }
@@ -5770,8 +5933,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $$(".chatbtn").forEach((b) => { const c = chat[b.dataset.chat], u = b.querySelector(".unread"); u.hidden = !c.unread; u.textContent = c.unread > 9 ? "9+" : c.unread; });
   }
   function chatRender() {
-    const room = chat.open, c = chat[room], me = room === "rm" ? rm.me : pr.me, box = $("#chatLog");
-    $("#chatRoom").textContent = room === "rm" ? "百家乐房间 " + rm.code : "德州房间 " + pr.code;
+    const room = chat.open, c = chat[room], me = CHAT_ROOM[room].me(), box = $("#chatLog");
+    $("#chatRoom").textContent = CHAT_ROOM[room].title();
     box.innerHTML = c.log.length ? c.log.map((m) => m.sys ? '<p class="sys">' + esc(m.text) + "</p>" : '<p class="cm' + (m.id === me ? " me" : "") + '"><b>' + esc(m.id === me ? "我" : m.name) + "</b><span>" + esc(m.text) + "</span></p>").join("") : '<p class="empty">还没有人说话，打个招呼吧</p>';
     box.scrollTop = box.scrollHeight;
   }
@@ -5785,11 +5948,610 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     e.preventDefault();
     const text = $("#chatInput").value.trim().slice(0, 80);
     if (!text || !chat.open) return;
-    if (chat.open === "rm") rmToHost({ t: "chat", text }); else prSend({ t: "chat", text });
+    CHAT_ROOM[chat.open].send(text);
     $("#chatInput").value = "";
   });
   function prFromHash() { const m = /^#proom=(\d{6})$/.exec(location.hash); if (m) { $("#prCode").value = m[1]; if (!pr.peer) prStatus("输入名字、选好带入筹码，点「加入」进入房间 " + m[1]); } }
   prRender();
+  /* ===================== 十三张 (Chinese poker) — rules engine =====================
+     13 cards → 头道 3 · 中道 5 · 尾道 5, each row no stronger than the one below it (else 倒水).
+     Each row against each opponent: 1 水, or the row's bonus when it wins with a big hand.
+     Winning all three rows against someone is 打枪 (double); shooting all three opponents is 全垒打 (double again). */
+  const SSS_ROW_NAME = ["头道", "中道", "尾道"];
+  // a 3-card front row on the same scale as eval5: 三条 3 · 对子 1 · 散牌 0
+  function sssEval3(cs) {
+    const vs = cs.map(RV).sort((a, b) => b - a);
+    if (vs[0] === vs[2]) return [3, vs[0]];
+    if (vs[0] === vs[1]) return [1, vs[0], vs[2]];
+    if (vs[1] === vs[2]) return [1, vs[1], vs[0]];
+    return [0].concat(vs);
+  }
+  const sssEval = (cs) => (cs.length === 3 ? sssEval3(cs) : eval5(cs));
+  // bonus 水 a winning row is worth (1 when ordinary)
+  function sssRowBonus(row, r) {
+    if (row === 0) return r[0] === 3 ? 3 : 1;                                   // 冲三
+    if (row === 1) return r[0] >= 8 ? 10 : r[0] === 7 ? 8 : r[0] === 6 ? 2 : 1;  // 中道同花顺 / 铁支 / 葫芦
+    return r[0] >= 8 ? 5 : r[0] === 7 ? 4 : 1;                                  // 尾道同花顺 / 铁支
+  }
+  const SSS_HN = ["散牌", "对子", "两对", "三条", "顺子", "同花", "葫芦", "铁支", "同花顺", "同花顺"];
+  function sssRowLabel(row, r) {
+    if (!r) return "";
+    if (row === 0 && r[0] === 3) return "冲三 " + RN(r[1]);
+    if (row === 1 && r[0] === 6) return "中墩葫芦";
+    const k = r[0], v = r[1];
+    if (k === 0) return RN(v) + " 高";
+    if (k === 1 || k === 3 || k === 7) return SSS_HN[k] + " " + RN(v);
+    if (k === 2) return "两对 " + RN(r[1]) + RN(r[2]);
+    if (k === 6) return "葫芦 " + RN(v);
+    return SSS_HN[k];
+  }
+  // rows in order 头 ≤ 中 ≤ 尾, otherwise 倒水
+  function sssFoul(rows) { const e = rows.map(sssEval); return cmpRank(e[0], e[1]) > 0 || cmpRank(e[1], e[2]) > 0; }
+  // 报到 hands: scored as a fixed number of 水 against every opponent, no rows are compared
+  function sssStraight(vs) {                    // vs sorted high to low, all different; A also plays low (A-2-3, A-2-3-4-5)
+    const run = (a) => a.every((v, j) => j === 0 || a[j - 1] - v === 1);
+    return run(vs) || (vs[0] === 14 && vs[1] === vs.length && run(vs.slice(1)));
+  }
+  const sssIsStraight = (cs) => { const vs = cs.map(RV).sort((a, b) => b - a); return new Set(vs).size === vs.length && sssStraight(vs); };
+  const sssIsFlush = (cs) => cs.every((c) => c.s === cs[0].s);
+  function sssSpecial(cards) {
+    const vs = cards.map(RV), cnt = {};
+    vs.forEach((v) => { cnt[v] = (cnt[v] || 0) + 1; });
+    if (Object.keys(cnt).length === 13) return { name: sssIsFlush(cards) ? "至尊清龙" : "一条龙", pts: sssIsFlush(cards) ? 52 : 13 };
+    const pairs = Object.values(cnt).reduce((a, n) => a + Math.floor(n / 2), 0);
+    if (pairs === 6) return { name: "六对半", pts: 3 };
+    // 三同花 / 三顺子: try every split into 3 + 5 + 5
+    let flush = null, straight = null;
+    const idx = [...Array(13).keys()];
+    for (const f of sssCombos(idx, 3)) {
+      const rest = idx.filter((i) => !f.includes(i)), fc = f.map((i) => cards[i]);
+      const fFl = sssIsFlush(fc), fSt = sssIsStraight(fc);
+      if (!fFl && !fSt) continue;
+      for (const m of sssCombos(rest, 5)) {
+        if (m[0] !== rest[0]) break;            // the other five are the back row; skip mirrored splits
+        const b = rest.filter((i) => !m.includes(i)), mc = m.map((i) => cards[i]), bc = b.map((i) => cards[i]);
+        if (fFl && !flush && sssIsFlush(mc) && sssIsFlush(bc)) flush = [f, m, b];
+        if (fSt && !straight && sssIsStraight(mc) && sssIsStraight(bc)) straight = [f, m, b];
+      }
+      if (flush && straight) break;
+    }
+    if (flush) return { name: "三同花", pts: 3, split: flush };
+    if (straight) return { name: "三顺子", pts: 3, split: straight };
+    return null;
+  }
+  function sssCombos(arr, k) {
+    const out = [], pick = [];
+    (function rec(s) { if (pick.length === k) { out.push(pick.slice()); return; } for (let i = s; i <= arr.length - (k - pick.length); i++) { pick.push(arr[i]); rec(i + 1); pick.pop(); } })(0);
+    return out;
+  }
+  /* Scoring. players: [{ rows: [[3],[5],[5]] cards, special: {name, pts} | null }]
+     returns per player: net 水, per-opponent detail, rows won, who they shot */
+  function sssScore(players) {
+    const n = players.length;
+    const ev = players.map((p) => (p.special ? null : p.rows.map(sssEval)));
+    const foul = players.map((p, i) => !p.special && (cmpRank(ev[i][0], ev[i][1]) > 0 || cmpRank(ev[i][1], ev[i][2]) > 0));
+    const pair = {}, res = players.map(() => ({ net: 0, rows: [0, 0, 0], vs: {}, shot: [], homerun: false }));
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      const a = players[i], b = players[j];
+      let pts = 0, rowPts = [0, 0, 0], shot = 0;         // from i's point of view
+      if (a.special || b.special) {
+        const sa = a.special ? a.special.pts : 0, sb = b.special ? b.special.pts : 0;
+        pts = sa > sb ? sa : sb > sa ? -sb : 0;
+      } else if (foul[i] || foul[j]) {
+        if (foul[i] && foul[j]) pts = 0;
+        else {                                         // the fouled hand loses every row, with the winner's bonuses, and is shot
+          const w = foul[i] ? j : i;
+          rowPts = [0, 1, 2].map((r) => sssRowBonus(r, ev[w][r]) * (w === i ? 1 : -1));
+          pts = rowPts.reduce((x, y) => x + y, 0) * 2; shot = w === i ? 1 : -1;
+        }
+      } else {
+        let wi = 0, wj = 0;
+        for (let r = 0; r < 3; r++) {
+          const c = cmpRank(ev[i][r], ev[j][r]);
+          if (c > 0) { rowPts[r] = sssRowBonus(r, ev[i][r]); wi++; } else if (c < 0) { rowPts[r] = -sssRowBonus(r, ev[j][r]); wj++; }
+        }
+        pts = rowPts.reduce((x, y) => x + y, 0);
+        if (wi === 3) { pts *= 2; shot = 1; } else if (wj === 3) { pts *= 2; shot = -1; }
+      }
+      pair[i + "," + j] = { pts, rowPts, shot };
+    }
+    // 全垒打: shooting every opponent (at least three of them) doubles all of it again
+    for (let i = 0; i < n; i++) {
+      const others = [...Array(n).keys()].filter((j) => j !== i);
+      if (others.length >= 3 && others.every((j) => { const p = pair[Math.min(i, j) + "," + Math.max(i, j)]; return p.shot === (i < j ? 1 : -1); })) {
+        res[i].homerun = true;
+        others.forEach((j) => { const p = pair[Math.min(i, j) + "," + Math.max(i, j)]; p.pts *= 2; });
+      }
+    }
+    for (const k in pair) {
+      const [i, j] = k.split(",").map(Number), p = pair[k];
+      res[i].net += p.pts; res[j].net -= p.pts;
+      res[i].vs[j] = { pts: p.pts, rowPts: p.rowPts, shot: p.shot === 1 };
+      res[j].vs[i] = { pts: -p.pts, rowPts: p.rowPts.map((x) => -x), shot: p.shot === -1 };
+      if (p.shot === 1) res[i].shot.push(j); if (p.shot === -1) res[j].shot.push(i);
+      p.rowPts.forEach((x, r) => { if (x > 0) res[i].rows[r]++; else if (x < 0) res[j].rows[r]++; });
+    }
+    res.forEach((r, i) => { r.foul = foul[i]; });
+    return res;
+  }
+  /* AI: score every legal split. Each row's strength is turned into an estimated chance to win that row
+     against a typical opponent row; the split with the best expected 水 wins. Returns the top splits. */
+  const SSS_MU = [1.05, 2.15, 3.55], SSS_SD = [0.55, 0.85, 1.0];
+  function sssStrength(r) { return r[0] + (r[1] || 0) / 15 + (r[2] || 0) / 225; }
+  function sssRowWin(row, r) { return 1 / (1 + Math.exp(-(sssStrength(r) - SSS_MU[row]) / SSS_SD[row] * 1.7)); }
+  function sssArrange(cards, top) {
+    const idx = [...Array(13).keys()], five = new Map();
+    for (const c of sssCombos(idx, 5)) { const m = c.reduce((a, i) => a | (1 << i), 0); five.set(m, eval5(c.map((i) => cards[i]))); }
+    const all = [];
+    for (const [bm, br] of five) {
+      const rest = idx.filter((i) => !(bm >> i & 1));
+      for (const mc of sssCombos(rest, 5)) {
+        const mm = mc.reduce((a, i) => a | (1 << i), 0), mr = five.get(mm);
+        if (cmpRank(mr, br) > 0) continue;
+        const f = rest.filter((i) => !(mm >> i & 1)), fr = sssEval3(f.map((i) => cards[i]));
+        if (cmpRank(fr, mr) > 0) continue;
+        const rs = [fr, mr, br];
+        let ev = 0;
+        rs.forEach((r, row) => { const p = sssRowWin(row, r), b = sssRowBonus(row, r); ev += p * b - (1 - p); });
+        all.push({ ev, f, m: mc, b: idx.filter((i) => bm >> i & 1) });
+      }
+    }
+    all.sort((a, b) => b.ev - a.ev);
+    // keep splits that differ in their rows (the same hands in a different order are not new suggestions)
+    const out = [], seen = new Set();
+    for (const a of all) {
+      const key = [a.f, a.m, a.b].map((r) => sssEval(r.map((i) => cards[i])).slice(0, 2).join(".")).join("|");
+      if (seen.has(key)) continue; seen.add(key); out.push(a);
+      if (out.length >= (top || 1)) break;
+    }
+    return out.map((a) => [a.f, a.m, a.b]);
+  }
+  /* ---------- P2P room for the table games (十三张, 麻将) ----------
+     The host's phone runs the game; guests send their actions to it and get back their own view of the table.
+     A practice table is the same thing with no network: the host is the only human and the other seats are AI. */
+  function netRoom(o) {
+    const R = { peer: null, host: false, code: "", me: "host", conns: new Map(), hostConn: null };
+    R.toHost = (m) => { if (R.host) o.onHost(R.me, m); else if (R.hostConn && R.hostConn.open) { try { R.hostConn.send(m); } catch (e) {} } };
+    R.to = (id, m) => {
+      if (id === R.me) { o.onGuest(JSON.parse(JSON.stringify(m))); return; }
+      const c = R.conns.get(id); if (c && c.open) { try { c.send(m); } catch (e) {} }
+    };
+    R.all = (m) => { for (const id of R.conns.keys()) R.to(id, m); R.to(R.me, m); };
+    R.create = () => new Promise((res) => {
+      loadPeer().then(() => {
+        const open = (n) => {
+          const code = String(o.base + rand(o.span)), peer = new Peer(o.prefix + code);
+          peer.on("open", () => { R.peer = peer; R.host = true; R.code = code; R.me = "host"; res(true); });
+          peer.on("connection", (c) => {
+            c.on("open", () => R.conns.set(c.peer, c));
+            c.on("data", (d) => o.onHost(c.peer, d || {}));
+            c.on("close", () => { R.conns.delete(c.peer); o.onGone(c.peer); });
+          });
+          peer.on("disconnected", () => { try { peer.reconnect(); } catch (e) {} });
+          peer.on("error", (e) => {
+            if (e.type === "unavailable-id" && n < 4) { peer.destroy(); open(n + 1); return; }
+            if (!R.peer) { o.status('<span class="l">开房间失败（' + e.type + "），稍后再试</span>"); try { peer.destroy(); } catch (x) {} res(false); }
+          });
+        };
+        open(0);
+      }, () => { o.status('<span class="l">连不上网络，无法开房间</span>'); res(false); });
+    });
+    R.join = (code, hello) => new Promise((res) => {
+      loadPeer().then(() => {
+        const peer = new Peer();
+        let done = false;
+        const fail = (t) => { if (done) return; done = true; o.status('<span class="l">' + t + "</span>"); try { peer.destroy(); } catch (e) {} res(false); };
+        const to = setTimeout(() => fail("连接超时：房间号不对，或网络挡住了直连（试试换成手机流量）"), 15000);
+        peer.on("error", (e) => fail(e.type === "peer-unavailable" ? "找不到房间 " + code + "（房主可能已经离开）" : "连接失败（" + e.type + "）"));
+        peer.on("open", (myId) => {
+          const c = peer.connect(o.prefix + code, { reliable: true });
+          c.on("open", () => { clearTimeout(to); done = true; R.peer = peer; R.host = false; R.code = code; R.me = myId; R.hostConn = c; c.send(hello); res(true); });
+          c.on("data", (d) => o.onGuest(d || {}));
+          c.on("close", () => { if (R.hostConn === c) { R.close(); o.onClosed(); } });
+        });
+      }, () => { o.status('<span class="l">连不上网络</span>'); res(false); });
+    });
+    R.close = () => { const p = R.peer; R.peer = null; R.hostConn = null; R.conns.clear(); R.host = false; R.code = ""; R.me = "host"; if (p) { try { p.destroy(); } catch (e) {} } };
+    return R;
+  }
+
+  /* ======================================================
+     十三张 — 2 to 4 players (empty seats are AI), 13 cards each, set into 3 / 5 / 5 and compared row by row
+     ====================================================== */
+  const SS_PREFIX = "gbcsss-", SS_TIME = 90, SS_BOTS = ["阿龙", "小凤", "老陈", "Lucky", "阿珍", "大飞"];
+  const ss = { practice: false, g: null, st: null, timer: 0, applied: -1, dealt: -1, cards: [], rows: [[], [], []], tray: [], pick: [], sug: null, sugI: 0, special: false, sent: false, showing: false, sortSuit: false };
+  const ssNet = netRoom({
+    prefix: SS_PREFIX, base: 800000, span: 100000, status: (h) => ssStatus(h),
+    onHost: (id, m) => ssHostGot(id, m), onGuest: (m) => ssGot(m), onGone: (id) => ssGone(id),
+    onClosed: () => { ssEnd(); ssStatus('<span class="l">房主已离开，房间结束</span>'); toast("十三张房间已结束"); },
+  });
+  const ssStatus = (h) => msg($("#ssStatus"), h);
+  const ssName = () => { const n = ($("#ssName").value || "").trim().slice(0, 10) || "玩家"; try { localStorage.setItem("gbc-name", n); } catch (e) {} return n; };
+  const ssOpen = () => !!(ssNet.peer || ss.practice);
+  const ssBot = (seat, used) => { const name = SS_BOTS.filter((x) => !used.includes(x))[0] || "AI"; return { id: "bot" + seat + "-" + rand(1e6), name, bot: true, ready: true, total: 0 }; };
+  // ---- host ----
+  function ssNewGame(base, name) {
+    const g = { base, seats: [{ id: "host", name, bot: false, ready: false, total: 0 }], phase: "wait", handNo: 0, deadline: 0, res: null };
+    for (let s = 1; s < 4; s++) g.seats.push(ssBot(s, g.seats.map((p) => p.name)));
+    ss.g = g; clearInterval(ss.timer); ss.timer = setInterval(ssHostLoop, 500);
+    ssPush();
+  }
+  function ssView(g, forId) {
+    const show = g.phase === "show";
+    return {
+      t: "ss", base: g.base, phase: g.phase, handNo: g.handNo, left: g.deadline ? Math.max(0, Math.ceil((g.deadline - Date.now()) / 1000)) : 0, practice: ss.practice,
+      seats: g.seats.map((p) => ({ id: p.id, name: p.name, bot: p.bot, ready: p.ready, done: !!p.done, total: p.total, last: p.last || 0,
+        cards: p.id === forId || show ? p.cards || null : null, rows: show ? p.rows : null, special: show ? p.special || null : null })),
+      res: show ? g.res : null,
+    };
+  }
+  function ssPush() { const g = ss.g; if (!g) return; g.seats.forEach((p) => { if (!p.bot) ssNet.to(p.id, ssView(g, p.id)); }); }
+  function ssHostGot(id, m) {
+    const g = ss.g; if (!g) return;
+    const p = g.seats.find((x) => x.id === id);
+    if (m.t === "hello") {
+      if (p) { ssPush(); return; }
+      const seat = g.seats.findIndex((x) => x.bot);
+      if (seat < 0) { ssNet.to(id, { t: "full" }); return; }
+      const old = g.seats[seat];
+      // a guest who joins mid-hand takes over the AI seat from the next hand; until then the AI keeps playing it
+      if (g.phase === "arrange") { old.handOver = { id, name: String(m.name || "玩家").slice(0, 10) }; ssNet.to(id, { t: "wait" }); ssSay("", String(m.name || "玩家").slice(0, 10) + " 进来了，下一局入座"); return; }
+      g.seats[seat] = { id, name: String(m.name || "玩家").slice(0, 10), bot: false, ready: false, total: 0 };
+      ssSay("", g.seats[seat].name + " 坐下了"); ssPush(); return;
+    }
+    if (!p) return;
+    if (m.t === "ready") { p.ready = !!m.on; ssPush(); ssMaybeStart(); }
+    else if (m.t === "arr" && g.phase === "arrange" && !p.done) {
+      if (m.special) { const sp = sssSpecial(p.cards); if (!sp) return; p.special = sp; p.rows = sp.split ? sp.split.map((r) => r.map((i) => p.cards[i])) : null; }
+      else {
+        const rows = m.rows, flat = [].concat(...(rows || []));
+        if (!rows || rows.length !== 3 || rows[0].length !== 3 || rows[1].length !== 5 || rows[2].length !== 5 || new Set(flat).size !== 13 || flat.some((i) => !(i >= 0 && i < 13))) return;
+        const rc = rows.map((r) => r.map((i) => p.cards[i]));
+        if (sssFoul(rc)) return;
+        p.rows = rc; p.special = null;
+      }
+      p.done = true; ssPush(); ssMaybeShow();
+    }
+    else if (m.t === "say") ssSay(id, String(m.text || "").slice(0, 12));
+    else if (m.t === "chat") { const text = String(m.text || "").trim().slice(0, 80); if (text) ssNet.all({ t: "chat", id, name: p.name, text }); }
+  }
+  function ssSay(id, text) { ssNet.all({ t: "say", id, text }); }
+  function ssGone(id) {
+    const g = ss.g; if (!g) return;
+    const i = g.seats.findIndex((x) => x.id === id);
+    if (i < 0) { g.seats.forEach((x) => { if (x.handOver && x.handOver.id === id) x.handOver = null; }); return; }
+    const p = g.seats[i], bot = ssBot(i, g.seats.map((x) => x.name));
+    // the AI takes the seat over, cards and all
+    Object.assign(bot, { cards: p.cards, rows: p.rows, special: p.special, done: p.done, total: p.total });
+    g.seats[i] = bot;
+    if (g.phase === "arrange" && !bot.done) ssBotArrange(bot, 600);
+    ssSay("", p.name + " 离开了，由 AI " + bot.name + " 接手"); ssPush(); ssMaybeStart();
+  }
+  function ssMaybeStart() {
+    const g = ss.g;
+    if (!g || g.phase === "arrange" || !g.seats.filter((p) => !p.bot).every((p) => p.ready)) return;
+    // guests waiting for a seat sit down now
+    g.seats.forEach((p, i) => { if (p.bot && p.handOver) { g.seats[i] = { id: p.handOver.id, name: p.handOver.name, bot: false, ready: false, total: 0 }; } });
+    if (!g.seats.filter((p) => !p.bot).every((p) => p.ready)) { ssPush(); return; }
+    const deck = new Shoe(1).cards;
+    g.seats.forEach((p) => { p.cards = deck.splice(0, 13); p.rows = null; p.special = null; p.done = false; });
+    g.phase = "arrange"; g.handNo++; g.res = null;
+    g.deadline = ss.practice ? 0 : Date.now() + (SS_TIME + 4) * 1000;
+    g.seats.forEach((p) => { if (p.bot) ssBotArrange(p, 2500 + rand(5000)); });
+    ssPush();
+  }
+  function ssBotArrange(p, delay) {
+    setTimeout(() => {
+      const g = ss.g; if (!g || g.phase !== "arrange" || p.done || !g.seats.includes(p)) return;
+      ssAutoFor(p); ssPush(); ssMaybeShow();
+    }, ss.practice ? Math.min(delay, 1800) : delay);
+  }
+  function ssAutoFor(p) {
+    const sp = sssSpecial(p.cards);
+    if (sp) { p.special = sp; p.rows = sp.split ? sp.split.map((r) => r.map((i) => p.cards[i])) : null; }
+    else p.rows = sssArrange(p.cards, 1)[0].map((r) => r.map((i) => p.cards[i]));
+    p.done = true;
+  }
+  function ssHostLoop() {
+    const g = ss.g; if (!g) return;
+    if (g.phase === "arrange" && g.deadline && Date.now() > g.deadline) {
+      g.seats.forEach((p) => { if (!p.done) ssAutoFor(p); });
+      ssPush(); ssMaybeShow();
+    }
+  }
+  function ssMaybeShow() {
+    const g = ss.g;
+    if (!g || g.phase !== "arrange" || !g.seats.every((p) => p.done)) return;
+    const res = sssScore(g.seats.map((p) => ({ rows: p.rows || [[], [], []], special: p.special || null })));
+    g.res = res.map((r, i) => {
+      const p = g.seats[i];
+      return { net: r.net, vs: r.vs, shot: r.shot, homerun: r.homerun, foul: r.foul, labels: p.rows ? p.rows.map((row, k) => sssRowLabel(k, sssEval(row))) : null };
+    });
+    g.seats.forEach((p, i) => { p.last = res[i].net; p.total += res[i].net; if (!p.bot) p.ready = false; });
+    g.phase = "show"; g.deadline = 0;
+    ssPush();
+  }
+  // ---- everyone: the table as this player sees it ----
+  function ssGot(m) {
+    if (m.t === "ss") {
+      const prev = ss.st; ss.st = m; ss.stAt = Date.now();
+      const me = ssMeSeat();
+      if (m.phase === "arrange" && ss.dealt !== m.handNo && me >= 0 && m.seats[me].cards) { ss.dealt = m.handNo; ssNewHand(m.seats[me].cards); }
+      if (m.phase === "show" && ss.applied !== m.handNo) { ss.applied = m.handNo; ssRender(); ssShowdown(m); return; }
+      if (!(prev && prev.phase === "show" && m.phase === "show" && ss.showing)) ssRender();
+      else ssRenderBar();
+    }
+    else if (m.t === "say") { ssBubble(m.id, m.text); if (!m.id) chatAdd("ss", null, m.text); }
+    else if (m.t === "chat") { chatAdd("ss", m, m.text); ssBubble(m.id, m.text.length > 14 ? m.text.slice(0, 13) + "…" : m.text); }
+    else if (m.t === "full") { ssEnd(); ssStatus('<span class="l">房间已满（4 人）</span>'); }
+    else if (m.t === "wait") ssStatus("这一局正在进行，下一局入座…");
+  }
+  const ssMeSeat = () => (ss.st ? ss.st.seats.findIndex((p) => p.id === ssNet.me) : -1);
+  function ssNewHand(cards) {
+    ss.cards = cards; ss.rows = [[], [], []]; ss.tray = [...Array(13).keys()]; ss.pick = []; ss.sug = null; ss.sugI = 0; ss.sent = false;
+    ss.special = sssSpecial(cards); ss.dealAnim = true; ssSortTray();
+    $("#ssResult").innerHTML = ""; SND.shuffle(1.2);
+  }
+  const ssVal = (i) => RV(ss.cards[i]);
+  function ssSortTray() {
+    const so = "♠♥♣♦";
+    ss.tray.sort(ss.sortSuit ? (a, b) => so.indexOf(ss.cards[a].s) - so.indexOf(ss.cards[b].s) || ssVal(b) - ssVal(a) : (a, b) => ssVal(b) - ssVal(a) || so.indexOf(ss.cards[a].s) - so.indexOf(ss.cards[b].s));
+  }
+  const SS_CAP = [3, 5, 5];
+  function ssPlace(row) {
+    if (ss.sent || !ss.pick.length) return;
+    const room = SS_CAP[row] - ss.rows[row].length, go = ss.pick.slice(0, room);
+    if (!go.length) { toast(SSS_ROW_NAME[row] + "已经满了"); return; }
+    ss.rows[row].push(...go); ss.tray = ss.tray.filter((i) => !go.includes(i)); ss.pick = ss.pick.filter((i) => !go.includes(i));
+    ssFillLast(); SND.deal(); ssRender();
+  }
+  // when two rows are full the rest of the cards can only go to the third
+  function ssFillLast() {
+    const open = [0, 1, 2].filter((r) => ss.rows[r].length < SS_CAP[r]);
+    if (open.length === 1 && ss.tray.length === SS_CAP[open[0]] - ss.rows[open[0]].length) { ss.rows[open[0]].push(...ss.tray); ss.tray = []; ss.pick = []; }
+  }
+  function ssUnplace(i) { if (ss.sent) return; ss.rows = ss.rows.map((r) => r.filter((x) => x !== i)); ss.tray.push(i); ssSortTray(); ssRender(); }
+  function ssAuto() {
+    if (ss.sent) return;
+    if (!ss.sug) ss.sug = sssArrange(ss.cards, 3);
+    const s = ss.sug[ss.sugI % ss.sug.length]; ss.sugI++;
+    // each row strongest card first
+    ss.rows = s.map((r) => r.slice().sort((a, b) => ssVal(b) - ssVal(a))); ss.tray = []; ss.pick = [];
+    SND.deal(); ssRender();
+    $("#ssAuto").textContent = ss.sug.length > 1 ? "换摆法 " + (((ss.sugI - 1) % ss.sug.length) + 1) + "/" + ss.sug.length : "自动摆牌";
+  }
+  function ssSubmit(special) {
+    if (ss.sent) return;
+    if (special) { if (!ss.special) return; ss.sent = true; ssNet.toHost({ t: "arr", special: true }); ssRender(); return; }
+    if (ss.rows.some((r, k) => r.length !== SS_CAP[k])) return;
+    if (sssFoul(ss.rows.map((r) => r.map((i) => ss.cards[i])))) { toast("倒水了：头道不能比中道大，中道不能比尾道大"); return; }
+    ss.sent = true; ssNet.toHost({ t: "arr", rows: ss.rows }); SND.chip(); ssRender();
+  }
+  function ssMini(c, down, cls) { const d = flipCard(c || { r: "A", s: "♠" }, down); if (cls) d.classList.add(cls); return d.outerHTML; }
+  // seats around me: my next seat sits on my right (东 side of the screen), then across (北), then on my left (西)
+  const ssOrder = () => { const me = Math.max(0, ssMeSeat()); return [1, 2, 3].map((k) => (me + k) % 4); };
+  const SS_POS = ["e", "n", "w"], SS_WIND = ["东", "南", "西", "北"];
+  function ssSeats(st, reveal) {
+    ssOrder().forEach((s, k) => { $('#ssTable .ss-seat[data-pos="' + SS_POS[k] + '"]').innerHTML = ssOppHTML(st, s, reveal); });
+    const me = Math.max(0, ssMeSeat());
+    [["s", me]].concat(ssOrder().map((s, k) => [SS_POS[k], s])).forEach(([pos, s]) => { $('#ssCenter .ss-wind[data-pos="' + pos + '"]').textContent = SS_WIND[s]; });
+    const my = st.seats[me] || {};
+    $("#ssMeTag").innerHTML = "<b>" + SS_WIND[me] + "</b> " + esc(my.name || "") + " · " + ssPts(my.total || 0) + " 水";
+  }
+  function ssRender() {
+    const st = ss.st, open = ssOpen() && !!st;
+    $("#ssJoin").hidden = open; $("#ssPlay").hidden = !open;
+    if (!open) return;
+    const me = ssMeSeat(), my = st.seats[me] || {};
+    $("#ssCodeShow").textContent = ss.practice ? "练习桌" : ssNet.code;
+    $("#ssCopy").hidden = ss.practice; $("#ssCodeLab").hidden = ss.practice; $("#ssEmo").hidden = ss.practice;
+    $("#ssBase").textContent = "每水 " + compact(st.base);
+    $("#ssCount").textContent = st.seats.filter((p) => !p.bot).length + " 人 + " + st.seats.filter((p) => p.bot).length + " AI";
+    $("#ssHandNo").textContent = st.handNo;
+    $("#ssTotal").innerHTML = ssPts(my.total || 0) + " 水";
+    $("#ssTable").dataset.phase = st.phase;
+    if (!ss.showing) {
+      ssSeats(st);
+      if (st.phase !== "show") ssRenderMine();
+    }
+    ssRenderBar();
+  }
+  const ssPts = (n) => (n > 0 ? '<span class="w">+' + n + "</span>" : n < 0 ? '<span class="l">' + n + "</span>" : "0");
+  function ssOppHTML(st, s, reveal) {
+    const p = st.seats[s];
+    const status = st.phase === "arrange" ? (p.done ? "已摆好 ✓" : "摆牌中…") : st.phase === "wait" ? (p.bot ? "AI" : p.ready ? "已准备" : "未准备") : (p.bot ? "AI" : p.ready ? "已准备" : "看结果");
+    // after the showdown the rows stay face up with how each did against me
+    const done = st.phase === "show" && st.res && !reveal, me = ssMeSeat(), vs = done && st.res[me] ? st.res[me].vs[s] : null, mySp = done && st.seats[me].special;
+    let rows = "";
+    if (st.phase === "arrange" || st.phase === "show") rows = [3, 5, 5].map((n, k) => {
+      if (!done) return '<span class="ss-mr" data-r="' + k + '">' + Array.from({ length: n }, () => ssMini(null, true, "mini")).join("") + '<i class="ss-rp"></i></span>';
+      const cs = p.rows ? p.rows[k] : p.cards.slice([0, 3, 8][k], [3, 8, 13][k]), v = vs ? vs.rowPts[k] : 0;
+      return '<span class="ss-mr" data-r="' + k + '" data-res="' + (p.special || mySp ? "" : v > 0 ? "lose" : v < 0 ? "win" : "tie") + '">' + cs.map((c) => ssMini(c, false, "mini")).join("") + '<i class="ss-rp">' + (p.special ? (k === 1 ? esc(p.special.name) : "") : st.res[s].labels ? st.res[s].labels[k] : "") + "</i></span>";
+    }).join("");
+    const net = done ? '<i class="ss-net on">' + ssPts(st.res[s].net) + " 水</i>" : '<i class="ss-net"></i>';
+    return '<div class="ss-opp' + (p.bot ? " bot" : "") + '" data-seat="' + s + '" data-id="' + esc(p.id) + '"><div class="ss-who"><b><i class="ss-w">' + SS_WIND[s] + "</i>" + esc(p.name) + (p.bot ? ' <small class="ai">AI</small>' : "") + '</b><small><span class="ss-st">' + status + '</span> · ' + ssPts(p.total) + ' 水</small></div><div class="ss-mrows' + (st.phase === "arrange" && !p.done ? " dim" : "") + '">' + rows + "</div>" + net + "</div>";
+  }
+  function ssRenderMine() {
+    const st = ss.st, arranging = st.phase === "arrange" && ss.dealt === st.handNo && ss.cards.length;
+    if (!arranging) {   // empty rows on the table until the cards come
+      $$("#ssMine .ss-row").forEach((el, k) => { el.classList.remove("can", "foul"); delete el.dataset.res; el.querySelector(".ss-lab").innerHTML = "<b>" + SSS_ROW_NAME[k] + "</b><small>" + SS_CAP[k] + " 张</small>"; el.querySelector(".ss-slots").innerHTML = Array.from({ length: SS_CAP[k] }, () => '<span class="ss-slot"></span>').join(""); el.querySelector(".ss-rowpts").innerHTML = ""; });
+      $("#ssTray").hidden = true; $("#ssFoul").hidden = true; return;
+    }
+    const fouled = ss.rows.every((r, k) => r.length === SS_CAP[k]) && sssFoul(ss.rows.map((r) => r.map((i) => ss.cards[i])));
+    $$("#ssMine .ss-row").forEach((el, k) => {
+      const r = ss.rows[k], lab = r.length === SS_CAP[k] ? sssRowLabel(k, sssEval(r.map((i) => ss.cards[i]))) : SS_CAP[k] - r.length ? "还差 " + (SS_CAP[k] - r.length) + " 张" : "";
+      el.querySelector(".ss-lab").innerHTML = "<b>" + SSS_ROW_NAME[k] + "</b><small>" + lab + "</small>";
+      el.classList.toggle("foul", fouled); el.classList.toggle("can", !!ss.pick.length && r.length < SS_CAP[k] && !ss.sent);
+      el.querySelector(".ss-slots").innerHTML = r.map((i) => '<button type="button" class="ss-c" data-i="' + i + '">' + ssMini(ss.cards[i]) + "</button>").join("") + Array.from({ length: SS_CAP[k] - r.length }, () => '<span class="ss-slot"></span>').join("");
+    });
+    $("#ssTray").innerHTML = ss.tray.map((i, n) => '<button type="button" class="ss-c' + (ss.pick.includes(i) ? " pick" : "") + (ss.dealAnim ? " dealin" : "") + '" style="--d:' + n * 45 + 'ms" data-i="' + i + '">' + ssMini(ss.cards[i]) + "</button>").join("");
+    ss.dealAnim = false;
+    $("#ssTray").hidden = !ss.tray.length;
+    $("#ssFoul").hidden = !fouled;
+    $("#ssMine").classList.toggle("sent", ss.sent);
+  }
+  function ssWaitText(st) {
+    const humans = st.seats.filter((p) => !p.bot), notReady = humans.filter((p) => !p.ready).map((p) => p.name);
+    if (st.phase === "arrange") return "这一局正在进行，下一局入座";
+    return notReady.length ? "等 " + notReady.map(esc).join("、") + " 准备" : "开始发牌…";
+  }
+  function ssRenderBar() {
+    const st = ss.st; if (!st) return;
+    const me = ssMeSeat(), my = st.seats[me] || {};
+    const arranging = st.phase === "arrange" && ss.dealt === st.handNo;
+    $("#ssArrBar").hidden = !arranging || ss.sent;
+    $("#ssSpecial").hidden = !ss.special || !arranging || ss.sent; $("#ssSpecialRow").hidden = $("#ssSpecial").hidden; if (ss.special) $("#ssSpecial").textContent = "报到 · " + ss.special.name + " " + ss.special.pts + " 水";
+    const full = ss.rows.every((r, k) => r.length === SS_CAP[k]);
+    $("#ssGo").disabled = !full || sssFoul(ss.rows.map((r) => r.map((i) => ss.cards[i])));
+    $("#ssReady").hidden = st.phase === "arrange" || ss.showing;
+    $("#ssReady").textContent = my.ready ? "已准备 ✓" : st.phase === "show" ? "下一局" : "✋ 准备";
+    $("#ssReady").classList.toggle("ghost", !!my.ready);
+    const left = st.left ? Math.max(0, st.left - Math.floor((Date.now() - (ss.stAt || Date.now())) / 1000)) : 0;
+    $("#ssTimer").textContent = arranging && st.left ? left : "";
+    $("#ssTimer").classList.toggle("soon", left > 0 && left <= 10);
+    $("#ssCMsg").innerHTML = ss.showing ? "比牌中…" : st.phase === "arrange" ? (arranging ? (ss.sent ? "已摆好，等其他人…" : "请摆牌") : "这一局正在进行，下一局入座") : st.phase === "show" ? "第 " + st.handNo + " 局结束" : ssWaitText(st);
+    $("#ssResult").hidden = st.phase !== "show";
+  }
+  // ---- showdown: row by row, then 打枪, 全垒打 and the money ----
+  async function ssShowdown(st) {
+    ss.showing = true;
+    const me = ssMeSeat(), order = ssOrder(), T = (ms) => (reduced ? 30 : ms);
+    ssSeats(st, true);
+    $("#ssTray").hidden = true; $("#ssArrBar").hidden = true; $("#ssFoul").hidden = true;
+    const my = st.seats[me], myRes = st.res[me];
+    // my rows as submitted (the host's copy)
+    $$("#ssMine .ss-row").forEach((el, k) => {
+      el.classList.remove("can", "foul");
+      const cs = my.rows ? my.rows[k] : my.cards.slice([0, 3, 8][k], [3, 8, 13][k]);
+      el.querySelector(".ss-slots").innerHTML = cs.map((c) => '<span class="ss-c">' + ssMini(c) + "</span>").join("");
+      el.querySelector(".ss-lab").innerHTML = "<b>" + SSS_ROW_NAME[k] + "</b><small>" + (my.special ? (k === 1 ? "报到 " + my.special.name : "") : myRes.labels ? myRes.labels[k] : "") + "</small>";
+    });
+    ssRenderBar();
+    await sleep(T(500));
+    for (let k = 0; k < 3; k++) {
+      let mine = 0;
+      for (const s of order) {
+        const p = st.seats[s], el = $('#ssTable .ss-opp[data-seat="' + s + '"] .ss-mr[data-r="' + k + '"]'), res = st.res[s];
+        if (!el) continue;
+        const cs = p.rows ? p.rows[k] : p.cards.slice([0, 3, 8][k], [3, 8, 13][k]);
+        el.innerHTML = cs.map((c) => ssMini(c, false, "mini")).join("") + '<i class="ss-rp"></i>';
+        el.classList.add("flip");
+        const v = myRes.vs[s].rowPts[k]; mine += v;
+        const badge = el.querySelector(".ss-rp");
+        badge.textContent = p.special ? "" : res.labels ? res.labels[k] : "";
+        el.dataset.res = my.special || p.special ? "" : v > 0 ? "lose" : v < 0 ? "win" : "tie";
+      }
+      const mr = $$("#ssMine .ss-row")[k];
+      mr.dataset.res = my.special ? "" : mine > 0 ? "win" : mine < 0 ? "lose" : "tie";
+      mr.querySelector(".ss-rowpts").innerHTML = my.special ? "" : ssPts(mine);
+      SND.flip(); await sleep(T(1000));
+    }
+    // 报到
+    for (const s of [me].concat(order)) { const p = st.seats[s]; if (p.special) { ssBanner(s === me ? $("#ssMine") : $('#ssTable .ss-opp[data-seat="' + s + '"]'), "报到 · " + p.special.name, "sp"); SND.win(); await sleep(T(900)); } }
+    // 倒水
+    for (const s of [me].concat(order)) if (st.res[s].foul) { ssBanner(s === me ? $("#ssMine") : $('#ssTable .ss-opp[data-seat="' + s + '"]'), "倒水", "foul"); await sleep(T(700)); }
+    // 打枪: the shooter fires at each victim
+    for (const s of [me].concat(order)) {
+      for (const v of st.res[s].shot) {
+        const vic = v === me ? $("#ssMine") : $('#ssTable .ss-opp[data-seat="' + v + '"]');
+        ssBanner(vic, esc(st.seats[s].name) + " 打枪", "gun"); ssShots(vic); SND.pop(1.2); await sleep(T(900));
+      }
+    }
+    for (const s of [me].concat(order)) if (st.res[s].homerun) { ssBanner($("#ssTable"), esc(st.seats[s].name) + " 全垒打！", "hr"); SND.pop(1.5); SND.win(); await sleep(T(1400)); }
+    // totals
+    for (const s of order) { const el = $('#ssTable .ss-opp[data-seat="' + s + '"] .ss-net'); el.innerHTML = ssPts(st.res[s].net) + " 水"; el.classList.add("on"); }
+    const chips = Math.round(myRes.net * st.base * 100) / 100;
+    if (chips > 0) { addBank(chips); SND.coins(2); SND.win(); } else if (chips < 0) { addBank(-Math.min(-chips, S.bank)); SND.chip(); }
+    $("#ssResult").innerHTML = "这一局 " + ssPts(myRes.net) + " 水 · " + (chips > 0 ? '<span class="w">+' + fmt(chips) + "</span>" : chips < 0 ? '<span class="l">-' + fmt(-chips) + "</span>" : "不输不赢");
+    ss.showing = false; ssRender();
+  }
+  function ssBanner(host, text, cls) {
+    if (!host) return;
+    const b = document.createElement("div"); b.className = "ss-ban " + cls; b.innerHTML = text; host.appendChild(b);
+    setTimeout(() => b.remove(), reduced ? 900 : 1900);
+  }
+  function ssShots(host) {
+    if (reduced || !host) return;
+    for (let i = 0; i < 3; i++) setTimeout(() => {
+      const h = document.createElement("i"); h.className = "ss-hole"; h.style.left = 15 + rand(70) + "%"; h.style.top = 20 + rand(60) + "%"; host.appendChild(h); setTimeout(() => h.remove(), 1600);
+    }, i * 140);
+  }
+  function ssBubble(id, text) {
+    if (!id) { if (S.view === "sss") toast(esc(text)); return; }
+    const host = id === ssNet.me ? $("#ssMine") : $('#ssTable .ss-opp[data-id="' + (window.CSS && CSS.escape ? CSS.escape(id) : id) + '"]');
+    if (host) { const b = document.createElement("span"); b.className = "say"; b.textContent = text; host.appendChild(b); setTimeout(() => b.remove(), 3300); }
+  }
+  // share a room: the system share sheet, or the code and link copied
+  async function shareRoom(game, code, key) {
+    const url = location.origin + location.pathname + "#" + key + "=" + code, text = "来俱乐部和我玩" + game + "！房间号 " + code;
+    try { if (navigator.share) { await navigator.share({ title: "俱乐部" + game + "房间", text, url }); return; } } catch (e) { return; }
+    try { await navigator.clipboard.writeText(text + " " + url); toast("房间号和链接已复制"); } catch (e) { toast("房间号 " + code); }
+  }
+  // ---- entering and leaving ----
+  function ssPractice() {
+    if (ssOpen()) { go("sss"); return; }
+    const base = +$("#ssBaseSel").value;
+    ss.practice = true; ssNet.host = true; ssNet.me = "host";
+    ssNewGame(base, ssName()); go("sss");
+  }
+  async function ssCreate() {
+    if (ssOpen()) { go("sss"); return; }
+    const base = +$("#ssBaseSel").value, name = ssName();
+    $("#ssCreate").disabled = true; ssStatus("正在开房间…");
+    const ok = await ssNet.create();
+    $("#ssCreate").disabled = false;
+    if (!ok) return;
+    ssStatus(""); ss.practice = false; ssNewGame(base, name);
+    toast("十三张房间 " + ssNet.code + " 已开好，把房间号发给朋友（空位由 AI 补上）");
+  }
+  async function ssJoin(code) {
+    code = String(code || "").replace(/\D/g, "");
+    if (code.length !== 6) { ssStatus('<span class="l">房间号是 6 位数字</span>'); return; }
+    if (ssOpen()) { toast("请先离开现在的十三张桌"); return; }
+    $("#ssJoinBtn").disabled = true; ssStatus("正在连接房间 " + code + "…");
+    const ok = await ssNet.join(code, { t: "hello", name: ssName() });
+    $("#ssJoinBtn").disabled = false;
+    if (ok) { ss.practice = false; ssStatus(""); toast("已加入十三张房间 " + code); ssRender(); }
+  }
+  function ssEnd() {
+    clearInterval(ss.timer); ss.g = null; ss.st = null; ss.practice = false; ss.showing = false; ss.dealt = -1; ss.applied = -1; ss.cards = [];
+    ssNet.close(); chatClear("ss"); ssRender();
+  }
+  function ssLeave() {
+    const st = ss.st, inHand = st && st.phase === "arrange";
+    if (!confirm((ss.practice ? "离开练习桌？" : ssNet.host ? "你是房主，离开后房间会结束。确定离开？" : "离开十三张房间？") + (inHand ? "（这一局会由 AI 帮你摆完）" : ""))) return;
+    ssEnd(); go("online");
+  }
+  // ---- wiring ----
+  $("#ssPractice").addEventListener("click", ssPractice);
+  $("#ssCreate").addEventListener("click", ssCreate);
+  $("#ssJoinBtn").addEventListener("click", () => ssJoin($("#ssCode").value));
+  $("#ssLeave").addEventListener("click", ssLeave);
+  $("#ssCopy").addEventListener("click", () => shareRoom("十三张", ssNet.code, "sss"));
+  $("#ssReady").addEventListener("click", () => {
+    const my = ss.st && ss.st.seats[ssMeSeat()];
+    if (!my) return;
+    if (!my.ready && S.bank < ss.st.base * 30) { toast("余额不够：每水 " + fmt(ss.st.base) + " 至少要有 " + fmt(ss.st.base * 30)); return; }
+    ssNet.toHost({ t: "ready", on: !my.ready });
+  });
+  $("#ssAuto").addEventListener("click", ssAuto);
+  $("#ssClear").addEventListener("click", () => { if (ss.sent) return; ss.tray = [...Array(13).keys()]; ss.rows = [[], [], []]; ss.pick = []; ssSortTray(); ssRender(); $("#ssAuto").textContent = "自动摆牌"; });
+  $("#ssSort").addEventListener("click", () => { ss.sortSuit = !ss.sortSuit; ssSortTray(); ssRender(); $("#ssSort").textContent = ss.sortSuit ? "按点数" : "按花色"; });
+  $("#ssGo").addEventListener("click", () => ssSubmit(false));
+  $("#ssSpecial").addEventListener("click", () => { if (confirm("报到「" + ss.special.name + "」：不比牌，直接向每家收 " + ss.special.pts + " 水（对方也报到就比谁大）。确定？")) ssSubmit(true); });
+  $("#ssTray").addEventListener("click", (e) => {
+    const b = e.target.closest(".ss-c"); if (!b || ss.sent) return;
+    const i = +b.dataset.i; ss.pick = ss.pick.includes(i) ? ss.pick.filter((x) => x !== i) : ss.pick.concat(i);
+    SND.flip(); ssRenderMine();
+  });
+  $$("#ssMine .ss-row").forEach((el, k) => el.addEventListener("click", (e) => {
+    const b = e.target.closest(".ss-c");
+    if (b && !ss.pick.length) { ssUnplace(+b.dataset.i); return; }
+    ssPlace(k);
+  }));
+  $$("#ssEmo button:not(.chatbtn)").forEach((b) => b.addEventListener("click", () => { if (ssOpen() && !ss.practice) ssNet.toHost({ t: "say", text: b.dataset.say || b.textContent }); }));
+  setInterval(() => { if (S.view === "sss" && ss.st && ss.st.phase === "arrange") ssRenderBar(); }, 1000);
+  function ssFromHash() { const m = /^#sss=(\d{6})$/.exec(location.hash); if (m) { $("#ssCode").value = m[1]; if (!ssOpen()) ssStatus("输入名字，点「加入」进入十三张房间 " + m[1]); } }
   /* ======================================================
      NIU NIU (牛牛) — player vs banker, 5 cards each from a fresh 52-card deck
      ====================================================== */
@@ -7404,7 +8166,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   frRender();
   dvRender();
   tnRender();
-  show(hashView()); rmFromHash(); prFromHash();
+  show(hashView()); rmFromHash(); prFromHash(); ssFromHash();
 
   // Home-screen app: offline cache (only where service workers are allowed, e.g. GitHub Pages)
   try {
