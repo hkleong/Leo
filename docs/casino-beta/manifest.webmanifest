@@ -1,0 +1,30 @@
+{
+ "name": "俱乐部 测试版",
+ "short_name": "俱乐部测试",
+ "description": "用虚拟筹码玩百家乐、21点和欧式轮盘，规则按国际标准设置。",
+ "lang": "zh-CN",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#0b0b0c",
+ "theme_color": "#0b0b0c",
+ "icons": [
+  {
+   "src": "icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icons/icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
