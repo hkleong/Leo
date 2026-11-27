@@ -246,68 +246,175 @@
   }
 }
 
-/* Baccarat dealer stage, scoped to the four local tables. */
-#v-baccarat .btable.bac {
-  flex: 1 0 auto !important;
-  align-content: center;
-  grid-template-rows: auto auto auto;
-  gap: 6px 10px;
-  padding: 6px 8px;
-  background: radial-gradient(100% 85% at 50% 12%, #25372f, #172522 62%, #101917);
-}
+/* The camera scene and the game display have independent coordinate spaces. */
 .bac-dealer-stage {
-  grid-column: 1 / -1;
+  --scene-height: clamp(210px, 29vh, 278px);
+  --portrait-width: min(calc(100% - 20px), calc(var(--scene-height) * .755 * 424 / 321));
   position: relative;
-  display: grid;
-  justify-items: center;
-  align-items: end;
   isolation: isolate;
-  height: clamp(120px, 21vh, 198px);
+  height: var(--scene-height);
   overflow: hidden;
-  border-radius: 9px;
-  border: 1px solid #785f4277;
+  border-radius: 11px;
+  border: 1px solid #91765390;
   background:
-    radial-gradient(ellipse at 50% 36%, #9b6d458c, transparent 58%),
-    linear-gradient(130deg, #0b171a9e 8%, #291d1e55 53%, #091919ab 90%),
-    repeating-linear-gradient(90deg, #30271e 0 18%, #3d2e24 18% calc(18% + 2px), #30271e calc(18% + 2px) 25%);
-  box-shadow: inset 0 0 27px #0007;
+    radial-gradient(ellipse at 54% 35%, #a1724a86, transparent 56%),
+    linear-gradient(120deg, #061b228f 8%, #20191950 54%, #0b191fbd 91%),
+    repeating-linear-gradient(90deg, #332519 0 20%, #3e2e21 20% calc(20% + 2px), #332519 calc(20% + 2px) 25%);
+  box-shadow: inset 0 0 39px #0009, 0 4px 10px #0004;
 }
 .bac-dealer-stage::after {
   content: "";
   position: absolute;
   z-index: -1;
-  inset: auto -8% -15% -8%;
-  height: 28%;
-  border-top: 2px solid #bf96647a;
-  border-radius: 61% 61% 0 0;
-  background: linear-gradient(180deg, #284539, #122922);
-  box-shadow: 0 -5px 21px #060f0ba8;
+  inset: 63% -8% -9%;
+  border-top: 2px solid #c2a57596;
+  border-radius: 44% 44% 0 0 / 22% 22% 0 0;
+  background:
+    radial-gradient(ellipse at 50% 0, #4e62463d, transparent 65%),
+    repeating-linear-gradient(32deg, transparent 0 2px, #b2bc8008 2px 3px),
+    linear-gradient(180deg, #28483c, #152f29 86%);
+  box-shadow: 0 -5px 22px #060f0bab;
 }
 .bac-dealer-person {
-  position: relative;
-  height: 100%;
-  max-width: 100%;
-  aspect-ratio: 360 / 273;
+  position: absolute;
+  top: 3%;
+  left: calc(52% - var(--portrait-width) / 2);
+  width: var(--portrait-width);
+  aspect-ratio: 424 / 321;
+  pointer-events: none;
 }
 .bac-dealer-portrait {
   position: absolute;
+  z-index: 1;
   inset: 0;
-  background: url("art/baccarat-dealer-poses.webp") 0 0 / 400% 200% no-repeat;
-  filter: drop-shadow(0 7px 10px #080c0c66);
+  background: url("art/baccarat-dealer-draw.webp") 0 0 / 400% 200% no-repeat;
+  filter: drop-shadow(0 5px 8px #080c0c76);
 }
-.bac-dealer-release {
+.bac-mark {
   position: absolute;
-  top: 92%;
-  left: 36.5%;
-  width: 8px;
-  height: 6px;
-  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 2px;
+  translate: -50% -50%;
+}
+#bacShoeMouth { left: 6.5%; top: 93%; }
+#bacDrawGrip { left: 27.5%; top: 93%; }
+#bacDrawAcross { left: 41%; top: 92.5%; }
+#bacDealerRelease { left: 37.8%; top: 96%; }
+.bac-dealer-stage .shoebox {
+  position: absolute;
+  z-index: 2;
+  top: 93%;
+  left: 6.5%;
+  bottom: auto;
+  right: auto;
+  translate: -89% -80%;
+  transform: none;
+  width: 29%;
+  height: auto;
+  aspect-ratio: 400 / 241;
+  border: 0;
+  border-radius: 0;
+  background: url("art/baccarat-shoe.webp") center / contain no-repeat;
+  box-shadow: none;
+  filter: drop-shadow(0 5px 4px #091610a0);
+}
+.bac-dealer-stage .shoebox::before { content: none; }
+.bac-dealer-stage .shoebox.lift { z-index: 8; }
+.bac-scene-kicker {
+  position: absolute;
+  z-index: 5;
+  inset: 8px auto auto 9px;
+  color: #f0d8ae;
+  padding: 3px 8px;
+  font: 600 11px/1.3 var(--body);
+  letter-spacing: .08em;
+  border-radius: 4px;
+  background: #100f0ccb;
+}
+.bac-felt-board {
+  position: absolute;
+  z-index: 3;
+  inset: auto 14% 6% 14%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(13px, 4vw, 35px);
   pointer-events: none;
 }
+.bac-felt-zone {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  min-width: 0;
+  padding: 2px 2px 4px;
+  border: 1px solid #bba87b60;
+  border-radius: 6px;
+  box-shadow: inset 0 0 6px #10291f52;
+}
+.bac-felt-zone small {
+  color: #ddc7a5;
+  font: 500 9px/1.3 var(--body);
+  opacity: .84;
+}
+.bac-felt-lane {
+  --felt-card-w: clamp(14px, 4.2vw, 24px);
+  display: flex;
+  justify-content: flex-start;
+  gap: 1px;
+  width: min(100%, calc(3 * var(--felt-card-w) + 2px));
+  min-height: clamp(11px, 2.1vh, 20px);
+}
+.bac-felt-card {
+  --card-angle: -6deg;
+  display: block;
+  flex: 0 0 var(--felt-card-w);
+  height: clamp(10px, 1.9vh, 18px);
+  border-radius: 2px;
+  border: 1px solid #f2ddad;
+  transform: rotate(var(--card-angle));
+  background:
+    radial-gradient(ellipse, #b57251 0 14%, transparent 22%),
+    repeating-linear-gradient(45deg, #4e171e 0 2px, #8d3f3c 2px 4px);
+  box-shadow: 0 2px 2px #07110fa0, inset 0 0 0 1px #451820;
+}
+.bac-felt-card[data-side="B"] { --card-angle: 6deg; }
+.bac-dealer-try {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 5;
+  min-height: 32px;
+  padding: 4px 9px;
+  border: 1px solid var(--brass-lo);
+  border-radius: 6px;
+  background: #111f1de6;
+  color: var(--win);
+  font: 600 11px/1 var(--body);
+}
+.bac-dealer-try:disabled { opacity: .45; cursor: default; }
+
+#v-baccarat .btable.bac {
+  flex: 1 0 auto !important;
+  align-content: center;
+  gap: 3px 9px;
+  padding: 5px 8px;
+  border-color: #5a65656e;
+  background:
+    linear-gradient(147deg, #ffffff08, transparent 36%),
+    radial-gradient(120% 76% at 50% 25%, #1c2931, #0e171c 81%);
+}
+.bac-result-label {
+  grid-column: 1 / -1;
+  justify-self: center;
+  color: #cbd4d6;
+  font: 600 10px/1.4 var(--body);
+  letter-spacing: .13em;
+}
 #v-baccarat .cdring {
-  left: 13px;
-  top: 12px;
+  left: 8px;
+  top: 8px;
   transform: none;
+  width: clamp(26px, 4.2vh, 35px);
+  font-size: 13px;
 }
 #v-baccarat .bside .hand { min-height: calc(var(--cw) * 1.4); }
 #v-baccarat .bresult {
@@ -320,24 +427,8 @@
   max-width: 100%;
   min-height: 1.5em;
 }
-#v-baccarat .tname { top: 73%; }
-.bac-dealer-stage .shoebox {
-  top: auto;
-  bottom: 11px;
-  right: 12px;
-  transform: rotate(-12deg) rotateX(28deg);
+#v-baccarat .tname { top: 60%; opacity: .65; }
+@media (max-width: 360px) {
+  .bac-dealer-person { left: calc(54% - var(--portrait-width) / 2); }
+  .bac-dealer-stage .shoebox { width: 25%; }
 }
-.bac-dealer-try {
-  position: absolute;
-  right: 7px;
-  top: 7px;
-  z-index: 2;
-  min-height: 29px;
-  padding: 4px 9px;
-  border: 1px solid var(--brass-lo);
-  border-radius: 6px;
-  background: #111f1de6;
-  color: var(--win);
-  font: 600 11px/1 var(--body);
-}
-.bac-dealer-try:disabled { opacity: .45; cursor: default; }
