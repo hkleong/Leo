@@ -3992,44 +3992,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         el.style.transform = "";
       }
     }
-    /* Idle: between hands the dealer does small things made from her own deal / collect frames —
-       a smile, a look down at the felt, a tilt of the head, a glance at the shoe, smoothing the cloth — every few seconds. */
-    idleFrames(seq) {
-      const total = seq.reduce((a, [, ms]) => a + ms, 0);
-      let t = 0;
-      const kf = seq.map(([f, ms]) => { const k = { offset: t / total, backgroundPosition: (f % 6 * 20) + "% " + (Math.floor(f / 6) * 100 / 3) + "%", easing: "step-end" }; t += ms; return k; });
-      kf.push({ offset: 1, backgroundPosition: (seq[seq.length - 1][0] % 6 * 20) + "% " + (Math.floor(seq[seq.length - 1][0] / 6) * 100 / 3) + "%" });
-      return { kf, total };
-    }
-    idleStart() {
-      if (this.idleT) return;
-      const next = () => { this.idleT = setTimeout(() => { this.idlePlay(); next(); }, 3500 + rand(5500)); };
-      next();
-    }
-    idleCancel() {
-      if (this.idleAnim) { this.idleAnim.cancel(); this.idleAnim = null; this.setArtwork("deal"); }
-    }
-    idlePlay() {
-      if (reduced || !this.portrait.animate || this.cardMotion || this.collection || this.stage.dataset.motion || this.idleAnim || !this.stage.getClientRects().length) return;
-      const F = 42;                         // one frame at 24 fps
-      const hold = (f, ms) => [f, ms], run = (a, b) => { const out = []; for (let f = a; a <= b ? f <= b : f >= b; f += a <= b ? 1 : -1) out.push([f, F]); return out; };
-      const ACTS = [
-        ["collect", [...run(0, 9), hold(9, 1200), ...run(9, 6), ...run(5, 0)]],                       // looks down at the felt, then back up
-        ["collect", [...run(0, 1), ...run(12, 15), hold(15, 1300), ...run(15, 12), hold(0, F)]],        // tilts her head and smiles
-        ["collect", [...run(0, 5), hold(5, 500), ...run(5, 0)]],                                        // smooths the cloth with both hands
-        ["deal", [...run(0, 3), hold(3, 900), ...run(3, 0)]],                                           // glances at the shoe
-        ["deal", [hold(0, F * 2), ...run(18, 23), hold(23, 1400), ...run(23, 18), hold(0, F)]],         // a warm smile at the camera
-        ["deal", [...run(0, 2), hold(2, 700), ...run(10, 11), hold(11, 900), ...run(11, 10), ...run(2, 0)]], // looks aside, then down at her hands
-      ];
-      const [art, seq] = ACTS[rand(ACTS.length)];
-      const { kf, total } = this.idleFrames(seq);
-      this.setArtwork(art);
-      const a = this.portrait.animate(kf, { duration: total });
-      this.idleAnim = a;
-      a.finished.then(() => { if (this.idleAnim === a) { this.idleAnim = null; this.setArtwork("deal"); } }, () => {});
-    }
     stop() {
-      this.idleCancel();
       this.finishFlight(false);
       if (this.collection) {
         const collection = this.collection;
@@ -4050,7 +4013,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       delete this.stage.dataset.motion;
     }
     startCard(side, data) {
-      this.idleCancel();
       if (reduced || !this.portrait.animate) return null;
       this.finishFlight(false);
       const card = bacDeskCard(data);
@@ -4098,7 +4060,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       }
     }
     async collect() {
-      this.idleCancel();
       this.finishFlight(false);
       const cards = Object.values(this.felt).flatMap(lane => Array.from(lane.children));
       if (!cards.length) return;
@@ -4171,9 +4132,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   const bacScene = new BaccaratScene("bac");
   const roomScene = new BaccaratScene("rm");
-  // dealer idle actions are on trial: only the 测试版 (casino-beta) and local copies play them for now
-  const DEALER_IDLE = /casino-beta/.test(location.pathname) || location.protocol === "file:";
-  if (DEALER_IDLE) { bacScene.idleStart(); roomScene.idleStart(); } else document.documentElement.classList.add("no-dealer-idle");
 
   async function dealBaccaratOrder(scene, order, isWatched, dealt, room = false) {
     const move = reduced && !room ? 60 : DEALER_ACTION_MS;
