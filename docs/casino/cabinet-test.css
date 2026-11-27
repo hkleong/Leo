@@ -276,9 +276,11 @@
   box-shadow: 0 -5px 22px #060f0bab;
 }
 .bac-dealer-person {
+  --shoe-mouth-x: 90%;
+  --shoe-mouth-y: 86%;
   position: absolute;
   top: 3%;
-  left: calc(52% - var(--portrait-width) / 2);
+  left: calc(48% - var(--portrait-width) / 2);
   width: var(--portrait-width);
   aspect-ratio: 424 / 321;
   pointer-events: none;
@@ -287,7 +289,7 @@
   position: absolute;
   z-index: 1;
   inset: 0;
-  background: url("art/baccarat-dealer-draw.webp") 0 0 / 400% 200% no-repeat;
+  background: url("art/baccarat-dealer-two-hands.webp") 0 0 / 400% 200% no-repeat;
   filter: drop-shadow(0 5px 8px #080c0c76);
 }
 .bac-mark {
@@ -296,18 +298,20 @@
   height: 2px;
   translate: -50% -50%;
 }
-#bacShoeMouth { left: 6.5%; top: 93%; }
-#bacDrawGrip { left: 27.5%; top: 93%; }
-#bacDrawAcross { left: 41%; top: 92.5%; }
-#bacDealerRelease { left: 37.8%; top: 96%; }
+#bacShoeMouth { left: var(--shoe-mouth-x); top: var(--shoe-mouth-y); }
+#bacDrawGrip { left: 61%; top: 86%; }
+#bacHandoff { left: 47%; top: 90%; }
+#bacPush { left: 35%; top: 95%; }
+#bacDealerRelease { left: 24.5%; top: 96%; }
 .bac-dealer-stage .shoebox {
   position: absolute;
   z-index: 2;
-  top: 93%;
-  left: 6.5%;
+  top: var(--shoe-mouth-y);
+  left: var(--shoe-mouth-x);
   bottom: auto;
   right: auto;
-  translate: -89% -80%;
+  translate: -11% -80%;
+  scale: -1 1;
   transform: none;
   width: 29%;
   height: auto;
@@ -356,27 +360,49 @@
   opacity: .84;
 }
 .bac-felt-lane {
-  --felt-card-w: clamp(14px, 4.2vw, 24px);
+  --felt-card-w: clamp(21px, 6.5vw, 31px);
+  --felt-gap: clamp(3px, 1.1vw, 6px);
   display: flex;
   justify-content: flex-start;
-  gap: 1px;
-  width: min(100%, calc(3 * var(--felt-card-w) + 2px));
-  min-height: clamp(11px, 2.1vh, 20px);
+  gap: var(--felt-gap);
+  width: min(100%, calc(3 * var(--felt-card-w) + 2 * var(--felt-gap)));
+  min-height: var(--felt-card-w);
 }
 .bac-felt-card {
-  --card-angle: -6deg;
-  display: block;
+  position: relative;
   flex: 0 0 var(--felt-card-w);
-  height: clamp(10px, 1.9vh, 18px);
-  border-radius: 2px;
-  border: 1px solid #f2ddad;
-  transform: rotate(var(--card-angle));
-  background:
-    radial-gradient(ellipse, #b57251 0 14%, transparent 22%),
-    repeating-linear-gradient(45deg, #4e171e 0 2px, #8d3f3c 2px 4px);
-  box-shadow: 0 2px 2px #07110fa0, inset 0 0 0 1px #451820;
+  height: var(--felt-card-w);
 }
-.bac-felt-card[data-side="B"] { --card-angle: 6deg; }
+.bac-felt-card[data-in-flight] { z-index: 1; }
+.bac-felt-card .card {
+  --cw: var(--felt-card-w);
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: calc(var(--cw) * 88 / 63);
+  translate: 0 -50%;
+  transform: perspective(280px) rotateX(49deg);
+  font-family: Georgia, "Times New Roman", serif;
+}
+.bac-felt-card .card .face {
+  border-radius: 7%;
+  box-shadow: 0 1px 1px #07110fa0;
+}
+.bac-felt-card .card .r {
+  inset: 8% auto auto 10%;
+  font-size: calc(var(--cw) * .39);
+}
+.bac-felt-card .card .s {
+  font-size: calc(var(--cw) * .63);
+  padding-top: 13%;
+}
+.bac-felt-card .card .back {
+  background: repeating-linear-gradient(45deg, #66252d 0 2px, #914047 2px 3px);
+  outline: 1px solid #fff;
+  outline-offset: -2px;
+}
+.bac-felt-card[data-in-flight] .inner { transform: rotateY(180deg); }
+#bacScene .card .front, #v-baccarat .btable.bac .card .front { background: #fff; }
 .bac-dealer-try {
   position: absolute;
   right: 8px;
@@ -402,21 +428,37 @@
     linear-gradient(147deg, #ffffff08, transparent 36%),
     radial-gradient(120% 76% at 50% 25%, #1c2931, #0e171c 81%);
 }
-.bac-result-label {
+.bac-result-head {
   grid-column: 1 / -1;
-  justify-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.bac-result-label {
   color: #cbd4d6;
   font: 600 10px/1.4 var(--body);
   letter-spacing: .13em;
 }
 #v-baccarat .cdring {
-  left: 8px;
-  top: 8px;
+  position: static;
   transform: none;
-  width: clamp(26px, 4.2vh, 35px);
-  font-size: 13px;
+  width: clamp(21px, 3.2vh, 28px);
+  font-size: 11px;
+}
+.bac-side-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 #v-baccarat .bside .hand { min-height: calc(var(--cw) * 1.4); }
+#v-baccarat .bside .btotal {
+  position: static;
+  min-width: 1.65em;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: clamp(13px, 2.3vh, 20px);
+}
 #v-baccarat .bresult {
   position: relative;
   grid-column: 1 / -1;
@@ -429,6 +471,6 @@
 }
 #v-baccarat .tname { top: 60%; opacity: .65; }
 @media (max-width: 360px) {
-  .bac-dealer-person { left: calc(54% - var(--portrait-width) / 2); }
+  .bac-dealer-person { left: calc(46% - var(--portrait-width) / 2); }
   .bac-dealer-stage .shoebox { width: 25%; }
 }
