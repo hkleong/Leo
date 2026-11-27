@@ -152,16 +152,16 @@
 .cabinet-character.mascot { flex: 0 1 250px; }
 .slot-idle.mascot, .slot-sprite.mascot { --sprite-ratio: 1.6; }
 .mascot.gems {
-  --idle-art: url("art/cabinets/gems-idle-48.webp");
-  --reward-art: url("art/cabinets/gems-reward-48.webp");
+  --idle-art: url("art/cabinets/gems-idle-48-v2.webp");
+  --reward-art: url("art/cabinets/gems-reward-48-v2.webp");
 }
 .mascot.fruit {
-  --idle-art: url("art/cabinets/fruit-idle-48.webp");
-  --reward-art: url("art/cabinets/fruit-reward-48.webp");
+  --idle-art: url("art/cabinets/fruit-idle-48-v2.webp");
+  --reward-art: url("art/cabinets/fruit-reward-48-v2.webp");
 }
 .mascot.diver {
-  --idle-art: url("art/cabinets/diver-idle-48.webp");
-  --reward-art: url("art/cabinets/diver-reward-48.webp");
+  --idle-art: url("art/cabinets/diver-idle-48-v2.webp");
+  --reward-art: url("art/cabinets/diver-reward-48-v2.webp");
 }
 .slot-sprite.mascot { background-size: 800% 600%; }
 .cabinet[data-bonus] .slot-sprite.mascot,
@@ -245,3 +245,99 @@
     background-position: 42.857143% 60%;
   }
 }
+
+/* Baccarat dealer stage, scoped to the four local tables. */
+#v-baccarat .btable.bac {
+  flex: 1 0 auto !important;
+  align-content: center;
+  grid-template-rows: auto auto auto;
+  gap: 6px 10px;
+  padding: 6px 8px;
+  background: radial-gradient(100% 85% at 50% 12%, #25372f, #172522 62%, #101917);
+}
+.bac-dealer-stage {
+  grid-column: 1 / -1;
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-items: end;
+  isolation: isolate;
+  height: clamp(120px, 21vh, 198px);
+  overflow: hidden;
+  border-radius: 9px;
+  border: 1px solid #785f4277;
+  background:
+    radial-gradient(ellipse at 50% 36%, #9b6d458c, transparent 58%),
+    linear-gradient(130deg, #0b171a9e 8%, #291d1e55 53%, #091919ab 90%),
+    repeating-linear-gradient(90deg, #30271e 0 18%, #3d2e24 18% calc(18% + 2px), #30271e calc(18% + 2px) 25%);
+  box-shadow: inset 0 0 27px #0007;
+}
+.bac-dealer-stage::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: auto -8% -15% -8%;
+  height: 28%;
+  border-top: 2px solid #bf96647a;
+  border-radius: 61% 61% 0 0;
+  background: linear-gradient(180deg, #284539, #122922);
+  box-shadow: 0 -5px 21px #060f0ba8;
+}
+.bac-dealer-person {
+  position: relative;
+  height: 100%;
+  max-width: 100%;
+  aspect-ratio: 360 / 273;
+}
+.bac-dealer-portrait {
+  position: absolute;
+  inset: 0;
+  background: url("art/baccarat-dealer-poses.webp") 0 0 / 400% 200% no-repeat;
+  filter: drop-shadow(0 7px 10px #080c0c66);
+}
+.bac-dealer-release {
+  position: absolute;
+  top: 92%;
+  left: 36.5%;
+  width: 8px;
+  height: 6px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+#v-baccarat .cdring {
+  left: 13px;
+  top: 12px;
+  transform: none;
+}
+#v-baccarat .bside .hand { min-height: calc(var(--cw) * 1.4); }
+#v-baccarat .bresult {
+  position: relative;
+  grid-column: 1 / -1;
+  justify-self: center;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  max-width: 100%;
+  min-height: 1.5em;
+}
+#v-baccarat .tname { top: 73%; }
+.bac-dealer-stage .shoebox {
+  top: auto;
+  bottom: 11px;
+  right: 12px;
+  transform: rotate(-12deg) rotateX(28deg);
+}
+.bac-dealer-try {
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  z-index: 2;
+  min-height: 29px;
+  padding: 4px 9px;
+  border: 1px solid var(--brass-lo);
+  border-radius: 6px;
+  background: #111f1de6;
+  color: var(--win);
+  font: 600 11px/1 var(--body);
+}
+.bac-dealer-try:disabled { opacity: .45; cursor: default; }
