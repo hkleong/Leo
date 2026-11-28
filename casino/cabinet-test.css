@@ -581,3 +581,12 @@
 .no-dealer-person #v-baccarat .bac-pivot-back.btable, .no-dealer-person #v-dt .bac-pivot-back.btable { --cw: clamp(34px, 6.6vh, 64px); min-height: calc(var(--cw) * 1.4 + 58px); }
 .no-dealer-person #v-baccarat .road:not(.droad), .no-dealer-person #v-dt .road:not(.droad) { --rc: clamp(11px, 2.15vh, 20px); }
 .no-dealer-person #v-baccarat .droad, .no-dealer-person #v-dt .droad { --rc: clamp(6px, 1.1vh, 10px); }
+@media (max-height: 700px) {
+  .no-dealer-person #v-baccarat .bac-pivot-back.btable, .no-dealer-person #v-dt .bac-pivot-back.btable { --cw: clamp(30px, 5.4vh, 50px); min-height: calc(var(--cw) * 1.4 + 52px); }
+  .no-dealer-person #v-baccarat .road:not(.droad), .no-dealer-person #v-dt .road:not(.droad) { --rc: clamp(10px, 1.9vh, 18px); }
+  .no-dealer-person #v-room .road:not(.droad) { --rc: clamp(8px, 1.4vh, 14px); }
+  .no-dealer-person #v-room .droad { --rc: clamp(5px, .78vh, 7px); }
+  .notice { height: 22px; }
+  #v-room .notice { height: 20px; }
+  .no-dealer-person #v-room .bac-pivot-back.btable { --cw: 28px; min-height: calc(var(--cw) * 1.4 + 44px); padding-block: 3px; }
+}
