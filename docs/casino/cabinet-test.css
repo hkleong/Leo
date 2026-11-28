@@ -324,7 +324,6 @@
   background: var(--dealer-art) 0 0 / 600% 400% no-repeat;
   filter: drop-shadow(0 5px 8px #080c0c76);
 }
-.bac-dealer-portrait[data-scene="DealerIdle"] { background-size: 800% 600%; }
 .bac-dealer-stage .shoebox {
   position: absolute;
   z-index: 2;
