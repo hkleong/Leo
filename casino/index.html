@@ -3978,7 +3978,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   const DEALER_TEST = /[?&]dealertest\b/.test(location.search);
   const DEALER_PERSON = DEALER_TEST;
   // new artwork: one still body cut from the green-screen video, plus her eyes for the blink (frame space 1056 × 798 = 352 × 266 × 3)
-  const DEALER_V3 = DEALER_TEST ? { A: { body: "art/dealers-v3/a-body.webp", blink: "art/dealers-v3/a-blink.webp", n: 11, eye: [405, 135, 151, 61], cut: 220 } } : {};
+  const DEALER_V3 = DEALER_TEST ? { A: { body: "art/dealers-v3/a-body.webp", blink: "art/dealers-v3/a-blink.webp", n: 11, eye: [405, 135, 151, 61], cut: 220,
+    // while cards go out she turns her head and looks down at them (head-turn video, card removed): 19 frames in, 1 held, 19 back
+    look: { src: "art/dealers-v3/a-look.webp", n: 39, cols: 8, hold: 19, at: [306, -7, 302, 327] } } } : {};
   if (!DEALER_PERSON) document.documentElement.classList.add("no-dealer-person");
   const DEALER_IDLE_COLUMNS = 8;
   const DEALER_IDLE_ROWS = 6;
@@ -4107,26 +4109,42 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     }
     loadV3(v3) {
       this.idleContext?.clearRect(0, 0, this.layers.idle.width, this.layers.idle.height);
-      const body = new Image(), blink = new Image(), set = this.idleImage = { v3, body, blink };
+      const body = new Image(), blink = new Image(), look = new Image(), set = this.idleImage = { v3, body, blink, look };
+      if (v3.look) look.src = v3.look.src;
       let n = 0; const done = () => { if (++n === 2 && this.idleImage === set) this.playIdle(); };
       body.onload = blink.onload = done; body.src = v3.body; blink.src = v3.blink;
     }
     // new artwork: she holds perfectly still and only her eyes move — a blink every 3–6 s, 11 frames at 24 fps
     playIdleV3() {
-      const canvas = this.layers.idle, { v3, body, blink } = this.idleImage, [ex, ey, ew, eh] = v3.eye;
+      const canvas = this.layers.idle, { v3, body, blink, look } = this.idleImage, [ex, ey, ew, eh] = v3.eye, L = v3.look;
       if (!body.naturalWidth || !blink.naturalWidth || this.idleRequest !== null) return;
       if (canvas.width !== body.naturalWidth) canvas.width = body.naturalWidth;
       if (canvas.height !== body.naturalHeight) canvas.height = body.naturalHeight;
       this.tableCut("idle");
-      let frame = -2, start = 0, nextAt = performance.now() + 2000 + rand(2500);
+      let frame = "", start = 0, nextAt = performance.now() + 2000 + rand(2500), li = -1, lt = 0;
       const paint = (now) => {
         let f = -1;
-        if (now >= nextAt) { if (!start) start = now; f = Math.floor((now - start) * 24 / 1000); if (f >= v3.n) { f = -1; start = 0; nextAt = now + 3000 + rand(3000); } }
-        if (f !== frame) {
-          frame = f;
-          this.idleContext.clearRect(0, 0, canvas.width, canvas.height);
-          this.idleContext.drawImage(body, 0, 0);
-          if (f >= 0) this.idleContext.drawImage(blink, f * ew, 0, ew, eh, ex, ey, ew, eh);
+        // head turn: step through at 12 fps; hold while she is still looking at cards, then turn back
+        if (L && look.naturalWidth && (this.lookWant || li >= 0)) {
+          if (li < 0) { li = 0; lt = now; }
+          while (now - lt >= 1000 / 12) {
+            lt += 1000 / 12;
+            if (li === L.hold && this.lookWant) { lt = now; break; }
+            li++; if (li >= L.n) { li = -1; nextAt = now + 2500 + rand(3000); break; }
+          }
+        }
+        if (li < 0 && now >= nextAt) { if (!start) start = now; f = Math.floor((now - start) * 24 / 1000); if (f >= v3.n) { f = -1; start = 0; nextAt = now + 3000 + rand(3000); } }
+        const key = li + "/" + f;
+        if (key !== frame) {
+          frame = key;
+          const c = this.idleContext;
+          c.clearRect(0, 0, canvas.width, canvas.height);
+          c.drawImage(body, 0, 0);
+          if (li >= 0) {
+            const [lx, ly, lw, lh] = L.at;
+            c.clearRect(lx, Math.max(0, ly), lw, lh + Math.min(0, ly));
+            c.drawImage(look, (li % L.cols) * lw, Math.floor(li / L.cols) * lh, lw, lh, lx, ly, lw, lh);
+          } else if (f >= 0) c.drawImage(blink, f * ew, 0, ew, eh, ex, ey, ew, eh);
         }
         if (!reduced) this.idleRequest = requestAnimationFrame(paint);
       };
@@ -4263,7 +4281,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       delete this.stage.dataset.motion;
       this.setArtwork("idle");
     }
+    // new artwork: look down at the cards while they are dealt, back up a moment after the last one
+    v3Look() {
+      if (!DEALER_V3[this.stage.dataset.dealer]) return;
+      this.lookWant = true; clearTimeout(this.lookT);
+      this.lookT = setTimeout(() => { this.lookWant = false; }, 1900);
+    }
     startCard(side, data) {
+      this.v3Look();
       if (reduced || !this.portrait.animate) return null;
       this.finishFlight(false);
       this.setArtwork("deal");
