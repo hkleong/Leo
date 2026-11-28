@@ -1556,6 +1556,34 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 .m3-items li.sub { font-size: 11px; border: 0; padding: 0 0 0 10px; color: #b8c3d8; }
 .m3-items li.pay { color: #dfe6f5; }
 .m3-items { max-height: 42vh; overflow-y: auto; }
+.mj-boom { font-style: normal; margin-left: 3px; padding: 0 3px; border-radius: 3px; font-size: 9px; background: #c4261c; color: #fff; vertical-align: 1px; }
+.m3-items li.calc span, .m3-items li.calc b { color: #ffd86b; }
+#mjTable.three [data-pos="n"] { display: none; }
+/* 碰 吃 杠 胡: a big word that pops over whoever made the call */
+.mj-burst { position: absolute; z-index: 26; left: 50%; top: 72%; display: grid; justify-items: center; gap: 4px; pointer-events: none; transform: translate(-50%, -50%); --c1: #fff3c4; --c2: #8a1c0c; --glow: rgba(255,190,60,.9); }
+.mj-burst[data-pos="n"] { top: 22%; } .mj-burst[data-pos="e"] { left: 78%; top: 46%; } .mj-burst[data-pos="w"] { left: 22%; top: 46%; } .mj-burst[data-pos="c"] { top: 46%; }
+.mj-burst b { position: relative; font: 900 clamp(34px, 11vw, 56px)/1 var(--display); color: var(--c1); -webkit-text-stroke: 2px var(--c2); paint-order: stroke fill; text-shadow: 0 0 14px var(--glow), 0 4px 0 rgba(0,0,0,.45); white-space: nowrap; animation: mjpop 1.35s cubic-bezier(.2,1.5,.4,1) both; }
+.mj-burst .mjt { animation: mjtilein 1.35s ease-out both; }
+.mj-burst small { font: 700 13px/1 var(--display); color: #fff; text-shadow: 0 1px 3px #000; animation: mjtilein 2.1s ease-out both; }
+.mj-burst::before { content: ""; position: absolute; left: 50%; top: 40%; width: 1.6em; height: 1.6em; font-size: 56px; border-radius: 50%; border: 3px solid var(--glow); transform: translate(-50%, -50%) scale(.2); animation: mjring .9s ease-out both; }
+.mj-burst.pung { --c1: #e6f1ff; --c2: #1d4fa0; --glow: rgba(90,160,255,.9); }
+.mj-burst.chow { --c1: #e6ffef; --c2: #11804a; --glow: rgba(80,220,140,.9); }
+.mj-burst.kong { --c1: #f6e8ff; --c2: #6a2aa8; --glow: rgba(190,120,255,.95); }
+.mj-burst.flower { --c1: #ffe6f2; --c2: #b0306a; --glow: rgba(255,120,180,.9); }
+.mj-burst.flower b, .mj-burst.fei b { font-size: clamp(24px, 7.5vw, 38px); }
+.mj-burst.fei { --c1: #fff4c2; --c2: #c4261c; --glow: rgba(255,210,70,.95); }
+.mj-burst.big b { font-size: clamp(56px, 19vw, 96px); animation-duration: 2.1s; }
+.mj-burst.big::before { animation-duration: 1.3s; }
+.mj-rays { position: absolute; left: 50%; top: 40%; width: 320px; height: 320px; margin: -160px 0 0 -160px; border-radius: 50%; opacity: 0; display: none;
+  background: repeating-conic-gradient(rgba(255,215,90,.55) 0 8deg, transparent 8deg 22deg); -webkit-mask: radial-gradient(circle, #000 20%, transparent 68%); mask: radial-gradient(circle, #000 20%, transparent 68%); }
+.mj-burst.big .mj-rays { display: block; animation: mjrays 2.1s ease-out both; }
+.m3-table.mj-shake { animation: mjshake .45s ease-out; }
+@keyframes mjpop { 0% { transform: scale(.15) rotate(-10deg); opacity: 0; } 22% { transform: scale(1.3) rotate(3deg); opacity: 1; } 40% { transform: scale(1) rotate(0); } 78% { opacity: 1; } 100% { transform: scale(1.06) translateY(-16px); opacity: 0; } }
+@keyframes mjring { 0% { transform: translate(-50%, -50%) scale(.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; } }
+@keyframes mjtilein { 0%, 15% { transform: translateY(10px) scale(.6); opacity: 0; } 35% { transform: none; opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes mjrays { 0% { opacity: 0; transform: scale(.3) rotate(0); } 20% { opacity: 1; } 75% { opacity: .8; } 100% { opacity: 0; transform: scale(1.15) rotate(70deg); } }
+@keyframes mjshake { 0%, 100% { transform: translate(-50%, -50%); } 20% { transform: translate(calc(-50% - 5px), calc(-50% + 2px)); } 40% { transform: translate(calc(-50% + 5px), calc(-50% - 2px)); } 60% { transform: translate(calc(-50% - 3px), -50%); } 80% { transform: translate(calc(-50% + 2px), -50%); } }
+@media (prefers-reduced-motion: reduce) { .mj-burst b, .mj-burst::before, .mj-rays, .m3-table.mj-shake { animation-duration: .01s !important; } }
 #mjSettle .s3-pbody { grid-template-columns: 1.6fr 1fr; }
 #mjSettle .s3-items li span { line-height: 1.25; }
 
@@ -2123,12 +2151,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 雷神之锤 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.22.11</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.23.0</b> · 更新记录</button></div>
   </section>
 
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.22.11</b><span>大厅、百家乐、龙虎和联机百家乐上方加入滚动公告，按 × 可以关闭</span></li><li><b>v0.22.10</b><span>为了给大家更好的观感，真人荷官暂时下桌休息，全新高清版本已经在制作中，敬请期待！在此期间，百家乐、龙虎和联机百家乐会直接显示牌局画面，路单也一直摊开，开牌一目了然。</span></li><li><b>v0.22.9</b><span>荷官动画：清掉动画图的半透明杂点和浅色白边，不再闪烁；桌子凹口逐格贴着荷官的腰线，不再露出空隙或穿过桌面；待机时大多只眨眼，转头少很多</span></li><li><b>v0.22.8</b><span>修复荷官待机时露出相邻画面的问题。</span></li><li><b>v0.22.7</b><span>百家乐与龙虎荷官使用新版动画，龙虎采用同款荷官桌面、路单与牌局布局。</span></li><li><b>v0.22.6</b><span>修正：百家乐荷官动起来时闪烁和白边（清掉动画图里的半透明杂点和浅色描边；发牌、收牌两组动画预先载好，切换不再空白一下）</span></li><li><b>v0.22.5</b><span>百家乐：桌上的牌和闲、庄格子用同一个透视角度，牌平贴在格子里；小屏幕上牌也完整露出</span></li><li><b>v0.22.4</b><span>百家乐：去掉「试发一局」，倒数和牌局状态移到荷官画面右上角，删掉中间那一行让荷官画面更大；桌子凹口改成圆角</span></li><li><b>v0.22.3</b><span>百家乐牌桌改成发牌台形状：两侧桌面延伸到荷官身后，中间凹进去让荷官站在里面；闲、庄格子和牌都跟桌面同一个透视角度</span></li><li><b>v0.22.2</b><span>百家乐和联机百家乐：桌边、牌靴和闲庄牌区对齐荷官的双手，任何屏幕大小都不会错位；荷官画面按屏幕自动调整高度，整页一屏放得下；联机房的聊天列恢复显示</span></li><li><b>v0.22.1</b><span>修正：十三张结算后四家名牌旁的输赢不会消失；联机百家乐开完牌马上更新每个人的输赢</span></li><li><b>v0.22.0</b> <i class="vmaj">大改版</i><span>新游戏「麻将」：港式、四川血战到底、台湾十六张，可练习对 AI 或联机；十三张改成立体牌桌：推荐摆法、牌型快捷键、对调、开始比牌、打枪瞄准开枪、本局结算明细</span></li><li><b>v0.21.2</b><span>百家乐 A、B、C、D 桌及联机房新增五位荷官，发牌和收牌使用每秒 24 张画面，牌局与路单自动翻转。</span></li><li><b>v0.21.1</b><span>百家乐加入双手发牌和右侧牌靴，荷官桌面与牌局同步显示白色牌面。老虎机重绘机台，并更新吉祥物待机和奖励动画。</span></li><li><b>v0.21.0</b> <i class="vmaj">大改版</i><span>新游戏「十三张」：练习桌对 3 个 AI，或开房间和朋友联机（2–4 人，空位 AI 补上）；点选摆牌、自动摆牌、报到、逐道比牌、打枪、全垒打</span></li><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.23.0</b> <i class="vmaj">大改版</i><span>麻将新玩法「三人快打（飞）」：3 人、84 张（筒子、字牌、16 张花、4 张百搭飞），5 番起胡；飞可以代替碰、吃，摸到被代替的牌自动起飞，打出飞叫囤飞 +1 番；咬到、花杠、杠马上收钱并加爆，结算 = 番 × 番倍数 × 爆 × 1.5 / 2。所有麻将玩法加入碰、吃、杠、胡、自摸的大字动画</span></li><li><b>v0.22.11</b><span>大厅、百家乐、龙虎和联机百家乐上方加入滚动公告，按 × 可以关闭</span></li><li><b>v0.22.10</b><span>为了给大家更好的观感，真人荷官暂时下桌休息，全新高清版本已经在制作中，敬请期待！在此期间，百家乐、龙虎和联机百家乐会直接显示牌局画面，路单也一直摊开，开牌一目了然。</span></li><li><b>v0.22.9</b><span>荷官动画：清掉动画图的半透明杂点和浅色白边，不再闪烁；桌子凹口逐格贴着荷官的腰线，不再露出空隙或穿过桌面；待机时大多只眨眼，转头少很多</span></li><li><b>v0.22.8</b><span>修复荷官待机时露出相邻画面的问题。</span></li><li><b>v0.22.7</b><span>百家乐与龙虎荷官使用新版动画，龙虎采用同款荷官桌面、路单与牌局布局。</span></li><li><b>v0.22.6</b><span>修正：百家乐荷官动起来时闪烁和白边（清掉动画图里的半透明杂点和浅色描边；发牌、收牌两组动画预先载好，切换不再空白一下）</span></li><li><b>v0.22.5</b><span>百家乐：桌上的牌和闲、庄格子用同一个透视角度，牌平贴在格子里；小屏幕上牌也完整露出</span></li><li><b>v0.22.4</b><span>百家乐：去掉「试发一局」，倒数和牌局状态移到荷官画面右上角，删掉中间那一行让荷官画面更大；桌子凹口改成圆角</span></li><li><b>v0.22.3</b><span>百家乐牌桌改成发牌台形状：两侧桌面延伸到荷官身后，中间凹进去让荷官站在里面；闲、庄格子和牌都跟桌面同一个透视角度</span></li><li><b>v0.22.2</b><span>百家乐和联机百家乐：桌边、牌靴和闲庄牌区对齐荷官的双手，任何屏幕大小都不会错位；荷官画面按屏幕自动调整高度，整页一屏放得下；联机房的聊天列恢复显示</span></li><li><b>v0.22.1</b><span>修正：十三张结算后四家名牌旁的输赢不会消失；联机百家乐开完牌马上更新每个人的输赢</span></li><li><b>v0.22.0</b> <i class="vmaj">大改版</i><span>新游戏「麻将」：港式、四川血战到底、台湾十六张，可练习对 AI 或联机；十三张改成立体牌桌：推荐摆法、牌型快捷键、对调、开始比牌、打枪瞄准开枪、本局结算明细</span></li><li><b>v0.21.2</b><span>百家乐 A、B、C、D 桌及联机房新增五位荷官，发牌和收牌使用每秒 24 张画面，牌局与路单自动翻转。</span></li><li><b>v0.21.1</b><span>百家乐加入双手发牌和右侧牌靴，荷官桌面与牌局同步显示白色牌面。老虎机重绘机台，并更新吉祥物待机和奖励动画。</span></li><li><b>v0.21.0</b> <i class="vmaj">大改版</i><span>新游戏「十三张」：练习桌对 3 个 AI，或开房间和朋友联机（2–4 人，空位 AI 补上）；点选摆牌、自动摆牌、报到、逐道比牌、打枪、全垒打</span></li><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
     <p class="note" style="margin-top:10px">音乐与音效的作者和授权：点右上角 ♪ 查看。</p>
   </div></div>
 
@@ -2274,7 +2302,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="on-card" type="button" data-on="room"><b>开百家乐房间</b><small>同一副牌、同一条路，各自下注</small></button>
         <button class="on-card" type="button" data-on="proom"><b>开德州扑克房间</b><small>玩家对玩家 · 最多 9 人 · 抽水 5%</small></button>
         <button class="on-card" type="button" data-on="sss"><b>开十三张房间</b><small>2–4 人 · 空位 AI 补上 · 也能单人练习</small></button>
-        <button class="on-card" type="button" data-on="mj"><b>开麻将房间</b><small>港式 · 四川血战 · 台湾十六张 · 也能单人练习</small></button>
+        <button class="on-card" type="button" data-on="mj"><b>开麻将房间</b><small>港式 · 四川血战 · 台湾十六张 · 三人快打 · 也能单人练习</small></button>
       </div>
       <p class="rm-or">或者输入朋友的房间号</p>
       <div class="rm-code"><input id="onCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 位数字"><button class="btn" id="onJoin" type="button">加入</button></div>
@@ -2515,7 +2543,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       </ul>
     </div></div>
   </section>
-  <!-- 麻将: practice table (you + 3 AI) or an online room; 港式 / 四川血战 / 台湾十六张 -->
+  <!-- 麻将: practice table (you + AI) or an online room; 港式 / 四川血战 / 台湾十六张 / 三人快打 -->
   <section id="v-mj" class="game" hidden>
     <div class="rm-join" id="mjJoin">
       <button class="toggle on-backlink" type="button" data-go="online">‹ 返回联机</button>
@@ -2523,7 +2551,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <p class="note">4 人一桌，没坐满的位置由 AI 补上。开房间或练习时选玩法，朋友加入时跟着房主的玩法。</p>
       <label class="rm-field"><span>你的名字</span><input id="mjName" maxlength="10" autocomplete="nickname" placeholder="例如 阿明"></label>
       <div class="pr-sel">
-        <label class="rm-field"><span>玩法</span><select id="mjVariant"><option value="hk" selected>港式麻将（广东牌）</option><option value="sc">四川血战到底</option><option value="tw">台湾十六张</option></select></label>
+        <label class="rm-field"><span>玩法</span><select id="mjVariant"><option value="hk" selected>港式麻将（广东牌）</option><option value="sc">四川血战到底</option><option value="tw">台湾十六张</option><option value="my3">三人快打（飞）· 3 人</option></select></label>
         <label class="rm-field"><span>底</span><select id="mjBaseSel"><option value="10">10</option><option value="50">50</option><option value="100" selected>100</option><option value="500">500</option><option value="1000">1,000</option></select></label>
       </div>
       <label class="rm-field" id="mjMinFanBox"><span>起胡番数（港式）</span><select id="mjMinFan"><option value="0">0 番（鸡糊也可以）</option><option value="1" selected>1 番</option><option value="3">3 番</option></select></label>
@@ -2575,7 +2603,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       </div>
     </div>
     <div class="sheet" id="rules-mj" hidden><div class="sheet-in" role="dialog" aria-label="麻将规则">
-      <div class="sheet-head"><h3>麻将</h3><span class="note">三种玩法</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+      <div class="sheet-head"><h3>麻将</h3><span class="note">四种玩法</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
       <h4>操作</h4>
       <ul>
         <li>轮到你时点一张牌选中，再点一次（或按「打出」）就打出去。摸到的牌放在最右边。别人打牌时，能吃、碰、杠、胡就会出现按钮，不要就按「过」。联机每次出牌有 20 秒、吃碰杠有 10 秒，超时由 AI 代打。</li>
@@ -2598,6 +2626,16 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <ul>
         <li>144 张（含 8 张花），16 张，胡 5 组 + 1 对，可吃碰杠，最后留 16 张不摸。结算：底 + 台数 × 每台（每台 = 底 ÷ 5）；自摸三家各付，放枪由放枪的人付。</li>
         <li>台：庄家 1（连 n 拉 n 再加 2n）、门清 1、自摸 1、门清自摸 3、全求人 2、平胡 2、碰碰胡 4、三暗刻 2、四暗刻 5、五暗刻 8、混一色 4、清一色 8、字一色 16、中发白刻子各 1、小三元 4、大三元 8、门风 1、圈风 1、小四喜 8、大四喜 16、正花每只 1、花杠 2、八仙过海 8、独听 1、杠上开花 1、抢杠 1、海底捞月 / 河底捞鱼 1、天胡地胡 16。庄家参与的付款都加庄家的台。</li>
+      </ul>
+      <h4>三人快打（飞）</h4>
+      <ul>
+        <li>3 个人玩，共 84 张：只有筒子 36 张、字牌（东南西北中发白）28 张、花牌 16 张、百搭「飞」4 张。13 张，可吃碰杠。<b>至少 5 番才可以胡</b>。</li>
+        <li>飞：可以和两张一样的牌碰，或和一张牌碰；吃的时候缺一张也可以用飞补上。之后摸到飞代替的那张牌，会自动「起飞」：那张牌放进副露，飞回到手上。单独打出一张飞叫「囤飞」，胡牌时每次 +1 番；打出的飞没人能要。同一种牌（连飞在内）最多 4 张。</li>
+        <li>花牌 16 张：春夏秋冬、梅兰竹菊、琴棋书画（同号的花互相咬），加上猫、鼠、鸡、蜈蚣（猫咬鼠、鸡咬蜈蚣）。拿到一对咬得上的花叫「咬到」；同一组 4 张集齐叫「花杠」，胡牌时每个 +1 番。</li>
+        <li>马上收钱：每次杠、咬到、花杠，其他两家各付 5 底，而且整桌加 1 个「爆」。</li>
+        <li>番：自摸 1、门前清 1、平糊 1、对对糊 3、混一色 3、清一色 7、字一色 10、中发白刻子各 1、门风 1、圈风 1、小三元 5、大三元 8、小四喜 10、大四喜 13、杠上开花 2、抢杠 1、海底 1、天胡地胡 13、花杠 / 囤飞每个 1。不封顶。</li>
+        <li>番倍数：5–9 番 ×1，10–19 番 ×2，20–29 番 ×3 …… 100 番以上 ×11。爆倍数 = 1 + 整桌的爆数。</li>
+        <li>胜局分数 = 番数 × 番倍数 × 爆倍数 × 1.5（出冲）或 × 2（自摸），赢的金币 = 分数 × 底。出冲由打出那张牌的人全付；自摸两家平分。</li>
       </ul>
     </div></div>
   </section>
@@ -7476,25 +7514,31 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   function ssFromHash() { const m = /^#sss=(\d{6})$/.exec(location.hash); if (m) { $("#ssCode").value = m[1]; if (!ssOpen()) ssStatus("输入名字，点「加入」进入十三张房间 " + m[1]); } }
   /* ===================== 麻将 — shared engine =====================
      Tiles are codes: 0–8 万 1–9 · 9–17 筒 · 18–26 条 · 27–30 东南西北 · 31–33 中发白 · 34–37 春夏秋冬 · 38–41 梅兰竹菊.
-     Three rule sets share the engine: 港式 (广东牌), 四川血战到底, 台湾十六张. */
+     Four rule sets share the engine: 港式 (广东牌), 四川血战到底, 台湾十六张, 三人快打 (with the 飞 wild tile). */
   const MJ_NUM = ["一", "二", "三", "四", "五", "六", "七", "八", "九"], MJ_SUIT = ["万", "筒", "条"];
-  const MJ_HONOR = ["东", "南", "西", "北", "中", "发", "白"], MJ_FLOWER = ["春", "夏", "秋", "冬", "梅", "兰", "竹", "菊"];
+  const MJ_HONOR = ["东", "南", "西", "北", "中", "发", "白"], MJ_FLOWER = ["春", "夏", "秋", "冬", "梅", "兰", "竹", "菊", "猫", "鼠", "鸡", "蜈", "琴", "棋", "书", "画"];
+  // 三人快打: 42–45 猫 鼠 鸡 蜈蚣 · 46–49 琴棋书画 (a third numbered set) · 50 = 飞, the wild tile
+  const MJ_WILD = 50;
   const mjSuit = (t) => (t < 27 ? Math.floor(t / 9) : t < 34 ? 3 : 4);
   const mjNum = (t) => (t % 9) + 1;
   const mjIsHonor = (t) => t >= 27 && t < 34;
   const mjIsTerm = (t) => t < 27 && (t % 9 === 0 || t % 9 === 8);
-  const mjIsFlower = (t) => t >= 34;
-  const mjName = (t) => (t < 27 ? MJ_NUM[t % 9] + MJ_SUIT[mjSuit(t)] : t < 34 ? MJ_HONOR[t - 27] : MJ_FLOWER[t - 34]);
+  const mjIsFlower = (t) => t >= 34 && t < 50;
+  const mjName = (t) => (t === MJ_WILD ? "飞" : t < 27 ? MJ_NUM[t % 9] + MJ_SUIT[mjSuit(t)] : t < 34 ? MJ_HONOR[t - 27] : MJ_FLOWER[t - 34]);
+  const mjN = (g) => g.seats.length;
+  const mjSeatPos = (g, i) => (i - g.dealer + mjN(g)) % mjN(g);
   const MJ_VARIANTS = {
     hk: { name: "港式麻将", short: "港式", hand: 13, flowers: true, honors: true, chow: true, sevenPairs: false, orphans: true, bloody: false, que: false },
     sc: { name: "四川血战到底", short: "四川", hand: 13, flowers: false, honors: false, chow: false, sevenPairs: true, orphans: false, bloody: true, que: true },
     tw: { name: "台湾十六张", short: "台湾", hand: 16, flowers: true, honors: true, chow: true, sevenPairs: false, orphans: false, bloody: false, que: false, keep: 16 },
+    my3: { name: "三人快打（飞）", short: "三人快打", players: 3, hand: 13, flowers: true, honors: true, chow: true, sevenPairs: false, orphans: false, bloody: false, que: false, wild: true, onlyDots: true, minFan: 5 },
   };
   function mjWall(v) {
     const w = [];
     const kinds = v.honors ? 34 : 27;
-    for (let t = 0; t < kinds; t++) for (let k = 0; k < 4; k++) w.push(t);
-    if (v.flowers) for (let t = 34; t < 42; t++) w.push(t);
+    for (let t = 0; t < kinds; t++) { if (v.onlyDots && t < 27 && mjSuit(t) !== 1) continue; for (let k = 0; k < 4; k++) w.push(t); }
+    if (v.flowers) for (let t = 34; t < (v.wild ? 50 : 42); t++) w.push(t);
+    if (v.wild) for (let k = 0; k < 4; k++) w.push(MJ_WILD);
     for (let i = w.length - 1; i > 0; i--) { const j = rand(i + 1); [w[i], w[j]] = [w[j], w[i]]; }
     return w;
   }
@@ -7516,10 +7560,46 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     }
     return out;
   }
+  // the same with 飞 (wild) tiles filling gaps: a meld or the pair may borrow wilds; w = how many it borrowed
+  function mjDecompW(c, J, sets) {
+    const out = [], melds = [];
+    const rec = (i, j) => {
+      while (i < 34 && !c[i]) i++;
+      if (i === 34) {
+        if (j % 3 === 0 && melds.length + j / 3 === sets) { const extra = Array.from({ length: j / 3 }, () => ({ k: "pung", t: -1, w: 3 })); out.push(melds.concat(extra)); }
+        return;
+      }
+      const r = Math.min(c[i], 3), need = 3 - r;
+      if (need <= j) { c[i] -= r; melds.push({ k: "pung", t: i, w: need }); rec(i, j - need); melds.pop(); c[i] += r; }
+      if (i < 27) {
+        const base = i - (i % 9);
+        for (const st of [i - 2, i - 1, i]) {
+          if (st < base || st - base > 6) continue;
+          const tri = [st, st + 1, st + 2], used = []; let jn = 0;
+          for (const x of tri) { if (x === i || (x > i && c[x] > 0)) used.push(x); else jn++; }   // below i everything is used up: those come from 飞
+          if (jn > j) continue;
+          used.forEach((x) => c[x]--); melds.push({ k: "chow", t: st, w: jn }); rec(i, j - jn); melds.pop(); used.forEach((x) => c[x]++);
+        }
+      }
+    };
+    const pairs = [];
+    for (let p = 0; p < 34; p++) { if (c[p] >= 2) pairs.push([p, 0]); else if (c[p] === 1 && J >= 1) pairs.push([p, 1]); }
+    if (J >= 2) pairs.push([-1, 2]);
+    for (const [p, pj] of pairs) {
+      if (p >= 0) c[p] -= 2 - pj;
+      const before = out.length; rec(0, J - pj);
+      for (let k = before; k < out.length; k++) out[k] = { pair: p, pw: pj, melds: out[k] };
+      if (p >= 0) c[p] += 2 - pj;
+      if (out.length > 60) break;
+    }
+    return out;
+  }
   const MJ_ORPH = [0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33];
   // is this concealed hand (with `sets` sets still to make) a win? returns the shapes it wins with
   function mjWinShapes(tiles, sets, v) {
-    const c = mjCounts(tiles), shapes = mjDecomp(c, sets).map((d) => ({ kind: "std", ...d }));
+    const c = mjCounts(tiles), J = v.wild ? tiles.filter((t) => t === MJ_WILD).length : 0;
+    if (J) return mjDecompW(c, J, sets).map((d) => ({ kind: "std", ...d }));
+    const shapes = mjDecomp(c, sets).map((d) => ({ kind: "std", ...d }));
     if (v.sevenPairs && sets === 4 && tiles.length === 14 && c.every((n) => n === 0 || n === 2 || n === 4)) shapes.push({ kind: "7p" });
     if (v.orphans && sets === 4 && tiles.length === 14 && MJ_ORPH.every((t) => c[t] >= 1) && MJ_ORPH.some((t) => c[t] === 2)) shapes.push({ kind: "13o" });
     return shapes;
@@ -7560,6 +7640,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 
     if (v && v.sevenPairs && sets === 4) { const pairs = c.filter((n) => n >= 2).length, kinds = c.filter((n) => n > 0).length; best = Math.min(best, 6 - pairs + Math.max(0, 7 - kinds)); }
     if (v && v.orphans && sets === 4) { const k = MJ_ORPH.filter((x) => c[x]).length, pr = MJ_ORPH.some((x) => c[x] >= 2) ? 1 : 0; best = Math.min(best, 13 - k - pr); }
+    if (v && v.wild) best = Math.max(-1, best - tiles.filter((t) => t === MJ_WILD).length);   // each 飞 fills one gap
     return best;
   }
   // tiles that would complete a hand that is one tile short
@@ -7578,7 +7659,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   function mjDeal(g) {
     const v = MJ_VARIANTS[g.variant];
     g.wall = mjWall(v); g.tail = 0; g.turn = g.dealer; g.last = null; g.claim = null; g.log = []; g.winners = []; g.kongDraw = false; g.firstRound = true; g.pay = [];
-    g.seats.forEach((p) => { p.hand = []; p.melds = []; p.flowers = []; p.discards = []; p.won = null; p.que = v.que ? -1 : null; p.fresh = null; p.paid = 0; });
+    g.seats.forEach((p) => { p.hand = []; p.melds = []; p.flowers = []; p.discards = []; p.won = null; p.que = v.que ? -1 : null; p.fresh = null; p.paid = 0; p.score = 0; p.boom = 0; p.hgangs = 0; p.tunfei = 0; });
     for (let r = 0; r < v.hand; r++) g.seats.forEach((p) => p.hand.push(g.wall.pop()));
     g.seats.forEach((p, i) => mjFlowers(g, i));
     g.seats.forEach((p) => p.hand.sort((a, b) => a - b));
@@ -7590,11 +7671,30 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const p = g.seats[i];
     let f;
     while ((f = p.hand.findIndex(mjIsFlower)) >= 0) {
-      p.flowers.push(p.hand.splice(f, 1)[0]);
+      mjFlowerAdd(g, i, p.hand.splice(f, 1)[0]);
       if (mjWallLeft(g) <= 0) break;
       p.hand.push(g.wall.shift());
     }
   }
+  function mjEvent(g, type, seat, extra) {
+    g.evId = (g.evId || 0) + 1;
+    (g.events = g.events || []).push(Object.assign({ id: g.evId, type, seat }, extra || {}));
+    if (g.events.length > 16) g.events.shift();
+  }
+  // 三人快打 flowers: a matching pair (same number, 猫+鼠, 鸡+蜈蚣) is 咬到, a full set of four is 花杠 —
+  // each collects 5 底 from every other player at once and adds one 爆
+  const MJ_FSETS = [[34, 35, 36, 37], [38, 39, 40, 41], [46, 47, 48, 49]], MJ_ANIMAL = { 42: 43, 43: 42, 44: 45, 45: 44 };
+  const mjFNum = (x) => ((x >= 34 && x <= 41) || (x >= 46 && x <= 49) ? (x - 34) % 4 : -1);
+  function mjFlowerAdd(g, i, f) {
+    const p = g.seats[i];
+    if (!MJ_VARIANTS[g.variant].wild) { p.flowers.push(f); return; }
+    let bites = mjFNum(f) >= 0 ? p.flowers.filter((x) => mjFNum(x) === mjFNum(f)).length : 0;
+    if (MJ_ANIMAL[f] && p.flowers.includes(MJ_ANIMAL[f])) bites++;
+    p.flowers.push(f);
+    for (let k = 0; k < bites; k++) { p.boom++; mjInstant(g, i, "咬到"); mjEvent(g, "bite", i, { t: f }); }
+    for (const st of MJ_FSETS) if (st.includes(f) && st.every((x) => p.flowers.includes(x))) { p.boom++; p.hgangs++; mjInstant(g, i, "花杠"); mjEvent(g, "hgang", i, { t: f }); }
+  }
+  function mjInstant(g, i, why) { g.seats.forEach((q, j) => { if (j !== i) mjPay(g, j, i, 5 * g.base, why); }); }
   const mjWallLeft = (g) => g.wall.length - (MJ_VARIANTS[g.variant].keep || 0);
   function mjDraw(g, i, fromTail, first) {
     const p = g.seats[i];
@@ -7603,10 +7703,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     p.hand.push(t);
     let flower = false;
     while (mjIsFlower(p.hand[p.hand.length - 1])) {
-      p.flowers.push(p.hand.pop()); flower = true;
+      mjFlowerAdd(g, i, p.hand.pop()); flower = true;
       if (mjWallLeft(g) <= 0) return false;
       p.hand.push(g.wall.shift());
     }
+    // 起飞: drawing the very tile a 飞 stands in for in an open meld — the tile takes its place and the 飞 comes home
+    const got = p.hand[p.hand.length - 1], m = MJ_VARIANTS[g.variant].wild && p.melds.find((x) => x.wild && x.wild.includes(got));
+    if (m) { m.wild.splice(m.wild.indexOf(got), 1); p.hand[p.hand.length - 1] = MJ_WILD; mjEvent(g, "qifei", i, { t: got }); }
     p.fresh = p.hand[p.hand.length - 1];
     g.kongDraw = !!fromTail;
     g.turn = i; g.step = "discard";
@@ -7630,22 +7733,26 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   // what each other player may claim on a discard
   function mjClaimOptions(g, from, t) {
     const v = MJ_VARIANTS[g.variant], out = {};
-    for (let k = 1; k < 4; k++) {
-      const i = (from + k) % 4, p = g.seats[i];
+    const n = mjN(g);
+    if (t === MJ_WILD) return out;                 // a 飞 thrown out (囤飞) cannot be taken
+    for (let k = 1; k < n; k++) {
+      const i = (from + k) % n, p = g.seats[i];
       if (p.won && v.bloody) continue;
+      const W = v.wild ? p.hand.filter((x) => x === MJ_WILD).length : 0;
       const o = {};
       const queBad = p.que >= 0 && (mjSuit(t) === p.que || p.hand.some((x) => mjSuit(x) === p.que));
       if (!queBad && mjWinShapes(p.hand.concat(t), mjSetsLeft(p, v), v).length && mjMinOk(g, i, t, false)) o.win = true;
-      const n = p.hand.filter((x) => x === t).length, queT = p.que >= 0 && mjSuit(t) === p.que;
-      if (!p.won && !queT && n >= 2) o.pung = true;
-      if (!p.won && !queT && n >= 3 && mjWallLeft(g) > 0) o.kong = true;
+      const cnt = p.hand.filter((x) => x === t).length, queT = p.que >= 0 && mjSuit(t) === p.que;
+      if (!p.won && !queT && (cnt >= 2 || (cnt === 1 && W >= 1))) o.pung = true;     // two of it, or one and a 飞
+      if (!p.won && !queT && cnt >= 3 && mjWallLeft(g) > 0) o.kong = true;
       if (!p.won && v.chow && k === 1 && t < 27) {
         const has = (x) => x >= 0 && x < 27 && mjSuit(x) === mjSuit(t) && p.hand.includes(x);
-        const chows = [];
-        const n0 = t % 9;
-        if (n0 >= 2 && has(t - 2) && has(t - 1)) chows.push(t - 2);
-        if (n0 >= 1 && n0 <= 7 && has(t - 1) && has(t + 1)) chows.push(t - 1);
-        if (n0 <= 6 && has(t + 1) && has(t + 2)) chows.push(t);
+        const chows = [], base = t - (t % 9);
+        for (const st of [t - 2, t - 1, t]) {
+          if (st < base || st - base > 6) continue;
+          const miss = [st, st + 1, st + 2].filter((x) => x !== t && !has(x)).length;
+          if (miss === 0 || (miss === 1 && W >= 1)) chows.push(st);          // a 飞 may stand in for one tile
+        }
         if (chows.length) o.chow = chows;
       }
       if (Object.keys(o).length) out[i] = o;
@@ -7675,7 +7782,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     ctx = ctx || {};
     let best = null;
     for (const sh of shapes) {
-      const r = g.variant === "hk" ? mjFanHK(g, i, tiles, sh, t, self, ctx) : g.variant === "sc" ? mjFanSC(g, i, tiles, sh, t, self, ctx) : mjFanTW(g, i, tiles, sh, t, self, ctx);
+      const r = g.variant === "hk" ? mjFanHK(g, i, tiles, sh, t, self, ctx) : g.variant === "sc" ? mjFanSC(g, i, tiles, sh, t, self, ctx) : g.variant === "my3" ? mjFanMY(g, i, tiles, sh, t, self, ctx) : mjFanTW(g, i, tiles, sh, t, self, ctx);
       if (!best || r.fan > best.fan) best = r;
     }
     return best;
@@ -7684,7 +7791,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   function mjSuits(tiles, p) { const s = new Set(mjAll(tiles, p).map(mjSuit)); return s; }
   function mjFanHK(g, i, tiles, sh, t, self, ctx) {
     const p = g.seats[i], items = [], add = (n, f) => items.push([n, f]);
-    const seatWind = 27 + ((i - g.dealer + 4) % 4), roundWind = 27 + (g.round || 0);
+    const seatWind = 27 + mjSeatPos(g, i), roundWind = 27 + (g.round || 0);
     const closed = p.melds.every((m) => m.k === "ankong");
     let limit = 0;
     if (sh.kind === "13o") limit = 13;
@@ -7716,7 +7823,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (!limit) {
       if (self) add("自摸", 1);
       if (closed) add("门前清", 1);
-      const own = p.flowers.filter((f) => (f - 34) % 4 === (i - g.dealer + 4) % 4).length;
+      const own = p.flowers.filter((f) => (f - 34) % 4 === mjSeatPos(g, i)).length;
       if (!p.flowers.length) add("无花", 1); else if (own) add("正花", own);
       if ([34, 35, 36, 37].every((f) => p.flowers.includes(f)) || [38, 39, 40, 41].every((f) => p.flowers.includes(f))) add("一台花", 1);
       if (ctx.kongDraw) add("杠上开花", 2);
@@ -7762,7 +7869,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function mjFanTW(g, i, tiles, sh, t, self, ctx) {
     const p = g.seats[i], items = [], add = (n, f) => items.push([n, f]);
-    const seatPos = (i - g.dealer + 4) % 4, seatWind = 27 + seatPos, roundWind = 27 + (g.round || 0);
+    const seatPos = mjSeatPos(g, i), seatWind = 27 + seatPos, roundWind = 27 + (g.round || 0);
     const sets = mjAllSets(p, sh), pungs = sets.filter((s) => s.k === "pung"), chows = sets.filter((s) => s.k === "chow");
     const open = p.melds.filter((m) => m.k !== "ankong").length;
     const suits = mjSuits(tiles, p), num = [...suits].filter((s) => s < 3), honors = suits.has(3);
@@ -7797,6 +7904,31 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     return { fan, items };
   }
   const quickWaitsSkip = (ctx) => !!ctx.noWaits;
+  // 三人快打: the usual hands; 飞 stand-ins (t = −1) never count as honours. 花杠 and 囤飞 add one 番 each.
+  function mjFanMY(g, i, tiles, sh, t, self, ctx) {
+    const p = g.seats[i], items = [], add = (n, f) => items.push([n, f]);
+    const seatWind = 27 + mjSeatPos(g, i), roundWind = 27 + (g.round || 0);
+    const all = mjAllSets(p, sh), real = all.filter((x) => x.t >= 0), pungs = real.filter((x) => x.k === "pung");
+    const tilesAll = mjAll(tiles, p).filter((x) => x < 34 && x >= 0);
+    const dots = tilesAll.some((x) => x < 27), honors = tilesAll.some((x) => x >= 27);
+    const dragons = pungs.filter((x) => x.t >= 31).length, winds = pungs.filter((x) => x.t >= 27 && x.t <= 30).length;
+    if (ctx.heaven) add("天胡", 13); else if (ctx.earth) add("地胡", 13);
+    if (dragons === 3) add("大三元", 8); else if (dragons === 2 && sh.pair >= 31) add("小三元", 5); else pungs.forEach((x) => { if (x.t >= 31) add(MJ_HONOR[x.t - 27] + "（番子）", 1); });
+    if (winds === 4) add("大四喜", 13); else if (winds === 3 && sh.pair >= 27 && sh.pair <= 30) add("小四喜", 10);
+    else { if (pungs.some((x) => x.t === seatWind)) add("门风", 1); if (pungs.some((x) => x.t === roundWind)) add("圈风", 1); }
+    if (!dots) add("字一色", 10); else if (!honors) add("清一色", 7); else add("混一色", 3);
+    if (all.every((x) => x.k === "pung")) add("对对糊", 3); else if (all.every((x) => x.k === "chow")) add("平糊", 1);
+    if (p.melds.every((m) => m.k === "ankong")) add("门前清", 1);
+    if (self) add("自摸", 1);
+    if (p.hgangs) add("花杠 ×" + p.hgangs, p.hgangs);
+    if (p.tunfei) add("囤飞 ×" + p.tunfei, p.tunfei);
+    if (ctx.kongDraw) add("杠上开花", 2);
+    if (ctx.robKong) add("抢杠", 1);
+    if (ctx.lastTile) add(self ? "海底捞月" : "河底捞鱼", 1);
+    return { fan: items.reduce((a, x) => a + x[1], 0), items };
+  }
+  const mjFanMult = (fan) => (fan < 10 ? 1 : Math.min(11, Math.floor(fan / 10) + 1));     // 番倍数: ×1 for 5–9 番 … ×11 for 100+
+  const mjBooms = (g) => g.seats.reduce((a, q) => a + (q.boom || 0), 0);
 
   /* ---------- AI ---------- */
   // pick a discard: keep the hand closest to ready (shanten), then the one with the most useful draws
@@ -7806,11 +7938,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (p.que >= 0) { const q = p.hand.filter((t) => mjSuit(t) === p.que); if (q.length) return q.sort((a, b) => Math.abs(4 - (a % 9)) - Math.abs(4 - (b % 9)))[q.length - 1]; }
     const seen = mjVisible(g);
     let best = null;
-    for (const t of [...new Set(p.hand)]) {
+    const cands = [...new Set(p.hand)].filter((t) => t !== MJ_WILD || p.hand.every((x) => x === MJ_WILD));   // keep the 飞
+    for (const t of cands) {
       const rest = p.hand.slice(); rest.splice(rest.indexOf(t), 1);
       const sh = mjShanten(rest, sets, v);
       let uk = 0;
-      if (sh <= 3) for (let x = 0; x < (v.honors ? 34 : 27); x++) { const left = 4 - seen[x] - rest.filter((y) => y === x).length; if (left > 0 && mjShanten(rest.concat(x), sets, v) < sh) uk += left; }
+      if (sh <= 3) for (let x = 0; x < (v.honors ? 34 : 27); x++) { if (v.onlyDots && x < 27 && mjSuit(x) !== 1) continue; const left = 4 - seen[x] - rest.filter((y) => y === x).length; if (left > 0 && mjShanten(rest.concat(x), sets, v) < sh) uk += left; }
       // isolated honours and terminals go first when it makes no difference
       const iso = mjIsHonor(t) ? 3 : mjIsTerm(t) ? 2 : 1;
       const danger = mjDanger(g, i, t);
@@ -7839,7 +7972,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (o.pung) {
       const rest = p.hand.slice(); rest.splice(rest.indexOf(t), 1); rest.splice(rest.indexOf(t), 1);
       // pung honours that score; otherwise only when it does not slow the hand down
-      const scoring = v.honors && (t >= 31 || t === 27 + ((i - g.dealer + 4) % 4) || t === 27 + (g.round || 0));
+      const scoring = v.honors && (t >= 31 || t === 27 + mjSeatPos(g, i) || t === 27 + (g.round || 0));
       let bestAfter = 99; for (const d of new Set(rest)) { const r2 = rest.slice(); r2.splice(r2.indexOf(d), 1); bestAfter = Math.min(bestAfter, mjShanten(r2, sets - 1, v)); }
       if (scoring || bestAfter < now) return { a: "pung" };
     }
@@ -7865,7 +7998,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     mjBump(g);
     g.handNo++; g.result = null;
     mjDeal(g);
-    g.seats.forEach((p) => { p.score = 0; });
     if (g.phase === "que") {
       g.deadline = g.timed ? Date.now() + 15000 : 0;
       g.seats.forEach((p, i) => { if (p.bot) mjLater(g, () => mjQue(g, i, mjBotQue(p)), 400 + rand(600)); });
@@ -7905,6 +8037,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     mjBump(g);
     p.hand.splice(k, 1); p.hand.sort((a, b) => a - b); p.fresh = null;
     p.discards.push(t);
+    if (t === MJ_WILD) { p.tunfei = (p.tunfei || 0) + 1; mjEvent(g, "tunfei", i); }     // 囤飞: +1 番 to her own win
     g.last = { from: i, t, afterKong: g.kongDraw };
     g.kongDraw = false;
     SNDq(g, "discard");
@@ -7938,7 +8071,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function mjResolve(g, timeout) {
     const c = g.claim, v = MJ_VARIANTS[g.variant];
-    const order = [1, 2, 3].map((k) => (c.from + k) % 4).filter((i) => c.opts[i]);
+    const order = Array.from({ length: mjN(g) - 1 }, (_, k) => (c.from + k + 1) % mjN(g)).filter((i) => c.opts[i]);
     const pending = order.filter((i) => !c.resp[i]);
     if (timeout) pending.forEach((i) => { c.resp[i] = { a: "pass" }; });
     const left = order.filter((i) => !c.resp[i]);
@@ -7955,10 +8088,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (taker === undefined) { mjNext(g, c.from); return; }
     const r = c.resp[taker], p = g.seats[taker], from = g.seats[c.from];
     from.discards.pop();
-    const take = (x) => p.hand.splice(p.hand.indexOf(x), 1);
-    if (r.a === "chow") { [r.s, r.s + 1, r.s + 2].filter((x) => x !== c.t).forEach(take); p.melds.push({ k: "chow", t: r.s, from: c.from, got: c.t }); SNDq(g, "chow"); }
-    else if (r.a === "pung") { take(c.t); take(c.t); p.melds.push({ k: "pung", t: c.t, from: c.from }); SNDq(g, "pung"); }
+    const take = (x) => p.hand.splice(p.hand.indexOf(x), 1), wild = [];
+    // a tile missing from the hand is taken by a 飞, remembered so the real one can take it back later (起飞)
+    const takeOr = (x) => { if (p.hand.includes(x)) take(x); else { take(MJ_WILD); wild.push(x); } };
+    if (r.a === "chow") { [r.s, r.s + 1, r.s + 2].filter((x) => x !== c.t).forEach(takeOr); p.melds.push({ k: "chow", t: r.s, from: c.from, got: c.t, wild }); SNDq(g, "chow"); }
+    else if (r.a === "pung") { takeOr(c.t); takeOr(c.t); p.melds.push({ k: "pung", t: c.t, from: c.from, wild }); SNDq(g, "pung"); }
     else { take(c.t); take(c.t); take(c.t); p.melds.push({ k: "kong", t: c.t, from: c.from }); SNDq(g, "kong"); mjKongPay(g, taker, "kong", c.from); }
+    mjEvent(g, r.a, taker, { t: c.t });
     g.firstRound = false;
     g.claim = null; g.turn = taker;
     if (r.a === "kong") { if (!mjDraw(g, taker, true)) { mjExhausted(g); return; } g.kongDraw = true; }
@@ -7974,8 +8110,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   // next player draws
   function mjNext(g, from) {
     const v = MJ_VARIANTS[g.variant];
-    let i = (from + 1) % 4;
-    if (v.bloody) { let n = 0; while (g.seats[i].won && n < 4) { i = (i + 1) % 4; n++; } }
+    const N = mjN(g);
+    let i = (from + 1) % N;
+    if (v.bloody) { let n = 0; while (g.seats[i].won && n < N) { i = (i + 1) % N; n++; } }
     g.claim = null;
     if (!mjDraw(g, i, false)) { mjExhausted(g); return; }
     mjTurn(g); g.push();
@@ -7985,7 +8122,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const p = g.seats[i];
     if (g.step !== "discard" || g.turn !== i || !g.self || !g.self.kongs.some((x) => x.k === k.k && x.t === k.t)) return;
     mjBump(g);
-    if (k.k === "ankong") { for (let n = 0; n < 4; n++) p.hand.splice(p.hand.indexOf(k.t), 1); p.melds.push({ k: "ankong", t: k.t }); SNDq(g, "kong"); mjKongPay(g, i, "ankong"); g.firstRound = false; if (!mjDraw(g, i, true)) { mjExhausted(g); return; } g.kongDraw = true; mjTurn(g); g.push(); return; }
+    if (k.k === "ankong") { for (let n = 0; n < 4; n++) p.hand.splice(p.hand.indexOf(k.t), 1); p.melds.push({ k: "ankong", t: k.t }); SNDq(g, "kong"); mjEvent(g, "kong", i, { t: k.t }); mjKongPay(g, i, "ankong"); g.firstRound = false; if (!mjDraw(g, i, true)) { mjExhausted(g); return; } g.kongDraw = true; mjTurn(g); g.push(); return; }
     // 补杠: others may rob it
     p.hand.splice(p.hand.indexOf(k.t), 1);
     mjOpenClaims(g, i, k.t, { t: k.t });
@@ -7994,13 +8131,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function mjFinishKong(g, i, rk) {
     const p = g.seats[i], m = p.melds.find((x) => x.k === "pung" && x.t === rk.t);
-    m.k = "kong"; m.add = true; SNDq(g, "kong"); mjKongPay(g, i, "add");
+    m.k = "kong"; m.add = true; SNDq(g, "kong"); mjEvent(g, "kong", i, { t: rk.t }); mjKongPay(g, i, "add");
     g.claim = null; g.turn = i;
     if (!mjDraw(g, i, true)) { mjExhausted(g); return; }
     g.kongDraw = true; mjTurn(g); g.push();
   }
   // 四川: 刮风下雨 — kongs are paid at once
   function mjKongPay(g, i, kind, from) {
+    if (MJ_VARIANTS[g.variant].wild) { g.seats[i].boom++; mjInstant(g, i, "杠"); return; }   // 三人快打: every kong collects 5 底 from each player and adds a 爆
     if (g.variant !== "sc") return;
     const b = g.base, others = g.seats.map((q, j) => j).filter((j) => j !== i && !g.seats[j].won);
     if (kind === "kong") mjPay(g, from, i, 2 * b, "明杠");
@@ -8019,8 +8157,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const ctx = { kongDraw: g.kongDraw, lastTile: mjWallLeft(g) <= 0, heaven: g.firstRound && i === g.dealer && !p.discards.length, earth: g.firstRound && i !== g.dealer && !p.discards.length };
     const sc = mjScore(g, i, p.fresh, true, ctx);
     mjWinPay(g, i, null, sc, p.fresh);
-    p.won = { t: p.fresh, self: true, fan: sc.fan, items: sc.items, order: g.winners.length };
-    g.winners.push(i);
+    p.won = { t: p.fresh, self: true, fan: sc.fan, items: sc.items, order: g.winners.length, calc: sc.calc };
+    g.winners.push(i); mjEvent(g, "tsumo", i, { t: p.fresh });
     p.hand.splice(p.hand.lastIndexOf(p.fresh), 1); p.fresh = null;
     SNDq(g, "win");
     mjAfterWin(g, i);
@@ -8034,8 +8172,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       const ctx = { robKong: !!c.robKong, kongDiscard: !!(g.last && g.last.afterKong && !c.robKong), lastTile: mjWallLeft(g) <= 0, earth: g.firstRound && !p.discards.length && !p.melds.length };
       const sc = mjScore(g, i, c.t, false, ctx);
       mjWinPay(g, i, c.from, sc, c.t);
-      p.won = { t: c.t, self: false, from: c.from, fan: sc.fan, items: sc.items, order: g.winners.length, shared: i !== ws[0] };   // 一炮多响: one tile, several winners
-      g.winners.push(i);
+      p.won = { t: c.t, self: false, from: c.from, fan: sc.fan, items: sc.items, order: g.winners.length, shared: i !== ws[0], calc: sc.calc };   // 一炮多响: one tile, several winners
+      g.winners.push(i); mjEvent(g, "win", i, { t: c.t, from: c.from });
     }
     SNDq(g, "win");
     g.claim = null;
@@ -8047,6 +8185,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       const unit = b * MJ_HK_UNIT[Math.min(sc.fan, MJ_HK_UNIT.length - 1)];
       if (from == null) g.seats.forEach((q, j) => { if (j !== i) mjPay(g, j, i, unit, "自摸"); });
       else mjPay(g, from, i, unit * 2, "放铳");
+    } else if (v === "my3") {
+      // 胜局分数 = 番 × 番倍数 × 爆 × 1.5（出冲）/ 2（自摸）; 金币 = 分数 × 底
+      const boom = 1 + mjBooms(g), score = sc.fan * mjFanMult(sc.fan) * boom * (from == null ? 2 : 1.5), amt = score * b;
+      sc.calc = { fan: sc.fan, mult: mjFanMult(sc.fan), boom, rate: from == null ? 2 : 1.5, score };
+      if (from == null) g.seats.forEach((q, j) => { if (j !== i) mjPay(g, j, i, amt / (mjN(g) - 1), "自摸"); });
+      else mjPay(g, from, i, amt, "出冲");
     } else if (v === "sc") {
       const unit = b * Math.pow(2, sc.fan);
       if (from == null) g.seats.forEach((q, j) => { if (j !== i && !q.won) mjPay(g, j, i, unit, "自摸"); });
@@ -8095,7 +8239,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     // who deals next
     if (g.variant === "sc") { if (g.winners.length) g.dealer = g.winners[0]; }
     else if (g.winners.includes(g.dealer) || !g.winners.length) g.streak = (g.streak || 0) + 1;
-    else { g.streak = 0; g.dealer = (g.dealer + 1) % 4; g.moves = (g.moves || 0) + 1; g.round = Math.floor(g.moves / 4) % 4; }
+    else { g.streak = 0; g.dealer = (g.dealer + 1) % mjN(g); g.moves = (g.moves || 0) + 1; g.round = Math.floor(g.moves / mjN(g)) % mjN(g); }
     g.seats.forEach((p) => { if (!p.bot) p.ready = false; });
     SNDq(g, drawn && !g.winners.length ? "draw" : "end");
     g.push();
@@ -8108,7 +8252,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (g.step === "discard") { const i = g.turn, p = g.seats[i]; if (g.self && g.self.win && p.won) { mjSelfWin(g, i); return; } mjDiscard(g, i, mjBotDiscard(g, i)); }
   }
   /* ======================================================
-     麻将 — practice table (you + 3 AI) or an online room (2–4 people, AI fill the rest); the host's phone runs the game
+     麻将 — practice table (you + AI) or an online room (AI fill the empty seats; 三人快打 seats three); the host's phone runs the game
      ====================================================== */
   const MJ_PREFIX = "gbcmj-", MJ_BOTS = ["阿龙", "小凤", "老陈", "Lucky", "阿珍", "大飞"], MJ_WIND = ["东", "南", "西", "北"];
   const mj = { practice: false, g: null, st: null, timer: 0, applied: -1, sel: null, stAt: 0, chowPick: false };
@@ -8121,10 +8265,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   const mjOpen = () => !!(mjNet.peer || mj.practice);
   const mjBotSeat = (seat, used) => ({ id: "bot" + seat + "-" + rand(1e6), name: MJ_BOTS.filter((x) => !used.includes(x))[0] || "AI", bot: true, ready: true, total: 0 });
   function mjNewGame(opt, name) {
-    const g = { variant: opt.variant, base: opt.base, cap: opt.variant === "sc" ? 4 : 10, minFan: opt.variant === "hk" ? opt.minFan : 0,
+    const V = MJ_VARIANTS[opt.variant];
+    const g = { variant: opt.variant, base: opt.base, cap: opt.variant === "sc" ? 4 : 10, minFan: opt.variant === "hk" ? opt.minFan : V.minFan || 0,
       seats: [{ id: "host", name, bot: false, ready: false, total: 0 }], dealer: 0, round: 0, streak: 0, moves: 0, handNo: 0, phase: "wait", timed: !mj.practice, push: () => mjPush(), onSound: null };
-    for (let s = 1; s < 4; s++) g.seats.push(mjBotSeat(s, g.seats.map((p) => p.name)));
-    g.seats.forEach((p) => { p.hand = []; p.melds = []; p.flowers = []; p.discards = []; p.score = 0; });
+    for (let s = 1; s < (V.players || 4); s++) g.seats.push(mjBotSeat(s, g.seats.map((p) => p.name)));
+    g.seats.forEach((p) => { p.hand = []; p.melds = []; p.flowers = []; p.discards = []; p.score = 0; p.boom = 0; });
     mj.g = g; clearInterval(mj.timer); mj.timer = setInterval(() => { if (mj.g) mjTick(mj.g); }, 300);
     mjPush();
   }
@@ -8136,7 +8281,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       t: "mj", variant: g.variant, base: g.base, minFan: g.minFan, phase: g.phase, step: g.step, turn: g.turn, dealer: g.dealer, round: g.round, streak: g.streak, handNo: g.handNo,
       wall: g.wall ? Math.max(0, mjWallLeft(g)) : 0, left: g.deadline ? Math.max(0, Math.ceil((g.deadline - Date.now()) / 1000)) : 0, practice: mj.practice,
       last: g.last && g.step === "claim" ? g.last : g.last ? { from: g.last.from, t: g.last.t, gone: true } : null,
-      seats: g.seats.map((p, i) => ({ id: p.id, name: p.name, bot: p.bot, ready: p.ready, total: p.total || 0, score: p.score || 0, melds: p.melds, flowers: p.flowers, discards: p.discards, n: p.hand.length,
+      events: (g.events || []).slice(-8),
+      seats: g.seats.map((p, i) => ({ id: p.id, name: p.name, bot: p.bot, ready: p.ready, total: p.total || 0, score: p.score || 0, boom: p.boom || 0, tunfei: p.tunfei || 0, melds: p.melds, flowers: p.flowers, discards: p.discards, n: p.hand.length,
         hand: i === me || end ? p.hand : null, fresh: i === me ? p.fresh : null, won: p.won || null, que: queOpen || i === me ? p.que : p.que >= 0 ? -2 : -1 })),
       self: g.step === "discard" && g.turn === me && g.phase === "play" ? g.self : null,
       claim: c && c.opts[me] && !c.resp[me] ? { t: c.t, from: c.from, o: c.opts[me], rob: !!c.robKong } : null,
@@ -8193,6 +8339,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (m.t === "mj") {
       const prev = mj.st; mj.st = m; mj.stAt = Date.now();
       mjSounds(prev, m);
+      mjEvents(prev, m);
       if (m.phase === "end" && mj.applied !== m.handNo && m.result) {
         mj.applied = m.handNo;
         const me = mjMe(), amt = m.result.score[me] || 0;
@@ -8203,7 +8350,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     }
     else if (m.t === "say") { mjBubble(m.id, m.text); if (!m.id) chatAdd("mj", null, m.text); }
     else if (m.t === "chat") { chatAdd("mj", m, m.text); mjBubble(m.id, m.text.length > 14 ? m.text.slice(0, 13) + "…" : m.text); }
-    else if (m.t === "full") { mjEnd(); mjStatus('<span class="l">房间已满（4 人）</span>'); }
+    else if (m.t === "full") { mjEnd(); mjStatus('<span class="l">房间已满</span>'); }
     else if (m.t === "wait") mjStatus("这一局正在进行，下一局入座…");
   }
   // sounds from what changed on the table
@@ -8273,13 +8420,23 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       const ch = MJ_HONOR[t - 27], col = t === 31 ? MJ_C.r : t === 32 ? MJ_C.g : MJ_C.k;
       return mjText(30, 41, 44, col, t === 32 ? "發" : t === 27 ? "東" : ch);   // printed in traditional characters, as on real tiles
     }
-    const k = t - 34, col = k < 4 ? ["#c4261c", "#d4791a", "#b0861a", "#1d4fa0"][k] : ["#c0306a", "#7a3fb0", "#11804a", "#c98a12"][k - 4];
+    if (t === MJ_WILD) return '<rect x="5" y="6" width="50" height="68" rx="6" fill="#f6cf52"/><rect x="5" y="6" width="50" height="68" rx="6" fill="none" stroke="#d99a14" stroke-width="2"/><rect x="10" y="11" width="40" height="58" rx="3" fill="none" stroke="#c4261c" stroke-width="1.6"/>' +
+      mjText(30, 41, 40, "#c4261c", "飛") + '<path d="M14 63l6-5M46 63l-6-5M14 17l6 5M46 17l-6 5" stroke="#c4261c" stroke-width="2" stroke-linecap="round"/>';
+    const k = t - 34;
+    if (k >= 8 && k < 12) {   // 猫 鼠 鸡 蜈蚣: 猫+鼠, 鸡+蜈蚣 bite each other
+      const col = ["#8a5a2b", "#55606e", "#c4261c", "#11804a"][k - 8];
+      return mjText(30, 38, 34, col, ["貓", "鼠", "雞", "蜈"][k - 8]) + mjText(30, 66, 11, col, k < 10 ? "貓鼠" : "雞蜈", ' opacity=".7"') +
+        '<circle cx="11" cy="11" r="5" fill="none" stroke="' + col + '" stroke-width="1.6"/>';
+    }
+    if (k >= 12) { const col = ["#7a3fb0", "#1d4fa0", "#a8461a", "#c0306a"][k - 12];
+      return mjText(12, 12, 13, col, String((k % 4) + 1)) + mjText(30, 44, 34, col, ["琴", "棋", "書", "畫"][k - 12]) + '<path d="M10 68h40" stroke="' + col + '" stroke-width="2" opacity=".55"/>'; }
+    const col = k < 4 ? ["#c4261c", "#d4791a", "#b0861a", "#1d4fa0"][k] : ["#c0306a", "#7a3fb0", "#11804a", "#c98a12"][k - 4];
     return mjText(12, 12, 13, col, String((k % 4) + 1)) + mjText(30, 44, 34, col, k === 5 ? "蘭" : MJ_FLOWER[k]) +
       '<path d="M10 68c6-6 14-6 20 0 6-6 14-6 20 0" fill="none" stroke="' + col + '" stroke-width="2" opacity=".55"/>';
   }
   (function mjSprite() {
     const sym = [];
-    for (let t = 0; t < 42; t++) sym.push('<symbol id="mjf' + t + '" viewBox="0 0 60 80">' + mjFace(t) + "</symbol>");
+    for (let t = 0; t <= MJ_WILD; t++) sym.push('<symbol id="mjf' + t + '" viewBox="0 0 60 80">' + mjFace(t) + "</symbol>");
     document.body.insertAdjacentHTML("beforeend", '<svg width="0" height="0" style="position:absolute" aria-hidden="true">' + sym.join("") + "</svg>");
   })();
   const MJ_POS = ["e", "n", "w"];
@@ -8289,10 +8446,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function mjMeldHTML(m, cls) {
     const ts = m.k === "chow" ? [m.t, m.t + 1, m.t + 2] : m.k === "pung" ? [m.t, m.t, m.t] : [m.t, m.t, m.t, m.t];
-    return '<span class="mjm">' + ts.map((t, k) => (m.k === "ankong" && (k === 0 || k === 3) ? mjTile(null, cls) : mjTile(t, cls))).join("") + "</span>";
+    const w = (m.wild || []).slice();   // tiles a 飞 is standing in for
+    return '<span class="mjm">' + ts.map((t, k) => { if (m.k === "ankong" && (k === 0 || k === 3)) return mjTile(null, cls); const j = w.indexOf(t); if (j >= 0) { w.splice(j, 1); return mjTile(MJ_WILD, cls); } return mjTile(t, cls); }).join("") + "</span>";
   }
   const mjPts = (n) => (n > 0 ? '<span class="w">+' + compact(n) + "</span>" : n < 0 ? '<span class="l">-' + compact(-n) + "</span>" : "0");
-  const mjPosOf = (s) => { const me = Math.max(0, mjMe()); return s === me ? "s" : MJ_POS[(s - me + 3) % 4]; };
+  // me at the bottom; the next player to my right; three players leave the far side empty
+  const mjPosOf = (s) => { const me = Math.max(0, mjMe()), n = mj.st ? mj.st.seats.length : 4; return s === me ? "s" : n === 3 ? ["e", "w"][(s - me + 2) % 3] : MJ_POS[(s - me + 3) % 4]; };
+  const mjWindOf = (st, s) => MJ_WIND[(s - st.dealer + st.seats.length) % st.seats.length];
   // the felt is a square that fills the stage; tile sizes follow it
   function mjFit() {
     const st = $("#mjTable"), t = $("#mjTable .m3-table");
@@ -8314,12 +8474,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#mjTotal").innerHTML = mjPts(my.total);
     $("#mjHandNo").textContent = st.handNo;
     mjFit();
-    [me, (me + 1) % 4, (me + 2) % 4, (me + 3) % 4].forEach((s) => {
+    const N = st.seats.length;
+    $("#mjTable").classList.toggle("three", N === 3);
+    st.seats.forEach((_, s) => {
       const pos = mjPosOf(s);
       $('#mjTable .m3-zone[data-pos="' + pos + '"]').innerHTML = mjZoneHTML(st, s);
       $('#mjTable .s3-plate[data-pos="' + pos + '"]').innerHTML = mjPlateHTML(st, s);
       const w = $('#mjTable .m3-wind[data-pos="' + pos + '"]');
-      w.innerHTML = MJ_WIND[(s - st.dealer + 4) % 4] + (s === st.dealer ? "<sup>庄</sup>" : "");
+      w.innerHTML = mjWindOf(st, s) + (s === st.dealer ? "<sup>庄</sup>" : "");
       w.classList.toggle("turn", st.phase === "play" && st.turn === s && !st.claim);
     });
     mjCenter(st, me);
@@ -8338,17 +8500,19 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function mjPlateHTML(st, s) {
     const p = st.seats[s], end = st.phase === "end";
+    const boom = st.variant === "my3" && p.boom ? '<i class="mj-boom">爆' + p.boom + "</i>" : "";
     const status = p.won ? '<span class="w">已胡' + (p.won.self ? "·自摸" : "") + "</span>" : st.phase === "play" && st.turn === s && !st.claim ? "出牌中…" : st.waiting.includes(s) ? "考虑中…" : st.phase === "que" ? (p.que >= 0 || p.que === -2 ? "已定缺" : "定缺中…") : st.phase === "wait" || end ? (p.bot ? "AI" : p.ready ? "已准备" : "") : "";
     const que = p.que >= 0 && st.variant === "sc" ? '<i class="mj-que q' + p.que + '">' + MJ_SUIT[p.que] + "</i>" : "";
     const col = SS_AVA[[...String(p.name)].reduce((a, ch) => a + ch.charCodeAt(0), 0) % SS_AVA.length];
     const net = end && st.result ? '<i class="s3-net on">' + mjPts(st.result.score[s]) + "</i>" : '<i class="s3-net"></i>';
-    return '<div class="s3-pl' + (st.phase === "play" && st.turn === s && !st.claim ? " done" : "") + '" data-seat="' + s + '" data-id="' + esc(p.id) + '"><span class="s3-ava" style="--c:' + col + '">' + esc([...p.name][0] || "?") + '<i class="s3-wind">' + MJ_WIND[(s - st.dealer + 4) % 4] + '</i></span><span class="s3-nm"><b>' + esc(p.name) + (p.bot ? ' <small class="ai">AI</small>' : "") + que + "</b><small>" + (status ? status + " · " : "") + mjPts(p.total) + "</small></span>" + net + "</div>";
+    return '<div class="s3-pl' + (st.phase === "play" && st.turn === s && !st.claim ? " done" : "") + '" data-seat="' + s + '" data-id="' + esc(p.id) + '"><span class="s3-ava" style="--c:' + col + '">' + esc([...p.name][0] || "?") + '<i class="s3-wind">' + mjWindOf(st, s) + '</i></span><span class="s3-nm"><b>' + esc(p.name) + (p.bot ? ' <small class="ai">AI</small>' : "") + que + boom + "</b><small>" + (status ? status + " · " : "") + mjPts(p.total) + "</small></span>" + net + "</div>";
   }
   function mjCenter(st, me) {
     const my = st.seats[me];
     const left = st.left ? Math.max(0, st.left - Math.floor((Date.now() - mj.stAt) / 1000)) : 0;
     $("#mjWall").textContent = st.phase === "wait" ? "" : st.wall;
-    $("#mjRound").textContent = st.phase === "wait" ? "" : MJ_WIND[st.round || 0] + "风圈" + (st.streak && st.variant !== "sc" ? " · 连" + st.streak : "");
+    const booms = st.seats.reduce((a, p) => a + (p.boom || 0), 0);
+    $("#mjRound").textContent = st.phase === "wait" ? "" : MJ_WIND[st.round || 0] + "风圈" + (st.streak && st.variant !== "sc" ? " · 连" + st.streak : "") + (st.variant === "my3" && booms ? " · 爆×" + (1 + booms) : "");
     $("#mjClock").textContent = left || "";
     $("#mjClock").classList.toggle("soon", left > 0 && left <= 5);
     let txt = "";
@@ -8370,6 +8534,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     const r = st.result;
     if (st.phase !== "end" || !r) { $("#mjSettle").hidden = true; mj.settled = -1; return; }
     if (mj.settled === st.handNo) return;
+    // let the 胡！/ 自摸！ burst play before the panel covers the table
+    if (mj.settleHand !== st.handNo) {
+      mj.settleHand = st.handNo; mj.settleAt = Date.now() + (r.winners.length ? 1900 : 500);
+      setTimeout(() => { if (mj.st && mj.st.handNo === st.handNo) mjSettle(mj.st, Math.max(0, mjMe())); }, mj.settleAt - Date.now() + 20);
+    }
+    if (Date.now() < mj.settleAt) { $("#mjSettle").hidden = true; return; }
     mj.settled = st.handNo;
     const lines = [];
     if (r.drawn) lines.push("<li><span>流局</span><b></b></li>");
@@ -8377,6 +8547,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       if (!p.won) return;
       lines.push('<li class="win"><span>' + esc(p.name) + (p.won.self ? " 自摸" : " 胡 " + esc(st.seats[p.won.from].name) + " 的 " + mjName(p.won.t)) + "</span><b>" + p.won.fan + (st.variant === "tw" ? " 台" : " 番") + "</b></li>");
       p.won.items.forEach(([n, f]) => lines.push('<li class="sub"><span>' + esc(n) + "</span><b>" + (f || "") + "</b></li>"));
+      const k = p.won.calc;   // 三人快打: 番 × 番倍数 × 爆 × 1.5 / 2
+      if (k) lines.push('<li class="sub calc"><span>' + k.fan + "番 × " + k.mult + " × 爆" + k.boom + " × " + k.rate + "</span><b>" + compact(k.score) + " 分</b></li>");
     });
     // my payments, grouped
     const mine = {};
@@ -8436,6 +8608,28 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#mjBar").innerHTML = bar.join("");
     $("#mjBar").hidden = !bar.length;
   }
+  /* ---------- 碰！吃！杠！胡！ — a burst over the seat that made the call ---------- */
+  const MJ_EV = { pung: ["碰", "pung"], chow: ["吃", "chow"], kong: ["杠", "kong"], win: ["胡", "win"], tsumo: ["自摸", "win"],
+    bite: ["咬到", "flower"], hgang: ["花杠", "flower"], qifei: ["起飞", "fei"], tunfei: ["囤飞 +1番", "fei"] };
+  function mjEvents(prev, m) {
+    const evs = m.events || [], top = evs.length ? evs[evs.length - 1].id : 0;
+    if (!prev || mj.evSeen == null || top < mj.evSeen) { mj.evSeen = top; return; }   // just sat down: don't replay old calls
+    const fresh = evs.filter((e) => e.id > mj.evSeen).slice(-3);
+    mj.evSeen = top;
+    if (S.view !== "mj") return;
+    fresh.forEach((e, k) => setTimeout(() => mjBurst(m, e), k * 380));
+  }
+  function mjBurst(st, e) {
+    const d = MJ_EV[e.type]; if (!d) return;
+    const big = d[1] === "win", el = document.createElement("div");
+    el.className = "mj-burst " + d[1] + (big ? " big" : "");
+    el.dataset.pos = big ? "c" : mjPosOf(e.seat);
+    const who = st.seats[e.seat] ? st.seats[e.seat].name : "";
+    el.innerHTML = '<i class="mj-rays"></i><b>' + d[0] + "！</b>" + (e.t != null && e.type !== "tunfei" ? mjTile(e.t, "sm") : "") + (big ? "<small>" + esc(who) + "</small>" : "");
+    $("#mjTable").appendChild(el);
+    if (big) { const t = $("#mjTable .m3-table"); t.classList.remove("mj-shake"); void t.offsetWidth; t.classList.add("mj-shake"); SND.coins && SND.coins(3); }
+    setTimeout(() => el.remove(), big ? 2200 : 1400);
+  }
   function mjSelTile(st, me) {
     const my = st.seats[me], hand = my.hand || [], fresh = st.self && my.fresh != null ? my.fresh : null;
     if (mj.sel === 99) return fresh;
@@ -8476,7 +8670,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   }
   function mjEnd() {
     clearInterval(mj.timer); if (mj.g) mj.g.dead = true;
-    mj.g = null; mj.st = null; mj.practice = false; mj.applied = -1; mj.sel = null;
+    mj.g = null; mj.st = null; mj.practice = false; mj.applied = -1; mj.sel = null; mj.evSeen = null;
     mjNet.close(); chatClear("mj"); mjRender();
   }
   function mjLeave() {
