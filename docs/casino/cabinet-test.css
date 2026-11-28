@@ -590,3 +590,11 @@
   #v-room .notice { height: 20px; }
   .no-dealer-person #v-room .bac-pivot-back.btable { --cw: 28px; min-height: calc(var(--cw) * 1.4 + 44px); padding-block: 3px; }
 }
+
+/* online room: give the dealer more of the screen — a slimmer betting row, a tighter road and compact player chips */
+#v-room .bmain { height: clamp(50px, 8.6vh, 100px); }
+#v-room .road:not(.droad) { --rc: clamp(8px, 1.45vh, 15px); }
+#v-room .droad { --rc: clamp(5px, .8vh, 8px); }
+#v-room .rm-players { min-height: 26px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+#v-room .rmp { display: inline-flex; align-items: baseline; gap: 4px; padding: 2px 7px; white-space: nowrap; }
+#v-room .rmp b { font-size: 12px; } #v-room .rmp small { font-size: 10px; }
