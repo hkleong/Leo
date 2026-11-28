@@ -3977,10 +3977,12 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   // ?dealertest brings her back for a preview with the new keyed artwork (only table A has it so far)
   const DEALER_TEST = /[?&]dealertest\b/.test(location.search);
   const DEALER_PERSON = DEALER_TEST;
-  // new artwork: one still body cut from the green-screen video, plus her eyes for the blink (frame space 1056 × 798 = 352 × 266 × 3)
-  const DEALER_V3 = DEALER_TEST ? { A: { body: "art/dealers-v3/a-body.webp", blink: "art/dealers-v3/a-blink.webp", n: 11, eye: [405, 135, 151, 61], cut: 220,
-    // while cards go out she turns her head and looks down at them (head-turn video, card removed): 19 frames in, 1 held, 19 back
-    look: { src: "art/dealers-v3/a-look.webp", n: 39, cols: 8, hold: 19, at: [306, -7, 302, 327] } } } : {};
+  // new artwork (green-screen videos, keyed): a still body, her eyes for the blink, and deal / collect clips (25 frames each,
+  // drawn over the whole canvas). The canvas is 12% wider than the old portrait box so her reaching hands stay inside.
+  // Frame space 1183 × 798; hands are fractions of the canvas, the shoe a fraction of the old portrait box.
+  const DEALER_V3 = DEALER_TEST ? { A: { body: "art/dealers-v3/a-body.webp", blink: "art/dealers-v3/a-blink.webp", n: 12, eye: [478, 130, 156, 71], cut: 220,
+    clips: { deal: "art/dealers-v3/a-deal.webp", collect: "art/dealers-v3/a-collect.webp" }, clipN: 25, clipCols: 5, clipW: 789, clipH: 532,
+    hands: [[6, .795, .842], [11, .6, .85], [16, .42, .88]], shoe: [.83, .842] } } : {};
   if (!DEALER_PERSON) document.documentElement.classList.add("no-dealer-person");
   const DEALER_IDLE_COLUMNS = 8;
   const DEALER_IDLE_ROWS = 6;
@@ -4081,10 +4083,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       this.stop();
       this.stage.dataset.dealer = dealer;
       this.art = DEALER_ART[dealer];
-      this.hand = DEALER_HANDS[dealer];
-      const [, x, y] = this.hand[0];
-      this.portrait.parentElement.style.setProperty("--shoe-mouth-x", (x * 100) + "%");
-      this.portrait.parentElement.style.setProperty("--shoe-mouth-y", (y * 100) + "%");
+      const nv = DEALER_V3[dealer];
+      this.hand = nv && nv.hands ? nv.hands : DEALER_HANDS[dealer];
+      const [, x, y] = this.hand[0], [sx, sy] = nv && nv.shoe ? nv.shoe : [x, y];
+      this.portrait.parentElement.style.setProperty("--shoe-mouth-x", (sx * 100) + "%");
+      this.portrait.parentElement.style.setProperty("--shoe-mouth-y", (sy * 100) + "%");
       const name = { ROOM: "联机", DRAGON: "A 桌", TIGER: "B 桌" }[dealer] ?? dealer + " 桌";
       this.stage.querySelector(".bac-scene-kicker").textContent = DEALER_PERSON ? name + "荷官" : name;
       for (const action of ["deal", "collect"]) {
@@ -4109,14 +4112,16 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     }
     loadV3(v3) {
       this.idleContext?.clearRect(0, 0, this.layers.idle.width, this.layers.idle.height);
-      const body = new Image(), blink = new Image(), look = new Image(), set = this.idleImage = { v3, body, blink, look };
+      const body = new Image(), blink = new Image(), look = new Image(), clips = {}, set = this.idleImage = { v3, body, blink, look, clips };
       if (v3.look) look.src = v3.look.src;
+      for (const [a, src] of Object.entries(v3.clips || {})) { clips[a] = new Image(); clips[a].src = src; }
+      const cv = this.layers.idle; cv.style.left = "-6%"; cv.style.width = "112%";
       let n = 0; const done = () => { if (++n === 2 && this.idleImage === set) this.playIdle(); };
       body.onload = blink.onload = done; body.src = v3.body; blink.src = v3.blink;
     }
     // new artwork: she holds perfectly still and only her eyes move — a blink every 3–6 s, 11 frames at 24 fps
     playIdleV3() {
-      const canvas = this.layers.idle, { v3, body, blink, look } = this.idleImage, [ex, ey, ew, eh] = v3.eye, L = v3.look;
+      const canvas = this.layers.idle, { v3, body, blink, look, clips } = this.idleImage, [ex, ey, ew, eh] = v3.eye, L = v3.look;
       if (!body.naturalWidth || !blink.naturalWidth || this.idleRequest !== null) return;
       if (canvas.width !== body.naturalWidth) canvas.width = body.naturalWidth;
       if (canvas.height !== body.naturalHeight) canvas.height = body.naturalHeight;
@@ -4134,13 +4139,23 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
           }
         }
         if (li < 0 && now >= nextAt) { if (!start) start = now; f = Math.floor((now - start) * 24 / 1000); if (f >= v3.n) { f = -1; start = 0; nextAt = now + 3000 + rand(3000); } }
-        const key = li + "/" + f;
+        // deal / collect clip: 25 frames over one second, then back to the still
+        let ci = -1, clip = null;
+        if (this.v3Act) {
+          ci = Math.floor((now - this.v3Act.t0) * v3.clipN / DEALER_ACTION_MS);
+          clip = clips[this.v3Act.a];
+          if (ci >= v3.clipN || !clip || !clip.naturalWidth) { if (ci >= v3.clipN) this.v3Act = null; ci = -1; }
+          else f = -1;
+        }
+        const key = li + "/" + f + "/" + ci;
         if (key !== frame) {
           frame = key;
           const c = this.idleContext;
           c.clearRect(0, 0, canvas.width, canvas.height);
-          c.drawImage(body, 0, 0);
-          if (li >= 0) {
+          if (ci >= 0) c.drawImage(clip, (ci % v3.clipCols) * v3.clipW, Math.floor(ci / v3.clipCols) * v3.clipH, v3.clipW, v3.clipH, 0, 0, canvas.width, canvas.height);
+          else c.drawImage(body, 0, 0);
+          if (ci >= 0) {}
+          else if (li >= 0) {
             const [lx, ly, lw, lh] = L.at;
             c.clearRect(lx, Math.max(0, ly), lw, lh + Math.min(0, ly));
             c.drawImage(look, (li % L.cols) * lw, Math.floor(li / L.cols) * lh, lw, lh, lx, ly, lw, lh);
@@ -4214,7 +4229,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       return this.tableMotion;
     }
     setArtwork(action) {
-      if (DEALER_V3[this.stage.dataset.dealer]) action = "idle";   // no deal / collect video yet: she stays in her idle pose
+      const v3 = DEALER_V3[this.stage.dataset.dealer];
+      if (v3) { if (action !== "idle" && v3.clips && v3.clips[action]) this.v3Act = { a: action, t0: performance.now() }; action = "idle"; }   // clips play on the same canvas
       this.action = action;
       this.tableMotion?.cancel(); this.tableMotion = null;
       this.tableCut(action);
