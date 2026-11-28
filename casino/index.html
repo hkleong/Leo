@@ -3974,7 +3974,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   const DEALER_ACTION_MS = 1000;
   // The dealer herself is off until sharper artwork is ready: the table, shoe, boxes and card flights stay.
   // Set to true to bring her back (idle, deal and collect animations, and the cut-out in the table around her).
-  const DEALER_PERSON = false;
+  // ?dealertest brings her back for a preview with the new keyed artwork (only table A has it so far)
+  const DEALER_TEST = /[?&]dealertest\b/.test(location.search);
+  const DEALER_PERSON = DEALER_TEST;
+  // new artwork: one still body cut from the green-screen video, plus her eyes for the blink (frame space 1056 × 798 = 352 × 266 × 3)
+  const DEALER_V3 = DEALER_TEST ? { A: { body: "art/dealers-v3/a-body.webp", blink: "art/dealers-v3/a-blink.webp", n: 11, eye: [405, 135, 151, 61], cut: 220 } } : {};
   if (!DEALER_PERSON) document.documentElement.classList.add("no-dealer-person");
   const DEALER_IDLE_COLUMNS = 8;
   const DEALER_IDLE_ROWS = 6;
@@ -4088,7 +4092,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         image.src = source;
         image.decode?.().catch(() => {});
       }
-      this.loadIdleArtwork(this.art.idle);
+      const v3 = DEALER_V3[dealer];
+      if (v3) this.loadV3(v3); else this.loadIdleArtwork(this.art.idle);
       this.setArtwork("idle");
     }
     loadIdleArtwork(source) {
@@ -4100,8 +4105,36 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       };
       image.src = source;
     }
+    loadV3(v3) {
+      this.idleContext?.clearRect(0, 0, this.layers.idle.width, this.layers.idle.height);
+      const body = new Image(), blink = new Image(), set = this.idleImage = { v3, body, blink };
+      let n = 0; const done = () => { if (++n === 2 && this.idleImage === set) this.playIdle(); };
+      body.onload = blink.onload = done; body.src = v3.body; blink.src = v3.blink;
+    }
+    // new artwork: she holds perfectly still and only her eyes move — a blink every 3–6 s, 11 frames at 24 fps
+    playIdleV3() {
+      const canvas = this.layers.idle, { v3, body, blink } = this.idleImage, [ex, ey, ew, eh] = v3.eye;
+      if (!body.naturalWidth || !blink.naturalWidth || this.idleRequest !== null) return;
+      if (canvas.width !== body.naturalWidth) canvas.width = body.naturalWidth;
+      if (canvas.height !== body.naturalHeight) canvas.height = body.naturalHeight;
+      this.tableCut("idle");
+      let frame = -2, start = 0, nextAt = performance.now() + 2000 + rand(2500);
+      const paint = (now) => {
+        let f = -1;
+        if (now >= nextAt) { if (!start) start = now; f = Math.floor((now - start) * 24 / 1000); if (f >= v3.n) { f = -1; start = 0; nextAt = now + 3000 + rand(3000); } }
+        if (f !== frame) {
+          frame = f;
+          this.idleContext.clearRect(0, 0, canvas.width, canvas.height);
+          this.idleContext.drawImage(body, 0, 0);
+          if (f >= 0) this.idleContext.drawImage(blink, f * ew, 0, ew, eh, ex, ey, ew, eh);
+        }
+        if (!reduced) this.idleRequest = requestAnimationFrame(paint);
+      };
+      paint(performance.now());
+    }
     playIdle() {
       if (!DEALER_PERSON) return;
+      if (this.idleImage && this.idleImage.v3) { if (this.portrait === this.layers.idle) this.playIdleV3(); return; }
       const canvas = this.layers.idle;
       const image = this.idleImage;
       if (!this.idleContext || this.portrait !== canvas || this.idleRequest !== null) return;
@@ -4145,13 +4178,15 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     // the cut-out of the table follows the frame on show
     tableCut(action, frame) {
       const t = this.stage.querySelector(".bac-table i"), cuts = DEALER_CUT[this.stage.dataset.dealer];
+      const v3 = DEALER_V3[this.stage.dataset.dealer];
+      if (t && this.stage._table && v3) { t.style.clipPath = tablePath(this.stage, v3.cut); return; }
       if (!t || !this.stage._table || !cuts) return;
       action = action || this.action || "idle";
       if (frame == null) frame = action === "idle" ? (DEALER_IDLE[this.stage.dataset.dealer] || { rest: 0 }).rest : 0;
       t.style.clipPath = tablePath(this.stage, cuts[action][frame]);
     }
     tableAnim(action, frames, duration) {
-      if (!DEALER_PERSON) return null;
+      if (!DEALER_PERSON || DEALER_V3[this.stage.dataset.dealer]) return null;
       const t = this.stage.querySelector(".bac-table i"), cuts = DEALER_CUT[this.stage.dataset.dealer];
       if (!t || !t.animate || !this.stage._table || !cuts) return null;
       this.tableMotion?.cancel();
@@ -4161,6 +4196,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       return this.tableMotion;
     }
     setArtwork(action) {
+      if (DEALER_V3[this.stage.dataset.dealer]) action = "idle";   // no deal / collect video yet: she stays in her idle pose
       this.action = action;
       this.tableMotion?.cancel(); this.tableMotion = null;
       this.tableCut(action);
