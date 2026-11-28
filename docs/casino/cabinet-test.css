@@ -256,6 +256,7 @@
   --portrait-height: calc(var(--portrait-width) * 266 / 352);
   --table-edge: calc(var(--portrait-top) + var(--portrait-height) * .88);   /* where the dealer's hands rest */
   --table-far: calc(var(--portrait-top) + var(--portrait-height) * .64);    /* the far edge beside her, at elbow height */
+  --table-notch: calc(var(--portrait-top) + var(--portrait-height) * .88);  /* fallback only: the script sets the cut-out to each frame's waist line */
   --portrait-left: calc(48% - var(--portrait-width) / 2);
   --felt-tilt: 40deg;
   position: relative;
@@ -282,7 +283,7 @@
 .bac-table i {
   position: absolute;
   inset: 0;
-  --notch: calc(var(--table-edge) - var(--table-far));
+  --notch: calc(var(--table-notch) - var(--table-far));
   clip-path: polygon(0 0,
     calc(var(--portrait-left) + var(--portrait-width) * .1) 0,
     calc(var(--portrait-left) + var(--portrait-width) * .19) var(--notch),
