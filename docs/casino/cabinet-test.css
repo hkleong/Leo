@@ -251,9 +251,9 @@
    --scene-height is fitted by script to the room left on screen; everything below follows from it. */
 .bac-dealer-stage {
   --scene-height: 210px;
-  --portrait-width: min(calc(100vw - 44px), calc(var(--scene-height) * var(--portrait-scale, .78) * 424 / 321));
+  --portrait-width: min(calc(100vw - 44px), calc(var(--scene-height) * var(--portrait-scale, .78) * 352 / 266));
   --portrait-top: calc(var(--scene-height) * .02);
-  --portrait-height: calc(var(--portrait-width) * 321 / 424);
+  --portrait-height: calc(var(--portrait-width) * 266 / 352);
   --table-edge: calc(var(--portrait-top) + var(--portrait-height) * .88);   /* where the dealer's hands rest */
   --table-far: calc(var(--portrait-top) + var(--portrait-height) * .64);    /* the far edge beside her, at elbow height */
   --portrait-left: calc(48% - var(--portrait-width) / 2);
@@ -314,7 +314,7 @@
   top: var(--portrait-top);
   left: calc(48% - var(--portrait-width) / 2);
   width: var(--portrait-width);
-  aspect-ratio: 424 / 321;
+  aspect-ratio: 352 / 266;
   pointer-events: none;
 }
 .bac-dealer-portrait {
@@ -324,6 +324,7 @@
   background: var(--dealer-art) 0 0 / 600% 400% no-repeat;
   filter: drop-shadow(0 5px 8px #080c0c76);
 }
+.bac-dealer-portrait[data-scene="DealerIdle"] { background-size: 800% 600%; }
 .bac-dealer-stage .shoebox {
   position: absolute;
   z-index: 2;
@@ -485,6 +486,7 @@
     linear-gradient(147deg, #ffffff08, transparent 36%),
     radial-gradient(120% 76% at 50% 25%, #1c2931, #0e171c 81%);
 }
+.bac-pivot-back.btable.dt { --cw: inherit; }
 .bac-result-head {
   grid-column: 1 / -1;
   justify-self: center;
@@ -540,13 +542,13 @@
 }
 
 /* baccarat with the dealer on top: a tighter road and betting area so the page fits one screen */
-#v-baccarat .road:not(.droad), #v-room .road:not(.droad) { --rc: clamp(10px, 1.85vh, 18px); }
-#v-baccarat .droad, #v-room .droad { --rc: clamp(6px, .95vh, 9px); }
-#v-baccarat .bmain { height: clamp(54px, 9.6vh, 118px); }
-#v-baccarat .bsides .side, #v-room .bsides .side { min-height: clamp(28px, 4.6vh, 46px); }
-#v-baccarat .bsides .side .lab, #v-room .bsides .side .lab { line-height: 1.05; }
+:is(#v-baccarat, #v-room, #v-dt) .road:not(.droad) { --rc: clamp(10px, 1.85vh, 18px); }
+:is(#v-baccarat, #v-room, #v-dt) .droad { --rc: clamp(6px, .95vh, 9px); }
+:is(#v-baccarat, #v-dt) .bmain { height: clamp(54px, 9.6vh, 118px); }
+:is(#v-baccarat, #v-room, #v-dt) .bsides .side { min-height: clamp(28px, 4.6vh, 46px); }
+:is(#v-baccarat, #v-room, #v-dt) .bsides .side .lab { line-height: 1.05; }
 @media (max-height: 700px) {
-  #v-baccarat.game { gap: 3px !important; }
+  :is(#v-baccarat, #v-dt).game { gap: 3px !important; }
 }
 /* online room: the chat row keeps its height, and on short screens the players line up on one row */
 #v-room .rm-emo, #v-room .rm-top, #v-room .bac-round-state { flex: none; }
