@@ -567,3 +567,17 @@
 .bac-scene-info .cdring { position: static; transform: none; flex: none; width: 26px; height: 26px; font-size: 11px; }
 .bac-scene-info .bresult { position: static; left: auto; bottom: auto; transform: none; margin: 0; min-height: 0; max-width: 100%; padding: 4px 8px; border-radius: 8px; background: #0a0a08c8; font-size: 11px; line-height: 1.35; text-align: right; white-space: normal; }
 .bac-dealer-try { display: none; }
+/* dealer switched off (until the new video artwork): the dealer scene shrinks to a status line (countdown and
+   table state), the card panel sits on top and the road below it, side by side in the page, no flipping */
+.no-dealer-person .bac-dealer-stage { height: auto !important; min-height: 0; overflow: visible; background: none; border: 0; box-shadow: none; display: flex; justify-content: center; }
+.no-dealer-person .bac-dealer-stage > :not(.bac-scene-info) { display: none !important; }
+.no-dealer-person .bac-scene-info { position: static; max-width: 100%; align-items: center; gap: 7px; flex-direction: row-reverse; }
+.no-dealer-person .bac-scene-info .bresult { background: none; padding: 2px 4px; font-size: 13px; text-align: center; }
+.no-dealer-person .bac-pivot { perspective: none; }
+.no-dealer-person .bac-pivot-inner { transform: none !important; transition: none; gap: 5px; }
+.no-dealer-person .bac-pivot-face { grid-area: auto; backface-visibility: visible; }
+.no-dealer-person .bac-pivot-back.btable { transform: none; order: -1; }
+/* with the dealer off there is room to spare: bigger cards in the card panel and a roomier road */
+.no-dealer-person #v-baccarat .bac-pivot-back.btable, .no-dealer-person #v-dt .bac-pivot-back.btable { --cw: clamp(34px, 6.6vh, 64px); min-height: calc(var(--cw) * 1.4 + 58px); }
+.no-dealer-person #v-baccarat .road:not(.droad), .no-dealer-person #v-dt .road:not(.droad) { --rc: clamp(11px, 2.15vh, 20px); }
+.no-dealer-person #v-baccarat .droad, .no-dealer-person #v-dt .droad { --rc: clamp(6px, 1.1vh, 10px); }
