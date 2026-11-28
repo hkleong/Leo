@@ -2,7 +2,7 @@
 // Bump VERSION whenever index.html changes so installed copies pick up the update.
 const VERSION = "gbc-v1";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png",
-  "cabinet-test.css?v=0.24.2", "art/cabinets/NotoSerifSC-cabinet.otf", "art/baccarat-shoe.webp",
+  "cabinet-test.css?v=0.25.0", "art/cabinets/NotoSerifSC-cabinet.otf", "art/baccarat-shoe.webp",
   ...["a", "b", "c", "d", "dragon", "tiger"].flatMap(table => ["body", "blink", "deal", "collect"].map(part => "art/dealers-v3/" + table + "-" + part + ".webp"))];
 // The online dealer and slot artwork are fetched and cached when first opened.
 
@@ -18,6 +18,8 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(req.url);
   // music streams straight from the network (it is large and uses range requests)
   if (url.pathname.includes("/music/")) return;
+  // the clock check must reach the website itself
+  if (url.searchParams.has("clock")) return;
   // Pages: network first so updates arrive, cached copy when offline
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).then((r) => { const cp = r.clone(); caches.open(VERSION).then((c) => c.put("index.html", cp)); return r; })
