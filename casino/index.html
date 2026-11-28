@@ -3982,7 +3982,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   // Frame space 1183 × 798; hands are fractions of the canvas, the shoe a fraction of the old portrait box.
   const DEALER_V3 = DEALER_TEST ? { A: { body: "art/dealers-v3/a-body.webp", blink: "art/dealers-v3/a-blink.webp", n: 12, eye: [478, 130, 156, 71], cut: 220,
     clips: { deal: "art/dealers-v3/a-deal.webp", collect: "art/dealers-v3/a-collect.webp" }, clipN: 25, clipCols: 5, clipW: 789, clipH: 532,
-    hands: [[6, .795, .842], [11, .6, .85], [16, .42, .88]], shoe: [.83, .842] } } : {};
+    hands: [[6, .795, .842], [11, .6, .85], [16, .42, .88]], shoe: [.83, .842],
+    // collect: her left fingertips frame by frame (clip frame, x, y) — the cards jump to her hand and ride it off to the left
+    sweep: [[6, .46, .866], [7, .413, .877], [8, .346, .884], [9, .263, .884], [10, .18, .884], [11, .104, .877], [12, .052, .87], [13, .018, .863], [14, .008, .858]] } } : {};
   if (!DEALER_PERSON) document.documentElement.classList.add("no-dealer-person");
   const DEALER_IDLE_COLUMNS = 8;
   const DEALER_IDLE_ROWS = 6;
@@ -4363,7 +4365,23 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       const stage = this.stage.getBoundingClientRect();
       const body = this.portrait.getBoundingClientRect();
       const animations = [this.portrait.animate(dealerFrames, { duration: DEALER_ACTION_MS }), this.tableAnim("collect", [...Array(24).keys()], DEALER_ACTION_MS) || { cancel() {}, finished: Promise.resolve() }];
-      for (const [i, card] of cards.entries()) {
+      const v3 = DEALER_V3[this.stage.dataset.dealer];
+      if (v3 && v3.sweep) {
+        // the cards follow her hand: lifted into a stack under her fingertips as it lands, carried left with it, gone at the edge
+        const N = v3.clipN, last = v3.sweep[v3.sweep.length - 1][0];
+        for (const [i, card] of cards.entries()) {
+          const dest = card.getBoundingClientRect(), cx = dest.x + dest.width / 2, cy = dest.y + dest.height / 2;
+          const at = (x, y, angle, sc) => "translate(" + (body.x + body.width * x - cx + i * 1.2) + "px," + (body.y + body.height * y - cy - i * .8) + "px) rotate(" + angle + "deg) scale(" + sc + ")";
+          card.style.zIndex = cards.length - i;
+          animations.push(card.animate([
+            { transform: "none", offset: 0 },
+            { transform: "none", offset: 2 / N, easing: "ease-in" },
+            ...v3.sweep.map(([f, x, y], k) => ({ transform: at(x, y, -4 - k * 1.2, .72), offset: f / N, opacity: f >= last ? 0 : 1 })),
+            { transform: at(v3.sweep[v3.sweep.length - 1][1], v3.sweep[v3.sweep.length - 1][2], -14, .72), opacity: 0, offset: 1 },
+          ], { duration: DEALER_ACTION_MS, fill: "both" }));
+        }
+      }
+      for (const [i, card] of (v3 && v3.sweep ? [] : cards).entries()) {
         const dest = card.getBoundingClientRect();
         const cx = dest.x + dest.width / 2, cy = dest.y + dest.height / 2;
         const transform = (x, y, angle) =>
