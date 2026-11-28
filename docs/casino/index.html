@@ -1624,7 +1624,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 #v-lobby > .notice { margin-bottom: 8px; }
 @media (prefers-reduced-motion: reduce) { .notice-text { animation: none; transform: translate(0, -50%); } }
 </style>
-<link rel="stylesheet" href="cabinet-test.css?v=0.24.2">
+<link rel="stylesheet" href="cabinet-test.css?v=0.25.0">
 
 <header class="top">
   <div class="top-in">
@@ -2129,7 +2129,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <p class="note">纯娱乐模拟：所有筹码都是虚拟的，不涉及真实金钱。<span class="lh-x">规则按国际通行标准设置。</span></p>
     </div>
     <div class="lsec">
-      <h3>百家乐 <span class="note">4 桌 · 每 15 秒自动开局</span></h3>
+      <h3>百家乐 <span class="note">4 桌 · 全球同步 · 每局 25 秒</span></h3>
       <div class="btiles" id="lobbyBac"></div>
     </div>
     <div class="lsec">
@@ -2137,7 +2137,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       <button class="rtile" type="button" data-go="online"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="6"/><circle cx="33" cy="16" r="6"/><path d="M5 38c0-7 5-12 11-12s11 5 11 12M24 30c2-3 5-4 9-4 6 0 10 5 10 12"/></svg></span><span class="rt-txt"><b>联机房间</b><small>百家乐 · 德州扑克 · 十三张 · 麻将（玩家对玩家）· 练习桌（对 AI）</small></span><i aria-hidden="true">›</i></button>
     </div>
     <div class="lsec">
-      <h3>龙虎 <span class="note">2 桌 · 每 15 秒自动开局</span></h3>
+      <h3>龙虎 <span class="note">2 桌 · 全球同步 · 每局 20 秒</span></h3>
       <div class="btiles dtiles" id="lobbyDt"></div>
     </div>
     <div class="lsec">
@@ -2153,12 +2153,20 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <button class="gtile" type="button" id="lobbySlots"><span class="ico"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="30" height="34" rx="4"/><rect x="11" y="15" width="22" height="13" rx="2"/><path d="M18.3 15v13M25.7 15v13"/><path d="M13 19h3.5l-2.2 6M20.3 19h3.5l-2.2 6M27.6 19h3.5l-2.2 6" stroke-width="1.6"/><path d="M41 12v14M41 26h-4"/><circle cx="41" cy="10" r="2.6" fill="currentColor"/><path d="M13 34h18" /></svg></span><b>老虎机<span class="lh-x">系列</span></b><small>龙腾财宝 · 宝石瀑布 · 水果转轮 · 深海寻宝 · 雷神之锤 · 幸运 7</small></button>
       </div>
     </div>
-    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.24.3</b> · 更新记录</button></div>
+    <div class="lfoot"><button class="verbtn" type="button" data-rules="verSheet">俱乐部 <b>v0.25.0</b> · 更新记录</button></div>
   </section>
 
+  <div class="sheet" id="syncNote" hidden><div class="sheet-in sync-note" role="dialog" aria-label="全球同步牌桌">
+    <div class="sheet-head"><h3>🎉 全球同步牌桌上线</h3><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
+    <p class="sn-lead">从现在起，百家乐 A–D 桌与龙虎 A、B 桌全面同步！</p>
+    <p>无论你身在何处、用哪一台手机打开，看到的倒数、荷官发出的每一张牌、开出的结果和整条路单都一模一样——就像和所有玩家围坐在同一张真实牌桌前。</p>
+    <p>约上朋友一起看路、一起押注，见证同一把好牌吧！</p>
+    <ul class="sn-list"><li>牌桌全天运转：每局下注 15 秒，百家乐每靴 60 局、龙虎每靴 150 局，换靴洗牌 20 秒</li><li>下注与输赢依然各自记在自己的手机上</li></ul>
+    <button class="btn" type="button" data-close>马上入座</button>
+  </div></div>
   <div class="sheet" id="verSheet" hidden><div class="sheet-in" role="dialog" aria-label="更新记录">
     <div class="sheet-head"><h3>更新记录</h3><span class="note">大改版 +0.1.0 · 小版本 +0.0.1</span><button class="iconbtn" type="button" data-close aria-label="关闭">×</button></div>
-    <ol class="vlist"><li><b>v0.24.3</b><span>7 位荷官换上新版发牌动作：右手到牌靴取牌，把牌放到身前桌面再推进闲、庄（龙、虎）格子，牌跟着手走</span></li><li><b>v0.24.2</b><span>最后一局：荷官伸手从牌靴抽出黑色 LAST HAND 切牌卡，放在桌子左边，卡片平贴桌面，和闲、庄格子同一个角度（百家乐、龙虎、联机百家乐）</span></li><li><b>v0.24.1</b><span>荷官的腰和桌子贴合：桌面一直延伸到荷官身前，双手自然放在桌面上；联机百家乐的荷官画面放大（下注区、路单和玩家列更紧凑）</span></li><li><b>v0.24.0</b> <i class="vmaj">大改版</i><span>高清真人荷官回归：百家乐 A–D 桌、龙虎两桌和联机百家乐的 7 位荷官全部换成高清绿幕画面，待机眨眼，亲手从牌靴发牌、把牌推到闲庄格子，开牌后一扫收牌，牌跟着手走；身体不再抖动、闪烁或出白边</span></li><li><b>v0.23.0</b> <i class="vmaj">大改版</i><span>麻将新玩法「三人快打（飞）」：3 人、84 张（筒子、字牌、16 张花、4 张百搭飞），5 番起胡；飞可以代替碰、吃，摸到被代替的牌自动起飞，打出飞叫囤飞 +1 番；咬到、花杠、杠马上收钱并加爆，结算 = 番 × 番倍数 × 爆 × 1.5 / 2。所有麻将玩法加入碰、吃、杠、胡、自摸的大字动画</span></li><li><b>v0.22.11</b><span>大厅、百家乐、龙虎和联机百家乐上方加入滚动公告，按 × 可以关闭</span></li><li><b>v0.22.10</b><span>为了给大家更好的观感，真人荷官暂时下桌休息，全新高清版本已经在制作中，敬请期待！在此期间，百家乐、龙虎和联机百家乐会直接显示牌局画面，路单也一直摊开，开牌一目了然。</span></li><li><b>v0.22.9</b><span>荷官动画：清掉动画图的半透明杂点和浅色白边，不再闪烁；桌子凹口逐格贴着荷官的腰线，不再露出空隙或穿过桌面；待机时大多只眨眼，转头少很多</span></li><li><b>v0.22.8</b><span>修复荷官待机时露出相邻画面的问题。</span></li><li><b>v0.22.7</b><span>百家乐与龙虎荷官使用新版动画，龙虎采用同款荷官桌面、路单与牌局布局。</span></li><li><b>v0.22.6</b><span>修正：百家乐荷官动起来时闪烁和白边（清掉动画图里的半透明杂点和浅色描边；发牌、收牌两组动画预先载好，切换不再空白一下）</span></li><li><b>v0.22.5</b><span>百家乐：桌上的牌和闲、庄格子用同一个透视角度，牌平贴在格子里；小屏幕上牌也完整露出</span></li><li><b>v0.22.4</b><span>百家乐：去掉「试发一局」，倒数和牌局状态移到荷官画面右上角，删掉中间那一行让荷官画面更大；桌子凹口改成圆角</span></li><li><b>v0.22.3</b><span>百家乐牌桌改成发牌台形状：两侧桌面延伸到荷官身后，中间凹进去让荷官站在里面；闲、庄格子和牌都跟桌面同一个透视角度</span></li><li><b>v0.22.2</b><span>百家乐和联机百家乐：桌边、牌靴和闲庄牌区对齐荷官的双手，任何屏幕大小都不会错位；荷官画面按屏幕自动调整高度，整页一屏放得下；联机房的聊天列恢复显示</span></li><li><b>v0.22.1</b><span>修正：十三张结算后四家名牌旁的输赢不会消失；联机百家乐开完牌马上更新每个人的输赢</span></li><li><b>v0.22.0</b> <i class="vmaj">大改版</i><span>新游戏「麻将」：港式、四川血战到底、台湾十六张，可练习对 AI 或联机；十三张改成立体牌桌：推荐摆法、牌型快捷键、对调、开始比牌、打枪瞄准开枪、本局结算明细</span></li><li><b>v0.21.2</b><span>百家乐 A、B、C、D 桌及联机房新增五位荷官，发牌和收牌使用每秒 24 张画面，牌局与路单自动翻转。</span></li><li><b>v0.21.1</b><span>百家乐加入双手发牌和右侧牌靴，荷官桌面与牌局同步显示白色牌面。老虎机重绘机台，并更新吉祥物待机和奖励动画。</span></li><li><b>v0.21.0</b> <i class="vmaj">大改版</i><span>新游戏「十三张」：练习桌对 3 个 AI，或开房间和朋友联机（2–4 人，空位 AI 补上）；点选摆牌、自动摆牌、报到、逐道比牌、打枪、全垒打</span></li><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
+    <ol class="vlist"><li><b>v0.25.0</b> <i class="vmaj">大改版</i><span>全球同步牌桌：百家乐 A–D 桌和龙虎 A、B 桌所有玩家同步，看到同样的倒数、同样的牌、同样的结果和路单；牌桌按统一时钟全天运行（百家乐每局 25 秒、每靴 60 局，龙虎每局 20 秒、每靴 150 局），不再有暂停和手动洗牌</span></li><li><b>v0.24.3</b><span>7 位荷官换上新版发牌动作：右手到牌靴取牌，把牌放到身前桌面再推进闲、庄（龙、虎）格子，牌跟着手走</span></li><li><b>v0.24.2</b><span>最后一局：荷官伸手从牌靴抽出黑色 LAST HAND 切牌卡，放在桌子左边，卡片平贴桌面，和闲、庄格子同一个角度（百家乐、龙虎、联机百家乐）</span></li><li><b>v0.24.1</b><span>荷官的腰和桌子贴合：桌面一直延伸到荷官身前，双手自然放在桌面上；联机百家乐的荷官画面放大（下注区、路单和玩家列更紧凑）</span></li><li><b>v0.24.0</b> <i class="vmaj">大改版</i><span>高清真人荷官回归：百家乐 A–D 桌、龙虎两桌和联机百家乐的 7 位荷官全部换成高清绿幕画面，待机眨眼，亲手从牌靴发牌、把牌推到闲庄格子，开牌后一扫收牌，牌跟着手走；身体不再抖动、闪烁或出白边</span></li><li><b>v0.23.0</b> <i class="vmaj">大改版</i><span>麻将新玩法「三人快打（飞）」：3 人、84 张（筒子、字牌、16 张花、4 张百搭飞），5 番起胡；飞可以代替碰、吃，摸到被代替的牌自动起飞，打出飞叫囤飞 +1 番；咬到、花杠、杠马上收钱并加爆，结算 = 番 × 番倍数 × 爆 × 1.5 / 2。所有麻将玩法加入碰、吃、杠、胡、自摸的大字动画</span></li><li><b>v0.22.11</b><span>大厅、百家乐、龙虎和联机百家乐上方加入滚动公告，按 × 可以关闭</span></li><li><b>v0.22.10</b><span>为了给大家更好的观感，真人荷官暂时下桌休息，全新高清版本已经在制作中，敬请期待！在此期间，百家乐、龙虎和联机百家乐会直接显示牌局画面，路单也一直摊开，开牌一目了然。</span></li><li><b>v0.22.9</b><span>荷官动画：清掉动画图的半透明杂点和浅色白边，不再闪烁；桌子凹口逐格贴着荷官的腰线，不再露出空隙或穿过桌面；待机时大多只眨眼，转头少很多</span></li><li><b>v0.22.8</b><span>修复荷官待机时露出相邻画面的问题。</span></li><li><b>v0.22.7</b><span>百家乐与龙虎荷官使用新版动画，龙虎采用同款荷官桌面、路单与牌局布局。</span></li><li><b>v0.22.6</b><span>修正：百家乐荷官动起来时闪烁和白边（清掉动画图里的半透明杂点和浅色描边；发牌、收牌两组动画预先载好，切换不再空白一下）</span></li><li><b>v0.22.5</b><span>百家乐：桌上的牌和闲、庄格子用同一个透视角度，牌平贴在格子里；小屏幕上牌也完整露出</span></li><li><b>v0.22.4</b><span>百家乐：去掉「试发一局」，倒数和牌局状态移到荷官画面右上角，删掉中间那一行让荷官画面更大；桌子凹口改成圆角</span></li><li><b>v0.22.3</b><span>百家乐牌桌改成发牌台形状：两侧桌面延伸到荷官身后，中间凹进去让荷官站在里面；闲、庄格子和牌都跟桌面同一个透视角度</span></li><li><b>v0.22.2</b><span>百家乐和联机百家乐：桌边、牌靴和闲庄牌区对齐荷官的双手，任何屏幕大小都不会错位；荷官画面按屏幕自动调整高度，整页一屏放得下；联机房的聊天列恢复显示</span></li><li><b>v0.22.1</b><span>修正：十三张结算后四家名牌旁的输赢不会消失；联机百家乐开完牌马上更新每个人的输赢</span></li><li><b>v0.22.0</b> <i class="vmaj">大改版</i><span>新游戏「麻将」：港式、四川血战到底、台湾十六张，可练习对 AI 或联机；十三张改成立体牌桌：推荐摆法、牌型快捷键、对调、开始比牌、打枪瞄准开枪、本局结算明细</span></li><li><b>v0.21.2</b><span>百家乐 A、B、C、D 桌及联机房新增五位荷官，发牌和收牌使用每秒 24 张画面，牌局与路单自动翻转。</span></li><li><b>v0.21.1</b><span>百家乐加入双手发牌和右侧牌靴，荷官桌面与牌局同步显示白色牌面。老虎机重绘机台，并更新吉祥物待机和奖励动画。</span></li><li><b>v0.21.0</b> <i class="vmaj">大改版</i><span>新游戏「十三张」：练习桌对 3 个 AI，或开房间和朋友联机（2–4 人，空位 AI 补上）；点选摆牌、自动摆牌、报到、逐道比牌、打枪、全垒打</span></li><li><b>v0.20.2</b><span>百家乐、龙虎、联机百家乐：结果出来 1.5 秒后把牌收成一叠往左边滑走，然后才开始倒数；其他牌桌在下一局发牌前收牌</span></li><li><b>v0.20.1</b><span>联机百家乐加上大眼仔、小路、曱甴路、闲庄和局数，以及 P / B 问路</span></li><li><b>v0.20.0</b><span>老虎机：转轴停下有弹跳和闪光；差一个就进特殊奖励时最后几列放慢发光；大奖动画随金额升级（大奖→巨奖→超级巨奖→史诗大奖）并按机器换颜色；待机时转轴窗口有扫光，深海有鱼影游过，水果机飘起柠檬橙子片</span></li><li><b>v0.19.1</b><span>大奖画面的雷神和金龙去掉白边并一直循环动；雷神免费旋转时标题不再跟着移动</span></li><li><b>v0.19.0</b><span>每台老虎机有自己的中奖特效：金龙喷火球、宝石迸出碎光、水果溅出果汁、深海涟漪和气泡、幸运 7 霓虹烟花；大奖再加全屏特效</span></li><li><b>v0.18.9</b><span>所有老虎机标题改成印在机身上的金属渐层字，不再有方框</span></li><li><b>v0.18.8</b><span>金龙和雷神插画放大，贴在转轴边框上方；龙腾财宝四个头奖排成一行</span></li><li><b>v0.18.7</b><span>优化：龙腾财宝、雷神之锤自动放进一屏；待机动画缩小约 2/3，打开机台才下载；德州摊牌写出完整牌型与踢脚、亮出赢家的 5 张牌；整理重复程序</span></li><li><b>v0.18.6</b><span>雷神之锤：雷球被闪电劈中后才亮起并显示倍数</span></li><li><b>v0.18.5</b><span>金龙和雷神换上新版待机动画与 1.5 秒逐帧奖励动画。</span></li><li><b>v0.18.4</b><span>金龙和雷神改成待机动画，中奖时才播放特殊动画</span></li><li><b>v0.18.3</b><span>正面雷神逐帧挥锤，金龙与雷神加入特殊奖励动画。</span></li><li><b>v0.18.2</b><span>金龙与雷神移到转轴上方，恢复转轴尺寸，加入金龙蜿蜒吐焰与雷神挥锤动画。</span></li><li><b>v0.18.1</b><span>重绘「龙腾财宝」和「雷神之锤」机台，加入金龙游动、雷神守望和旋转特效。</span></li><li><b>v0.18.0</b> <i class="vmaj">大改版</i><span>新老虎机「雷神之锤」：6×5 任意位置中奖、连环消除、雷球倍数 ×500、免费旋转总倍数累积、买免费旋转、加注，闪电特效</span></li><li><b>v0.17.2</b><span>百家乐、龙虎、联机百家乐：牌靴快用完时宣布「最后一局」（动画提醒），那一局结束后才换牌靴</span></li><li><b>v0.17.1</b><span>背景音乐全部换成爵士乐（8 首）；可以从手机加入自己的歌曲</span></li><li><b>v0.17.0</b> <i class="vmaj">大改版</i><span>德州联机房：所有人按「准备」才开始；AI 荷官发牌动画（底牌一张张发到每个座位，公共牌飞到桌上翻开）</span></li><li><b>v0.16.4</b><span>老虎机的免费旋转和奖金转盘要玩家点「开始」才开始（自动旋转时 2 秒后自动开始）；修正水果转轮奖金转盘在手机上不转</span></li><li><b>v0.16.3</b><span>水果转轮奖金转盘、深海寻宝免费旋转更容易触发（回报率仍约 96%）</span></li><li><b>v0.16.2</b><span>修正：iPhone 上背景音乐音量调节无效</span></li><li><b>v0.16.1</b><span>联机房间和练习桌加上开始 / 暂停（房主控制）</span></li><li><b>v0.16.0</b> <i class="vmaj">大改版</i><span>背景音乐（5 首赌场酒廊爵士，可开关、选曲、调音量）；轮盘、老虎机、金币、宝石的真实音效</span></li><li><b>v0.15.1</b><span>牛牛：对子比点数大，都是对子就比对子大小</span></li><li><b>v0.15.0</b> <i class="vmaj">大改版</i><span>加入真实录音音效：筹码、发牌、放牌、洗牌、派彩筹码声（Kenney Casino Audio，CC0）</span></li><li><b>v0.14.9</b><span>音效重做：筹码、发牌、翻牌、倒数、转轮、中奖都更像真实的声音，加上房间回音</span></li><li><b>v0.14.8</b><span>大厅换牌靴时，动画结束后才显示烧了几张</span></li><li><b>v0.14.7</b><span>修正：联机百家乐房主画面的中奖框不会熄灭、路单比牌先出</span></li><li><b>v0.14.6</b><span>清理不再使用的旧样式和旧存档转换代码</span></li><li><b>v0.14.5</b><span>龙虎的下三路和问路也改成红 / 金</span></li><li><b>v0.14.4</b><span>修正：联机百家乐和大厅里的牌桌，要等牌发完才公布结果、路单和输赢</span></li><li><b>v0.14.3</b><span>龙虎改成龙红、虎金；和与同花和合成一个上下对半的青色圆</span></li><li><b>v0.14.2</b><span>龙虎加上问路（预测）按钮；龙虎点数直接显示 A、J、Q、K</span></li><li><b>v0.14.1</b><span>联机房间可以打字聊天，有未读提示</span></li><li><b>v0.14.0</b> <i class="vmaj">大改版</i><span>德州练习桌：一个人和 1–8 个 AI 对打；联机合并成一个入口，输入房间号自动认出游戏；左上角固定的金色「大厅」按钮</span></li><li><b>v0.13.0</b> <i class="vmaj">大改版</i><span>德州扑克联机房：玩家对玩家、AI 荷官发牌、最多 9 人、无限注、边池、抽水 5%；百家乐和龙虎换桌时桌号直接写在牌桌中间；修正离开联机房时筹码退两次</span></li><li><b>v0.12.0</b> <i class="vmaj">大改版</i><span>联机房间：开房间拿 6 位房间号，和朋友同桌玩百家乐，同一副牌、同一条路，看得到彼此的下注和输赢，可以发表情</span></li><li><b>v0.11.1</b><span>牛牛加入对子（组成牛点的两张是对子赔 2 倍）；大厅恢复完整排版，可以上下滑动</span></li><li><b>v0.11.0</b> <i class="vmaj">大改版</i><span>新老虎机「深海寻宝」：潜水员收集宝箱、升级倍数到 ×10；每台老虎机加上跑马灯、背景特效和中奖金币</span></li><li><b>v0.10.0</b> <i class="vmaj">大改版</i><span>新游戏：龙虎（2 桌）、牛牛、老虎机「水果转轮」；换牌靴动画约 20 秒；老虎机按钮显示当前机台图标，左右滑动只换机台</span></li><li><b>v0.9.3</b><span>主动洗牌时大厅也能看到洗牌、装靴、烧牌过程</span></li><li><b>v0.9.2</b><span>发牌中也可以换桌；大厅清楚显示烧牌张数</span></li><li><b>v0.9.1</b><span>百家乐和老虎机滑动时画面跟手切换；大厅显示换牌靴动画</span></li><li><b>v0.9.0</b> <i class="vmaj">大改版</i><span>新老虎机「宝石瀑布」：6×5 任意位置中奖、连环消除、倍数阶梯</span></li><li><b>v0.8.10</b><span>加上版本号与更新记录</span></li><li><b>v0.8.9</b><span>金币锁定重转更易出金币，转动更久</span></li><li><b>v0.8.8</b><span>金币锁定更常出现，金币金额调低</span></li><li><b>v0.8.7</b><span>GRAND、MAJOR 数字滚动；大厅选机弹窗</span></li><li><b>v0.8.6</b><span>龙腾财宝中奖率提高；选机弹窗</span></li><li><b>v0.8.5</b><span>金币锁定由玩家旋转，空格有转轮效果</span></li><li><b>v0.8.4</b><span>老虎机直接选每局金额</span></li><li><b>v0.8.3</b><span>老虎机合并为系列；大奖动画 20 秒</span></li><li><b>v0.8.2</b><span>老虎机符号重绘为写实风格</span></li><li><b>v0.8.1</b><span>老虎机加速；大奖动画</span></li><li><b>v0.8.0</b> <i class="vmaj">大改版</i><span>新老虎机「龙腾财宝」：243 路、金币锁定、四级头奖</span></li><li><b>v0.7.2</b><span>老虎机自动旋转</span></li><li><b>v0.7.1</b><span>去掉重置 10,000 按钮</span></li><li><b>v0.7.0</b> <i class="vmaj">大改版</i><span>新游戏：德州扑克、老虎机；滑动换桌；大厅图标</span></li><li><b>v0.6.2</b><span>离开牌桌也照常开局并提示结果</span></li><li><b>v0.6.1</b><span>改名「俱乐部」；换牌靴动画与烧牌</span></li><li><b>v0.6.0</b> <i class="vmaj">大改版</i><span>黑金配色与新图标</span></li><li><b>v0.5.2</b><span>每个游戏加「重复」下注</span></li><li><b>v0.5.1</b><span>+100 万余额按钮；10k、100k 筹码</span></li><li><b>v0.5.0</b> <i class="vmaj">大改版</i><span>所有游戏统一界面；百家乐 4 桌；新游戏三张牌</span></li><li><b>v0.4.4</b><span>修 iPhone 主屏幕底部被裁</span></li><li><b>v0.4.3</b><span>修 iPhone 主屏幕顶部被挡</span></li><li><b>v0.4.2</b><span>21点也从牌靴发牌；修主屏幕位置</span></li><li><b>v0.4.1</b><span>音效；发牌从牌靴飞出并翻牌；筹码居中</span></li><li><b>v0.4.0</b> <i class="vmaj">大改版</i><span>百家乐改成真人桌布局：下三路、问路、龙宝、完美对子</span></li><li><b>v0.3.1</b><span>百家乐改为 15 秒自动开局</span></li><li><b>v0.3.0</b> <i class="vmaj">大改版</i><span>做成可加到主屏幕的 App（离线可用）</span></li><li><b>v0.2.1</b><span>大厅显示路单、路单保存、洗牌按钮</span></li><li><b>v0.2.0</b> <i class="vmaj">大改版</i><span>重新布局：整个画面一屏不用滑动</span></li><li><b>v0.1.4</b><span>21点投降；路单移到上方；筹码栏固定底部</span></li><li><b>v0.1.3</b><span>下注处显示筹码叠；百家乐 30 秒自动开局</span></li><li><b>v0.1.2</b><span>轮盘加分注、街注、角注、线注；修竖屏比例</span></li><li><b>v0.1.1</b><span>百家乐不下注也可发牌，改为大路</span></li><li><b>v0.1.0</b> <i class="vmaj">大改版</i><span>首版：百家乐、21点、轮盘，虚拟筹码</span></li></ol>
     <p class="note" style="margin-top:10px">音乐与音效的作者和授权：点右上角 ♪ 查看。</p>
   </div></div>
 
@@ -2260,9 +2268,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>闲家对子 / 庄家对子：该方前两张点数牌面相同，11:1。任一对子：任一方成对，5:1。</li>
         <li>完美对子：任一方前两张为同花同点，25:1；两方都是，200:1。</li>
         <li>龙宝：所押一方以天牌赢 1:1，天牌和局退回；非天牌赢 9 点 30:1、8 点 10:1、7 点 6:1、6 点 4:1、5 点 2:1、4 点 1:1；赢 3 点及以下或输则输。</li>
-        <li>共 4 张桌（A–D），各自有 8 副牌的牌靴、路单和倒计时，每 15 秒自动开一局。在牌桌上左右滑动，或点底部的 A B C D，可以换桌。</li>
-        <li>剩余约 1/4 时（切牌卡出现）宣布「最后一局」，那一局结束后换新牌靴（约 20 秒）：洗牌、装入牌靴，然后烧牌——翻开第一张，按它的点数再烧掉相应张数（A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。换靴后路单清空。</li>
-        <li>离开牌桌（去大厅、别的桌或别的游戏）时，即使有下注也照常倒数开局，结果自动结算并在屏幕上方提示。路单和牌靴保存在本机。</li>
+        <li>共 4 张桌（A–D），各自有 8 副牌的牌靴、路单和倒计时。每局下注 15 秒，加上发牌、开牌、收牌共 25 秒。在牌桌上左右滑动，或点底部的 A B C D，可以换桌。</li>
+        <li>全球同步：所有玩家看到的是同一张桌子——同样的倒数、同样的牌、同样的结果和路单。牌桌全天运行，不能暂停或手动洗牌；下注和输赢记在自己的手机上。</li>
+        <li>每靴 60 局。第 60 局前切牌卡出现，宣布「最后一局」，那一局结束后换新牌靴（20 秒）：洗牌、装入牌靴，然后烧牌——翻开第一张，按它的点数再烧掉相应张数（A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。换靴后路单清空。</li>
+        <li>离开牌桌（去大厅、别的桌或别的游戏，或关掉 App）时，即使有下注也照常开局，结果自动结算并在屏幕上方提示。</li>
       </ul>
       <h4>大路</h4>
       <ul>
@@ -2722,8 +2731,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
         <li>龙、虎 1:1。开和局时，押龙或虎输一半，退回另一半。</li>
         <li>和 8:1。同花和：龙虎同点而且同花色，50:1。</li>
         <li>单双只看所押一方的牌：A、3、5、9、J、K 为单，2、4、6、8、10、Q 为双，1:1；开出 7 时单双都输。</li>
-        <li>共 2 张桌（A、B），各自有牌靴、路单和倒计时，每 15 秒自动开一局。左右滑动或点底部 A B 换桌。</li>
-        <li>剩余约 1/4 时宣布「最后一局」，那一局结束后换新牌靴（约 20 秒）：洗牌、装入牌靴、烧牌（翻开第一张，A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。</li>
+        <li>共 2 张桌（A、B），各自有牌靴、路单和倒计时。每局下注 15 秒，加上发牌、开牌、收牌共 20 秒。左右滑动或点底部 A B 换桌。</li>
+        <li>全球同步：所有玩家看到同样的倒数、同样的牌、同样的结果和路单；牌桌全天运行，不能暂停或手动洗牌。</li>
+        <li>每靴 150 局，最后一局前宣布「最后一局」，结束后换新牌靴（20 秒）：洗牌、装入牌靴、烧牌（翻开第一张，A 烧 1 张，2–9 按点数，10、J、Q、K 烧 10 张）。</li>
         <li>路单：红圈为龙赢，金圈为虎赢，绿色斜线为和；下三路的推算方法与百家乐相同。右边的「龙 / 虎」问路按钮（下三路：红 = 有规律、金 = 无规律）显示如果下一局开龙或开虎，三条下路会出什么颜色，点一下会在路单上闪烁预览。</li>
       </ul>
     </div></div>
@@ -3750,11 +3760,11 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
   const SUITS = ["♠", "♥", "♦", "♣"];
   class Shoe {
-    constructor(decks) { this.decks = decks; this.fill(); }
+    constructor(decks, rng) { this.decks = decks; this.rng = rng; this.fill(); }
     fill() {
       const c = [];
       for (let d = 0; d < this.decks; d++) for (const s of SUITS) for (const r of RANKS) c.push({ r, s });
-      for (let i = c.length - 1; i > 0; i--) { const j = rand(i + 1); [c[i], c[j]] = [c[j], c[i]]; }
+      for (let i = c.length - 1; i > 0; i--) { const j = this.rng ? Math.floor(this.rng() * (i + 1)) : rand(i + 1); [c[i], c[j]] = [c[j], c[i]]; }
       this.cards = c; this.cut = Math.floor(c.length * 0.25);
     }
     needsShuffle() { return this.cards.length < this.cut; }
@@ -3868,7 +3878,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     if (v === "roulette") drawWheel();
     if (v === "baccarat") {
       bacScene.select(bac.name);
-      if (bac.inDeal) drawInDeal(bac); else if (!bac.shuffling && !bacScene.collection) showLastHand();
+      if (bac.inDeal) drawInDeal(bac); else if (!bac.showing && !bacScene.collection) showLastHand();
       renderRoad(); bacRender();
     }
     if (v === "dt") { dtShowScene(); dtRoad(); dtRender(); }
@@ -3968,7 +3978,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   let dtTables = [], dt = null;            // Dragon Tiger tables (set up further down)
   const TABLE_NAMES = ["A", "B", "C", "D"];
   const tables = TABLE_NAMES.map((name, i) => ({
-    name, shoe: new Shoe(8), road: [], autoLeft: AUTO - i * 4, busy: false,
+    name, shoe: new Shoe(8), road: [], autoLeft: AUTO, busy: false, syncOff: i * 6000,
     bets: emptyBets(), hist: [], last: null, lastHand: null,
   }));
   let bac = tables[0];
@@ -4493,22 +4503,13 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       }
     }
   }
-  const validCards = (cs) => Array.isArray(cs) && cs.length >= tables[0].shoe.cut && cs.every((c) => c && RANKS.includes(c.r) && SUITS.includes(c.s));
-  const cleanRoad = (r) => (Array.isArray(r) ? r : []).filter((e) => e && ["P", "B", "T"].includes(e.w)).map((e) => ({ w: e.w, pp: !!e.pp, bp: !!e.bp }));
-  // Roads and shoes survive leaving the page
+  // the tables themselves come from the shared clock; only which table you sat at is kept
   try {
     const sv = JSON.parse(localStorage.getItem("gbc-bac4") || "null");
-    if (sv && Array.isArray(sv.tables)) {
-      sv.tables.forEach((t, i) => {
-        if (!tables[i] || !t) return;
-        if (validCards(t.cards)) { tables[i].shoe.cards = t.cards.map((c) => ({ r: c.r, s: c.s })); tables[i].road = cleanRoad(t.road); }
-      });
-      if (tables[sv.cur]) bac = tables[sv.cur];
-    }
+    if (sv && tables[sv.cur]) bac = tables[sv.cur];
   } catch (e) {}
-  tables.forEach((t) => { if (t.shoe.cards.length === 416) burn(t.shoe); });
   function bacSave() {
-    try { localStorage.setItem("gbc-bac4", JSON.stringify({ cur: tables.indexOf(bac), tables: tables.map((t) => ({ road: t.road, cards: t.shoe.cards })) })); } catch (e) {}
+    try { localStorage.setItem("gbc-bac4", JSON.stringify({ cur: tables.indexOf(bac) })); } catch (e) {}
   }
   const bv = (c) => (c.r === "A" ? 1 : ["10", "J", "Q", "K"].includes(c.r) ? 0 : +c.r);
   const bt = (h) => h.reduce((a, c) => a + bv(c), 0) % 10;
@@ -4524,6 +4525,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
 
   function bacRender() {
     $$("#v-baccarat .spot").forEach((s) => { setStake(s.querySelector(".stake"), bac.bets[s.dataset.bac]); s.disabled = bac.busy; });
+    $("#bacDeal").hidden = $("#bacShuffle").hidden = $("#bacAuto").hidden = true;   // shared tables run on their own
     const has = bacTotal() > 0;
     $("#bacDeal").disabled = bac.busy;
     $("#bacShuffle").disabled = bac.busy;
@@ -4532,10 +4534,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $("#bacRepeat").disabled = $("#bacRebet").disabled;
     $("#bacUndo").disabled = bac.busy || !bac.hist.length;
     $("#bacDouble").disabled = bac.busy || !has;
-    $("#bacShoe").textContent = bac.shoe.cards.length;
+    $("#bacShoe").textContent = bac.cardsLeft ?? "–";
     $("#bacBetTotal").textContent = fmt(bacTotal());
     $("#bacName").textContent = bac.name;
-    $$("#bacTables button").forEach((b) => { b.setAttribute("aria-pressed", String(tables[+b.dataset.t] === bac)); b.disabled = !!bac.shuffling && tables[+b.dataset.t] !== bac; });
+    $$("#bacTables button").forEach((b) => { b.setAttribute("aria-pressed", String(tables[+b.dataset.t] === bac)); b.disabled = !!bac.showing && tables[+b.dataset.t] !== bac; });
     renderAuto();
   }
   function clearWins() {
@@ -4556,14 +4558,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   // Swipe left / right on the table to move to the next / previous table
   {
     const top = () => ["#bacScene", "#bacPivot"].map((q) => $(q));
-    const can = () => !bac.shuffling; can.reason = () => "换牌靴中，稍后再换桌";
+    const can = () => !bac.showing; can.reason = () => "换牌靴中，稍后再换桌";
     dragSwitch($("#v-baccarat"), top, can, (d) => {
       useTable((tables.indexOf(bac) + d + tables.length) % tables.length);
       return top();
     });
   }
   function useTable(i) {
-    if (bac.shuffling || tables[i] === bac) return;
+    if (bac.showing || tables[i] === bac) return;
     bac = tables[i]; bacSave();
     bacScene.select(bac.name);
     if (bac.inDeal) drawInDeal(bac); else showLastHand();
@@ -4597,8 +4599,6 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     });
   }
   wireTableBets({ p: "bac", spots: "#v-baccarat .spot", attr: "bac", msg: "#bacMsg", keys: BAC_KEYS, empty: emptyBets, cur: () => bac, render: () => bacRender(), clearWins: () => clearWins() });
-  $("#bacDeal").addEventListener("click", () => bacDeal());
-  $("#bacShuffle").addEventListener("click", () => { if (!bac.busy) changeShoe(bac, true); });
 
   // Dragon Bonus multiplier (stake included): natural win 1:1, natural tie push, non-natural win by 9..4 pays 30..1
   function dragonMult(x, y, xNat, yNat) {
@@ -4654,16 +4654,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     tb.lastHand = { P, B, win, msg: text };
     if (total) tb.last = { ...tb.bets };
     tb.bets = emptyBets(); tb.hist = [];
-    tb.autoLeft = AUTO;
-    bacSave();
     return { win, mult, pay, total, text };
-  }
-  // Cut card: when a shoe runs low the next hand is announced as the last one, and the shoe is changed after it.
-  // Returns true when the hand just played was that last hand.
-  function shoeAfterHand(tb, game) {
-    if (tb.finalHand) { tb.finalHand = false; return true; }
-    if (tb.shoe.needsShuffle()) { tb.finalHand = true; announceLast(tb, game); }
-    return false;
   }
   function announceLast(tb, game) {
     const here = game === "bac" ? tb === bac && S.view === "baccarat" : tb === dt && S.view === "dt";
@@ -4717,26 +4708,8 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     return { first, n };
   }
   const SHUFFLE_SEC = 20;
-  // A new shoe: shuffle, load it into the shoe, burn. On screen this is a 20-second animation;
-  // a table nobody is watching just pauses for the same 20 seconds.
-  async function changeShoe(tb, animate) {
-    tb.shoe.fill(); tb.road = []; tb.lastHand = null;
-    const b = burn(tb.shoe);
-    tb.burnNote = "新牌靴 · 首张 " + b.first.s + b.first.r + " · 烧 " + b.n + " 张";
-    bacSave();
-    tb.shuffleEnd = performance.now() + SHUFFLE_SEC * 1000;
-    const onScreen = animate && tb === bac && S.view === "baccarat";
-    if (!onScreen) { tb.autoLeft = AUTO + SHUFFLE_SEC; if (tb === bac) { showLastHand(); renderRoad(); } if (S.view === "lobby") renderLobby(); return; }
-    tb.busy = true; tb.shuffling = true; bacRender();
-    showLastHand(); renderRoad();
-    msg($("#bacMsg"), "换牌靴");
-    await playShoeChange(b, $("#bacScene"), "#bacShoeBox");
-    tb.shuffling = false; tb.busy = false; tb.autoLeft = AUTO;
-    msg($("#bacMsg"), tb.burnNote);
-    bacRender();
-  }
   // About 20 s: four riffles (≈9 s), the shoe comes to the middle and is loaded (≈4.5 s), then the burn; the rest is a short hold.
-  async function playShoeChange(b, table, shoeSel) {
+  async function playShoeChange(b, table, shoeSel, endAt) {
     const t0 = performance.now(), shoe = $(shoeSel);
     const stage = document.createElement("div"); stage.className = "stage";
     stage.innerHTML = '<p class="st-msg">洗牌中</p><p class="st-sub"></p>';
@@ -4785,18 +4758,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       SND.deal(); dealFromShoe(c, shoeSel, { faceDown: true });
       await sleep(reduced ? 20 : 260);
     }
-    // hold until twenty seconds have passed, then clear the stage
-    await sleep(Math.max(500, SHUFFLE_SEC * 1000 - (performance.now() - t0)));
+    // hold until the shuffle time is over, then clear the stage
+    await sleep(Math.max(300, (endAt || t0 + SHUFFLE_SEC * 1000) - performance.now()));
     shoe.classList.remove("lift"); table.classList.remove("shuffling");
     stage.remove();
-  }
-  async function runDeal(tb, hand) {
-    const dealt = { P: [], B: [] };
-    tb.inDeal = dealt;
-    const watched = () => bac === tb && S.view === "baccarat";
-    if (watched()) drawInDeal(tb);
-    await dealDealerOrder(bacScene, hand.order, watched, dealt);
-    tb.inDeal = null;
   }
   function drawInDeal(tb) {
     if (bacScene.cardMotion) return;
@@ -4805,63 +4770,138 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     bacScene.paint(tb.inDeal.P, tb.inDeal.B);
     msg($("#bacMsg"), "停止下注 · 发牌中");
   }
-  // A table nobody is watching still deals at the same pace, so its result is not known early
-  async function bgDeal(tb) {
-    tb.busy = true; renderAuto();
-    const hand = drawHand(tb.shoe);
-    await runDeal(tb, hand);
-    const r = settleHand(tb, hand);
-    if (r.total) { toast("百家乐 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
-    if (tb === bac && S.view === "baccarat") { showLastHand(); renderRoad(); bacRender(); }
-    if (S.view === "lobby") renderLobby();
-    await clearAfterResult(tb, () => tb === bac && S.view === "baccarat", () => bacSweep(tb));
-    tb.busy = false;
-    if (shoeAfterHand(tb, "bac")) changeShoe(tb, false);
-    if (S.view === "lobby") renderLobby(); else renderAuto();
-  }
   async function bacSweep(tb) {
     await bacScene.sweep();
     if (bac === tb && S.view === "baccarat") showLastHand();
   }
-  // The table on screen deals card by card out of the shoe
-  async function bacDeal() {
-    const tb = bac;
-    if (tb.busy) return;
-    tb.busy = true; bacRender();
-    clearWins();
-    if (tb.shoe.cards.length < 12) { tb.busy = false; await changeShoe(tb, true); tb.busy = true; bacRender(); }
-    const hand = drawHand(tb.shoe);
-    const here = () => bac === tb && S.view === "baccarat";   // you may switch tables while it deals
-    if (here()) await sweepCards($("#bacP"), $("#bacB"));
-    await runDeal(tb, hand);
-    const r = settleHand(tb, hand);
-    if (!here()) {
-      if (r.total) { toast("百家乐 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
-      if (bac === tb) { showLastHand(); renderRoad(); }
-      bacRender(); if (S.view === "lobby") renderLobby();
-      await clearAfterResult(tb, here, () => bacSweep(tb));
-      tb.busy = false; bacRender();
-      if (shoeAfterHand(tb, "bac")) changeShoe(tb, false);
-      return;
+  /* ---------- Shared tables: every phone deals the same cards at the same moment ----------
+     A table's life is a fixed loop: a 20-second shoe change, then a fixed number of hands, each with a 15-second
+     countdown and a fixed slot for the deal, the result and the sweep. Where we are in the loop comes from the clock
+     (checked against the website's clock), and each shoe is shuffled from a seed made of the game, the table and the
+     shoe number — so every phone, anywhere, sees the same countdown, the same cards, the same results and road. */
+  const SYNC_T0 = Date.UTC(2026, 10, 28);
+  const SYNC = { bac: { hands: 60, bet: 15000, hand: 25000 }, dt: { hands: 150, bet: 15000, hand: 20000 } };
+  for (const c of Object.values(SYNC)) { c.shuffle = SHUFFLE_SEC * 1000; c.period = c.shuffle + c.hands * c.hand; }
+  const clock = { off: 0 };
+  const syncNow = () => Date.now() + clock.off;
+  // the website's clock (the Date header of a tiny request) corrects a phone whose clock is off
+  async function syncClock() {
+    try {
+      const t0 = Date.now(), r = await fetch("manifest.webmanifest?clock=" + t0, { cache: "no-store" }), t1 = Date.now();
+      const d = Date.parse(r.headers.get("date") || "");
+      if (!isNaN(d) && t1 - t0 < 4000) clock.off = d + 500 - (t0 + t1) / 2;   // the header has whole seconds
+    } catch (e) {}
+  }
+  syncClock();
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) syncClock(); });
+  const hashStr = (str) => { let h = 2166136261; for (const ch of str) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+  function seeded(a) {
+    return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  // where a table is now: its shoe number, and either the shoe change (left = ms to go) or hand k, s ms into it
+  function syncPos(game, tb, t) {
+    const c = SYNC[game], x = t - SYNC_T0 - tb.syncOff, no = Math.floor(x / c.period), w = x - no * c.period;
+    const start = t - w;
+    if (w < c.shuffle) return { no, start, shuffling: true, left: c.shuffle - w };
+    const k = Math.floor((w - c.shuffle) / c.hand);
+    return { no, start, k, s: w - c.shuffle - k * c.hand };
+  }
+  // a shoe from its seed: shuffled, burned, and every hand of it drawn in advance
+  function syncLoad(game, tb, no) {
+    const shoe = new Shoe(8, seeded(hashStr(game + "|" + tb.name + "|" + no))), b = burn(shoe), plan = [], left = [];
+    for (let k = 0; k < SYNC[game].hands; k++) { plan.push(game === "bac" ? drawHand(shoe) : { D: shoe.draw(), T: shoe.draw() }); left.push(shoe.cards.length); }
+    Object.assign(tb, { shoeNo: no, plan, left, done: 0, cardsLeft: 416 - 1 - b.n, burnInfo: b, road: [], lastHand: null, finalHand: false,
+      burnNote: "新牌靴 · 首张 " + b.first.s + b.first.r + " · 烧 " + b.n + " 张" });
+  }
+  const syncHere = (game, tb) => !document.hidden && (game === "bac" ? tb === bac && S.view === "baccarat" : tb === dt && S.view === "dt");
+  const dealOrder = (game, hand) => (game === "bac" ? hand.order : [["P", hand.D], ["B", hand.T]]);
+  // a hand that is over by the time we look (phone asleep, page just opened) is settled quietly
+  function syncQuiet(game, tb) {
+    const hand = tb.plan[tb.done];
+    const r = game === "bac" ? settleHand(tb, hand) : dtSettle(tb, hand);
+    tb.done++; tb.cardsLeft = tb.left[tb.done - 1];
+    if (tb.lastHand) tb.lastHand.swept = true;
+    if (r.total) { toast((game === "bac" ? "百家乐 " : "龙虎 ") + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
+  }
+  // a hand dealt on the clock; late = how far into its deal we already are (cards already out show at once)
+  async function syncPlay(game, tb, late) {
+    const bacG = game === "bac", scene = bacG ? bacScene : dtScene, hand = tb.plan[tb.done], order = dealOrder(game, hand);
+    const here = () => syncHere(game, tb), per = DEALER_ACTION_MS + BAC_REVEAL_MS, skip = Math.min(order.length, Math.floor(Math.max(0, late) / per));
+    tb.dealing = tb.busy = true;
+    if (bacG) { if (tb === bac) bacRender(); } else if (tb === dt) dtRender();
+    const dealt = { P: [], B: [] };
+    order.slice(0, skip).forEach(([side, c]) => dealt[side].push(c));
+    tb.inDeal = dealt;
+    if (here()) { if (bacG) { clearWins(); drawInDeal(tb); } else { dtClearWins(); dtDrawInDeal(tb); } }
+    await dealDealerOrder(scene, order.slice(skip), here, dealt);
+    tb.inDeal = null;
+    const r = bacG ? settleHand(tb, hand) : dtSettle(tb, hand);
+    tb.done++; tb.cardsLeft = tb.left[tb.done - 1];
+    if (here()) {
+      const sel = bacG ? "#v-baccarat .spot" : "#v-dt .spot", A = bacG ? ["player", "banker"] : ["dragon", "tiger"];
+      $$(sel).forEach((sp) => { const k = sp.dataset[bacG ? "bac" : "dt"]; if (A.includes(k) ? r.win === k : r.mult[k] > 1) sp.classList.add("win"); });
+      if (r.win !== A[1]) $(bacG ? "#bacPSide" : "#dtDSide").classList.add("won");
+      if (r.win !== A[0]) $(bacG ? "#bacBSide" : "#dtTSide").classList.add("won");
+      msg($(bacG ? "#bacMsg" : "#dtMsg"), r.text);
+      scene.setOpen(false);
+      if (r.total && r.pay > r.total) SND.win();
+    } else if (r.total) { toast((bacG ? "百家乐 " : "龙虎 ") + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
+    if (bacG) { if (tb === bac) { if (!here()) showLastHand(); renderRoad(); bacRender(); } } else if (tb === dt) { if (!here()) dtShowLast(); dtRoad(); dtRender(); }
+    if (S.view === "lobby") renderLobby();
+    if (tb.done === SYNC[game].hands - 1) { tb.finalHand = true; announceLast(tb, game); }
+    await clearAfterResult(tb, here, () => (bacG ? bacSweep(tb) : dtSweep(tb)));
+    tb.dealing = tb.busy = false;
+    if (bacG) { if (tb === bac) bacRender(); } else if (tb === dt) dtRender();
+    if (S.view === "lobby") renderLobby(); else renderAuto();
+  }
+  // a new shoe on the table you are watching: the 20-second shoe change, kept in step with the clock
+  async function syncShuffle(game, tb, left) {
+    const bacG = game === "bac";
+    if (bacG) { if (tb === bac) { showLastHand(); renderRoad(); bacRender(); } } else if (tb === dt) { dtShowLast(); dtRoad(); dtRender(); }
+    if (S.view === "lobby") renderLobby();
+    if (!syncHere(game, tb) || reduced || left < 18000 || tb.showing) return;
+    tb.showing = true;
+    msg($(bacG ? "#bacMsg" : "#dtMsg"), "换牌靴");
+    if (bacG) bacRender(); else dtRender();
+    await playShoeChange(tb.burnInfo, $(bacG ? "#bacScene" : "#dtScene"), bacG ? "#bacShoeBox" : "#dtShoeBox", performance.now() + left);
+    tb.showing = false;
+    msg($(bacG ? "#bacMsg" : "#dtMsg"), tb.burnNote);
+    if (bacG) bacRender(); else dtRender();
+  }
+  function syncTable(game, tb) {
+    const c = SYNC[game], t = syncNow(), p = syncPos(game, tb, t);
+    if (tb.shoeNo !== p.no) {
+      if (tb.dealing) return;                       // a deal still on screen finishes first
+      const first = tb.shoeNo == null;
+      syncLoad(game, tb, p.no);
+      tb.shuffleEnd = performance.now() + (p.shuffling ? p.left : 0);
+      if (p.shuffling && !first) syncShuffle(game, tb, p.left);
     }
-    $$("#v-baccarat .spot").forEach((s) => {
-      const k = s.dataset.bac;
-      if (k === "player" || k === "banker" ? r.win === k : r.mult[k] > 1) s.classList.add("win");
-    });
-    if (r.win !== "banker") $("#bacPSide").classList.add("won");
-    if (r.win !== "player") $("#bacBSide").classList.add("won");
-    msg($("#bacMsg"), r.text);
-    bacScene.setOpen(false);
-    if (r.total && r.pay > r.total && S.view === "baccarat") SND.win();
-    renderRoad(); bacRender();
-    await clearAfterResult(tb, here, () => bacSweep(tb));
-    tb.busy = false; bacRender();
-    if (shoeAfterHand(tb, "bac")) { tb.busy = true; bacRender(); await sleep(reduced ? 50 : 800); tb.busy = false; await changeShoe(tb, bac === tb && S.view === "baccarat"); }
+    tb.shuffling = !!p.shuffling;
+    if (!tb.dealing) tb.busy = tb.shuffling || !!tb.showing;
+    if (!p.shuffling && !tb.dealing) {
+      const due = p.k + (p.s >= c.bet ? 1 : 0);    // hands whose deal has begun
+      while (tb.done < due - 1) syncQuiet(game, tb);
+      if (tb.done === due - 1) {
+        const late = (p.k - tb.done) * c.hand + p.s - c.bet, n = dealOrder(game, tb.plan[tb.done]).length;
+        if (late > n * (DEALER_ACTION_MS + BAC_REVEAL_MS) + CLEAR_MS) {
+          syncQuiet(game, tb);
+          if (game === "bac") { if (tb === bac) { showLastHand(); renderRoad(); bacRender(); } } else if (tb === dt) { dtShowLast(); dtRoad(); dtRender(); }
+        } else syncPlay(game, tb, late);
+      }
+    }
+    tb.finalHand = tb.done >= c.hands - 1;
+    // seconds to the next deal
+    const next = p.shuffling ? p.start + c.shuffle + c.bet : tb.done >= c.hands ? p.start + c.period + c.shuffle + c.bet : p.start + c.shuffle + tb.done * c.hand + c.bet;
+    tb.autoLeft = Math.max(0, Math.ceil((next - t) / 1000));
+  }
+  function syncAll() {
+    tables.forEach((tb) => { const was = tb.autoLeft; syncTable("bac", tb); if (tb === bac && S.view === "baccarat" && !tb.busy && tb.autoLeft !== was && tb.autoLeft > 0 && tb.autoLeft <= 3) SND.tick(); });
+    dtTables.forEach((tb) => { const was = tb.autoLeft; syncTable("dt", tb); if (tb === dt && S.view === "dt" && !tb.busy && tb.autoLeft !== was && tb.autoLeft > 0 && tb.autoLeft <= 3) SND.tick(); });
   }
 
-  // Auto-deal: every table deals every 15 s; a table where you have chips waits until you are looking at it
-  let autoOn = true;
-  // tables keep their own time even when you have chips on them and are somewhere else
+  // countdowns on the tables and in the lobby
+  const autoOn = true;
   const hasBets = (tb) => sumBets(tb.bets) > 0;
   function renderAuto() {
     const cd = $("#bacCd");
@@ -4885,46 +4925,27 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   function lobbyLive(tb, cdId, shId) {
     const el = document.getElementById(cdId);
     if (!el) return;
-    const changing = tb.shuffling || tb.autoLeft > AUTO;
-    el.textContent = !autoOn ? "已暂停" : changing ? "换牌靴中" : (tb.finalHand ? "最后一局 · " : "") + (tb.busy ? "开牌中" : (hasBets(tb) ? "有下注 · " : "") + tb.autoLeft + " 秒");
+    const changing = !!tb.shuffling;
+    el.textContent = changing ? "换牌靴中" : (tb.finalHand ? "最后一局 · " : "") + (tb.dealing ? "开牌中" : (hasBets(tb) ? "有下注 · " : "") + tb.autoLeft + " 秒");
     el.classList.toggle("last", !!tb.finalHand && !changing);
-    el.classList.toggle("soon", autoOn && !tb.busy && tb.autoLeft <= 3);
+    el.classList.toggle("soon", !tb.dealing && !changing && tb.autoLeft <= 3);
     const sh = document.getElementById(shId);
     if (!sh) return;
     if (sh.hidden !== !changing && !changing && S.view === "lobby") setTimeout(renderLobby, 0);
     sh.hidden = !changing;
     if (changing) {
-      const left = tb.shuffleEnd ? Math.max(0, (tb.shuffleEnd - performance.now()) / 1000) : tb.autoLeft - AUTO, stage = left > 11 ? 0 : left > 6.5 ? 1 : 2;
+      const left = Math.max(0, (tb.shuffleEnd - performance.now()) / 1000), stage = left > 11 ? 0 : left > 6.5 ? 1 : 2;
       sh.dataset.stage = stage;
       sh.querySelector("b").textContent = ["洗牌中", "装入牌靴", "烧牌"][stage];
       sh.querySelector("small").textContent = stage === 0 ? "新牌靴 8 副牌" : stage === 2 ? "翻开首张，按点数烧牌" : "";   // the count shows only after the change
     }
   }
-  function toggleAuto() {
-    autoOn = !autoOn;
-    ["#bacAuto", "#dtAuto"].forEach((q) => $(q).setAttribute("aria-pressed", String(autoOn)));
-    tables.concat(dtTables).forEach((t) => { if (!t.shuffling && t.autoLeft <= AUTO) t.autoLeft = AUTO; });
-    renderAuto();
-  }
-  $("#bacAuto").addEventListener("click", toggleAuto);
+  let syncSec = -1;
   setInterval(() => {
-    if (!autoOn || document.hidden) return;
-    for (const tb of tables) {
-      if (tb.busy) continue;
-      const here = S.view === "baccarat" && tb === bac;
-      tb.autoLeft--;
-      if (here && tb.autoLeft > 0 && tb.autoLeft <= 3) SND.tick();
-      if (tb.autoLeft <= 0) { if (here) bacDeal(); else bgDeal(tb); }
-    }
-    for (const tb of dtTables) {
-      if (tb.busy) continue;
-      const here = S.view === "dt" && tb === dt;
-      tb.autoLeft--;
-      if (here && tb.autoLeft > 0 && tb.autoLeft <= 3) SND.tick();
-      if (tb.autoLeft <= 0) { if (here) dtDeal(); else dtBg(tb); }
-    }
-    renderAuto();
-  }, 1000);
+    syncAll();
+    const sec = Math.floor(syncNow() / 1000);
+    if (sec !== syncSec) { syncSec = sec; renderAuto(); }
+  }, 250);
 
   /* ---------- Roads ---------- */
   // Place a sequence on a 6-row grid: same symbol goes down, a new symbol starts a new column,
@@ -5025,7 +5046,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       '<span class="road-scroll mini" id="lrs' + i + '"><span class="road" id="lr' + i + '"></span></span>' +
       '<span class="bt-stats" id="lst' + i + '"></span>' +
       '<span class="bt-shuf" id="lsh' + i + '" hidden><span class="bs-cards"><i></i><i></i><i></i><i></i></span><b>洗牌中</b><small></small></span>';
-    b.addEventListener("click", () => { if (!bac.shuffling) { bac = tables[i]; bacSave(); if (!bac.busy) showLastHand(); } go("baccarat"); });
+    b.addEventListener("click", () => { if (!bac.showing) { bac = tables[i]; bacSave(); bacScene.select(bac.name); if (bac.inDeal) drawInDeal(bac); else showLastHand(); renderRoad(); } go("baccarat"); });
     $("#lobbyBac").appendChild(b);
   });
   function renderLobby() {
@@ -5033,21 +5054,19 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       drawGrid($("#lr" + i), $("#lrs" + i), place(bigEntries(tb.road), sameW), bigHTML, 8);
       const c = counts(tb.road);
       // until the first hand of a new shoe, the tile shows what was burned
-      $("#lst" + i).innerHTML = tb.shuffling || tb.autoLeft > AUTO ? '<i class="burn">换牌靴中…</i>' : !tb.road.length && tb.burnNote
+      $("#lst" + i).innerHTML = tb.shuffling ? '<i class="burn">换牌靴中…</i>' : !tb.road.length && tb.burnNote
         ? '<i class="burn">' + tb.burnNote.replace("新牌靴 · ", "新牌靴 · ").replace(" · 烧 ", " · 烧 <b>").replace(" 张", "</b> 张") + "</i>"
         : '<i class="P">闲 ' + c.P + '</i><i class="B">庄 ' + c.B + '</i><i class="T">和 ' + c.T + "</i><i>#" + (tb.road.length + 1) + "</i>";
     });
     dtTables.forEach((tb, i) => {
       drawGrid($("#ldr" + i), $("#ldrs" + i), place(bigEntries(tb.road), sameW), bigHTML, 8);
       const c = counts(tb.road);
-      $("#ldst" + i).innerHTML = tb.shuffling || tb.autoLeft > AUTO ? '<i class="burn">换牌靴中…</i>' : !tb.road.length && tb.burnNote
+      $("#ldst" + i).innerHTML = tb.shuffling ? '<i class="burn">换牌靴中…</i>' : !tb.road.length && tb.burnNote
         ? '<i class="burn">' + tb.burnNote.replace(" · 烧 ", " · 烧 <b>").replace(" 张", "</b> 张") + "</i>"
         : '<i class="B">龙 ' + c.B + '</i><i class="P">虎 ' + c.P + '</i><i class="T">和 ' + c.T + "</i><i>#" + (tb.road.length + 1) + "</i>";
     });
     renderAuto();
   }
-  showLastHand();
-  bacRender();
   let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { if (S.view === "baccarat") renderRoad(); if (S.view === "dt") dtRoad(); if (S.view === "room") rmRoads(); if (S.view === "lobby") renderLobby(); }, 150); });
 
   /* ======================================================
@@ -5055,17 +5074,10 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
      ====================================================== */
   const DT_KEYS = ["dragon", "tiger", "tie", "suited", "dodd", "deven", "todd", "teven"];
   const dtEmpty = () => Object.fromEntries(DT_KEYS.map((k) => [k, 0]));
-  dtTables = ["A", "B"].map((name, i) => ({ name, shoe: new Shoe(8), road: [], autoLeft: AUTO - 2 - i * 7, busy: false, bets: dtEmpty(), hist: [], last: null, lastHand: null }));
+  dtTables = ["A", "B"].map((name, i) => ({ name, road: [], autoLeft: AUTO, busy: false, bets: dtEmpty(), hist: [], last: null, lastHand: null, syncOff: 3000 + i * 9000 }));
   dt = dtTables[0];
-  try {
-    const sv = JSON.parse(localStorage.getItem("gbc-dt") || "null");
-    if (sv && Array.isArray(sv.tables)) {
-      sv.tables.forEach((t, i) => { if (dtTables[i] && t && validCards(t.cards)) { dtTables[i].shoe.cards = t.cards.map((c) => ({ r: c.r, s: c.s })); dtTables[i].road = cleanRoad(t.road); } });
-      if (dtTables[sv.cur]) dt = dtTables[sv.cur];
-    }
-  } catch (e) {}
-  dtTables.forEach((t) => { if (t.shoe.cards.length === 416) burn(t.shoe); });
-  function dtSave() { try { localStorage.setItem("gbc-dt", JSON.stringify({ cur: dtTables.indexOf(dt), tables: dtTables.map((t) => ({ road: t.road, cards: t.shoe.cards })) })); } catch (e) {} }
+  try { const sv = JSON.parse(localStorage.getItem("gbc-dt") || "null"); if (sv && dtTables[sv.cur]) dt = dtTables[sv.cur]; } catch (e) {}
+  function dtSave() { try { localStorage.setItem("gbc-dt", JSON.stringify({ cur: dtTables.indexOf(dt) })); } catch (e) {} }
   const dtv = (c) => ({ A: 1, J: 11, Q: 12, K: 13 }[c.r] || +c.r);
   const dtTotal = () => sumBets(dt.bets);
   dtTables.forEach((t, i) => {
@@ -5078,21 +5090,22 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     $$("#v-dt .spot").forEach((s) => { setStake(s.querySelector(".stake"), dt.bets[s.dataset.dt]); s.disabled = dt.busy; });
     const has = dtTotal() > 0;
     $("#dtDeal").disabled = dt.busy; $("#dtShuffle").disabled = dt.busy;
+    $("#dtDeal").hidden = $("#dtShuffle").hidden = $("#dtAuto").hidden = true;   // shared tables run on their own
     $("#dtClear").disabled = dt.busy || !has;
     $("#dtRebet").disabled = dt.busy || !dt.last; $("#dtRepeat").disabled = $("#dtRebet").disabled;
     $("#dtUndo").disabled = dt.busy || !dt.hist.length;
     $("#dtDouble").disabled = dt.busy || !has;
-    $("#dtShoe").textContent = dt.shoe.cards.length;
+    $("#dtShoe").textContent = dt.cardsLeft ?? "–";
     $("#dtBetTotal").textContent = fmt(dtTotal());
     $("#dtName").textContent = dt.name;
-    $$("#dtTables button").forEach((b) => { b.setAttribute("aria-pressed", String(dtTables[+b.dataset.t] === dt)); b.disabled = !!dt.shuffling && dtTables[+b.dataset.t] !== dt; });
+    $$("#dtTables button").forEach((b) => { b.setAttribute("aria-pressed", String(dtTables[+b.dataset.t] === dt)); b.disabled = !!dt.showing && dtTables[+b.dataset.t] !== dt; });
     renderAuto();
   }
   function dtClearWins() { $$("#v-dt .spot").forEach((x) => x.classList.remove("win")); $("#dtDSide").classList.remove("won"); $("#dtTSide").classList.remove("won"); }
   function dtShowScene() {
     dtScene.select(dt.name === "A" ? "DRAGON" : "TIGER");
     if (dt.inDeal) dtDrawInDeal(dt);
-    else if (!dt.shuffling && !dtScene.collection) dtShowLast();
+    else if (!dt.showing && !dtScene.collection) dtShowLast();
   }
   function dtShowLast() {
     dtClearWins();
@@ -5127,19 +5140,16 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
   let dtAskTimer;
   for (const w of ["B", "P"]) $("#dtAsk" + w).addEventListener("click", () => { clearTimeout(dtAskTimer); dtRoad(w); dtAskTimer = setTimeout(() => dtRoad(), 2500); });
   function dtUse(i) {
-    if (dt.shuffling || dtTables[i] === dt) return;
+    if (dt.showing || dtTables[i] === dt) return;
     dt = dtTables[i]; dtSave();
     dtShowScene(); dtRoad(); dtRender();
   }
   {
     const top = () => ["#dtScene", "#dtPivot"].map((q) => $(q));
-    const can = () => !dt.shuffling; can.reason = () => "换牌靴中，稍后再换桌";
+    const can = () => !dt.showing; can.reason = () => "换牌靴中，稍后再换桌";
     dragSwitch($("#v-dt"), top, can, (d) => { dtUse((dtTables.indexOf(dt) + d + dtTables.length) % dtTables.length); return top(); });
   }
   wireTableBets({ p: "dt", spots: "#v-dt .spot", attr: "dt", msg: "#dtMsg", keys: DT_KEYS, empty: dtEmpty, cur: () => dt, render: () => dtRender(), clearWins: () => dtClearWins() });
-  $("#dtDeal").addEventListener("click", () => dtDeal());
-  $("#dtShuffle").addEventListener("click", () => { if (!dt.busy) dtChangeShoe(dt, true); });
-  $("#dtAuto").addEventListener("click", toggleAuto);
   function dtSettle(tb, hand) {
     const d = dtv(hand.D), t = dtv(hand.T);
     const win = d > t ? "dragon" : t > d ? "tiger" : "tie";
@@ -5161,25 +5171,7 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     tb.lastHand = { D: hand.D, T: hand.T, win, msg: text };
     if (total) tb.last = { ...tb.bets };
     tb.bets = dtEmpty(); tb.hist = [];
-    tb.autoLeft = AUTO;
-    dtSave();
     return { win, mult, pay, total, text };
-  }
-  async function dtChangeShoe(tb, animate) {
-    tb.shoe.fill(); tb.road = []; tb.lastHand = null;
-    const b = burn(tb.shoe);
-    tb.burnNote = "新牌靴 · 首张 " + b.first.s + b.first.r + " · 烧 " + b.n + " 张";
-    dtSave();
-    tb.shuffleEnd = performance.now() + SHUFFLE_SEC * 1000;
-    const onScreen = animate && tb === dt && S.view === "dt";
-    if (!onScreen) { tb.autoLeft = AUTO + SHUFFLE_SEC; if (tb === dt) { dtShowLast(); dtRoad(); } if (S.view === "lobby") renderLobby(); return; }
-    tb.busy = true; tb.shuffling = true; dtRender();
-    dtShowLast(); dtRoad();
-    msg($("#dtMsg"), "换牌靴");
-    await playShoeChange(b, $("#dtScene"), "#dtShoeBox");
-    tb.shuffling = false; tb.busy = false; tb.autoLeft = AUTO;
-    msg($("#dtMsg"), tb.burnNote);
-    dtRender();
   }
   function dtDrawInDeal(tb) {
     if (dtScene.cardMotion) return;
@@ -5188,58 +5180,9 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
     dtScene.paint(tb.inDeal.P, tb.inDeal.B);
     msg($("#dtMsg"), "停止下注 · 发牌中");
   }
-  async function dtDealCards(tb, hand, here) {
-    tb.inDeal = { P: [], B: [] };
-    if (here()) dtDrawInDeal(tb);
-    await dealDealerOrder(dtScene, [["P", hand.D], ["B", hand.T]], here, tb.inDeal);
-    tb.inDeal = null;
-  }
   async function dtSweep(tb) {
     await dtScene.sweep();
     if (tb === dt && S.view === "dt") dtShowLast();
-  }
-  async function dtBg(tb) {
-    tb.busy = true; renderAuto();
-    const hand = { D: tb.shoe.draw(), T: tb.shoe.draw() };
-    await dtDealCards(tb, hand, () => tb === dt && S.view === "dt");
-    const r = dtSettle(tb, hand);
-    if (r.total) { toast("龙虎 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
-    if (tb === dt && S.view === "dt") { dtShowLast(); dtRoad(); dtRender(); }
-    if (S.view === "lobby") renderLobby();
-    await clearAfterResult(tb, () => tb === dt && S.view === "dt", () => dtSweep(tb));
-    tb.busy = false;
-    if (shoeAfterHand(tb, "dt")) dtChangeShoe(tb, false);
-    if (S.view === "lobby") renderLobby(); else renderAuto();
-  }
-  async function dtDeal() {
-    const tb = dt;
-    if (tb.busy) return;
-    tb.busy = true; dtRender(); dtClearWins();
-    if (tb.shoe.cards.length < 6) { tb.busy = false; await dtChangeShoe(tb, true); tb.busy = true; dtRender(); }
-    const hand = { D: tb.shoe.draw(), T: tb.shoe.draw() };
-    const here = () => dt === tb && S.view === "dt";
-    if (here()) await sweepCards($("#dtD"), $("#dtT"));
-    await dtDealCards(tb, hand, here);
-    const r = dtSettle(tb, hand);
-    if (!here()) {
-      if (r.total) { toast("龙虎 " + tb.name + " 桌 · " + r.text); if (r.pay > r.total) SND.win(); }
-      if (dt === tb) { dtShowLast(); dtRoad(); }
-      dtRender(); if (S.view === "lobby") renderLobby();
-      await clearAfterResult(tb, here, () => dtSweep(tb));
-      tb.busy = false; dtRender();
-      if (shoeAfterHand(tb, "dt")) dtChangeShoe(tb, false);
-      return;
-    }
-    $$("#v-dt .spot").forEach((s) => { const k = s.dataset.dt; if (k === "dragon" || k === "tiger" ? r.win === k : r.mult[k] > 1) s.classList.add("win"); });
-    if (r.win !== "tiger") $("#dtDSide").classList.add("won");
-    if (r.win !== "dragon") $("#dtTSide").classList.add("won");
-    msg($("#dtMsg"), r.text);
-    dtScene.setOpen(false);
-    if (r.total && r.pay > r.total) SND.win();
-    dtRoad(); dtRender();
-    await clearAfterResult(tb, here, () => dtSweep(tb));
-    tb.busy = false; dtRender();
-    if (shoeAfterHand(tb, "dt")) { tb.busy = true; dtRender(); await sleep(reduced ? 50 : 800); tb.busy = false; await dtChangeShoe(tb, dt === tb && S.view === "dt"); }
   }
   // lobby tiles
   dtTables.forEach((tb, i) => {
@@ -5249,9 +5192,14 @@ html.ios-app .toasts { top: calc(env(safe-area-inset-top, 0px) + 86px); }
       '<span class="road-scroll mini" id="ldrs' + i + '"><span class="road" id="ldr' + i + '"></span></span>' +
       '<span class="bt-stats" id="ldst' + i + '"></span>' +
       '<span class="bt-shuf" id="ldsh' + i + '" hidden><span class="bs-cards"><i></i><i></i><i></i><i></i></span><b>洗牌中</b><small></small></span>';
-    b.addEventListener("click", () => { if (!dt.shuffling) { dt = dtTables[i]; dtSave(); } go("dt"); });
+    b.addEventListener("click", () => { if (!dt.showing) { dt = dtTables[i]; dtSave(); dtShowScene(); dtRoad(); } go("dt"); });
     $("#lobbyDt").appendChild(b);
   });
+  // every table finds its place on the shared clock before anything is drawn
+  syncAll();
+  // tell everyone once that the tables are now shared
+  try { if (!localStorage.getItem("gbc-sync-note")) { localStorage.setItem("gbc-sync-note", "1"); setTimeout(() => { $("#syncNote").hidden = false; }, 900); } } catch (e) {}
+  showLastHand(); bacRender();
   dtShowLast(); dtRender();
 
   /* ======================================================
