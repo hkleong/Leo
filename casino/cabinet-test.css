@@ -598,3 +598,12 @@
 #v-room .rm-players { min-height: 26px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
 #v-room .rmp { display: inline-flex; align-items: baseline; gap: 4px; padding: 2px 7px; white-space: nowrap; }
 #v-room .rmp b { font-size: 12px; } #v-room .rmp small { font-size: 10px; }
+
+/* 最后一局: the cut card lies on the left of the table, on the same tilted plane as the 闲 / 庄 boxes (pivot set by script) */
+.bac-dealer-stage .cutcard {
+  --cut-w: clamp(17px, min(6.5vw, calc(var(--scene-height) * .135)), 31px);
+  left: 3.5%; top: calc(var(--table-edge) + 4px); z-index: 4;
+  width: calc(var(--cut-w) * 1.05); height: calc(var(--cut-w) * 1.05 * 88 / 63); border-radius: 4px; border-width: 1.5px;
+  transform: perspective(340px) rotateX(var(--felt-tilt)); gap: 0;
+}
+.bac-dealer-stage .cutcard span { font-size: calc(var(--cut-w) * .24); letter-spacing: .02em; line-height: 1.1; }
